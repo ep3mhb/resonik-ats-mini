@@ -7,8 +7,8 @@ profiles:
     libraries:
       - PU2CLR SI4735 (2.1.8)
       - TFT_eSPI (2.5.43)
-      - Async TCP (3.4.0)
-      - ESP Async WebServer (3.7.7)
+      - Async TCP (3.4.4)
+      - ESP Async WebServer (3.7.8)
       - NTPClient (3.2.1)
       - NimBLE-Arduino (2.3.0)
       - NuS-NimBLE-Serial (4.1.0)
