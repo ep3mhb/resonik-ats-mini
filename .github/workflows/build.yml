@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - 'ats-mini/**'
+      - 'changelog/**'
+      - 'CHANGELOG.md'
       - '.github/workflows/build.yml'
       - '.pre-commit-config.yaml'
   push:
@@ -15,6 +17,8 @@ on:
     #   - main
     paths:
       - 'ats-mini/**'
+      - 'changelog/**'
+      - 'CHANGELOG.md'
       - '.github/workflows/build.yml'
       - '.pre-commit-config.yaml'
   workflow_dispatch:

@@ -6,13 +6,16 @@ on:
       - main
     paths:
       - 'docs/**'
+      - 'changelog/**'
       - 'CHANGELOG.md'
+      - 'CONTRIBUTING.md'
       - '.github/workflows/docs.yml'
   push:
     branches:
       - main
     paths:
       - 'docs/**'
+      - 'changelog/**'
       - 'CHANGELOG.md'
       - 'CONTRIBUTING.md'
       - '.github/workflows/docs.yml'
