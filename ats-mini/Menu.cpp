@@ -82,7 +82,7 @@ Band *getCurrentBand() { return(&bands[bandIdx]); }
 #define MENU_AVC          9
 #define MENU_SOFTMUTE    10
 #define MENU_SETTINGS    11
-#define MENU_SCAN   	 12
+#define MENU_SCAN        12
 
 int8_t menuIdx = MENU_VOLUME;
 
@@ -100,7 +100,7 @@ static const char *menu[] =
   "AVC",
   "SoftMute",
   "Settings",
-  "Scan",
+//  "Scan",
 };
 
 //
@@ -119,9 +119,9 @@ static const char *menu[] =
 #define MENU_SLEEP        9
 #define MENU_SLEEPMODE    10
 #define MENU_LOADEIBI     11
-#define MENU_BLEMODE      12
-#define MENU_WIFIMODE     13
-#define MENU_ABOUT        14
+#define MENU_BLEMODE      14
+#define MENU_WIFIMODE     12
+#define MENU_ABOUT        13
 
 
 int8_t settingsIdx = MENU_BRIGHTNESS;
@@ -140,7 +140,7 @@ static const char *settings[] =
   "Sleep",
   "Sleep Mode",
   "Load EiBi",
-  "Bluetooth",
+//  "Bluetooth",
   "Wi-Fi",
   "About",
 };
