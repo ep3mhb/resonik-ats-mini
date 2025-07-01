@@ -15,7 +15,7 @@ The user manual is available at <https://esp32-si4732.github.io/ats-mini/manual.
 
 ### Changed
 
-- Much better seek sensitivity (SI4735 library patch by @zooc). [#129](https://github.com/esp32-si4732/ats-mini/issues/129)
+- Much better seek sensitivity (SI4735 library patch by @zhang-chong). [#129](https://github.com/esp32-si4732/ats-mini/issues/129)
 
 
 ### Fixed
