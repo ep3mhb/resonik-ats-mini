@@ -48,7 +48,7 @@ jobs:
 
       - name: Compile the unreleased changelog
         run: |
-          uv run towncrier build --keep --version Unreleased
+          ls changelog/*.md && uv run towncrier build --keep --version Unreleased
 
       - name: Build the docs
         run: |
