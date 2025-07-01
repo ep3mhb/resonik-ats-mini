@@ -48,7 +48,8 @@ jobs:
 
       - name: Compile the unreleased changelog
         run: |
-          ls changelog/*.md && uv run towncrier build --keep --version Unreleased
+          # shellcheck disable=SC2015
+          ls changelog/*.md && uv run towncrier build --keep --version Unreleased || true
 
       - name: Build the docs
         run: |
