@@ -16,7 +16,7 @@ The user manual is available at <https://esp32-si4732.github.io/ats-mini/manual.
 ### Changed
 
 - Much better seek sensitivity (SI4735 library patch by @zhang-chong). [#129](https://github.com/esp32-si4732/ats-mini/issues/129)
-
+- 200kHz FM step now uses odd frequencies (99.1, 99.3, etc). [#161](https://github.com/esp32-si4732/ats-mini/issues/161)
 
 ### Fixed
 
