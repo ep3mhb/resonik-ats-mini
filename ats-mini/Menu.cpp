@@ -429,7 +429,7 @@ static int getLastBandwidth(int mode)
 
 static void setBandwidth()
 {
-  uint8_t idx = getCurrentBandwidth()->idx;
+  uint8_t idx = bwIdx[currentMode] = bands[bandIdx].bandwidthIdx;
 
   switch(currentMode)
   {
