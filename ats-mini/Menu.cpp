@@ -313,13 +313,7 @@ static const Step amSteps[] =
 };
 
 static const Step *steps[4] = { fmSteps, ssbSteps, ssbSteps, amSteps };
-static uint8_t stepIdx[4] = { 2, 5, 5, 1 };
-
-const Step *getCurrentStep(bool fast)
-{
-  uint8_t idx = stepIdx[currentMode];
-  return(&steps[currentMode][fast && isSSB()? ssbFastSteps[idx]:idx]);
-}
+static const uint8_t defaultStepIdx[4] = { 2, 5, 5, 1 };
 
 static int getLastStep(int mode)
 {
@@ -332,6 +326,12 @@ static int getLastStep(int mode)
   }
 
   return(0);
+}
+
+const Step *getCurrentStep(bool fast)
+{
+  uint8_t idx = bands[bandIdx].currentStepIdx > getLastStep(currentMode) ? defaultStepIdx[currentMode] : bands[bandIdx].currentStepIdx;
+  return(&steps[currentMode][fast && isSSB()? ssbFastSteps[idx]:idx]);
 }
 
 static uint8_t freqInputPos = 0;
@@ -626,18 +626,21 @@ bool tuneToMemory(const Memory *memory)
 {
   // Must have frequency
   if(!memory->freq) return(false);
+
   // Must have valid band index
   if(memory->band>=getTotalBands()) return(false);
+
   // Band must contain frequency and modulation
   if(!isMemoryInBand(&bands[memory->band], memory)) return(false);
+
   // Must differ from the current band, frequency and modulation
   if(memory->band==bandIdx &&
      memory->freq==bands[bandIdx].currentFreq &&
      memory->mode==bands[bandIdx].bandMode)
     return(true);
+
   // Save current band settings
   bands[bandIdx].currentFreq    = currentFrequency + currentBFO / 1000;
-  bands[bandIdx].currentStepIdx = stepIdx[currentMode];
 
   // Load frequency and modulation from memory slot
   bands[memory->band].currentFreq = memory->freq;
@@ -673,10 +676,10 @@ static void clickMemory(uint8_t idx, bool shortPress)
 
 void doStep(int dir)
 {
-  uint8_t idx = stepIdx[currentMode];
+  uint8_t idx = bands[bandIdx].currentStepIdx;
 
   idx = wrap_range(idx, dir, 0, getLastStep(currentMode));
-  bands[bandIdx].currentStepIdx = stepIdx[currentMode] = idx;
+  bands[bandIdx].currentStepIdx = idx;
 
   rx.setFrequencyStep(steps[currentMode][idx].step);
 
@@ -724,7 +727,7 @@ void doMode(int dir)
 
   // Save current band settings
   bands[bandIdx].currentFreq = currentFrequency + currentBFO / 1000;
-  bands[bandIdx].currentStepIdx = stepIdx[currentMode];
+  bands[bandIdx].currentStepIdx = defaultStepIdx[currentMode];
   bands[bandIdx].bandwidthIdx = defaultBwIdx[currentMode];
   bands[bandIdx].bandMode = currentMode;
 
@@ -754,7 +757,6 @@ void doBand(int dir)
 {
   // Save current band settings
   bands[bandIdx].currentFreq = currentFrequency + currentBFO / 1000;
-  bands[bandIdx].currentStepIdx = stepIdx[currentMode];
   bands[bandIdx].bandMode = currentMode;
 
   // Change band
@@ -939,9 +941,6 @@ void selectBand(uint8_t idx, bool drawLoadingSSB)
   bandIdx = min(idx, LAST_ITEM(bands));
   currentMode = bands[bandIdx].bandMode;
 
-  // Set tuning step
-  stepIdx[currentMode] = bands[bandIdx].currentStepIdx;
-
   // Load SSB patch as needed
   if(isSSB())
     loadSSB(getCurrentBandwidth()->idx, drawLoadingSSB);
@@ -1069,7 +1068,7 @@ static void drawMode(int x, int y, int sx)
 static void drawStep(int x, int y, int sx)
 {
   int count = getLastStep(currentMode) + 1;
-  int idx   = stepIdx[currentMode] + count;
+  int idx   = bands[bandIdx].currentStepIdx + count;
 
   drawCommon(menu[MENU_STEP], x, y, sx, true);
 
