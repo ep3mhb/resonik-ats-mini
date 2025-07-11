@@ -407,12 +407,7 @@ static const Bandwidth *bandwidths[4] =
   fmBandwidths, ssbBandwidths, ssbBandwidths, amBandwidths
 };
 
-static uint8_t bwIdx[4] = { 0, 4, 4, 4 };
-
-const Bandwidth *getCurrentBandwidth()
-{
-  return(&bandwidths[currentMode][bwIdx[currentMode]]);
-}
+static const uint8_t defaultBwIdx[4] = { 0, 4, 4, 4 };
 
 static int getLastBandwidth(int mode)
 {
@@ -427,9 +422,14 @@ static int getLastBandwidth(int mode)
   return(0);
 }
 
+const Bandwidth *getCurrentBandwidth()
+{
+  return(&bandwidths[currentMode][bands[bandIdx].bandwidthIdx > getLastBandwidth(currentMode) ? defaultBwIdx[currentMode] : bands[bandIdx].bandwidthIdx]);
+}
+
 static void setBandwidth()
 {
-  uint8_t idx = bwIdx[currentMode] = bands[bandIdx].bandwidthIdx;
+  uint8_t idx = getCurrentBandwidth()->idx;
 
   switch(currentMode)
   {
@@ -725,6 +725,7 @@ void doMode(int dir)
   // Save current band settings
   bands[bandIdx].currentFreq = currentFrequency + currentBFO / 1000;
   bands[bandIdx].currentStepIdx = stepIdx[currentMode];
+  bands[bandIdx].bandwidthIdx = defaultBwIdx[currentMode];
   bands[bandIdx].bandMode = currentMode;
 
   // Enable the new band
@@ -765,10 +766,10 @@ void doBand(int dir)
 
 void doBandwidth(int dir)
 {
-  uint8_t idx = bwIdx[currentMode];
+  uint8_t idx = bands[bandIdx].bandwidthIdx;
 
   idx = wrap_range(idx, dir, 0, getLastBandwidth(currentMode));
-  bands[bandIdx].bandwidthIdx = bwIdx[currentMode] = idx;
+  bands[bandIdx].bandwidthIdx = idx;
   setBandwidth();
 }
 
@@ -947,11 +948,11 @@ void selectBand(uint8_t idx, bool drawLoadingSSB)
   else
     unloadSSB();
 
-  // Set bandwidth for the current mode
-  setBandwidth();
-
   // Switch radio to the selected band
   useBand(&bands[bandIdx]);
+
+  // Set bandwidth for the current mode
+  setBandwidth();
 
   // Clear current station info (RDS/CB)
   clearStationInfo();
@@ -1124,7 +1125,7 @@ static void drawBand(int x, int y, int sx)
 static void drawBandwidth(int x, int y, int sx)
 {
   int count = getLastBandwidth(currentMode) + 1;
-  int idx   = bwIdx[currentMode] + count;
+  int idx   = bands[bandIdx].bandwidthIdx + count;
 
   drawCommon(menu[MENU_BW], x, y, sx, true);
 
