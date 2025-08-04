@@ -245,7 +245,7 @@ static bool wifiConnect()
   String status = "Connecting to WiFi network..";
 
   // Get the preferences
-  prefs.begin("network", true);
+  prefs.begin("network", true, STORAGE_PARTITION);
   loginUsername = prefs.getString("loginusername", "");
   loginPassword = prefs.getString("loginpassword", "");
 
@@ -339,7 +339,7 @@ void webSetConfig(AsyncWebServerRequest *request)
   uint32_t prefsSave = 0;
 
   // Start modifying preferences
-  prefs.begin("network", false);
+  prefs.begin("network", false, STORAGE_PARTITION);
 
   // Save user name and password
   if(request->hasParam("username", true) && request->hasParam("password", true))
@@ -619,7 +619,7 @@ static const String webMemoryPage()
 
 const String webConfigPage()
 {
-  prefs.begin("network", true);
+  prefs.begin("network", true, STORAGE_PARTITION);
   String ssid1 = prefs.getString("wifissid1", "");
   String pass1 = prefs.getString("wifipass1", "");
   String ssid2 = prefs.getString("wifissid2", "");

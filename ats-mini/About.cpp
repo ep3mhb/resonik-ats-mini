@@ -1,4 +1,5 @@
 #include "Common.h"
+#include "Storage.h"
 #include "Themes.h"
 #include "Utils.h"
 #include "Menu.h"
@@ -86,7 +87,7 @@ static void drawAboutSystem(uint8_t arrow)
   spr.drawString(text, 2, 70 + 16 * 0, 2);
 
   nvs_stats_t nvs_stats;
-  nvs_get_stats(NULL, &nvs_stats);
+  nvs_get_stats(STORAGE_PARTITION, &nvs_stats);
   sprintf(
     text,
     "NVS: TOTAL %u, USED %u, FREE %u",

@@ -3,6 +3,8 @@
 
 #include <Preferences.h>
 
+#define STORAGE_PARTITION "settings"
+
 #define SAVE_SETTINGS 0x01
 #define SAVE_BANDS    0x02
 #define SAVE_MEMORIES 0x04
