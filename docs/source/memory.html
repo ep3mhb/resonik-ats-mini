@@ -1,4 +1,4 @@
-<h2>Radio Receiver Memory (32 slots)</h2>
+<h2>Radio Receiver Memory (99 slots)</h2>
 <div>
   <button id="connect">Connect</button>
   <button id="disconnect" disabled>Disconnect</button>
@@ -26,7 +26,7 @@
 </div>
 The tool was written by <a href="https://t.me/airdebian">@airdebian</a>
 <script>
-const NUM_MEM = 32;
+const NUM_MEM = 99;
 let memories = Array(NUM_MEM).fill().map(()=>({band:'',freq:0,mode:''}));
 let port=null, reader=null, writer=null, isConnected=false, serialBuffer='', waitingMemories=false, listening=false;
 let receiveBuffer = '';

@@ -4,7 +4,7 @@
 #include "Common.h"
 
 // Number of memory slots
-#define MEMORY_COUNT  32
+#define MEMORY_COUNT  99
 
 // Band Types
 #define FM_BAND_TYPE  0

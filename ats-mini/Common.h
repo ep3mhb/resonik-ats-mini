@@ -93,10 +93,10 @@ typedef struct
 
 typedef struct __attribute__((packed))
 {
-  uint16_t freq;          // Frequency
+  uint32_t freq;          // Frequency (Hz)
   uint8_t  band;          // Band
-  uint8_t  mode  : 4;     // Modulation
-  uint8_t  hz100 : 4;     // Hz * 100
+  uint8_t  mode;          // Modulation
+  char     name[10];      // Name
 } Memory;
 
 typedef struct

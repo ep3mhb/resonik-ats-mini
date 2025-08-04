@@ -659,6 +659,9 @@ uint8_t doAbout(int dir)
 
 bool tuneToMemory(const Memory *memory)
 {
+  uint16_t freq = freqFromHz(memory->freq, memory->mode);
+  int bfo = bfoFromHz(memory->freq);
+
   // Must have frequency
   if(!memory->freq) return(false);
 
@@ -670,7 +673,8 @@ bool tuneToMemory(const Memory *memory)
 
   // Must differ from the current band, frequency and modulation
   if(memory->band==bandIdx &&
-     memory->freq==bands[bandIdx].currentFreq &&
+     // FIXME: bands should store frequency in Hz (otherwise sub-kHz digits are lost after a power cycle)
+     freq==bands[bandIdx].currentFreq &&
      memory->mode==bands[bandIdx].bandMode)
     return(true);
 
@@ -678,14 +682,14 @@ bool tuneToMemory(const Memory *memory)
   bands[bandIdx].currentFreq    = currentFrequency + currentBFO / 1000;
 
   // Load frequency and modulation from memory slot
-  bands[memory->band].currentFreq = memory->freq;
+  bands[memory->band].currentFreq = freq;
   bands[memory->band].bandMode    = memory->mode;
 
   // Enable the new band
   selectBand(memory->band);
 
   // Update BFO if present in memory slot
-  if(memory->hz100) updateBFO(memory->hz100 * 100);
+  if(bfo) updateBFO(bfo);
 
   return(true);
 }
@@ -838,8 +842,7 @@ static void clickMenu(int cmd, bool shortPress)
 
     case MENU_MEMORY:
       currentCmd = CMD_MEMORY;
-      newMemory.freq  = currentFrequency + currentBFO / 1000;
-      newMemory.hz100 = (currentBFO % 1000) / 100;
+      newMemory.freq  = freqToHz(currentFrequency, currentMode) + currentBFO;
       newMemory.mode  = currentMode;
       newMemory.band  = bandIdx;
       doMemory(0);
@@ -1364,9 +1367,9 @@ static void drawMemory(int x, int y, int sx)
     else if(!memories[j].freq)
       text = "- - -";
     else if(memories[j].mode==FM)
-      sprintf(buf, "%3.2f %s", memories[j].freq / 100.0, bandModeDesc[memories[j].mode]);
+      sprintf(buf, "%3.2f %s", memories[j].freq / 1000000.0, bandModeDesc[memories[j].mode]);
     else
-      sprintf(buf, "%5d %s", memories[j].freq, bandModeDesc[memories[j].mode]);
+      sprintf(buf, "%5d %s", memories[j].freq / 1000, bandModeDesc[memories[j].mode]);
 
     if(i==0) {
       drawZoomedMenu(text);

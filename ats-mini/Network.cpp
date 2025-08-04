@@ -602,8 +602,8 @@ static const String webMemoryPage()
     else
     {
       String freq = memories[j].mode == FM?
-        String(memories[j].freq / 100.0) + "MHz "
-      : String(memories[j].freq + memories[j].hz100 / 10.0) + "kHz ";
+        String(memories[j].freq / 1000000.0) + "MHz "
+      : String(memories[j].freq / 1000.0) + "kHz ";
       items += freq + bandModeDesc[memories[j].mode] + "</TD></TR>";
     }
   }
