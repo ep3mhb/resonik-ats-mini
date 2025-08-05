@@ -159,10 +159,6 @@ void prefsSave(uint32_t items)
 {
   if(items & SAVE_SETTINGS)
   {
-    // G8PTN: For SSB ensures BFO value is valid with respect to
-    // bands[bandIdx].currentFreq = currentFrequency
-    int16_t currentBFOs = currentBFO % 1000;
-
     // Will be saving to settings
     prefs.begin("settings", false, STORAGE_PARTITION);
 
@@ -171,7 +167,6 @@ void prefsSave(uint32_t items)
     prefs.putUShort("App",     VER_APP);           // Application version
     prefs.putUChar("Volume",   volume);            // Current volume
     prefs.putUChar("Band",     bandIdx);           // Current band
-    prefs.putUShort("BFO",     currentBFOs);       // Current BFO % 1000
     prefs.putUChar("WiFiMode", wifiModeIdx);       // WiFi connection mode
 
     // Save additional global settings
@@ -247,7 +242,6 @@ bool prefsLoad(uint32_t items)
     // Load main global settings
     volume         = prefs.getUChar("Volume", volume);          // Current volume
     bandIdx        = prefs.getUChar("Band", bandIdx);           // Current band
-    currentBFO     = prefs.getUShort("BFO", currentBFO);        // Current BFO % 1000
     wifiModeIdx    = prefs.getUChar("WiFiMode", wifiModeIdx);   // WiFi connection mode
     currentBrt     = prefs.getUShort("Brightness", currentBrt); // Brightness
     FmAgcIdx       = prefs.getUChar("FmAGC", FmAgcIdx);         // FM AGC/ATTN
