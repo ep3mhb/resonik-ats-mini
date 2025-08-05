@@ -672,14 +672,13 @@ bool tuneToMemory(const Memory *memory)
   if(!isMemoryInBand(&bands[memory->band], memory)) return(false);
 
   // Must differ from the current band, frequency and modulation
-  if(memory->band==bandIdx &&
-     // FIXME: bands should store frequency in Hz (otherwise sub-kHz digits are lost after a power cycle)
-     freq==bands[bandIdx].currentFreq &&
-     memory->mode==bands[bandIdx].bandMode)
+  // FIXME: bands should store frequency in Hz (otherwise sub-kHz
+  // digits are lost after a power cycle)
+  if(memory->band==bandIdx && freq==bands[bandIdx].currentFreq && memory->mode==bands[bandIdx].bandMode)
     return(true);
 
   // Save current band settings
-  bands[bandIdx].currentFreq    = currentFrequency + currentBFO / 1000;
+  bands[bandIdx].currentFreq = currentFrequency + currentBFO / 1000;
 
   // Load frequency and modulation from memory slot
   bands[memory->band].currentFreq = freq;
