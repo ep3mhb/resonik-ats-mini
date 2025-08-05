@@ -194,12 +194,6 @@ void setup()
   // Attached pin to allows SI4732 library to mute audio as required to minimise loud clicks
   rx.setAudioMuteMcuPin(AUDIO_MUTE);
 
-  delay(300);
-
-  // Audio Amplifier Enable. G8PTN: Added
-  // After the SI4732 has been setup, enable the audio amplifier
-  digitalWrite(PIN_AMP_EN, HIGH);
-
   // If loading preferences fails...
   if(!prefsLoad(SAVE_SETTINGS|SAVE_VERIFY))
   {
@@ -219,6 +213,10 @@ void setup()
 
   // If loading bands fails, save default bands
   if(!prefsLoad(SAVE_BANDS|SAVE_VERIFY)) prefsSave(SAVE_BANDS);
+
+  // Audio Amplifier Enable. G8PTN: Added
+  // After the SI4732 has been setup, enable the audio amplifier
+  digitalWrite(PIN_AMP_EN, HIGH);
 
   // SI4732 STARTUP!
   selectBand(bandIdx, false);
