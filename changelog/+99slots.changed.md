@@ -1,0 +1,1 @@
+Increase the number of memory slots to 99.
