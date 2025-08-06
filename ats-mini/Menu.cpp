@@ -680,6 +680,10 @@ bool tuneToMemory(const Memory *memory)
   // Save current band settings
   bands[bandIdx].currentFreq = currentFrequency + currentBFO / 1000;
 
+  // Use default step when changing modes
+  if(bands[memory->band].bandMode != memory->mode)
+    bands[memory->band].currentStepIdx = defaultStepIdx[memory->mode];
+
   // Load frequency and modulation from memory slot
   bands[memory->band].currentFreq = freq;
   bands[memory->band].bandMode    = memory->mode;
