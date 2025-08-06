@@ -108,9 +108,6 @@ void setup()
   // Enable serial port
   Serial.begin(115200);
 
-  // Initialize flash file system
-  diskInit();
-
   // Encoder pins. Enable internal pull-ups
   pinMode(ENCODER_PUSH_BUTTON, INPUT_PULLUP);
   pinMode(ENCODER_PIN_A, INPUT_PULLUP);
@@ -157,7 +154,7 @@ void setup()
   // Note: preferences reset is recommended after firmware updates
   if(digitalRead(ENCODER_PUSH_BUTTON)==LOW)
   {
-    prefsInvalidate();
+    nvsErase();
     diskInit(true);
 
     ledcWrite(PIN_LCD_BL, 255);       // Default value 255 = 100%
@@ -169,6 +166,9 @@ void setup()
     tft.print("Resetting Preferences");
     while(digitalRead(ENCODER_PUSH_BUTTON) == LOW) delay(100);
   }
+
+  // Initialize flash file system
+  diskInit();
 
   // Check for SI4732 connected on I2C interface
   // If the SI4732 is not detected, then halt with no further processing

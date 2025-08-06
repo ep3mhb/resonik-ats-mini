@@ -3,6 +3,7 @@
 #include "Themes.h"
 #include "Menu.h"
 #include <LittleFS.h>
+#include "nvs_flash.h"
 
 // Time of inactivity to start writing preferences
 #define STORE_TIME    10000
@@ -344,4 +345,12 @@ bool diskInit(bool force)
 
   // Serial.println("Mounted LittleFS!");
   return(true);
+}
+
+bool nvsErase()
+{
+  return(nvs_flash_erase() == ESP_OK &&
+         nvs_flash_init() == ESP_OK &&
+         nvs_flash_erase_partition(STORAGE_PARTITION) == ESP_OK &&
+         nvs_flash_init_partition(STORAGE_PARTITION) == ESP_OK);
 }
