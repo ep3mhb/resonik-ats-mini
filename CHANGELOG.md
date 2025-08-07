@@ -4,6 +4,29 @@ The user manual is available at <https://esp32-si4732.github.io/ats-mini/manual.
 
 <!-- towncrier release notes start -->
 
+## 2.30 (2025-08-07)
+
+
+### Added
+
+- Add Scan mode. Press the encoder for 0.5 seconds to rescan, press & rotate to tune using a larger step. The scan process can be aborted by clicking or rotating the encoder.
+
+
+### Changed
+
+- Switch from EEPROM to Preferences library to store the receiver settings. This change removes some old limitations and enables more flexible settings management. WARNING: upgrading to this firmware version from an older one will reset the settings. Also a forced reset might be required (hold the encoder and power on the receiver). [#94](https://github.com/esp32-si4732/ats-mini/issues/94)
+- Mute audio amp during seek action to prevent audible artifacts. [#190](https://github.com/esp32-si4732/ats-mini/issues/190)
+- Display "Loading SSB" message in the zoomed menu area.
+- Extend the 16m broadcast band a bit to include CRI on 17490.
+- Increase the number of memory slots to 99.
+
+
+### Fixed
+
+- Do not lose SSB sub kHz digits when storing Memory slots. [#109](https://github.com/esp32-si4732/ats-mini/issues/109)
+- Restore saved bandwidth.
+- Use default step when switching modes or memories.
+
 ## 2.28 (2025-07-01)
 
 

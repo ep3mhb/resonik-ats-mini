@@ -1,1 +1,0 @@
-Display "Loading SSB" message in the zoomed menu area.
