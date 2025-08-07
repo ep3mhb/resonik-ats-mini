@@ -47,6 +47,10 @@ You can do all of the above using the `make` command as well:
 ENABLE_HOLDOFF=1 PORT=/dev/tty.usbmodem14401 make upload
 ```
 
+## Decoding stack traces
+
+To decode a stack trace (printed via serial port) use the following tool: https://esphome.github.io/esp-stacktrace-decoder/
+
 ## Adding a changelog entry
 
 1. Install `uv` <https://docs.astral.sh/uv/getting-started/installation/>
