@@ -4,8 +4,6 @@
 #include "Menu.h"
 #include "Draw.h"
 
-#ifndef DISABLE_REMOTE
-
 static uint32_t remoteTimer = millis();
 static uint8_t remoteSeqnum = 0;
 static bool remoteLogOn = false;
@@ -434,5 +432,3 @@ int remoteDoCommand(char key)
   // Command recognized
   return(event | REMOTE_CHANGED);
 }
-
-#endif // !DISABLE_REMOTE

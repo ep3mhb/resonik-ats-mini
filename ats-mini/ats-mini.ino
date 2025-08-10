@@ -687,7 +687,6 @@ void loop()
 
   ButtonTracker::State pb1st = pb1.update(digitalRead(ENCODER_PUSH_BUTTON) == LOW);
 
-#ifndef DISABLE_REMOTE
   // Periodically print status to serial
   remoteTickTime();
 
@@ -701,7 +700,6 @@ void loop()
     encoderCount = direction? direction : encoderCount;
     if(revent & REMOTE_PREFS) prefsRequestSave(SAVE_ALL);
   }
-#endif
 
   int ble_event = bleDoCommand(bleModeIdx);
 

@@ -23,7 +23,6 @@ arduino-cli compile --clean -e -p COM_PORT -u ats-mini
 
 The available options are:
 
-* `DISABLE_REMOTE` - disable remote control over the USB-serial port
 * `ENABLE_HOLDOFF` - enable delayed screen update while tuning
 * `HALF_STEP` - enable encoder half-steps (useful for EC11E encoder)
 

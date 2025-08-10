@@ -213,7 +213,6 @@ void bleInit(uint8_t bleMode);
 void bleStop();
 int8_t getBleStatus();
 
-#ifndef DISABLE_REMOTE
 // Remote.c
 #define REMOTE_CHANGED   1
 #define REMOTE_CLICK     2
@@ -222,6 +221,5 @@ int8_t getBleStatus();
 void remoteTickTime();
 int remoteDoCommand(char key);
 char readSerialChar();
-#endif
 
 #endif // COMMON_H

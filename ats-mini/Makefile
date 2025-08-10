@@ -9,15 +9,10 @@ PORT	?= /dev/cu.usbmodem1101
 DEBUG_LEVEL ?= 0
 
 #
-# DISABLE_REMOTE  : Disable serial port control and monitoring
 # ENABLE_HOLDOFF  : Hold off display updates while tuning
 # HALF_STEP       : Enable encoder half-steps
 #
 DEFINES = -DDEBUG=$(DEBUG_LEVEL)
-
-ifdef DISABLE_REMOTE
-	DEFINES += -DDISABLE_REMOTE
-endif
 
 ifdef ENABLE_HOLDOFF
 	DEFINES += -DENABLE_HOLDOFF
