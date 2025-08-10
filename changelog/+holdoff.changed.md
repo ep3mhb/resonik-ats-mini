@@ -1,0 +1,1 @@
+Screen update delay while tuning is now configurable via Wi-Fi settings page (previously it was a compile-time option).

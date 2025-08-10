@@ -113,6 +113,10 @@ From now on you can switch the modes as you want and connect to your receiver ei
 When on the go, you can set up a mobile Wi-Fi hotspot on your smartphone and use it to connect the receiver to the internet.
 ```
 
+### Receiver settings available via Wi-Fi only
+
+* **Tuning Display Delay** - time in milliseconds to delay screen updates while tuning/seeking, 0 (disabled) ... 255. Makes the tuning process a bit faster because the screen is updated less often.
+
 ## Schedule
 
 The receiver can download the [EiBi](http://eibispace.de/dx/eibi.txt) shortwave schedule and use it to display broadcasting stations, allowing you to quickly tune to them. Here’s how it works:

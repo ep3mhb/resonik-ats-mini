@@ -25,7 +25,6 @@
 #define NTP_CHECK_TIME       60000  // NTP time refresh period (ms)
 #define SCHEDULE_CHECK_TIME   2000  // How often to identify the same frequency (ms)
 #define BACKGROUND_REFRESH_TIME 5000    // Background screen refresh time. Covers the situation where there are no other events causing a refresh
-#define TUNE_HOLDOFF_TIME       90  // Timer to hold off display whilst tuning
 
 // =================================
 // CONSTANTS AND VARIABLES
@@ -80,6 +79,7 @@ int8_t scrollDirection = 1;             // Menu scroll direction
 uint32_t background_timer = millis();   // Background screen refresh timer.
 uint32_t tuning_timer = millis();       // Tuning hold off timer.
 bool tuning_flag = false;               // Flag to indicate tuning
+uint8_t tuneHoldOff = 90;               // Timer to hold off display whilst tuning
 
 //
 // Current parameters
@@ -336,32 +336,6 @@ void useBand(const Band *band)
   snr  = 0;
 }
 
-// This function is called by the seek function process.
-bool checkStopSeeking()
-{
-  // Returns true if the user rotates the encoder
-  if(seekStop) return true;
-
-  // Checking isPressed without debouncing because this callback
-  // is not invoked often enough to register a click
-  if(pb1.update(digitalRead(ENCODER_PUSH_BUTTON) == LOW, 0).isPressed)
-  {
-    // Wait till the button is released, otherwise the main loop will register a click
-    while(pb1.update(digitalRead(ENCODER_PUSH_BUTTON) == LOW).isPressed)
-      delay(100);
-    return true;
-  }
-
-  return false;
-}
-
-// This function is called by the seek function process.
-void showFrequencySeek(uint16_t freq)
-{
-  currentFrequency = freq;
-  drawScreen();
-}
-
 //
 // Tune using BFO, using algorithm from Goshante's ATS-20_EX firmware
 //
@@ -452,6 +426,45 @@ bool updateFrequency(int newFreq, bool wrap)
   return true;
 }
 
+// This function is called by the seek function process.
+bool checkStopSeeking()
+{
+  // Returns true if the user rotates the encoder
+  if(seekStop) return true;
+
+  // Checking isPressed without debouncing because this callback
+  // is not invoked often enough to register a click
+  if(pb1.update(digitalRead(ENCODER_PUSH_BUTTON) == LOW, 0).isPressed)
+  {
+    // Wait till the button is released, otherwise the main loop will register a click
+    while(pb1.update(digitalRead(ENCODER_PUSH_BUTTON) == LOW).isPressed)
+      delay(100);
+    return true;
+  }
+
+  return false;
+}
+
+// This function is called by the seek function process.
+void showFrequencySeek(uint16_t freq)
+{
+  // Check if tuning flag is set
+  if(tuneHoldOff)
+  {
+    if(tuning_flag)
+    {
+      if((millis() - tuning_timer) > tuneHoldOff)
+        tuning_flag = false;
+    }
+    else
+    {
+      tuning_timer = millis();
+      tuning_flag = true;
+    }
+  }
+  currentFrequency = freq;
+  drawScreen();
+}
 
 //
 // Handle encoder rotation in seek mode
@@ -464,11 +477,12 @@ bool doSeek(int8_t dir)
   {
     if(isSSB())
     {
-#ifdef ENABLE_HOLDOFF
-      // Tuning timer to hold off (FM/AM) display updates
-      tuning_flag = true;
-      tuning_timer = millis();
-#endif
+      if(tuneHoldOff)
+      {
+        // Tuning timer to hold off (FM/AM) display updates
+        tuning_flag = true;
+        tuning_timer = millis();
+      }
 
       updateBFO(currentBFO + dir * getCurrentStep(true)->step, true);
     }
@@ -481,6 +495,7 @@ bool doSeek(int8_t dir)
       // Flag is set by rotary encoder and cleared on seek/scan entry
       seekStop = false;
       rx.seekStationProgress(showFrequencySeek, checkStopSeeking, dir>0? 1 : 0);
+      if(tuneHoldOff) tuning_flag = false;
       updateFrequency(rx.getFrequency(), true);
     }
   }
@@ -518,11 +533,12 @@ bool doTune(int8_t dir, bool fast = false)
   //
   if(isSSB())
   {
-#ifdef ENABLE_HOLDOFF
-    // Tuning timer to hold off (SSB) display updates
-    tuning_flag = true;
-    tuning_timer = millis();
-#endif
+    if(tuneHoldOff)
+    {
+      // Tuning timer to hold off (SSB) display updates
+      tuning_flag = true;
+      tuning_timer = millis();
+    }
 
     uint32_t step = getCurrentStep(fast)->step;
     uint32_t stepAdjust = (currentFrequency * 1000 + currentBFO) % step;
@@ -536,11 +552,12 @@ bool doTune(int8_t dir, bool fast = false)
   //
   else
   {
-#ifdef ENABLE_HOLDOFF
-    // Tuning timer to hold off (FM/AM) display updates
-    tuning_flag = true;
-    tuning_timer = millis();
-#endif
+    if(tuneHoldOff)
+    {
+      // Tuning timer to hold off (FM/AM) display updates
+      tuning_flag = true;
+      tuning_timer = millis();
+    }
 
     uint16_t step = getCurrentStep(fast)->step;
     uint16_t stepAdjust = currentFrequency % step;
@@ -569,11 +586,12 @@ bool doDigit(int8_t dir)
   // SSB tuning
   if(isSSB())
   {
-#ifdef ENABLE_HOLDOFF
-    // Tuning timer to hold off (SSB) display updates
-    tuning_flag = true;
-    tuning_timer = millis();
-#endif
+    if(tuneHoldOff)
+    {
+      // Tuning timer to hold off (SSB) display updates
+      tuning_flag = true;
+      tuning_timer = millis();
+    }
 
     updated = updateBFO(currentBFO + dir * getFreqInputStep(), false);
   }
@@ -583,11 +601,12 @@ bool doDigit(int8_t dir)
   //
   else
   {
-#ifdef ENABLE_HOLDOFF
-    // Tuning timer to hold off (FM/AM) display updates
-    tuning_flag = true;
-    tuning_timer = millis();
-#endif
+    if(tuneHoldOff)
+    {
+      // Tuning timer to hold off (FM/AM) display updates
+      tuning_flag = true;
+      tuning_timer = millis();
+    }
 
     // Tune to a new frequency
     updated = updateFrequency(currentFrequency + getFreqInputStep() * dir, false);
@@ -913,14 +932,12 @@ void loop()
   // Tick NETWORK time, connecting to WiFi if requested
   netTickTime();
 
-#ifdef ENABLE_HOLDOFF
   // Check if tuning flag is set
-  if(tuning_flag && ((currentTime - tuning_timer) > TUNE_HOLDOFF_TIME))
+  if(tuneHoldOff && tuning_flag && ((currentTime - tuning_timer) > tuneHoldOff))
   {
     tuning_flag = false;
     needRedraw = true;
   }
-#endif
 
   // Run clock
   needRedraw |= clockTickTime();

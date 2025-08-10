@@ -23,13 +23,12 @@ arduino-cli compile --clean -e -p COM_PORT -u ats-mini
 
 The available options are:
 
-* `ENABLE_HOLDOFF` - enable delayed screen update while tuning
 * `HALF_STEP` - enable encoder half-steps (useful for EC11E encoder)
 
 To set an option, add the `--build-property` command line argument like this:
 
 ```shell
-arduino-cli compile --build-property "compiler.cpp.extra_flags=-DENABLE_HOLDOFF" --clean -e -p COM_PORT -u ats-mini
+arduino-cli compile --build-property "compiler.cpp.extra_flags=-DHALF_STEP" --clean -e -p COM_PORT -u ats-mini
 ```
 
 ## Enabling the pre-commit hooks
@@ -43,7 +42,7 @@ arduino-cli compile --build-property "compiler.cpp.extra_flags=-DENABLE_HOLDOFF"
 You can do all of the above using the `make` command as well:
 
 ```shell
-ENABLE_HOLDOFF=1 PORT=/dev/tty.usbmodem14401 make upload
+HALF_STEP=1 PORT=/dev/tty.usbmodem14401 make upload
 ```
 
 ## Decoding stack traces

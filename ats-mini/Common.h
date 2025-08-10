@@ -129,6 +129,7 @@ extern TFT_eSprite spr;
 extern TFT_eSPI tft;
 
 extern bool tuning_flag;
+extern uint8_t tuneHoldOff;
 extern bool pushAndRotate;
 extern bool seekStop;
 extern uint8_t rssi;

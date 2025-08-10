@@ -9,14 +9,9 @@ PORT	?= /dev/cu.usbmodem1101
 DEBUG_LEVEL ?= 0
 
 #
-# ENABLE_HOLDOFF  : Hold off display updates while tuning
 # HALF_STEP       : Enable encoder half-steps
 #
 DEFINES = -DDEBUG=$(DEBUG_LEVEL)
-
-ifdef ENABLE_HOLDOFF
-	DEFINES += -DENABLE_HOLDOFF
-endif
 
 ifdef HALF_STEP
         DEFINES += -DHALF_STEP
