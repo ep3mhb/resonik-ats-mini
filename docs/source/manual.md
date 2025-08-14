@@ -145,7 +145,7 @@ To reset the receiver settings (current band, frequency, favorite stations, down
 | 11M  | 25600 kHz     | 26100 kHz     | AM           |
 | 13M  | 21500 kHz     | 21900 kHz     | AM           |
 | 15M  | 18900 kHz     | 19100 kHz     | AM           |
-| 16M  | 17500 kHz     | 18100 kHz     | AM           |
+| 16M  | 17400 kHz     | 18100 kHz     | AM           |
 | 19M  | 15100 kHz     | 15900 kHz     | AM           |
 | 22M  | 13500 kHz     | 13900 kHz     | AM           |
 | 25M  | 11000 kHz     | 13000 kHz     | AM           |
@@ -167,7 +167,7 @@ To reset the receiver settings (current band, frequency, favorite stations, down
 | 15M  | 21000 kHz     | 21500 kHz     | USB          |
 | 12M  | 24800 kHz     | 25000 kHz     | USB          |
 | 10M  | 28000 kHz     | 29700 kHz     | USB          |
-| CB   | 25000 kHz     | 30000 kHz     | AM           |
+| CB   | 25000 kHz     | 28000 kHz     | AM           |
 
 ## Serial interface
 
