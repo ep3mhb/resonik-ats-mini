@@ -6,7 +6,7 @@
 
 // CB frequency range
 #define MIN_CB_FREQUENCY 26060
-#define MAX_CB_FREQUENCY 29665
+#define MAX_CB_FREQUENCY 27995
 
 //
 // Named frequencies, sorted by increasing frequency!
