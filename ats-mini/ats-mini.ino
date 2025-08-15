@@ -79,7 +79,7 @@ int8_t scrollDirection = 1;             // Menu scroll direction
 uint32_t background_timer = millis();   // Background screen refresh timer.
 uint32_t tuning_timer = millis();       // Tuning hold off timer.
 bool tuning_flag = false;               // Flag to indicate tuning
-uint8_t tuneHoldOff = 90;               // Timer to hold off display whilst tuning
+uint8_t tuneHoldOff = 0;                // Timer to hold off display whilst tuning
 
 //
 // Current parameters
