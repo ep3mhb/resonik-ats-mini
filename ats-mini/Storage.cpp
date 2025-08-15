@@ -185,7 +185,7 @@ void prefsSave(uint32_t items)
     prefs.putUChar("SleepMode",   sleepModeIdx);   // Sleep mode
     prefs.putUChar("ZoomMenu",    zoomMenu);       // TRUE: Zoom menu
     prefs.putBool("ScrollDir", scrollDirection<0); // TRUE: Reverse scroll
-    prefs.putBool("TuneHoldOff",  tuneHoldOff);    // Tuning hold off
+    prefs.putUChar("TuneHoldOff", tuneHoldOff);    // Tuning hold off
     prefs.putUChar("UTCOffset",   utcOffsetIdx);   // UTC Offset
     prefs.putUChar("Squelch",     currentSquelch); // Squelch
     prefs.putUChar("FmRegion",    FmRegionIdx);    // FM region
@@ -259,7 +259,7 @@ bool prefsLoad(uint32_t items)
     sleepModeIdx   = prefs.getUChar("SleepMode", sleepModeIdx); // Sleep mode
     zoomMenu       = prefs.getUChar("ZoomMenu", zoomMenu);      // TRUE: Zoom menu
     scrollDirection = prefs.getBool("ScrollDir", scrollDirection<0)? -1:1; // TRUE: Reverse scroll
-    tuneHoldOff     = prefs.getBool("TuneHoldOff", tuneHoldOff); // Tuning hold off
+    tuneHoldOff    = prefs.getUChar("TuneHoldOff", tuneHoldOff); // Tuning hold off
     utcOffsetIdx   = prefs.getUChar("UTCOffset", utcOffsetIdx); // UTC Offset
     currentSquelch = prefs.getUChar("Squelch", currentSquelch); // Squelch
     FmRegionIdx    = prefs.getUChar("FmRegion", FmRegionIdx);   // FM region
