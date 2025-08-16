@@ -19,6 +19,12 @@ A short video tutorial on how to build a custom firmware version:
 arduino-cli compile --clean -e -p COM_PORT -u ats-mini
 ```
 
+When a library gets upgraded in the `sketch.yaml` project configuration file, it might be necessary to run the following command to ensure that the Arduino CLI has the most current information about available libraries:
+
+```shell
+arduino-cli lib update-index
+```
+
 ## Compile-time options
 
 The available options are:
@@ -31,12 +37,6 @@ To set an option, add the `--build-property` command line argument like this:
 arduino-cli compile --build-property "compiler.cpp.extra_flags=-DHALF_STEP" --clean -e -p COM_PORT -u ats-mini
 ```
 
-## Enabling the pre-commit hooks
-
-1. Install `uv` <https://docs.astral.sh/uv/getting-started/installation/>
-2. Run `uv sync`
-3. run `uv run pre-commit install --install-hooks`
-
 ## Using the make command
 
 You can do all of the above using the `make` command as well:
@@ -48,6 +48,12 @@ HALF_STEP=1 PORT=/dev/tty.usbmodem14401 make upload
 ## Decoding stack traces
 
 To decode a stack trace (printed via serial port) use the following tool: https://esphome.github.io/esp-stacktrace-decoder/
+
+## Enabling the pre-commit hooks
+
+1. Install `uv` <https://docs.astral.sh/uv/getting-started/installation/>
+2. Run `uv sync`
+3. run `uv run pre-commit install --install-hooks`
 
 ## Adding a changelog entry
 
@@ -68,7 +74,7 @@ To decode a stack trace (printed via serial port) use the following tool: https:
 
 ## Theme editor
 
-A terminal command <kbd>T</kbd> toggles a special mode that helps you pick the right colors faster without recompiling and flashing the firmware each time. When the theme editor is enabled, some screen elements are always visible (and the battery indicator switches its state every 10 seconds):
+A terminal command <kbd>T</kbd> toggles a special mode that helps you pick the right colors faster without recompiling and flashing the firmware each time. When the theme editor is enabled, some screen elements are always visible (and various status icons change their state every couple of seconds):
 
 ![](_static/theme-editor.png)
 
