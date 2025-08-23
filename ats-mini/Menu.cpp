@@ -1375,7 +1375,7 @@ static void drawMemory(int x, int y, int sx)
     else if(memories[j].mode==FM)
       sprintf(buf, "%3.2f %s", memories[j].freq / 1000000.0, bandModeDesc[memories[j].mode]);
     else
-      sprintf(buf, "%5d %s", memories[j].freq / 1000, bandModeDesc[memories[j].mode]);
+      sprintf(buf, "%5lu %s", memories[j].freq / 1000, bandModeDesc[memories[j].mode]);
 
     if(i==0) {
       drawZoomedMenu(text);
