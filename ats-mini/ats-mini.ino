@@ -173,7 +173,7 @@ void setup()
 
   // Check for SI4732 connected on I2C interface
   // If the SI4732 is not detected, then halt with no further processing
-  rx.setI2CFastModeCustom(100000);
+  rx.setI2CFastModeCustom(800000UL);
 
   // Looks for the I2C bus address and set it.  Returns 0 if error
   int16_t si4735Addr = rx.getDeviceI2CAddress(RESET_PIN);
