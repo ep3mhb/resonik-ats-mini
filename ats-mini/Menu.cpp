@@ -715,10 +715,13 @@ static void clickMemory(uint8_t idx, bool shortPress)
   // Must have a valid index
   if(idx>LAST_ITEM(memories)) return;
 
-  // If clicking on an empty memory slot, save to it
-  if(!memories[idx].freq) memories[idx] = newMemory;
-  // On a press, delete memory slot contents
-  else if(shortPress) memories[idx].freq = 0;
+  if(shortPress)
+  {
+    // If clicking on an empty memory slot, save to it
+    if(!memories[idx].freq) memories[idx] = newMemory;
+    // Otherwise, delete memory slot contents
+    else memories[idx].freq = 0;
+  }
   // On a click, do nothing, slot already activated in doMemory()
   else currentCmd = CMD_NONE;
 }
