@@ -17,7 +17,7 @@
 #define VER_APP        230  // Firmware version
 #define VER_SETTINGS   71   // Settings version
 #define VER_MEMORIES   71   // Memories version
-#define VER_BANDS      71   // Bands version
+#define VER_BANDS      72   // Bands version
 
 // Modes
 #define FM            0
