@@ -1,0 +1,1 @@
+Fix misbehaving squelch when changing bands.

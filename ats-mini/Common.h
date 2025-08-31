@@ -138,7 +138,6 @@ extern uint8_t snr;
 
 extern uint8_t volume;
 extern uint8_t currentSquelch;
-extern bool squelchCutoff;
 extern uint16_t currentFrequency;
 extern int16_t currentBFO;
 extern uint8_t currentMode;

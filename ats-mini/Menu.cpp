@@ -519,12 +519,12 @@ void doSelectDigit(int dir)
 void doVolume(int dir)
 {
   volume = clamp_range(volume, dir, 0, 63);
-  if(!muteOn()) rx.setVolume(volume);
+  if(!muteOn(MUTE_MAIN)) rx.setVolume(volume);
 }
 
 static void clickVolume(bool shortPress)
 {
-  if(shortPress) muteOn(!muteOn()); else currentCmd = CMD_NONE;
+  if(shortPress) muteOn(MUTE_MAIN, !muteOn(MUTE_MAIN)); else currentCmd = CMD_NONE;
 }
 
 static void clickSquelch(bool shortPress)
@@ -984,7 +984,7 @@ void selectBand(uint8_t idx, bool drawLoadingSSB)
 {
   // Silence click on some hardware versions
   // https://github.com/esp32-si4732/ats-mini/discussions/103
-  tempMuteOn(true);
+  muteOn(MUTE_TEMP, true);
 
   // Set band and mode
   bandIdx = min(idx, LAST_ITEM(bands));
@@ -1012,7 +1012,7 @@ void selectBand(uint8_t idx, bool drawLoadingSSB)
   resetFreqInputPos();
 
   // Unmute the sound
-  tempMuteOn(false);
+  muteOn(MUTE_TEMP, false);
 }
 
 //
@@ -1402,7 +1402,7 @@ static void drawVolume(int x, int y, int sx)
   spr.setTextColor(TH.menu_param, TH.menu_bg);
   spr.drawNumber(volume, 40+x+(sx/2), 66+y, 7);
 
-  if(muteOn())
+  if(muteOn(MUTE_MAIN))
   {
     for(int i=-3; i<4; i++)
     {
@@ -1600,10 +1600,10 @@ static void drawInfo(int x, int y, int sx)
   }
 
   spr.drawString("Vol:", 6+x, 64+y+(0*16), 2);
-  if(muteOn() || squelchCutoff)
+  if(muteOn(MUTE_MAIN) || muteOn(MUTE_SQUELCH))
   {
     spr.setTextColor(TH.box_off_text, TH.box_off_bg);
-    sprintf(text, muteOn() ? "Muted" : "%d/sq", volume);
+    sprintf(text, muteOn(MUTE_MAIN) ? "Muted" : "%d/sq", volume);
     spr.drawString(text, 48+x, 64+y+(0*16), 2);
     spr.setTextColor(TH.box_text, TH.box_bg);
   }

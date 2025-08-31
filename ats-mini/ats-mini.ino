@@ -66,7 +66,6 @@ int8_t SsbSoftMuteIdx = 4;              // Default SSB = 4, range = 0 to 32
 // Menu options
 uint8_t volume = DEFAULT_VOLUME;        // Volume, range = 0 (muted) - 63
 uint8_t currentSquelch = 0;             // Squelch, range = 0 (disabled) - 127
-bool squelchCutoff = false;             // True if the Squelch cutoff is in effect
 uint8_t FmRegionIdx = 0;                // FM Region
 
 uint16_t currentBrt = 130;              // Display brightness, range = 10 to 255 in steps of 5
@@ -483,7 +482,7 @@ void showFrequencySeek(uint16_t freq)
 bool doSeek(int8_t dir)
 {
   // disable amp to avoid sound artifacts
-  tempMuteOn(true);
+  muteOn(MUTE_TEMP, true);
   if(seekMode() == SEEK_DEFAULT)
   {
     if(isSSB())
@@ -530,7 +529,7 @@ bool doSeek(int8_t dir)
   identifyFrequency(currentFrequency + currentBFO / 1000);
   // Will need a redraw
   // enable amp
-  tempMuteOn(false);
+  muteOn(MUTE_TEMP, false);
   return(true);
 }
 
@@ -671,21 +670,18 @@ bool processRssiSnr()
   // Apply squelch if the volume is not muted
   if(currentSquelch && currentSquelch <= 127)
   {
-    if(newRSSI >= currentSquelch && squelchCutoff)
+    if(newRSSI >= currentSquelch && muteOn(MUTE_SQUELCH))
     {
-      tempMuteOn(false);
-      squelchCutoff = false;
+      muteOn(MUTE_SQUELCH, false);
     }
-    else if(newRSSI < currentSquelch && !squelchCutoff)
+    else if(newRSSI < currentSquelch && !muteOn(MUTE_SQUELCH))
     {
-      tempMuteOn(true);
-      squelchCutoff = true;
+      muteOn(MUTE_SQUELCH, true);
     }
   }
-  else if(squelchCutoff)
+  else if(muteOn(MUTE_SQUELCH))
   {
-    tempMuteOn(false);
-    squelchCutoff = false;
+    muteOn(MUTE_SQUELCH, false);
   }
 
   // G8PTN: Based on 1.2s interval, update RSSI & SNR
