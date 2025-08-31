@@ -1472,13 +1472,19 @@ static void drawCal(int x, int y, int sx)
 
   spr.setTextColor(TH.menu_param, TH.menu_bg);
   if (currentMode == USB)
-    spr.drawNumber(getCurrentBand()->usbCal, 40+x+(sx/2), 60+y, 4);
+  {
+    spr.drawString("USB", 40+x+(sx/2), 35+y, 2);
+    spr.drawNumber(getCurrentBand()->usbCal, 40+x+(sx/2), 65+y, 4);
+  }
   else if (currentMode == LSB)
-    spr.drawNumber(getCurrentBand()->lsbCal, 40+x+(sx/2), 60+y, 4);
+  {
+    spr.drawString("LSB", 40+x+(sx/2), 35+y, 2);
+    spr.drawNumber(getCurrentBand()->lsbCal, 40+x+(sx/2), 65+y, 4);
+  }
   else
-    spr.drawNumber(0, 40+x+(sx/2), 60+y, 4);  // Display zero or nothing for other modes
+    spr.drawNumber(0, 40+x+(sx/2), 65+y, 4);  // Display zero or nothing for other modes
 
-  spr.drawString("Hz", 40+x+(sx/2), 90+y, 4);
+  spr.drawString("Hz", 40+x+(sx/2), 95+y, 4);
 }
 
 static void drawAvc(int x, int y, int sx)
