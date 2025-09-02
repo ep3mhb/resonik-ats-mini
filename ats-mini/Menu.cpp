@@ -493,16 +493,16 @@ uint8_t seekMode(bool toggle)
 
 static inline int min(int x, int y) { return(x<y? x:y); }
 
-static inline int wrap_range(int v, int dir, int vMin, int vMax)
+static inline int wrap_range(int v, int enc, int vMin, int vMax)
 {
-  v += dir;
+  v += enc;
   v  = v>vMax? vMin + (v - vMax - 1) : v<vMin? vMax - (vMin - v - 1) : v;
   return(v);
 }
 
-static inline int clamp_range(int v, int dir, int vMin, int vMax)
+static inline int clamp_range(int v, int enc, int vMin, int vMax)
 {
-  v += dir;
+  v += enc;
   v  = v>vMax? vMax : v<vMin? vMin : v;
   return(v);
 }
@@ -511,14 +511,14 @@ static inline int clamp_range(int v, int dir, int vMin, int vMax)
 // Encoder input handlers
 //
 
-void doSelectDigit(int dir)
+void doSelectDigit(int16_t enc)
 {
-  freqInputPos = clamp_range(freqInputPos, -dir, getMinFreqInputPos(), getMaxFreqInputPos());
+  freqInputPos = clamp_range(freqInputPos, -enc, getMinFreqInputPos(), getMaxFreqInputPos());
 }
 
-void doVolume(int dir)
+void doVolume(int16_t enc)
 {
-  volume = clamp_range(volume, dir, 0, 63);
+  volume = clamp_range(volume, enc, 0, 63);
   if(!muteOn(MUTE_MAIN)) rx.setVolume(volume);
 }
 
@@ -551,23 +551,23 @@ static void clickScan(bool shortPress)
   else currentCmd = CMD_NONE;
 }
 
-static void doTheme(int dir)
+static void doTheme(int16_t enc)
 {
-  themeIdx = wrap_range(themeIdx, dir, 0, getTotalThemes() - 1);
+  themeIdx = wrap_range(themeIdx, enc, 0, getTotalThemes() - 1);
 }
 
-static void doUILayout(int dir)
+static void doUILayout(int16_t enc)
 {
-  uiLayoutIdx = uiLayoutIdx > LAST_ITEM(uiLayoutDesc) ? UI_DEFAULT : wrap_range(uiLayoutIdx, dir, 0, LAST_ITEM(uiLayoutDesc));
+  uiLayoutIdx = uiLayoutIdx > LAST_ITEM(uiLayoutDesc) ? UI_DEFAULT : wrap_range(uiLayoutIdx, enc, 0, LAST_ITEM(uiLayoutDesc));
 }
 
-void doAvc(int dir)
+void doAvc(int16_t enc)
 {
   // Only allow for AM and SSB modes
   if(currentMode==FM) return;
 
   // wrap_range expects to wrap a range of incremental numbers. avc instead is a range of all even numbers
-  int8_t newAvcIdx = wrap_range((isSSB() ? SsbAvcIdx : AmAvcIdx) / 2, dir, 12 / 2, 90 / 2) * 2;
+  int8_t newAvcIdx = wrap_range((isSSB() ? SsbAvcIdx : AmAvcIdx) / 2, enc, 12 / 2, 90 / 2) * 2;
   if(isSSB())
   {
     SsbAvcIdx = newAvcIdx;
@@ -579,21 +579,21 @@ void doAvc(int dir)
   rx.setAvcAmMaxGain(newAvcIdx);
 }
 
-void doFmRegion(int dir)
+void doFmRegion(int16_t enc)
 {
   // Only allow for FM mode
   if(currentMode!=FM) return;
 
-  FmRegionIdx = wrap_range(FmRegionIdx, dir, 0, LAST_ITEM(fmRegions));
+  FmRegionIdx = wrap_range(FmRegionIdx, enc, 0, LAST_ITEM(fmRegions));
   rx.setFMDeEmphasis(fmRegions[FmRegionIdx].value);
 }
 
-void doCal(int dir)
+void doCal(int16_t enc)
 {
   if (currentMode == USB)
-    bands[bandIdx].usbCal = clamp_range(bands[bandIdx].usbCal, 10*dir, -MAX_CAL, MAX_CAL);
+    bands[bandIdx].usbCal = clamp_range(bands[bandIdx].usbCal, 10*enc, -MAX_CAL, MAX_CAL);
   else if (currentMode == LSB)
-    bands[bandIdx].lsbCal = clamp_range(bands[bandIdx].lsbCal, 10*dir, -MAX_CAL, MAX_CAL);
+    bands[bandIdx].lsbCal = clamp_range(bands[bandIdx].lsbCal, 10*enc, -MAX_CAL, MAX_CAL);
   // else: no calibration change for other modes
 
   // If in SSB mode set the SI4732/5 BFO value
@@ -601,32 +601,32 @@ void doCal(int dir)
   if(isSSB()) updateBFO(currentBFO, true);
 }
 
-void doBrt(int dir)
+void doBrt(int16_t enc)
 {
-  currentBrt = clamp_range(currentBrt, 5*dir, 10, 255);
+  currentBrt = clamp_range(currentBrt, 5*enc, 10, 255);
   if(!sleepOn()) ledcWrite(PIN_LCD_BL, currentBrt);
 }
 
-static void doSleep(int dir)
+static void doSleep(int16_t enc)
 {
-  currentSleep = clamp_range(currentSleep, 5*dir, 0, 255);
+  currentSleep = clamp_range(currentSleep, 5*enc, 0, 255);
 }
 
-static void doSleepMode(int dir)
+static void doSleepMode(int16_t enc)
 {
-  sleepModeIdx = wrap_range(sleepModeIdx, dir, 0, LAST_ITEM(sleepModeDesc));
+  sleepModeIdx = wrap_range(sleepModeIdx, enc, 0, LAST_ITEM(sleepModeDesc));
 }
 
-static void doBleMode(int dir)
+static void doBleMode(int16_t enc)
 {
-  uint8_t newBleModeIdx = wrap_range(bleModeIdx, dir, 0, LAST_ITEM(bleModeDesc));
+  uint8_t newBleModeIdx = wrap_range(bleModeIdx, enc, 0, LAST_ITEM(bleModeDesc));
   bleInit(newBleModeIdx);
   bleModeIdx = newBleModeIdx;
 }
 
-static void doWiFiMode(int dir)
+static void doWiFiMode(int16_t enc)
 {
-  wifiModeIdx = wrap_range(wifiModeIdx, dir, 0, LAST_ITEM(wifiModeDesc));
+  wifiModeIdx = wrap_range(wifiModeIdx, enc, 0, LAST_ITEM(wifiModeDesc));
 }
 
 static void clickWiFiMode(uint8_t mode, bool shortPress)
@@ -635,32 +635,32 @@ static void clickWiFiMode(uint8_t mode, bool shortPress)
   netInit(mode);
 }
 
-static void doRDSMode(int dir)
+static void doRDSMode(int16_t enc)
 {
-  rdsModeIdx = wrap_range(rdsModeIdx, dir, 0, LAST_ITEM(rdsMode));
+  rdsModeIdx = wrap_range(rdsModeIdx, enc, 0, LAST_ITEM(rdsMode));
   if(!(getRDSMode() & RDS_CT)) clockReset();
 }
 
-static void doUTCOffset(int dir)
+static void doUTCOffset(int16_t enc)
 {
-  utcOffsetIdx = wrap_range(utcOffsetIdx, dir, 0, LAST_ITEM(utcOffsets));
+  utcOffsetIdx = wrap_range(utcOffsetIdx, enc, 0, LAST_ITEM(utcOffsets));
   clockRefreshTime();
 }
 
-static void doZoom(int dir)
+static void doZoom(int16_t enc)
 {
   zoomMenu = !zoomMenu;
 }
 
-static void doScrollDir(int dir)
+static void doScrollDir(int16_t enc)
 {
   scrollDirection = (scrollDirection == 1) ? -1 : 1;
 }
 
-uint8_t doAbout(int dir)
+uint8_t doAbout(int16_t enc)
 {
   static uint8_t aboutScreen = 0;
-  aboutScreen = clamp_range(aboutScreen, dir, 0, 2);
+  aboutScreen = clamp_range(aboutScreen, enc, 0, 2);
   return aboutScreen;
 }
 
@@ -704,9 +704,9 @@ bool tuneToMemory(const Memory *memory)
   return(true);
 }
 
-static void doMemory(int dir)
+static void doMemory(int16_t enc)
 {
-  memoryIdx = wrap_range(memoryIdx, dir, 0, LAST_ITEM(memories));
+  memoryIdx = wrap_range(memoryIdx, enc, 0, LAST_ITEM(memories));
   if(!tuneToMemory(&memories[memoryIdx])) tuneToMemory(&newMemory);
 }
 
@@ -726,11 +726,11 @@ static void clickMemory(uint8_t idx, bool shortPress)
   else currentCmd = CMD_NONE;
 }
 
-void doStep(int dir)
+void doStep(int16_t enc)
 {
   uint8_t idx = bands[bandIdx].currentStepIdx;
 
-  idx = wrap_range(idx, dir, 0, getLastStep(currentMode));
+  idx = wrap_range(idx, enc, 0, getLastStep(currentMode));
   bands[bandIdx].currentStepIdx = idx;
 
   rx.setFrequencyStep(steps[currentMode][idx].step);
@@ -742,14 +742,14 @@ void doStep(int dir)
     rx.setSeekAmSpacing(steps[currentMode][idx].spacing);
 }
 
-void doAgc(int dir)
+void doAgc(int16_t enc)
 {
   if(currentMode==FM)
-    agcIdx = FmAgcIdx = wrap_range(FmAgcIdx, dir, 0, 27);
+    agcIdx = FmAgcIdx = wrap_range(FmAgcIdx, enc, 0, 27);
   else if(isSSB())
-    agcIdx = SsbAgcIdx = wrap_range(SsbAgcIdx, dir, 0, 1);
+    agcIdx = SsbAgcIdx = wrap_range(SsbAgcIdx, enc, 0, 1);
   else
-    agcIdx = AmAgcIdx = wrap_range(AmAgcIdx, dir, 0, 37);
+    agcIdx = AmAgcIdx = wrap_range(AmAgcIdx, enc, 0, 37);
 
   // Process agcIdx to generate disableAgc and agcIdx
   // agcIdx     0 1 2 3 4 5 6  ..... n    (n:    FM = 27, AM = 37, SSB = 1)
@@ -764,7 +764,7 @@ void doAgc(int dir)
   rx.setAutomaticGainControl(disableAgc, agcNdx);
 }
 
-void doMode(int dir)
+void doMode(int16_t enc)
 {
   // This is our current mode for the current band
   currentMode = bands[bandIdx].bandMode;
@@ -774,7 +774,7 @@ void doMode(int dir)
 
   // Change AM/LSB/USB modes, do not allow FM mode
   do
-    currentMode = wrap_range(currentMode, dir, 0, LAST_ITEM(bandModeDesc));
+    currentMode = wrap_range(currentMode, enc, 0, LAST_ITEM(bandModeDesc));
   while(currentMode==FM);
 
   // Save current band settings
@@ -787,42 +787,42 @@ void doMode(int dir)
   selectBand(bandIdx);
 }
 
-void doSquelch(int dir)
+void doSquelch(int16_t enc)
 {
-  currentSquelch = clamp_range(currentSquelch, dir, 0, 127);
+  currentSquelch = clamp_range(currentSquelch, enc, 0, 127);
 }
 
-void doSoftMute(int dir)
+void doSoftMute(int16_t enc)
 {
   // Nothing to do if FM mode
   if(currentMode==FM) return;
 
   if(isSSB())
-    softMuteMaxAttIdx = SsbSoftMuteIdx = wrap_range(SsbSoftMuteIdx, dir, 0, 32);
+    softMuteMaxAttIdx = SsbSoftMuteIdx = wrap_range(SsbSoftMuteIdx, enc, 0, 32);
   else
-    softMuteMaxAttIdx = AmSoftMuteIdx = wrap_range(AmSoftMuteIdx, dir, 0, 32);
+    softMuteMaxAttIdx = AmSoftMuteIdx = wrap_range(AmSoftMuteIdx, enc, 0, 32);
 
   rx.setAmSoftMuteMaxAttenuation(softMuteMaxAttIdx);
 }
 
-void doBand(int dir)
+void doBand(int16_t enc)
 {
   // Save current band settings
   bands[bandIdx].currentFreq = currentFrequency + currentBFO / 1000;
   bands[bandIdx].bandMode = currentMode;
 
   // Change band
-  bandIdx = wrap_range(bandIdx, dir, 0, LAST_ITEM(bands));
+  bandIdx = wrap_range(bandIdx, enc, 0, LAST_ITEM(bands));
 
   // Enable the new band
   selectBand(bandIdx);
 }
 
-void doBandwidth(int dir)
+void doBandwidth(int16_t enc)
 {
   uint8_t idx = bands[bandIdx].bandwidthIdx;
 
-  idx = wrap_range(idx, dir, 0, getLastBandwidth(currentMode));
+  idx = wrap_range(idx, enc, 0, getLastBandwidth(currentMode));
   bands[bandIdx].bandwidthIdx = idx;
   setBandwidth();
 }
@@ -831,9 +831,9 @@ void doBandwidth(int dir)
 // Handle encoder input in menu
 //
 
-static void doMenu(int dir)
+static void doMenu(int16_t enc)
 {
-  menuIdx = wrap_range(menuIdx, dir, 0, LAST_ITEM(menu));
+  menuIdx = wrap_range(menuIdx, enc, 0, LAST_ITEM(menu));
 }
 
 static void clickMenu(int cmd, bool shortPress)
@@ -880,9 +880,9 @@ static void clickMenu(int cmd, bool shortPress)
   }
 }
 
-static void doSettings(int dir)
+static void doSettings(int16_t enc)
 {
-  settingsIdx = wrap_range(settingsIdx, dir, 0, LAST_ITEM(settings));
+  settingsIdx = wrap_range(settingsIdx, enc, 0, LAST_ITEM(settings));
 }
 
 static void clickSettings(int cmd, bool shortPress)
@@ -918,40 +918,40 @@ static void clickSettings(int cmd, bool shortPress)
   }
 }
 
-bool doSideBar(uint16_t cmd, int dir)
+bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
 {
   // Ignore idle encoder
-  if(!dir) return(false);
+  if(!enc) return(false);
 
   switch(cmd)
   {
     // Menus and list-based options must take scrollDirection into account
-    case CMD_MENU:      doMenu(scrollDirection * dir);break;
-    case CMD_MODE:      doMode(scrollDirection * dir);break;
-    case CMD_STEP:      doStep(scrollDirection * dir);break;
-    case CMD_AGC:       doAgc(dir);break;
-    case CMD_BANDWIDTH: doBandwidth(scrollDirection * dir);break;
-    case CMD_VOLUME:    doVolume(dir);break;
-    case CMD_SOFTMUTE:  doSoftMute(dir);break;
-    case CMD_BAND:      doBand(scrollDirection * dir);break;
-    case CMD_AVC:       doAvc(dir);break;
-    case CMD_FM_REGION: doFmRegion(scrollDirection * dir);break;
-    case CMD_SETTINGS:  doSettings(scrollDirection * dir);break;
-    case CMD_BRT:       doBrt(dir);break;
-    case CMD_CAL:       doCal(dir);break;
-    case CMD_THEME:     doTheme(scrollDirection * dir);break;
-    case CMD_UI:        doUILayout(scrollDirection * dir);break;
-    case CMD_RDS:       doRDSMode(scrollDirection * dir);break;
-    case CMD_MEMORY:    doMemory(scrollDirection * dir);break;
-    case CMD_SLEEP:     doSleep(dir);break;
-    case CMD_SLEEPMODE: doSleepMode(scrollDirection * dir);break;
-    case CMD_BLEMODE:   doBleMode(scrollDirection * dir);break;
-    case CMD_WIFIMODE:  doWiFiMode(scrollDirection * dir);break;
-    case CMD_ZOOM:      doZoom(dir);break;
-    case CMD_SCROLL:    doScrollDir(dir);break;
-    case CMD_UTCOFFSET: doUTCOffset(scrollDirection * dir);break;
-    case CMD_SQUELCH:   doSquelch(dir);break;
-    case CMD_ABOUT:     doAbout(dir);break;
+    case CMD_MENU:      doMenu(scrollDirection * enc);break;
+    case CMD_MODE:      doMode(scrollDirection * enc);break;
+    case CMD_STEP:      doStep(scrollDirection * enc);break;
+    case CMD_AGC:       doAgc(enc);break;
+    case CMD_BANDWIDTH: doBandwidth(scrollDirection * enc);break;
+    case CMD_VOLUME:    doVolume(enca);break;
+    case CMD_SOFTMUTE:  doSoftMute(enc);break;
+    case CMD_BAND:      doBand(scrollDirection * enc);break;
+    case CMD_AVC:       doAvc(enc);break;
+    case CMD_FM_REGION: doFmRegion(scrollDirection * enc);break;
+    case CMD_SETTINGS:  doSettings(scrollDirection * enc);break;
+    case CMD_BRT:       doBrt(enca);break;
+    case CMD_CAL:       doCal(enca);break;
+    case CMD_THEME:     doTheme(scrollDirection * enc);break;
+    case CMD_UI:        doUILayout(scrollDirection * enc);break;
+    case CMD_RDS:       doRDSMode(scrollDirection * enc);break;
+    case CMD_MEMORY:    doMemory(scrollDirection * enca);break;
+    case CMD_SLEEP:     doSleep(enca);break;
+    case CMD_SLEEPMODE: doSleepMode(scrollDirection * enc);break;
+    case CMD_BLEMODE:   doBleMode(scrollDirection * enc);break;
+    case CMD_WIFIMODE:  doWiFiMode(scrollDirection * enc);break;
+    case CMD_ZOOM:      doZoom(enc);break;
+    case CMD_SCROLL:    doScrollDir(enc);break;
+    case CMD_UTCOFFSET: doUTCOffset(scrollDirection * enc);break;
+    case CMD_SQUELCH:   doSquelch(enca);break;
+    case CMD_ABOUT:     doAbout(enc);break;
     default:            return(false);
   }
 
