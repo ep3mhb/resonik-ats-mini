@@ -156,19 +156,21 @@ bool muteOn(uint8_t mode, int x)
   }
 
   if(mute) {
-    rx.setVolume(0);
     // Disable audio amplifier to silence speaker
     digitalWrite(PIN_AMP_EN, LOW);
     // Activate the mute circuit
-    rx.setHardwareAudioMute(true);
+    digitalWrite(AUDIO_MUTE, HIGH);
+    delay(50);
+    rx.setAudioMute(true);
   }
 
   if(unmute) {
-    rx.setVolume(volume);
+    // Deactivate the mute circuit
+    digitalWrite(AUDIO_MUTE, LOW);
+    delay(50);
+    rx.setAudioMute(false);
     // Enable audio amplifier to restore speaker output
     digitalWrite(PIN_AMP_EN, HIGH);
-    // Deactivate the mute circuit
-    rx.setHardwareAudioMute(false);
   }
 
   switch(mode) {
