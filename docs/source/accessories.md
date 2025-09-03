@@ -80,6 +80,7 @@ It is also possible to build one yourself ([schematics](https://electronics.stac
 * <https://www.thingiverse.com/thing:6968102>
 * <https://www.thingiverse.com/thing:6997758>
 * <https://www.thingiverse.com/thing:6991652>
+* <https://www.thingiverse.com/thing:6993352>
 * <https://3dtoday.ru/3d-models/gadgets/aksessuary/skameecka-dlya-kitaiskogo-radiopriemnika-malysarik>
 * <https://cults3d.com/es/modelo-3d/artilugios/si4732-antenna-and-frame-llaven>
 * <https://www.printables.com/model/1314023-a-desk-stand-for-the-ats-mini-si4732-pocket-receiv>
