@@ -113,9 +113,7 @@ From now on you can switch the modes as you want and connect to your receiver ei
 When on the go, you can set up a mobile Wi-Fi hotspot on your smartphone and use it to connect the receiver to the internet.
 ```
 
-### Receiver settings available via Wi-Fi only
-
-* **Tuning Display Delay** - time in milliseconds to delay screen updates while tuning/seeking, 0 (disabled) ... 255. Makes the tuning process a bit faster because the screen is updated less often.
+<!-- ### Receiver settings available via Wi-Fi only -->
 
 ## Schedule
 

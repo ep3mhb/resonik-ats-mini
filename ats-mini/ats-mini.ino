@@ -77,9 +77,6 @@ int8_t scrollDirection = 1;             // Menu scroll direction
 
 // Background screen refresh
 uint32_t background_timer = millis();   // Background screen refresh timer.
-uint32_t tuning_timer = millis();       // Tuning hold off timer.
-bool tuning_flag = false;               // Flag to indicate tuning
-uint8_t tuneHoldOff = 0;                // Timer to hold off display whilst tuning
 
 //
 // Current parameters
@@ -518,20 +515,6 @@ bool checkStopSeeking()
 // This function is called by the seek function process.
 void showFrequencySeek(uint16_t freq)
 {
-  // Check if tuning flag is set
-  if(tuneHoldOff)
-  {
-    if(tuning_flag)
-    {
-      if((millis() - tuning_timer) > tuneHoldOff)
-        tuning_flag = false;
-    }
-    else
-    {
-      tuning_timer = millis();
-      tuning_flag = true;
-    }
-  }
   currentFrequency = freq;
   drawScreen();
 }
@@ -547,13 +530,6 @@ bool doSeek(int16_t enc)
   {
     if(isSSB())
     {
-      if(tuneHoldOff)
-      {
-        // Tuning timer to hold off (FM/AM) display updates
-        tuning_flag = true;
-        tuning_timer = millis();
-      }
-
       updateBFO(currentBFO + enc * getCurrentStep(true)->step, true);
     }
     else
@@ -565,7 +541,6 @@ bool doSeek(int16_t enc)
       // Flag is set by rotary encoder and cleared on seek/scan entry
       seekStop = false;
       rx.seekStationProgress(showFrequencySeek, checkStopSeeking, enc>0? 1 : 0);
-      if(tuneHoldOff) tuning_flag = false;
       updateFrequency(rx.getFrequency(), true);
     }
   }
@@ -603,13 +578,6 @@ bool doTune(int16_t enc, bool fast = false)
   //
   if(isSSB())
   {
-    if(tuneHoldOff)
-    {
-      // Tuning timer to hold off (SSB) display updates
-      tuning_flag = true;
-      tuning_timer = millis();
-    }
-
     uint32_t step = getCurrentStep(fast)->step;
     uint32_t stepAdjust = (currentFrequency * 1000 + currentBFO) % step;
     step = !stepAdjust? step : enc>0? step - stepAdjust : stepAdjust;
@@ -622,13 +590,6 @@ bool doTune(int16_t enc, bool fast = false)
   //
   else
   {
-    if(tuneHoldOff)
-    {
-      // Tuning timer to hold off (FM/AM) display updates
-      tuning_flag = true;
-      tuning_timer = millis();
-    }
-
     uint16_t step = getCurrentStep(fast)->step;
     uint16_t stepAdjust = currentFrequency % step;
     stepAdjust = (currentMode==FM) && (step==20)? (stepAdjust+10) % step : stepAdjust;
@@ -656,13 +617,6 @@ bool doDigit(int16_t enc)
   // SSB tuning
   if(isSSB())
   {
-    if(tuneHoldOff)
-    {
-      // Tuning timer to hold off (SSB) display updates
-      tuning_flag = true;
-      tuning_timer = millis();
-    }
-
     updated = updateBFO(currentBFO + enc * getFreqInputStep(), false);
   }
 
@@ -671,13 +625,6 @@ bool doDigit(int16_t enc)
   //
   else
   {
-    if(tuneHoldOff)
-    {
-      // Tuning timer to hold off (FM/AM) display updates
-      tuning_flag = true;
-      tuning_timer = millis();
-    }
-
     // Tune to a new frequency
     updated = updateFrequency(currentFrequency + enc * getFreqInputStep(), false);
   }
@@ -1000,13 +947,6 @@ void loop()
 
   // Tick NETWORK time, connecting to WiFi if requested
   netTickTime();
-
-  // Check if tuning flag is set
-  if(tuneHoldOff && tuning_flag && ((currentTime - tuning_timer) > tuneHoldOff))
-  {
-    tuning_flag = false;
-    needRedraw = true;
-  }
 
   // Run clock
   needRedraw |= clockTickTime();

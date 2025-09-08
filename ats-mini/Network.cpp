@@ -387,9 +387,8 @@ void webSetConfig(AsyncWebServerRequest *request)
     prefsSave |= SAVE_SETTINGS;
   }
 
-  // Save scroll direction, tuning hold off, and menu zoom
+  // Save scroll direction and menu zoom
   scrollDirection = request->hasParam("scroll", true)? -1 : 1;
-  tuneHoldOff     = request->getParam("holdoff", true)->value().toInt();
   zoomMenu        = request->hasParam("zoom", true);
   prefsSave |= SAVE_SETTINGS;
 
@@ -690,11 +689,6 @@ const String webConfigPage()
     "<TD CLASS='LABEL'>Reverse Scrolling</TD>"
     "<TD><INPUT TYPE='CHECKBOX' NAME='scroll' VALUE='on'" +
     (scrollDirection<0? " CHECKED ":"") + "></TD>"
-  "</TR>"
-  "<TR>"
-    "<TD CLASS='LABEL'>Tuning Display Delay</TD>"
-    "<TD><INPUT TYPE='NUMBER' NAME='holdoff' VALUE='" +
-tuneHoldOff + "' MIN='0' MAX='255'></TD>"
   "</TR>"
    "<TR>"
     "<TD CLASS='LABEL'>Zoomed Menu</TD>"
