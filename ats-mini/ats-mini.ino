@@ -248,18 +248,19 @@ int16_t accelerateEncoder(int8_t dir)
   const uint32_t speedThresholds[] = {350, 60, 45, 35, 25}; // ms between clicks
   const uint16_t accelFactors[] =     {1,   2,  4,  8,  16}; // corresponding multipliers
   static uint16_t lastAccelFactor = accelFactors[0];
-  // static uint32_t lastSpeed = speedThresholds[0];
+  static uint32_t lastSpeed = speedThresholds[0];
   static uint32_t lastEncoderTime = 0;
   static int8_t lastEncoderDir = 0;
 
   uint32_t currentTime = millis();
   uint16_t accelFactor;
 
-  uint32_t speed = currentTime - lastEncoderTime;
+  uint32_t speed = ((currentTime - lastEncoderTime) * 7 + lastSpeed * 3) / 10;
 
   // Reset acceleration on timeout or direction change
   if (speed > speedThresholds[0] || lastEncoderDir != dir) {
     accelFactor = accelFactors[0];
+    speed = speedThresholds[0];
   } else {
     // Lookup acceleration factor
     accelFactor = lastAccelFactor;
@@ -272,7 +273,7 @@ int16_t accelerateEncoder(int8_t dir)
   }
   lastEncoderTime = currentTime;
   lastEncoderDir = dir;
-  // lastSpeed = speed;
+  lastSpeed = speed;
   lastAccelFactor = accelFactor;
 
   // Apply acceleration with direction
