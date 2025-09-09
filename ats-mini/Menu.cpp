@@ -275,15 +275,6 @@ static const Step fmSteps[] =
   { 100, "1M",   10 },
 };
 
-static const uint8_t fmFastSteps[] =
-{
-  1, //  10kHz -> 50kHz
-  2, //  50kHz -> 100kHz
-  3, // 100kHz -> 200kHz
-  4, // 200kHz -> 1MHz
-  4, //   1MHz -> 1MHz
-};
-
 // SSB (Hz)
 static const Step ssbSteps[] =
 {
@@ -298,19 +289,6 @@ static const Step ssbSteps[] =
   { 10000, "10k", 10 },
 };
 
-static const uint8_t ssbFastSteps[] =
-{
-  3, //  10Hz -> 100Hz
-  3, //  25Hz -> 100Hz
-  4, //  50Hz -> 500Hz
-  5, // 100Hz -> 1kHz
-  6, // 500Hz -> 5kHz
-  6, //  1kHz -> 5kHz
-  8, //  5kHz -> 10kHz
-  7, //  9kHz -> 9kHz
-  8, // 10kHz -> 10kHz
-};
-
 // AM (kHz)
 static const Step amSteps[] =
 {
@@ -323,19 +301,7 @@ static const Step amSteps[] =
   { 1000, "1M",   10 },
 };
 
-static const uint8_t amFastSteps[] =
-{
-  1, //   1kHz -> 5kHz
-  3, //   5kHz -> 10kHz
-  2, //   9kHz -> 9kHz
-  4, //  10kHz -> 50kHz
-  5, //  50kHz -> 100kHz
-  6, // 100kHz -> 1MHz
-  6, //   1MHz -> 1MHz
-};
-
 static const Step *steps[4] = { fmSteps, ssbSteps, ssbSteps, amSteps };
-static const uint8_t *fastSteps[4] = { fmFastSteps, ssbFastSteps, ssbFastSteps, amFastSteps };
 static const uint8_t defaultStepIdx[4] = { 2, 5, 5, 1 };
 
 static int getLastStep(int mode)
@@ -351,10 +317,10 @@ static int getLastStep(int mode)
   return(0);
 }
 
-const Step *getCurrentStep(bool fast)
+const Step *getCurrentStep()
 {
   uint8_t idx = bands[bandIdx].currentStepIdx > getLastStep(currentMode) ? defaultStepIdx[currentMode] : bands[bandIdx].currentStepIdx;
-  return(&steps[currentMode][fast ? fastSteps[currentMode][idx]:idx]);
+  return(&steps[currentMode][idx]);
 }
 
 static uint8_t freqInputPos = 0;
@@ -366,7 +332,7 @@ static uint8_t getDefaultFreqInputPos(int mode, int step)
 
 void resetFreqInputPos()
 {
-  freqInputPos = getDefaultFreqInputPos(currentMode, getCurrentStep(false)->step);
+  freqInputPos = getDefaultFreqInputPos(currentMode, getCurrentStep()->step);
 }
 
 uint8_t getFreqInputPos()

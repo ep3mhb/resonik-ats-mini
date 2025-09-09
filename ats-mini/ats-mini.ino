@@ -517,7 +517,7 @@ void showFrequencySeek(uint16_t freq)
 //
 // Handle encoder rotation in seek mode
 //
-bool doSeek(int16_t enc)
+bool doSeek(int16_t enc, int16_t enca)
 {
   // disable amp to avoid sound artifacts
   muteOn(MUTE_TEMP, true);
@@ -525,7 +525,7 @@ bool doSeek(int16_t enc)
   {
     if(isSSB())
     {
-      updateBFO(currentBFO + enc * getCurrentStep(true)->step, true);
+      updateBFO(currentBFO + enca * getCurrentStep()->step, true);
     }
     else
     {
@@ -566,14 +566,14 @@ bool doSeek(int16_t enc)
 //
 // Handle tuning
 //
-bool doTune(int16_t enc, bool fast = false)
+bool doTune(int16_t enc)
 {
   //
   // SSB tuning
   //
   if(isSSB())
   {
-    uint32_t step = getCurrentStep(fast)->step;
+    uint32_t step = getCurrentStep()->step;
     uint32_t stepAdjust = (currentFrequency * 1000 + currentBFO) % step;
     step = !stepAdjust? step : enc>0? step - stepAdjust : stepAdjust;
 
@@ -585,7 +585,7 @@ bool doTune(int16_t enc, bool fast = false)
   //
   else
   {
-    uint16_t step = getCurrentStep(fast)->step;
+    uint16_t step = getCurrentStep()->step;
     uint16_t stepAdjust = currentFrequency % step;
     stepAdjust = (currentMode==FM) && (step==20)? (stepAdjust+10) % step : stepAdjust;
     step = !stepAdjust? step : enc>0? step - stepAdjust : stepAdjust;
@@ -768,11 +768,6 @@ void loop()
           // Current frequency may have changed
           prefsRequestSave(SAVE_CUR_BAND);
           break;
-        case CMD_SCAN:
-          // Fast tuning in scan mode
-          needRedraw |= doTune(encCountAccel, true);
-          prefsRequestSave(SAVE_CUR_BAND);
-          break;
       }
     }
     // Reset timeouts while push and rotate is active
@@ -800,7 +795,7 @@ void loop()
           break;
         case CMD_SEEK:
           // Seek mode
-          needRedraw |= doSeek(encCount);
+          needRedraw |= doSeek(encCount, encCountAccel);
           // Seek can take long time, renew the timestamp
           currentTime = millis();
           // Current frequency may have changed

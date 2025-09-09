@@ -111,7 +111,7 @@ int getTotalMemories();
 Band *getCurrentBand();
 uint8_t getFreqInputPos();
 int getFreqInputStep();
-const Step *getCurrentStep(bool fast = false);
+const Step *getCurrentStep();
 const Bandwidth *getCurrentBandwidth();
 uint8_t getRDSMode();
 
