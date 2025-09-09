@@ -129,8 +129,6 @@ extern SI4735_fixed rx;
 extern TFT_eSprite spr;
 extern TFT_eSPI tft;
 
-extern bool tuning_flag;
-extern uint8_t tuneHoldOff;
 extern bool pushAndRotate;
 extern bool seekStop;
 extern uint8_t rssi;
@@ -173,9 +171,9 @@ static inline bool isSSB() { return(currentMode>FM && currentMode<AM); }
 
 void useBand(const Band *band);
 bool updateBFO(int newBFO, bool wrap = true);
-bool doSeek(int8_t dir);
+bool doSeek(int16_t enc);
 bool clickFreq(bool shortPress);
-uint8_t doAbout(int dir);
+uint8_t doAbout(int16_t enc);
 bool checkStopSeeking();
 
 // Battery.c

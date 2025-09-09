@@ -426,9 +426,6 @@ void drawScreen(const char *statusLine1, const char *statusLine2)
 {
   if(sleepOn()) return;
 
-  // Do not update the screen while tuning (if enabled)
-  if(tuneHoldOff && tuning_flag) return;
-
   // Clear screen buffer
   spr.fillSprite(TH.bg);
 

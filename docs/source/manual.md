@@ -54,8 +54,8 @@ The menu can be invoked by clicking the encoder button and is closed automatical
 * **Band** - List of [Bands](#bands-table).
 * **Volume** - 0 (silent) ... 63 (max). The headphone volume level can be low (compared to the built-in speaker) due to limitation of the initial hardware design. Use short press to mute/unmute.
 * **Step** - Tuning step (not every step is available on every band and mode).
-* **Seek** - Scan up or down on AM/FM, faster tuning on LSB/USB (hardware seek function is not supported by SI4732 on SSB). Rotate or click the encoder to stop the scan. Use short press to switch between the scan and [schedule](#schedule) modes. Use press and rotate for manual fine tuning.
-* **Scan** - Scan a frequency range and plot the RSSI (S) and SNR (N) graphs (unfortunately, these metrics are almost meaningless in SSB modes due to SI4732 patch limitations). Both graphs are normalized to 0.0 - 1.0 range. While the Scan mode is active, short press the encoder for 0.5 seconds to rescan, press & rotate to tune using a larger step. To abort a running scan process click or rotate the encoder.
+* **Seek** - Seek up or down on AM/FM, normal tuning on LSB/USB (hardware seek function is not supported by SI4732 on SSB). Rotate or click the encoder to stop the seek. Use short press to switch between the seek and [schedule](#schedule) modes. Use press and rotate for manual fine tuning.
+* **Scan** - Scan a frequency range and plot the RSSI (S) and SNR (N) graphs (unfortunately, these metrics are almost meaningless in SSB modes due to SI4732 patch limitations). Both graphs are normalized to 0.0 - 1.0 range. While the Scan mode is active, short press the encoder for 0.5 seconds to rescan. To abort a running scan process click or rotate the encoder.
 * **Memory** - 99 slots to store favorite frequencies. Short press on an empty slot to store the current frequency, short press to erase a slot, switch between stored slots by rotating the encoder, click to exit the menu. It is also possible to edit the memory slots via [serial port](#serial-interface) or via the [web based tool](memory.md) in Google Chrome.
 * **Squelch** - mute the speaker when the RSSI level is lower than the defined threshold. Unlikely to work in SSB mode. To turn it off quickly, short press the encoder button while in the Squelch menu mode.
 * **Bandwidth** - Selects the bandwidth of the channel filter.
@@ -113,9 +113,7 @@ From now on you can switch the modes as you want and connect to your receiver ei
 When on the go, you can set up a mobile Wi-Fi hotspot on your smartphone and use it to connect the receiver to the internet.
 ```
 
-### Receiver settings available via Wi-Fi only
-
-* **Tuning Display Delay** - time in milliseconds to delay screen updates while tuning/seeking, 0 (disabled) ... 255. Makes the tuning process a bit faster because the screen is updated less often.
+<!-- ### Receiver settings available via Wi-Fi only -->
 
 ## Schedule
 

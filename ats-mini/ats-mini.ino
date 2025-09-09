@@ -47,7 +47,8 @@ long lastNTPCheck = millis();
 long lastScheduleCheck = millis();
 
 long elapsedCommand = millis();
-volatile int encoderCount = 0;
+volatile int16_t encoderCount = 0;
+volatile int16_t encoderCountAccel = 0;
 uint16_t currentFrequency;
 
 // AGC/ATTN index per mode (FM/AM/SSB)
@@ -76,9 +77,6 @@ int8_t scrollDirection = 1;             // Menu scroll direction
 
 // Background screen refresh
 uint32_t background_timer = millis();   // Background screen refresh timer.
-uint32_t tuning_timer = millis();       // Tuning hold off timer.
-bool tuning_flag = false;               // Flag to indicate tuning
-uint8_t tuneHoldOff = 0;                // Timer to hold off display whilst tuning
 
 //
 // Current parameters
@@ -241,6 +239,39 @@ void setup()
   bleInit(bleModeIdx);
 }
 
+
+int16_t accelerateEncoder(int8_t dir)
+{
+  const uint32_t speedThresholds[] = {350, 60, 45, 35, 25}; // ms between clicks
+  const uint16_t accelFactors[] =      {1,  2,  4,  8, 16}; // corresponding multipliers
+  static uint32_t lastEncoderTime = 0;
+  static uint32_t lastSpeed = speedThresholds[0];
+  static uint16_t lastAccelFactor = accelFactors[0];
+  static int8_t lastEncoderDir = 0;
+
+  uint32_t currentTime = millis();
+  lastSpeed = ((currentTime - lastEncoderTime) * 7 + lastSpeed * 3) / 10;
+
+  // Reset acceleration on timeout or direction change
+  if (lastSpeed > speedThresholds[0] || lastEncoderDir != dir) {
+    lastSpeed = speedThresholds[0];
+    lastAccelFactor = accelFactors[0];
+  } else {
+    // Lookup acceleration factor
+    for (int8_t i = LAST_ITEM(speedThresholds); i >= 0; i--) {
+      if (lastSpeed <= speedThresholds[i] && lastAccelFactor < accelFactors[i]) {
+        lastAccelFactor = accelFactors[i];
+        break;
+      }
+    }
+  }
+  lastEncoderTime = currentTime;
+  lastEncoderDir = dir;
+
+  // Apply acceleration with direction
+  return(dir * lastAccelFactor);
+}
+
 //
 // Reads encoder via interrupt
 // Uses Rotary.h and Rotary.cpp implementation to process encoder via
@@ -254,9 +285,30 @@ ICACHE_RAM_ATTR void rotaryEncoder()
   uint8_t encoderStatus = encoder.process();
   if(encoderStatus)
   {
-    encoderCount = encoderStatus==DIR_CW? 1 : -1;
+    int8_t delta = encoderStatus==DIR_CW? 1 : -1;
+    int16_t accelDelta = accelerateEncoder(delta);
+
+    // Do not accumulate too many encoder steps if event loop doesn't consume them
+    if(abs(encoderCount) < 5)
+    {
+      encoderCount += delta;
+      encoderCountAccel += accelDelta;
+    }
+
+    // Reset the seek flag
     seekStop = true;
   }
+}
+
+uint32_t consumeEncoderCounts()
+{
+  int16_t encCount, encCountAccel;
+  noInterrupts();
+  encCount = encoderCount;
+  encCountAccel = encoderCountAccel;
+  encoderCount = encoderCountAccel = 0;
+  interrupts();
+  return ((uint32_t)encCountAccel << 16) | ((uint16_t)encCount & 0xFFFF);
 }
 
 //
@@ -458,20 +510,6 @@ bool checkStopSeeking()
 // This function is called by the seek function process.
 void showFrequencySeek(uint16_t freq)
 {
-  // Check if tuning flag is set
-  if(tuneHoldOff)
-  {
-    if(tuning_flag)
-    {
-      if((millis() - tuning_timer) > tuneHoldOff)
-        tuning_flag = false;
-    }
-    else
-    {
-      tuning_timer = millis();
-      tuning_flag = true;
-    }
-  }
   currentFrequency = freq;
   drawScreen();
 }
@@ -479,7 +517,7 @@ void showFrequencySeek(uint16_t freq)
 //
 // Handle encoder rotation in seek mode
 //
-bool doSeek(int8_t dir)
+bool doSeek(int16_t enc, int16_t enca)
 {
   // disable amp to avoid sound artifacts
   muteOn(MUTE_TEMP, true);
@@ -487,14 +525,7 @@ bool doSeek(int8_t dir)
   {
     if(isSSB())
     {
-      if(tuneHoldOff)
-      {
-        // Tuning timer to hold off (FM/AM) display updates
-        tuning_flag = true;
-        tuning_timer = millis();
-      }
-
-      updateBFO(currentBFO + dir * getCurrentStep(true)->step, true);
+      updateBFO(currentBFO + enca * getCurrentStep()->step, true);
     }
     else
     {
@@ -504,19 +535,18 @@ bool doSeek(int8_t dir)
 
       // Flag is set by rotary encoder and cleared on seek/scan entry
       seekStop = false;
-      rx.seekStationProgress(showFrequencySeek, checkStopSeeking, dir>0? 1 : 0);
-      if(tuneHoldOff) tuning_flag = false;
+      rx.seekStationProgress(showFrequencySeek, checkStopSeeking, enc>0? 1 : 0);
       updateFrequency(rx.getFrequency(), true);
     }
   }
-  else if(seekMode() == SEEK_SCHEDULE && dir)
+  else if(seekMode() == SEEK_SCHEDULE && enc)
   {
     uint8_t hour, minute;
     // Clock is valid because the above seekMode() call checks that
     clockGetHM(&hour, &minute);
 
     size_t offset = -1;
-    const StationSchedule *schedule = dir > 0 ?
+    const StationSchedule *schedule = enc > 0 ?
       eibiNext(currentFrequency + currentBFO / 1000, hour, minute, &offset) :
       eibiPrev(currentFrequency + currentBFO / 1000, hour, minute, &offset);
 
@@ -536,25 +566,18 @@ bool doSeek(int8_t dir)
 //
 // Handle tuning
 //
-bool doTune(int8_t dir, bool fast = false)
+bool doTune(int16_t enc)
 {
   //
   // SSB tuning
   //
   if(isSSB())
   {
-    if(tuneHoldOff)
-    {
-      // Tuning timer to hold off (SSB) display updates
-      tuning_flag = true;
-      tuning_timer = millis();
-    }
-
-    uint32_t step = getCurrentStep(fast)->step;
+    uint32_t step = getCurrentStep()->step;
     uint32_t stepAdjust = (currentFrequency * 1000 + currentBFO) % step;
-    step = !stepAdjust? step : dir>0? step - stepAdjust : stepAdjust;
+    step = !stepAdjust? step : enc>0? step - stepAdjust : stepAdjust;
 
-    updateBFO(currentBFO + dir * step, true);
+    updateBFO(currentBFO + enc * step, true);
   }
 
   //
@@ -562,20 +585,13 @@ bool doTune(int8_t dir, bool fast = false)
   //
   else
   {
-    if(tuneHoldOff)
-    {
-      // Tuning timer to hold off (FM/AM) display updates
-      tuning_flag = true;
-      tuning_timer = millis();
-    }
-
-    uint16_t step = getCurrentStep(fast)->step;
+    uint16_t step = getCurrentStep()->step;
     uint16_t stepAdjust = currentFrequency % step;
     stepAdjust = (currentMode==FM) && (step==20)? (stepAdjust+10) % step : stepAdjust;
-    step = !stepAdjust? step : dir>0? step - stepAdjust : stepAdjust;
+    step = !stepAdjust? step : enc>0? step - stepAdjust : stepAdjust;
 
     // Tune to a new frequency
-    updateFrequency(currentFrequency + step * dir, true);
+    updateFrequency(currentFrequency + step * enc, true);
   }
 
   // Clear current station name and information
@@ -589,21 +605,14 @@ bool doTune(int8_t dir, bool fast = false)
 //
 // Rotate digit
 //
-bool doDigit(int8_t dir)
+bool doDigit(int16_t enc)
 {
   bool updated = false;
 
   // SSB tuning
   if(isSSB())
   {
-    if(tuneHoldOff)
-    {
-      // Tuning timer to hold off (SSB) display updates
-      tuning_flag = true;
-      tuning_timer = millis();
-    }
-
-    updated = updateBFO(currentBFO + dir * getFreqInputStep(), false);
+    updated = updateBFO(currentBFO + enc * getFreqInputStep(), false);
   }
 
   //
@@ -611,15 +620,8 @@ bool doDigit(int8_t dir)
   //
   else
   {
-    if(tuneHoldOff)
-    {
-      // Tuning timer to hold off (FM/AM) display updates
-      tuning_flag = true;
-      tuning_timer = millis();
-    }
-
     // Tune to a new frequency
-    updated = updateFrequency(currentFrequency + getFreqInputStep() * dir, false);
+    updated = updateFrequency(currentFrequency + enc * getFreqInputStep(), false);
   }
 
   if (updated) {
@@ -711,10 +713,16 @@ void loop()
   uint32_t currentTime = millis();
   bool needRedraw = false;
 
+  uint32_t encCounts = consumeEncoderCounts();
+  int16_t encCount = (int16_t)(encCounts & 0xFFFF);
+  int16_t encCountAccel = (int16_t)(encCounts >> 16);
+
   ButtonTracker::State pb1st = pb1.update(digitalRead(ENCODER_PUSH_BUTTON) == LOW);
 
   // Periodically print status to serial
   remoteTickTime();
+
+  if(encCount) setCpuFrequencyMhz(240);
 
   // Receive and execute serial command
   if(Serial.available()>0)
@@ -723,23 +731,24 @@ void loop()
     needRedraw |= !!(revent & REMOTE_CHANGED);
     pb1st.wasClicked |= !!(revent & REMOTE_CLICK);
     int direction = revent >> REMOTE_DIRECTION;
-    encoderCount = direction? direction : encoderCount;
+    encCount = direction? direction : encCount;
+    encCountAccel = direction? direction : encCountAccel;
     if(revent & REMOTE_PREFS) prefsRequestSave(SAVE_ALL);
   }
 
   int ble_event = bleDoCommand(bleModeIdx);
 
   // Block encoder rotation when in the locked sleep mode
-  if(encoderCount && sleepOn() && sleepModeIdx==SLEEP_LOCKED) encoderCount = 0;
+  if(encCount && sleepOn() && sleepModeIdx==SLEEP_LOCKED) encCount = encCountAccel = 0;
 
   // Activate push and rotate mode (can span multiple loop iterations until the button is released)
-  if (encoderCount && pb1st.isPressed) pushAndRotate = true;
+  if (encCount && pb1st.isPressed) pushAndRotate = true;
 
   // If push and rotate mode is active...
   if(pushAndRotate)
   {
     // If encoder has been rotated
-    if(encoderCount)
+    if(encCount)
     {
       switch(currentCmd)
       {
@@ -750,24 +759,16 @@ void loop()
           break;
         case CMD_FREQ:
           // Select digit
-          doSelectDigit(encoderCount);
+          doSelectDigit(encCount);
           needRedraw = true;
           break;
         case CMD_SEEK:
           // Normal tuning in seek mode
-          needRedraw |= doTune(encoderCount);
+          needRedraw |= doTune(encCount);
           // Current frequency may have changed
           prefsRequestSave(SAVE_CUR_BAND);
           break;
-        case CMD_SCAN:
-          // Fast tuning in scan mode
-          needRedraw |= doTune(encoderCount, true);
-          prefsRequestSave(SAVE_CUR_BAND);
-          break;
       }
-
-      // Clear encoder rotation
-      encoderCount = 0;
     }
     // Reset timeouts while push and rotate is active
     elapsedSleep = elapsedCommand = currentTime;
@@ -775,26 +776,26 @@ void loop()
   else
   {
     // If encoder has been rotated
-    if(encoderCount)
+    if(encCount)
     {
       switch(currentCmd)
       {
         case CMD_NONE:
         case CMD_SCAN:
           // Tuning
-          needRedraw |= doTune(encoderCount);
+          needRedraw |= doTune(encCountAccel);
           // Current frequency may have changed
           prefsRequestSave(SAVE_CUR_BAND);
           break;
         case CMD_FREQ:
           // Digit tuning
-          needRedraw |= doDigit(encoderCount);
+          needRedraw |= doDigit(encCount);
           // Current frequency may have changed
           prefsRequestSave(SAVE_CUR_BAND);
           break;
         case CMD_SEEK:
           // Seek mode
-          needRedraw |= doSeek(encoderCount);
+          needRedraw |= doSeek(encCount, encCountAccel);
           // Seek can take long time, renew the timestamp
           currentTime = millis();
           // Current frequency may have changed
@@ -802,7 +803,7 @@ void loop()
           break;
         default:
           // Side bar menus / settings
-          needRedraw |= doSideBar(currentCmd, encoderCount);
+          needRedraw |= doSideBar(currentCmd, encCount, encCountAccel);
           // Current settings, etc. may have changed
           prefsRequestSave(SAVE_ALL);
           break;
@@ -810,9 +811,6 @@ void loop()
 
       // Reset timeouts
       elapsedSleep = elapsedCommand = currentTime;
-
-      // Clear encoder rotation
-      encoderCount = 0;
     }
     else if(pb1st.isLongPressed)
     {
@@ -888,6 +886,7 @@ void loop()
   // Disable commands control
   if((currentTime - elapsedCommand) > ELAPSED_COMMAND)
   {
+    setCpuFrequencyMhz(80);
     if(currentCmd != CMD_NONE && currentCmd != CMD_SEEK && currentCmd != CMD_SCAN && currentCmd != CMD_MEMORY)
     {
       currentCmd = CMD_NONE;
@@ -938,13 +937,6 @@ void loop()
 
   // Tick NETWORK time, connecting to WiFi if requested
   netTickTime();
-
-  // Check if tuning flag is set
-  if(tuneHoldOff && tuning_flag && ((currentTime - tuning_timer) > tuneHoldOff))
-  {
-    tuning_flag = false;
-    needRedraw = true;
-  }
 
   // Run clock
   needRedraw |= clockTickTime();
