@@ -261,18 +261,22 @@ void drawScale(uint32_t freq)
   spr.setTextDatum(MC_DATUM);
   spr.setTextColor(TH.scale_text, TH.bg);
 
+  // Extra frequencies to draw outside the screen boundaries
+  // (ensures frequency numbers don't disappear at the edges)
+  int16_t slack = 3;
+
   // Scale offset
-  int16_t offset = (freq % 10) / 10.0 * 8;
+  int16_t offset = ((freq % 10) / 10.0 + slack) * 8;
 
   // Start drawing frequencies from the left
-  freq = freq / 10 - 20;
+  freq = freq / 10 - 20 - slack;
 
   // Get band edges
   const Band *band = getCurrentBand();
   uint32_t minFreq = band->minimumFreq / 10;
   uint32_t maxFreq = band->maximumFreq / 10;
 
-  for(int i=0 ; i<41 ; i++, freq++)
+  for(int i=0 ; i<(slack + 41 + slack) ; i++, freq++)
   {
     int16_t x = i * 8 - offset;
     if(freq >= minFreq && freq <= maxFreq)
