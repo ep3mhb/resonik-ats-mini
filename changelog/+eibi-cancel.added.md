@@ -1,1 +1,0 @@
-Encoder click now cancels the EiBi schedule download process.

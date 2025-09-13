@@ -1,1 +1,0 @@
-EXPERIMENTAL: overclock the I2C bus to 800kHz (affects Si4732).

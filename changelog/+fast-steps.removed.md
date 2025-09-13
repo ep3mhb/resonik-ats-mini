@@ -1,1 +1,0 @@
-Remove faster tuning in Seek mode on SSB and in Scan mode via press & rotate in favor af the new accelerated encoder control.
