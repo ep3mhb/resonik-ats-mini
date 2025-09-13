@@ -306,7 +306,8 @@ uint32_t consumeEncoderCounts()
   noInterrupts();
   encCount = encoderCount;
   encCountAccel = encoderCountAccel;
-  encoderCount = encoderCountAccel = 0;
+  encoderCount = 0;
+  encoderCountAccel = 0;
   interrupts();
   return ((uint32_t)encCountAccel << 16) | ((uint16_t)encCount & 0xFFFF);
 }
