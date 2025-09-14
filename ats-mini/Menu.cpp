@@ -992,7 +992,7 @@ static void drawCommon(const char *title, int x, int y, int sx, bool cursor = fa
 {
   spr.setTextDatum(MC_DATUM);
 
-  spr.setTextColor(TH.menu_hdr, TH.menu_bg);
+  spr.setTextColor(TH.menu_hdr);
   spr.fillSmoothRoundRect(1+x, 1+y, 76+sx, 110, 4, TH.menu_border);
   spr.fillSmoothRoundRect(2+x, 2+y, 74+sx, 108, 4, TH.menu_bg);
 
@@ -1000,7 +1000,7 @@ static void drawCommon(const char *title, int x, int y, int sx, bool cursor = fa
   spr.drawLine(1+x, 23+y, 76+sx, 23+y, TH.menu_border);
 
   spr.setTextFont(0);
-  spr.setTextColor(TH.menu_item, TH.menu_bg);
+  spr.setTextColor(TH.menu_item);
   if(cursor)
     spr.fillRoundRect(6+x, 24+y+(2*16), 66+sx, 16, 2, TH.menu_hl_bg);
 }
@@ -1011,13 +1011,13 @@ static void drawMenu(int x, int y, int sx)
 
   spr.fillSmoothRoundRect(1+x, 1+y, 76+sx, 110, 4, TH.menu_border);
   spr.fillSmoothRoundRect(2+x, 2+y, 74+sx, 108, 4, TH.menu_bg);
-  spr.setTextColor(TH.menu_hdr, TH.menu_bg);
+  spr.setTextColor(TH.menu_hdr);
 
   spr.drawString("Menu", 40+x+(sx/2), 12+y, 2);
   spr.drawLine(1+x, 23+y, 76+sx, 23+y, TH.menu_border);
 
   spr.setTextFont(0);
-  spr.setTextColor(TH.menu_item, TH.menu_bg);
+  spr.setTextColor(TH.menu_item);
   spr.fillRoundRect(6+x, 24+y+(2*16), 66+sx, 16, 2, TH.menu_hl_bg);
 
   int count = ITEM_COUNT(menu);
@@ -1027,7 +1027,7 @@ static void drawMenu(int x, int y, int sx)
       drawZoomedMenu(menu[abs((menuIdx+count+i)%count)]);
       spr.setTextColor(TH.menu_hl_text, TH.menu_hl_bg);
     } else {
-      spr.setTextColor(TH.menu_item, TH.menu_bg);
+      spr.setTextColor(TH.menu_item);
     }
     spr.setTextDatum(MC_DATUM);
     spr.drawString(menu[abs((menuIdx+count+i)%count)], 40+x+(sx/2), 64+y+(i*16), 2);
@@ -1040,12 +1040,12 @@ static void drawSettings(int x, int y, int sx)
 
   spr.fillSmoothRoundRect(1+x, 1+y, 76+sx, 110, 4, TH.menu_border);
   spr.fillSmoothRoundRect(2+x, 2+y, 74+sx, 108, 4, TH.menu_bg);
-  spr.setTextColor(TH.menu_hdr, TH.menu_bg);
+  spr.setTextColor(TH.menu_hdr);
   spr.drawString("Settings", 40+x+(sx/2), 12+y, 2);
   spr.drawLine(1+x, 23+y, 76+sx, 23+y, TH.menu_border);
 
   spr.setTextFont(0);
-  spr.setTextColor(TH.menu_item, TH.menu_bg);
+  spr.setTextColor(TH.menu_item);
   spr.fillRoundRect(6+x, 24+y+(2*16), 66+sx, 16, 2, TH.menu_hl_bg);
 
   int count = ITEM_COUNT(settings);
@@ -1055,7 +1055,7 @@ static void drawSettings(int x, int y, int sx)
       drawZoomedMenu(settings[abs((settingsIdx+count+i)%count)]);
       spr.setTextColor(TH.menu_hl_text, TH.menu_hl_bg);
     } else {
-      spr.setTextColor(TH.menu_item, TH.menu_bg);
+      spr.setTextColor(TH.menu_item);
     }
 
     spr.setTextDatum(MC_DATUM);
@@ -1074,7 +1074,7 @@ static void drawMode(int x, int y, int sx)
       drawZoomedMenu(bandModeDesc[abs((currentMode+count+i)%count)]);
       spr.setTextColor(TH.menu_hl_text, TH.menu_hl_bg);
     } else {
-      spr.setTextColor(TH.menu_item, TH.menu_bg);
+      spr.setTextColor(TH.menu_item);
     }
 
     spr.setTextDatum(MC_DATUM);
@@ -1096,7 +1096,7 @@ static void drawStep(int x, int y, int sx)
       drawZoomedMenu(steps[currentMode][abs((idx+i)%count)].desc);
       spr.setTextColor(TH.menu_hl_text, TH.menu_hl_bg);
     } else {
-      spr.setTextColor(TH.menu_item, TH.menu_bg);
+      spr.setTextColor(TH.menu_item);
     }
 
     spr.setTextDatum(MC_DATUM);
@@ -1124,9 +1124,9 @@ static void drawScan(int x, int y, int sx)
 {
   drawCommon(menu[MENU_SCAN], x, y, sx);
   spr.setTextDatum(MC_DATUM);
-  spr.setTextColor(TH.scan_rssi, TH.menu_bg);
+  spr.setTextColor(TH.scan_rssi);
   spr.drawString("S", 40+x+(sx/2)-30, 66+y+30, 2);
-  spr.setTextColor(TH.scan_snr, TH.menu_bg);
+  spr.setTextColor(TH.scan_snr);
   spr.drawString("N", 40+x+(sx/2)+30, 66+y+30, 2);
 
   spr.drawSmoothArc(40+x+(sx/2), 66+y, 30, 27, 45, 180, TH.menu_param, TH.menu_bg);
@@ -1151,7 +1151,7 @@ static void drawBand(int x, int y, int sx)
       drawZoomedMenu(bands[abs((bandIdx+count+i)%count)].bandName);
       spr.setTextColor(TH.menu_hl_text, TH.menu_hl_bg);
     } else {
-      spr.setTextColor(TH.menu_item, TH.menu_bg);
+      spr.setTextColor(TH.menu_item);
     }
 
     spr.setTextDatum(MC_DATUM);
@@ -1172,7 +1172,7 @@ static void drawBandwidth(int x, int y, int sx)
       drawZoomedMenu(bandwidths[currentMode][abs((idx+i)%count)].desc);
       spr.setTextColor(TH.menu_hl_text, TH.menu_hl_bg);
     } else {
-      spr.setTextColor(TH.menu_item, TH.menu_bg);
+      spr.setTextColor(TH.menu_item);
     }
 
     spr.setTextDatum(MC_DATUM);
@@ -1191,7 +1191,7 @@ static void drawSleepMode(int x, int y, int sx)
       drawZoomedMenu(sleepModeDesc[abs((sleepModeIdx+count+i)%count)]);
       spr.setTextColor(TH.menu_hl_text, TH.menu_hl_bg);
     } else {
-      spr.setTextColor(TH.menu_item, TH.menu_bg);
+      spr.setTextColor(TH.menu_item);
     }
 
     spr.setTextDatum(MC_DATUM);
@@ -1210,7 +1210,7 @@ static void drawBleMode(int x, int y, int sx)
       drawZoomedMenu(bleModeDesc[abs((bleModeIdx+count+i)%count)]);
       spr.setTextColor(TH.menu_hl_text, TH.menu_hl_bg);
     } else {
-      spr.setTextColor(TH.menu_item, TH.menu_bg);
+      spr.setTextColor(TH.menu_item);
     }
 
     // Prevent repeats for short menus
@@ -1234,7 +1234,7 @@ static void drawWiFiMode(int x, int y, int sx)
       drawZoomedMenu(wifiModeDesc[abs((wifiModeIdx+count+i)%count)]);
       spr.setTextColor(TH.menu_hl_text, TH.menu_hl_bg);
     } else {
-      spr.setTextColor(TH.menu_item, TH.menu_bg);
+      spr.setTextColor(TH.menu_item);
     }
 
     spr.setTextDatum(MC_DATUM);
@@ -1253,7 +1253,7 @@ static void drawTheme(int x, int y, int sx)
       drawZoomedMenu(theme[abs((themeIdx+count+i)%count)].name);
       spr.setTextColor(TH.menu_hl_text, TH.menu_hl_bg);
     } else {
-      spr.setTextColor(TH.menu_item, TH.menu_bg);
+      spr.setTextColor(TH.menu_item);
     }
 
     spr.setTextDatum(MC_DATUM);
@@ -1272,7 +1272,7 @@ static void drawUILayout(int x, int y, int sx)
       drawZoomedMenu(uiLayoutDesc[abs((uiLayoutIdx+count+i)%count)]);
       spr.setTextColor(TH.menu_hl_text, TH.menu_hl_bg);
     } else {
-      spr.setTextColor(TH.menu_item, TH.menu_bg);
+      spr.setTextColor(TH.menu_item);
     }
 
     // Prevent repeats for short menus
@@ -1296,7 +1296,7 @@ static void drawRDSMode(int x, int y, int sx)
       drawZoomedMenu(rdsMode[abs((rdsModeIdx+count+i)%count)].desc);
       spr.setTextColor(TH.menu_hl_text, TH.menu_hl_bg);
     } else {
-      spr.setTextColor(TH.menu_item, TH.menu_bg);
+      spr.setTextColor(TH.menu_item);
     }
 
     spr.setTextDatum(MC_DATUM);
@@ -1320,7 +1320,7 @@ static void drawUTCOffset(int x, int y, int sx)
     }
     else
     {
-      spr.setTextColor(TH.menu_item, TH.menu_bg);
+      spr.setTextColor(TH.menu_item);
     }
 
     spr.setTextDatum(MC_DATUM);
@@ -1354,7 +1354,7 @@ static void drawMemory(int x, int y, int sx)
       drawZoomedMenu(text);
       spr.setTextColor(TH.menu_hl_text, TH.menu_hl_bg);
     } else {
-      spr.setTextColor(TH.menu_item, TH.menu_bg);
+      spr.setTextColor(TH.menu_item);
     }
 
     spr.setTextDatum(MC_DATUM);
@@ -1368,7 +1368,7 @@ static void drawVolume(int x, int y, int sx)
   drawZoomedMenu(menu[MENU_VOLUME]);
   spr.setTextDatum(MC_DATUM);
 
-  spr.setTextColor(TH.menu_param, TH.menu_bg);
+  spr.setTextColor(TH.menu_param);
   spr.drawNumber(volume, 40+x+(sx/2), 66+y, 7);
 
   if(muteOn(MUTE_MAIN))
@@ -1385,7 +1385,7 @@ static void drawAgc(int x, int y, int sx)
   drawCommon(menu[MENU_AGC_ATT], x, y, sx);
   drawZoomedMenu(menu[MENU_AGC_ATT]);
   spr.setTextDatum(MC_DATUM);
-  spr.setTextColor(TH.menu_param, TH.menu_bg);
+  spr.setTextColor(TH.menu_param);
 
   // G8PTN: Read back value is not used
   // rx.getAutomaticGainControl();
@@ -1427,7 +1427,7 @@ static void drawSoftMuteMaxAtt(int x, int y, int sx)
   drawZoomedMenu(menu[MENU_SOFTMUTE]);
   spr.setTextDatum(MC_DATUM);
 
-  spr.setTextColor(TH.menu_param, TH.menu_bg);
+  spr.setTextColor(TH.menu_param);
   spr.drawString("Max Attn", 40+x+(sx/2), 32+y, 2);
   spr.drawNumber(softMuteMaxAttIdx, 40+x+(sx/2), 60+y, 4);
   spr.drawString("dB", 40+x+(sx/2), 90+y, 4);
@@ -1439,7 +1439,7 @@ static void drawCal(int x, int y, int sx)
   drawZoomedMenu(settings[MENU_CALIBRATION]);
   spr.setTextDatum(MC_DATUM);
 
-  spr.setTextColor(TH.menu_param, TH.menu_bg);
+  spr.setTextColor(TH.menu_param);
   if (currentMode == USB)
   {
     spr.drawString("USB", 40+x+(sx/2), 35+y, 2);
@@ -1462,7 +1462,7 @@ static void drawAvc(int x, int y, int sx)
   drawZoomedMenu(menu[MENU_AVC]);
   spr.setTextDatum(MC_DATUM);
 
-  spr.setTextColor(TH.menu_param, TH.menu_bg);
+  spr.setTextColor(TH.menu_param);
   spr.drawString("Max Gain", 40+x+(sx/2), 32+y, 2);
 
   // Only show AVC for AM and SSB modes
@@ -1485,7 +1485,7 @@ static void drawFmRegion(int x, int y, int sx)
       drawZoomedMenu(fmRegions[abs((FmRegionIdx+count+i)%count)].desc);
       spr.setTextColor(TH.menu_hl_text, TH.menu_hl_bg);
     } else {
-      spr.setTextColor(TH.menu_item, TH.menu_bg);
+      spr.setTextColor(TH.menu_item);
     }
 
     // Prevent repeats for short menus
@@ -1504,7 +1504,7 @@ static void drawBrt(int x, int y, int sx)
   drawZoomedMenu(settings[MENU_BRIGHTNESS]);
   spr.setTextDatum(MC_DATUM);
 
-  spr.setTextColor(TH.menu_param, TH.menu_bg);
+  spr.setTextColor(TH.menu_param);
   spr.drawNumber(currentBrt, 40+x+(sx/2), 60+y, 4);
 }
 
@@ -1514,7 +1514,7 @@ static void drawSleep(int x, int y, int sx)
   drawZoomedMenu(settings[MENU_SLEEP]);
   spr.setTextDatum(MC_DATUM);
 
-  spr.setTextColor(TH.menu_param, TH.menu_bg);
+  spr.setTextColor(TH.menu_param);
   spr.drawNumber(currentSleep, 40+x+(sx/2), 60+y, 4);
 }
 
@@ -1524,7 +1524,7 @@ static void drawZoom(int x, int y, int sx)
   drawZoomedMenu(settings[MENU_ZOOM]);
   spr.setTextDatum(MC_DATUM);
 
-  spr.setTextColor(TH.menu_param, TH.menu_bg);
+  spr.setTextColor(TH.menu_param);
   spr.drawString(zoomMenu ? "On" : "Off", 40+x+(sx/2), 60+y, 4);
 }
 
@@ -1546,7 +1546,7 @@ static void drawInfo(int x, int y, int sx)
 
   // Info box
   spr.setTextDatum(ML_DATUM);
-  spr.setTextColor(TH.box_text, TH.box_bg);
+  spr.setTextColor(TH.box_text);
   spr.fillSmoothRoundRect(1+x, 1+y, 76+sx, 110, 4, TH.box_border);
   spr.fillSmoothRoundRect(2+x, 2+y, 74+sx, 108, 4, TH.box_bg);
 
@@ -1574,11 +1574,11 @@ static void drawInfo(int x, int y, int sx)
     spr.setTextColor(TH.box_off_text, TH.box_off_bg);
     sprintf(text, muteOn(MUTE_MAIN) ? "Muted" : "%d/sq", volume);
     spr.drawString(text, 48+x, 64+y+(0*16), 2);
-    spr.setTextColor(TH.box_text, TH.box_bg);
+    spr.setTextColor(TH.box_text);
   }
   else
   {
-    spr.setTextColor(TH.box_text, TH.box_bg);
+    spr.setTextColor(TH.box_text);
     spr.drawNumber(volume, 48+x, 64+y+(0*16), 2);
   }
 
