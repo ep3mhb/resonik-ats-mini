@@ -9,7 +9,7 @@ The user manual is available at <https://esp32-si4732.github.io/ats-mini/manual.
 
 ### Removed
 
-- Remove faster tuning in Seek mode on SSB and in Scan mode via press & rotate in favor af the new accelerated encoder control.
+- Remove faster tuning in Seek mode on SSB and in Scan mode via press & rotate in favor of the new accelerated encoder control.
 - Remove the ENABLE_HOLDOFF compile-time option.
 
 
