@@ -44,6 +44,7 @@ static constexpr const lgfx::IFont* FONT_DIGITS  = &lgfx::fonts::Font7;  // 48px
 #define LSB           1
 #define USB           2
 #define AM            3
+#define CW            4  // RESONIK: CW, received on the upper sideband
 
 // RDS Modes
 #define RDS_OFF       0b00000000  // Off
@@ -229,7 +230,11 @@ extern uint8_t disableAgc;
 
 extern const int CALMax;
 
-static inline bool isSSB() { return(currentMode>FM && currentMode<AM); }
+static inline bool isSSB() { return(currentMode==LSB || currentMode==USB || currentMode==CW); }
+// Sideband for the SI4732: CW uses USB
+static inline uint8_t ssbSideband(uint8_t mode) { return(mode==LSB? LSB : USB); }
+// CW tone pitch in Hz (Menu.cpp); the display shows the signal's own frequency
+int cwPitch();
 
 void useBand(Band *band);
 void setEncoderHalfStep(bool enabled);

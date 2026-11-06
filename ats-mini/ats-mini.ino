@@ -73,7 +73,7 @@ int8_t SsbSoftMuteIdx = 4;              // Default SSB = 4, range = 0 to 32
 
 // Menu options
 uint8_t volume = DEFAULT_VOLUME;        // Volume, range = 0 (muted) - 63
-uint8_t currentSquelch[4] = {0};        // Squelch per mode: lower 7 bits = threshold, high bit selects SNR (1) vs RSSI (0)
+uint8_t currentSquelch[5] = {0};        // Squelch per mode: lower 7 bits = threshold, high bit selects SNR (1) vs RSSI (0)
 uint8_t FmRegionIdx = 0;                // FM Region
 
 uint16_t currentBrt = 130;              // Display brightness, range = 10 to 255 in steps of 5
@@ -374,6 +374,8 @@ uint16_t getReceiverFrequency(uint32_t freq)
   {
     const Band *band = getCurrentBand();
     const uint32_t spacing = 2 * MAX_BFO;
+    // CW: the display shows the signal; listen cwPitch() below it to hear the tone
+    if(currentMode == CW) freq -= cwPitch();
     freq = ((freq + MAX_BFO) / spacing) * spacing;
     freq = constrain(freq, band->minimumFreq, band->maximumFreq);
   }
@@ -382,13 +384,15 @@ uint16_t getReceiverFrequency(uint32_t freq)
 
 int getCurrentBFO()
 {
-  return isSSB()? (int32_t)currentFrequency - (int32_t)freqToHz(getReceiverFrequency(currentFrequency), currentMode) : 0;
+  if(!isSSB()) return(0);
+  int32_t dial = (int32_t)currentFrequency - (currentMode == CW ? cwPitch() : 0);
+  return(dial - (int32_t)freqToHz(getReceiverFrequency(currentFrequency), currentMode));
 }
 
 static void applyBFO()
 {
   const Band *band = getCurrentBand();
-  int calibration = currentMode == USB? band->usbCal : currentMode == LSB? band->lsbCal : 0;
+  int calibration = ssbSideband(currentMode) == USB? band->usbCal : band->lsbCal;
   rx.setSSBBfo(-(getCurrentBFO() + calibration));
 }
 
@@ -440,7 +444,7 @@ void useBand(Band *band)
     else
     {
       // Configure SI4732 for SSB (SI4732 step not used, set to 0)
-      rx.setSSB(minFreq, maxFreq, receiverFreq, 0, currentMode);
+      rx.setSSB(minFreq, maxFreq, receiverFreq, 0, ssbSideband(currentMode));
       // Initialize SSB with automatic AVC and AFC disabled
       rx.setSSBConfig(getCurrentBandwidth()->idx, 1, 0, 1, 0, 1);
       // G8PTN: Commented out
@@ -546,6 +550,7 @@ bool doSeek(int16_t enc, int16_t enca)
     if(isSSB())
     {
       updateFrequency(currentFrequency + (int64_t)enca * getCurrentStep()->step, true);
+      bandPlanAutoSideband();
     }
     else
     {
@@ -599,6 +604,8 @@ bool doTune(int16_t enc)
   clearStationInfo();
   // Check for named frequencies
   identifyFrequency(currentFrequency);
+  // Band plan: usual sideband when entering a phone segment
+  bandPlanAutoSideband();
   // Will need a redraw
   return(true);
 }
@@ -615,6 +622,8 @@ bool doDigit(int16_t enc)
     clearStationInfo();
     // Check for named frequencies
     identifyFrequency(currentFrequency);
+    // Band plan: usual sideband when entering a phone segment
+    bandPlanAutoSideband();
   }
 
   // Will need a redraw
@@ -670,6 +679,9 @@ bool processRssiSnr()
   // G8PTN: Based on 1.2s interval, update RSSI & SNR
   if(!(updateCounter++ & 7))
   {
+    // Automatic attenuation follows the RSSI (AM only, see Menu.cpp)
+    needRedraw |= autoAttTick(newRSSI);
+
     // Show RSSI status only if this condition has changed
     if(newRSSI != rssi)
     {

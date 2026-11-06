@@ -8,6 +8,7 @@
 #include "BleMode.h"
 #include "Menu.h"
 #include "Memories.h"
+#include "BandPlan.h"
 #include "Patches.h"
 #include "Storage.h"
 
@@ -140,7 +141,10 @@ static const char *menu[] =
 #define MENU_TCPMODE      18
 #define MENU_BLEMODE      19
 #define MENU_WIFIMODE     20
-#define MENU_ABOUT        21
+#define MENU_BANDPLAN     21  // RESONIK
+#define MENU_AUTOATT      22  // RESONIK
+#define MENU_MENUSTYLE    23  // RESONIK
+#define MENU_ABOUT        24
 
 
 static uint8_t updateFwIdx = 0;
@@ -171,8 +175,24 @@ static const char *settings[] =
   "TCP Port",
   "Bluetooth",
   "Wi-Fi",
+  "Band Plan",
+  "Auto Att.",
+  "Menu Style",
   "About",
 };
+
+//
+// RESONIK settings: band plan, automatic attenuation, menu style
+//
+uint8_t bandPlanIdx = BANDPLAN_AUTO_SSB;
+const char *const bandPlanDesc[] = { "Off", "Scale", "Scale+SSB" };
+int getTotalBandPlanModes() { return(ITEM_COUNT(bandPlanDesc)); }
+
+uint8_t autoAttIdx = 1;
+const char *const autoAttDesc[] = { "Off", "On" };
+
+uint8_t menuStyleIdx = MENU_STYLE_CLASSIC;
+const char *const menuStyleDesc[] = { "Classic", "Tiles" };
 
 //
 // FM Region Menu
@@ -190,7 +210,7 @@ int getTotalFMRegions() { return(ITEM_COUNT(fmRegions)); }
 // Mode Menu
 //
 
-const char *bandModeDesc[] = { "FM", "LSB", "USB", "AM" };
+const char *bandModeDesc[] = { "FM", "LSB", "USB", "AM", "CW" };
 
 int getTotalModes() { return(ITEM_COUNT(bandModeDesc)); }
 
@@ -275,7 +295,7 @@ const TimeZone timeZones[] =
   {  -210, TZ_NONE, "UTC-3:30", "UTC-3:30", nullptr, nullptr },
   {  -180, TZ_NONE, "UTC-3", "UTC-3", nullptr, nullptr },
   {  -180, TZ_NONE, "Sao Paulo", "BRT", nullptr, "America/Sao_Paulo" },
-  {  -180, TZ_NONE, "Buenos Aires", "ART", nullptr, "America/Argentina/Buenos_Aires" },
+  {  -180, TZ_NONE, "Argentina", "ART", nullptr, "America/Argentina/Buenos_Aires" },
   {  -150, TZ_NONE, "UTC-2:30", "UTC-2:30", nullptr, nullptr },
   {  -120, TZ_NONE, "UTC-2", "UTC-2", nullptr, nullptr },
   {   -60, TZ_NONE, "UTC-1", "UTC-1", nullptr, nullptr },
@@ -287,7 +307,7 @@ const TimeZone timeZones[] =
   {    60, TZ_NONE, "Lagos", "WAT", nullptr, "Africa/Lagos" },
   {   120, TZ_NONE, "UTC+2", "UTC+2", nullptr, nullptr },
   {   120, TZ_EU, "Athens", "EET", "EEST", "Europe/Athens" },
-  {   120, TZ_NONE, "Johannesburg", "SAST", nullptr, "Africa/Johannesburg" },
+  {   120, TZ_NONE, "Cape Town", "SAST", nullptr, "Africa/Johannesburg" },
   {   180, TZ_NONE, "UTC+3", "UTC+3", nullptr, nullptr },
   {   180, TZ_NONE, "Moscow", "MSK", nullptr, "Europe/Moscow" },
   {   180, TZ_NONE, "Istanbul", "TRT", nullptr, "Europe/Istanbul" },
@@ -473,8 +493,19 @@ static const Step amSteps[] =
   { 1000000, "1M",   10 },
 };
 
-static const Step *steps[4] = { fmSteps, ssbSteps, ssbSteps, amSteps };
-static const uint8_t defaultStepIdx[4] = { 2, 5, 5, 1 };
+// CW (Hz): fine steps, 10 Hz by default
+static const Step cwSteps[] =
+{
+  {    10, "10",  1 },
+  {    25, "25",  1 },
+  {    50, "50",  1 },
+  {   100, "100", 1 },
+  {   500, "500", 1 },
+  {  1000, "1k",  1 },
+};
+
+static const Step *steps[5] = { fmSteps, ssbSteps, ssbSteps, amSteps, cwSteps };
+static const uint8_t defaultStepIdx[5] = { 2, 5, 5, 1, 0 };
 
 static int getLastStep(int mode)
 {
@@ -484,6 +515,7 @@ static int getLastStep(int mode)
     case LSB: return(LAST_ITEM(ssbSteps));
     case USB: return(LAST_ITEM(ssbSteps));
     case AM:  return(LAST_ITEM(amSteps));
+    case CW:  return(LAST_ITEM(cwSteps));
   }
 
   return(0);
@@ -562,12 +594,13 @@ static const Bandwidth amBandwidths[] =
   { 0, "6.0k" }
 };
 
-static const Bandwidth *bandwidths[4] =
+static const Bandwidth *bandwidths[5] =
 {
-  fmBandwidths, ssbBandwidths, ssbBandwidths, amBandwidths
+  fmBandwidths, ssbBandwidths, ssbBandwidths, amBandwidths, ssbBandwidths
 };
 
-static const uint8_t defaultBwIdx[4] = { 0, 4, 4, 4 };
+// CW defaults to the narrow 0.5 kHz filter
+static const uint8_t defaultBwIdx[5] = { 0, 4, 4, 4, 0 };
 
 static int getLastBandwidth(int mode)
 {
@@ -577,6 +610,7 @@ static int getLastBandwidth(int mode)
     case LSB: return(LAST_ITEM(ssbBandwidths));
     case USB: return(LAST_ITEM(ssbBandwidths));
     case AM:  return(LAST_ITEM(amBandwidths));
+    case CW:  return(LAST_ITEM(ssbBandwidths));
   }
 
   return(0);
@@ -593,6 +627,18 @@ const Bandwidth *getCurrentBandwidth()
   return(&bandwidths[currentMode][getCurrentBandwidthIdx()]);
 }
 
+// CW tone pitch. The SI4732 CW filters are band-pass: 0.5k covers 250..750 Hz
+// and 1.0k covers 500..1500 Hz, so the pitch sits in the middle of the filter.
+int cwPitch()
+{
+  switch(getCurrentBandwidth()->idx)
+  {
+    case 4:  return(500);   // 0.5k
+    case 5:  return(1000);  // 1.0k
+    default: return(700);   // Wider low-pass filters
+  }
+}
+
 static void setBandwidth()
 {
   uint8_t idx = getCurrentBandwidth()->idx;
@@ -607,6 +653,7 @@ static void setBandwidth()
       break;
     case LSB:
     case USB:
+    case CW:
       // Set Audio
       rx.setSSBAudioBandwidth(idx);
       // If audio bandwidth selected is about 2 kHz or below, it is
@@ -797,6 +844,25 @@ static void doTheme(int16_t enc)
   prefsRequestSave(SAVE_SETTINGS);
 }
 
+static void doBandPlan(int16_t enc)
+{
+  bandPlanIdx = wrap_range(bandPlanIdx, enc, 0, LAST_ITEM(bandPlanDesc));
+  prefsRequestSave(SAVE_SETTINGS);
+}
+
+static void doAutoAtt(int16_t enc)
+{
+  autoAttIdx = wrap_range(autoAttIdx, enc, 0, LAST_ITEM(autoAttDesc));
+  autoAttReset();
+  prefsRequestSave(SAVE_SETTINGS);
+}
+
+static void doMenuStyle(int16_t enc)
+{
+  menuStyleIdx = wrap_range(menuStyleIdx, enc, 0, LAST_ITEM(menuStyleDesc));
+  prefsRequestSave(SAVE_SETTINGS);
+}
+
 static void doUILayout(int16_t enc)
 {
   uiLayoutIdx = uiLayoutIdx > LAST_ITEM(uiLayoutDesc) ? UI_DEFAULT : wrap_range(uiLayoutIdx, enc, 0, LAST_ITEM(uiLayoutDesc));
@@ -892,7 +958,7 @@ static void doDspPatches(int16_t enc)
 
 void doCal(int16_t enc)
 {
-  if (currentMode == USB)
+  if (currentMode == USB || currentMode == CW)
     bands[bandIdx].usbCal = clamp_range(bands[bandIdx].usbCal, 10*enc, -MAX_CAL, MAX_CAL);
   else if (currentMode == LSB)
     bands[bandIdx].lsbCal = clamp_range(bands[bandIdx].lsbCal, 10*enc, -MAX_CAL, MAX_CAL);
@@ -1141,6 +1207,62 @@ void doStep(int16_t enc)
   if(enc) prefsRequestSave(SAVE_CUR_BAND);
 }
 
+//
+// Automatic attenuation (RESONIK), AM only and only while AGC is On.
+// Very strong signals overload the receiver front end and cause distortion
+// and mixing products; the SI4732 AGC alone does not always prevent that.
+// When the signal stays above ATT_HIGH, add attenuation in steps; when it
+// stays below ATT_LOW (for example after tuning to a weak station), remove it.
+//
+#define ATT_HIGH       65   // dBuV: engage or increase attenuation above this
+#define ATT_LOW        40   // dBuV: decrease attenuation below this
+#define ATT_STEP        6   // Attenuation index step (SI4732 range 0..36)
+#define ATT_MAX        36
+#define ATT_STRONG_N    3   // Consecutive strong readings before acting (~1.2 s each)
+#define ATT_WEAK_N      2   // Consecutive weak readings before releasing
+
+uint8_t autoAttLevel = 0;
+static uint8_t autoAttStrong = 0, autoAttWeak = 0;
+
+void autoAttReset()
+{
+  if(autoAttLevel && currentMode == AM && !agcIdx)
+    rx.setAutomaticGainControl(0, 0);
+  autoAttLevel = 0;
+  autoAttStrong = autoAttWeak = 0;
+}
+
+// Called with each new RSSI reading. Returns true if the display should update.
+bool autoAttTick(uint8_t rssiNow)
+{
+  if(!autoAttIdx || currentMode != AM || agcIdx)
+  {
+    if(autoAttLevel) autoAttReset();
+    return(false);
+  }
+
+  uint8_t level = autoAttLevel;
+  autoAttStrong = rssiNow >= ATT_HIGH ? autoAttStrong + 1 : 0;
+  autoAttWeak   = rssiNow <  ATT_LOW  ? autoAttWeak + 1 : 0;
+
+  if(autoAttStrong >= ATT_STRONG_N && level < ATT_MAX)
+  {
+    level = level + ATT_STEP > ATT_MAX ? ATT_MAX : level + ATT_STEP;
+    autoAttStrong = 0;
+  }
+  else if(autoAttWeak >= ATT_WEAK_N && level)
+  {
+    level = level > ATT_STEP ? level - ATT_STEP : 0;
+    autoAttWeak = 0;
+  }
+
+  if(level == autoAttLevel) return(false);
+  autoAttLevel = level;
+  // AGC off with a fixed attenuation, or back to normal AGC
+  rx.setAutomaticGainControl(level ? 1 : 0, level);
+  return(true);
+}
+
 void doAgc(int16_t enc)
 {
   if(currentMode==FM)
@@ -1161,6 +1283,9 @@ void doAgc(int16_t enc)
 
   // Configure SI4732/5 (if agcNdx = 0, no attenuation)
   rx.setAutomaticGainControl(disableAgc, agcNdx);
+  // The user's setting (or a new band/mode) takes over from automatic attenuation
+  autoAttLevel = 0;
+  autoAttStrong = autoAttWeak = 0;
   if(enc) prefsRequestSave(SAVE_SETTINGS);
 }
 
@@ -1172,7 +1297,7 @@ void doMode(int16_t enc)
   // Cannot change away from FM mode
   if(currentMode==FM) return;
 
-  // Change AM/LSB/USB modes, do not allow FM mode
+  // Change AM/LSB/USB/CW modes, do not allow FM mode
   do
     currentMode = wrap_range(currentMode, enc, 0, LAST_ITEM(bandModeDesc));
   while(currentMode==FM);
@@ -1229,6 +1354,8 @@ void doBandwidth(int16_t enc)
   idx = wrap_range(idx, enc, 0, getLastBandwidth(currentMode));
   bands[bandIdx].bandwidthIdx = idx;
   setBandwidth();
+  // CW: the pitch follows the filter, so retune to keep the signal centred
+  if(currentMode == CW) updateFrequency(currentFrequency, true);
   if(enc) prefsRequestSave(SAVE_CUR_BAND);
 }
 
@@ -1329,6 +1456,9 @@ static void clickSettings(int cmd, bool shortPress)
     case MENU_FM_STEREO:  currentCmd = CMD_FM_STEREO; break;
     case MENU_DSP_PATCHES: currentCmd = CMD_DSP_PATCHES; break;
     case MENU_ABOUT:      currentCmd = CMD_ABOUT;     break;
+    case MENU_BANDPLAN:   currentCmd = CMD_BANDPLAN;  break;
+    case MENU_AUTOATT:    currentCmd = CMD_AUTOATT;   break;
+    case MENU_MENUSTYLE:  currentCmd = CMD_MENUSTYLE; break;
     case MENU_UPDATEFW:
       updateFwIdx = 0;
       currentCmd = CMD_UPDATEFW;
@@ -1365,6 +1495,9 @@ bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
     case CMD_CAL:        doCal(enca);break;
     case CMD_THEME:      doTheme(scrollDirection * enc);break;
     case CMD_UI:         doUILayout(scrollDirection * enc);break;
+    case CMD_BANDPLAN:   doBandPlan(scrollDirection * enc);break;
+    case CMD_AUTOATT:    doAutoAtt(scrollDirection * enc);break;
+    case CMD_MENUSTYLE:  doMenuStyle(scrollDirection * enc);break;
     case CMD_RDS:        doRDSMode(scrollDirection * enc);break;
     case CMD_MEMORY:     doMemory(scrollDirection * enca);break;
     case CMD_OFFTIMER:   doOffTimer(enca);break;
@@ -1425,6 +1558,9 @@ bool clickHandler(uint16_t cmd, bool shortPress)
 // Selecting given band
 //
 
+// Band plan segment of the last tuned frequency (for automatic sideband)
+static const BandPlanSegment *bandPlanLastSeg = nullptr;
+
 void selectBand(uint8_t idx, bool drawLoadingPatch)
 {
   // Silence clicks during reconfiguration using the configured hardware mute method.
@@ -1454,6 +1590,9 @@ void selectBand(uint8_t idx, bool drawLoadingPatch)
   resetFreqInputPos();
 
   muteOn(MUTE_TEMP, false, !audioClamp);
+
+  // Band plan: entering a phone segment is measured from here
+  bandPlanLastSeg = bandPlanFind(currentFrequency);
 }
 
 //
@@ -1539,19 +1678,25 @@ static void drawMode(int x, int y, int sx)
 {
   drawCommon(menu[MENU_MODE], x, y, sx, true);
 
-  int count = ITEM_COUNT(bandModeDesc);
+  // FM cannot be chosen on AM/SW bands, so the list cycles through the others
+  static const uint8_t amModes[] = { LSB, USB, AM, CW };
+  int count = ITEM_COUNT(amModes);
+  int pos = 0;
+  for(int j=0 ; j<count ; j++) if(amModes[j]==currentMode) pos = j;
+
   for(int i=-2 ; i<3 ; i++)
   {
+    const char *label = currentMode==FM ? (i==0 ? bandModeDesc[FM] : nullptr)
+                                        : bandModeDesc[amModes[(pos+count+i)%count]];
     if(i==0) {
-      drawZoomedMenu(bandModeDesc[abs((currentMode+count+i)%count)]);
+      drawZoomedMenu(label);
       spr.setTextColor(TH.menu_hl_text, TH.menu_hl_bg);
     } else {
       spr.setTextColor(TH.menu_item);
     }
 
     spr.setTextDatum(MC_DATUM);
-    if((currentMode!=FM) || (i==0))
-     spr.drawString(bandModeDesc[abs((currentMode+count+i)%count)], 40+x+(sx/2), 64+y+(i*16), FONT_SMALL);
+    if(label) spr.drawString(label, 40+x+(sx/2), 64+y+(i*16), FONT_SMALL);
   }
 }
 
@@ -1820,6 +1965,28 @@ static void drawUILayout(int x, int y, int sx)
   }
 }
 
+// Generic option list, as drawUILayout() (RESONIK settings)
+static void drawOptionList(const char *title, const char *const *labels, int count, int idx, int x, int y, int sx)
+{
+  drawCommon(title, x, y, sx, true);
+
+  for(int i=-2 ; i<3 ; i++)
+  {
+    if(i==0) {
+      drawZoomedMenu(labels[abs((idx+count+i)%count)]);
+      spr.setTextColor(TH.menu_hl_text, TH.menu_hl_bg);
+    } else {
+      spr.setTextColor(TH.menu_item);
+    }
+
+    // Prevent repeats for short menus
+    if(count < 5 && ((idx+i) < 0 || (idx+i) >= count)) continue;
+
+    spr.setTextDatum(MC_DATUM);
+    spr.drawString(labels[abs((idx+count+i)%count)], 40+x+(sx/2), 64+y+(i*16), FONT_SMALL);
+  }
+}
+
 static void drawRDSMode(int x, int y, int sx)
 {
   drawCommon(settings[MENU_RDS], x, y, sx, true);
@@ -2027,7 +2194,7 @@ static void drawCal(int x, int y, int sx)
   spr.setTextDatum(MC_DATUM);
 
   spr.setTextColor(TH.menu_param);
-  if (currentMode == USB)
+  if (currentMode == USB || currentMode == CW)
   {
     spr.drawString("USB", 40+x+(sx/2), 35+y, FONT_SMALL);
     spr.drawNumber(getCurrentBand()->usbCal, 40+x+(sx/2), 65+y, FONT_LARGE);
@@ -2213,7 +2380,14 @@ static void drawInfo(int x, int y, int sx)
   spr.drawString("BW:", 6+x, 64+y+(-2*16), FONT_SMALL);
   spr.drawString(getCurrentBandwidth()->desc, 48+x, 64+y+(-2*16), FONT_SMALL);
 
-  if(!agcNdx && !agcIdx)
+  if(autoAttLevel && !agcIdx)
+  {
+    // Automatic attenuation active: "A" marks it as automatic
+    sprintf(text, "A%2.2d", autoAttLevel);
+    spr.drawString("Att:", 6+x, 64+y+(-1*16), FONT_SMALL);
+    spr.drawString(text, 48+x, 64+y+(-1*16), FONT_SMALL);
+  }
+  else if(!agcNdx && !agcIdx)
   {
     spr.drawString("AGC:", 6+x, 64+y+(-1*16), FONT_SMALL);
     spr.drawString("On", 48+x, 64+y+(-1*16), FONT_SMALL);
@@ -2332,6 +2506,9 @@ void drawSideBar(uint16_t cmd, int x, int y, int sx)
     case CMD_BANDWIDTH:  drawBandwidth(x, y, sx);  break;
     case CMD_THEME:      drawTheme(x, y, sx);      break;
     case CMD_UI:         drawUILayout(x, y, sx);   break;
+    case CMD_BANDPLAN:   drawOptionList(settings[MENU_BANDPLAN], bandPlanDesc, ITEM_COUNT(bandPlanDesc), bandPlanIdx, x, y, sx); break;
+    case CMD_AUTOATT:    drawOptionList(settings[MENU_AUTOATT], autoAttDesc, ITEM_COUNT(autoAttDesc), autoAttIdx, x, y, sx); break;
+    case CMD_MENUSTYLE:  drawOptionList(settings[MENU_MENUSTYLE], menuStyleDesc, ITEM_COUNT(menuStyleDesc), menuStyleIdx, x, y, sx); break;
     case CMD_VOLUME:     drawVolume(x, y, sx);     break;
     case CMD_AGC:        drawAgc(x, y, sx);        break;
     case CMD_SOFTMUTE:   drawSoftMuteMaxAtt(x, y, sx);break;
@@ -2358,4 +2535,130 @@ void drawSideBar(uint16_t cmd, int x, int y, int sx)
     case CMD_SQUELCH:    drawSquelch(x, y, sx);    break;
     default:             drawInfo(x, y, sx);       break;
   }
+}
+
+//
+// Band plan: automatic sideband (RESONIK). When tuning into the phone part
+// of an amateur band in LSB or USB, switch to the usual sideband there:
+// LSB below 10 MHz, USB above. Only on entering, so a manual choice sticks.
+// Returns true if the mode changed.
+//
+bool bandPlanAutoSideband()
+{
+  const BandPlanSegment *seg = bandPlanFind(currentFrequency);
+  bool entered = seg && seg->use == BP_ALL && seg != bandPlanLastSeg;
+  bandPlanLastSeg = seg;
+
+  if(bandPlanIdx != BANDPLAN_AUTO_SSB || !entered) return(false);
+  if(currentMode != LSB && currentMode != USB) return(false);
+
+  uint8_t want = bandPlanPhoneIsLSB(currentFrequency) ? LSB : USB;
+  if(want == currentMode) return(false);
+
+  bands[bandIdx].bandMode = want;
+  bands[bandIdx].currentFreq = currentFrequency;
+  selectBand(bandIdx, false);
+  statusShow(want == LSB ? "Band plan: LSB" : "Band plan: USB");
+  prefsRequestSave(SAVE_CUR_BAND);
+  return(true);
+}
+
+//
+// Tile menu (RESONIK): the main menu and Settings as a full-screen grid.
+// The encoder moves the highlight in reading order, a click selects, exactly
+// as in the classic menu. Returns true if drawn.
+//
+static const char *tileMainValue(int i, char *buf, size_t size)
+{
+  switch(i)
+  {
+    case MENU_MODE:    return(bandModeDesc[currentMode]);
+    case MENU_BAND:    return(getCurrentBand()->bandName);
+    case MENU_VOLUME:  snprintf(buf, size, "%d", volume); return(buf);
+    case MENU_STEP:    return(getCurrentStep()->desc);
+    case MENU_BW:      return(getCurrentBandwidth()->desc);
+    case MENU_AGC_ATT:
+      if(agcIdx) snprintf(buf, size, "Att %02d", agcNdx);
+      else if(autoAttLevel) snprintf(buf, size, "Auto A%02d", autoAttLevel);
+      else snprintf(buf, size, "AGC On");
+      return(buf);
+    case MENU_SQUELCH:
+      if(!(currentSquelch[currentMode] & 0x7f)) return("Off");
+      snprintf(buf, size, "%d", currentSquelch[currentMode] & 0x7f);
+      return(buf);
+  }
+  return(nullptr);
+}
+
+static const char *tileSettingsValue(int i, char *buf, size_t size)
+{
+  switch(i)
+  {
+    case MENU_BRIGHTNESS: snprintf(buf, size, "%u", (unsigned)currentBrt); return(buf);
+    case MENU_UTCOFFSET:  return(getCurrentTimeZone()->desc);
+    case MENU_THEME:      return(TH.name);
+    case MENU_UI:         return(uiLayoutIdx < ITEM_COUNT(uiLayoutDesc) ? uiLayoutDesc[uiLayoutIdx] : nullptr);
+    case MENU_ZOOM:       return(zoomMenu ? "On" : "Off");
+    case MENU_WIFIMODE:   return(wifiModeIdx < ITEM_COUNT(wifiModeDesc) ? wifiModeDesc[wifiModeIdx] : nullptr);
+    case MENU_BANDPLAN:   return(bandPlanDesc[bandPlanIdx % ITEM_COUNT(bandPlanDesc)]);
+    case MENU_AUTOATT:    return(autoAttDesc[autoAttIdx % ITEM_COUNT(autoAttDesc)]);
+    case MENU_MENUSTYLE:  return(menuStyleDesc[menuStyleIdx % ITEM_COUNT(menuStyleDesc)]);
+  }
+  return(nullptr);
+}
+
+bool drawTileMenu()
+{
+  if(menuStyleIdx != MENU_STYLE_TILES) return(false);
+  bool isMain = currentCmd == CMD_MENU;
+  if(!isMain && currentCmd != CMD_SETTINGS) return(false);
+
+  const char *const *items = isMain ? menu : settings;
+  int count = isMain ? ITEM_COUNT(menu) : ITEM_COUNT(settings);
+  int sel = isMain ? menuIdx : settingsIdx;
+
+  const int cols = 4, rows = 3, perPage = cols * rows;
+  const int tw = 78, th = 48, gap = 2, top = 20;
+  int page = sel / perPage;
+  int pages = (count + perPage - 1) / perPage;
+
+  spr.fillSprite(TH.bg);
+
+  // Header: title and page
+  char text[16];
+  spr.setTextColor(TH.menu_hdr);
+  spr.setTextDatum(ML_DATUM);
+  spr.drawString(isMain ? "Menu" : "Settings", 4, 9, FONT_SMALL);
+  snprintf(text, sizeof(text), "%d/%d", page + 1, pages);
+  spr.setTextDatum(MR_DATUM);
+  spr.drawString(text, 316, 9, FONT_SMALL);
+
+  for(int k = 0 ; k < perPage ; k++)
+  {
+    int i = page * perPage + k;
+    if(i >= count) break;
+
+    int cx = (k % cols) * (tw + gap);
+    int cy = top + (k / cols) * (th + gap);
+    bool hl = i == sel;
+
+    spr.fillRoundRect(cx, cy, tw, th, 5, hl ? TH.menu_hl_bg : TH.menu_bg);
+    spr.drawRoundRect(cx, cy, tw, th, 5, hl ? TH.menu_hl_text : TH.menu_border);
+
+    char buf[16];
+    const char *value = isMain ? tileMainValue(i, buf, sizeof(buf)) : tileSettingsValue(i, buf, sizeof(buf));
+
+    // Long labels fall back to the small fixed font so they stay inside the tile
+    spr.setTextDatum(MC_DATUM);
+    spr.setTextColor(hl ? TH.menu_hl_text : TH.menu_item);
+    const lgfx::IFont *font = spr.textWidth(items[i], FONT_SMALL) > tw - 4 ? &lgfx::fonts::Font0 : FONT_SMALL;
+    spr.drawString(items[i], cx + tw / 2, cy + (value ? 16 : th / 2), font);
+    if(value)
+    {
+      font = spr.textWidth(value, FONT_SMALL) > tw - 4 ? &lgfx::fonts::Font0 : FONT_SMALL;
+      spr.setTextColor(hl ? TH.menu_hl_text : TH.menu_param);
+      spr.drawString(value, cx + tw / 2, cy + 33, font);
+    }
+  }
+  return(true);
 }
