@@ -4,9 +4,9 @@ RESONIK edition: <https://resonik.mikroutik.com> · Upstream user manual: <https
 
 <!-- towncrier release notes start -->
 
-## 2.45-r1 (unreleased)
+## 2.45-r1 (2026-11-06)
 
-RESONIK edition, based on ats-mini 2.45. Work in progress — see <https://github.com/ep3mhb/resonik-ats-mini>.
+First release of the RESONIK edition, based on ats-mini 2.45. Install by USB (see the README); make a backup first.
 
 ### Added
 

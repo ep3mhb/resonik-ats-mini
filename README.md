@@ -2,16 +2,15 @@
 
 # RESONIK edition of the ATS Mini firmware
 
-An improved firmware for the **ATS Mini** pocket receiver (ESP32-S3 + SI4732): LW, MW, SW and FM, with AM, LSB and USB.
+An improved firmware for the **ATS Mini** pocket receiver (ESP32-S3 + SI4732): LW, MW, SW and FM, with AM, LSB, USB and CW.
 It is built on the open-source [ats-mini](https://github.com/esp32-si4732/ats-mini) firmware and keeps everything it does,
 adding features for shortwave listeners and radio amateurs.
 
-> **Status: in development.** The first release, `v2.45-r1`, is being prepared. Until then, use the official
-> [ats-mini releases](https://github.com/esp32-si4732/ats-mini/releases).
+> **Latest release: [v2.45-r1](https://github.com/ep3mhb/resonik-ats-mini/releases/latest)** (6 November 2026).
 
-Website, installer and manuals: **<https://resonik.mikroutik.com>**
+Website, installer and manuals (coming soon): **<https://resonik.mikroutik.com>**
 
-## In v2.45-r1 (being tested)
+## What v2.45-r1 adds
 
 - Tile menu (selectable; the classic menu stays available)
 - CW mode: true CW frequency shown, narrow filter, 10 Hz steps
@@ -37,9 +36,12 @@ The `lilygo-t-embed` variant is only for the LILYGO T-Embed SI4732.
 
 ## Installing
 
-- **From ats-mini 2.40 or later:** Settings → Update FW, once this repository has a release.
-- **By USB:** the one-click installer at <https://resonik.mikroutik.com>, or esptool-js / esptool as described in the
-  upstream [flashing guide](https://esp32-si4732.github.io/ats-mini/flash.html). Use the `resonik-ats-mini-…` files.
+- **From a RESONIK version:** Settings → Update FW.
+- **From the official ats-mini firmware:** by USB, once; after that, Settings → Update FW works.
+- **By USB:** download `resonik-ats-mini-v2.45-r1-ospi.zip` (or `-qspi`) from the release, unzip, and flash with
+  esptool-js / esptool as described in the upstream [flashing guide](https://esp32-si4732.github.io/ats-mini/flash.html):
+  `ats-mini.ino.bootloader.bin` at 0x0, `ats-mini.ino.partitions.bin` at 0x8000, `boot_app0.bin` at 0xe000 and
+  `ats-mini.ino.bin` at 0x10000. Your settings are kept. A one-click web installer is coming to <https://resonik.mikroutik.com>.
 
 Make a backup first (see the upstream [backup guide](https://esp32-si4732.github.io/ats-mini/recovery.html)).
 You can always go back to the official firmware by USB.
