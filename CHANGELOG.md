@@ -8,8 +8,19 @@ RESONIK edition: <https://resonik.mikroutik.com> · Upstream user manual: <https
 
 RESONIK edition, based on ats-mini 2.45. Work in progress — see <https://github.com/ep3mhb/resonik-ats-mini>.
 
+### Added
+
+- RESONIK boot screen (symbol, name, version) and RESONIK header on the About screens.
+- Named time zones with automatic summer time (Europe, North America, Australia, New Zealand) alongside the plain UTC offsets. Settings → **Time Zone** (was "UTC Offset"); your previous offset is carried over.
+- Dual clock: when the time zone is not UTC, the info box alternates local date and time with UTC time.
+- "Time: --:--" in the info box while the clock is not set.
+- Web settings: "Use Browser Date/Time" now also picks the browser's named time zone, summer time included.
+- Clock sync works on networks that block or delay NTP: three time servers (one by IP address), then the time from a web server (up to three tries). When sync fails, a second line tells why (DNS server and result, web results).
+
 ### Changed
 
+- The default time zone is UTC (upstream: UTC−5).
+- Settings → Date/Time follows the running clock until you change a value; clicking without a change no longer sets the clock back to the moment the screen was opened.
 - Firmware updates over Wi-Fi now come from the RESONIK repository. Release tags look like `v2.45-r1` (upstream version + RESONIK release); the version is shown as `v2.45-R1` on the About screen.
 - About → Authors credits the RESONIK edition alongside the original authors.
 - Release files are named `resonik-ats-mini-<version>-<variant>.zip` and `resonik-ats-mini-<version>-<variant>-ota.bin`.

@@ -52,6 +52,18 @@ static void webUploadPatch(AsyncWebServerRequest *request, const String &filenam
                            size_t index, uint8_t *data, size_t len, bool final);
 static bool webParseUTCDateTime(const String &text, uint32_t *epoch);
 
+// "Dubai (UTC+4)", "London (UTC+0, summer time)", or a plain "UTC+5:30"
+static String webTimeZoneLabel(int i)
+{
+  const TimeZone &tz = timeZones[i];
+  if(!tz.iana || i == 0) return(tz.desc);
+  int m = abs(tz.stdMinutes);
+  char text[48];
+  snprintf(text, sizeof(text), "%s (UTC%c%d%s%s)", tz.desc, tz.stdMinutes < 0 ? '-' : '+', m / 60,
+    m % 60 ? (m % 60 == 30 ? ":30" : ":45") : "", tz.rule != TZ_NONE ? ", summer time" : "");
+  return(String(text));
+}
+
 static String webPage(const char *body, const char *title, std::initializer_list<PageValue> values,
                       std::initializer_list<PageFragment> fragments = {});
 static const String webRadioPage();
@@ -625,7 +637,7 @@ static const String webRadioPage()
     receiverTime = text;
   }
 
-  receiverTime += " (" + String(utcOffset) + ")";
+  receiverTime += " " + String(getCurrentTimeZoneAbbr()) + " (" + String(utcOffset) + ")";
 
   if(WiFi.status()==WL_CONNECTED)
   {
@@ -853,8 +865,9 @@ const String webConfigPage()
     {"utc_options", [&](String &out) {
       for(int i=0 ; i<getTotalUTCOffsets(); i++)
         pageAppend(out, pageConfigUtcOption, {
-          {"value", String(i)}, {"minutes", String(utcOffsets[i].offset * 15)},
-          {"selected", utcOffset==i? "SELECTED" : ""}, {"label", utcOffsets[i].desc}
+          {"value", String(i)}, {"minutes", String(timeZones[i].stdMinutes)},
+          {"tz", timeZones[i].iana ? timeZones[i].iana : ""},
+          {"selected", utcOffset==i? "SELECTED" : ""}, {"label", webTimeZoneLabel(i)}
         });
     }},
     {"theme_options", [&](String &out) {

@@ -52,9 +52,16 @@ function browserDateTime(submit) {
   if(enabled) {
     const now = new Date();
     dateTime.value = now.toISOString().slice(0,19).replace('T', ' ');
-    const minutes = -now.getTimezoneOffset();
-    for(const option of utcOffset.options)
-      if(Number(option.dataset.minutes) === minutes) utcOffset.value = option.value;
+    // Prefer the browser's named zone (summer time included), else a plain offset
+    let zone = '';
+    try { zone = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch(e) {}
+    const named = [...utcOffset.options].find(o => zone && o.dataset.tz === zone);
+    if(named) utcOffset.value = named.value;
+    else {
+      const minutes = -now.getTimezoneOffset();
+      const plain = [...utcOffset.options].find(o => !o.dataset.tz && Number(o.dataset.minutes) === minutes);
+      if(plain) utcOffset.value = plain.value;
+    }
   }
   dateTime.disabled = utcOffset.disabled = enabled && !submit;
 }
@@ -65,6 +72,6 @@ static const char pageSplash[] PROGMEM = R"HTML(<IMG SRC="/splash.png?{{version}
 
 static const char pageConfigThemeOption[] PROGMEM = R"HTML(<OPTION VALUE="{{value}}" {{selected}}>{{label}}</OPTION>)HTML";
 
-static const char pageConfigUtcOption[] PROGMEM = R"HTML(<OPTION VALUE="{{value}}" DATA-MINUTES="{{minutes}}" {{selected}}>{{label}}</OPTION>)HTML";
+static const char pageConfigUtcOption[] PROGMEM = R"HTML(<OPTION VALUE="{{value}}" DATA-MINUTES="{{minutes}}" DATA-TZ="{{tz}}" {{selected}}>{{label}}</OPTION>)HTML";
 
 #endif // PAGE_CONFIG_H

@@ -84,10 +84,15 @@ build/TestHttpDate: tests/TestHttpDate.cpp HttpDate.h
 	@mkdir -p build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++11 -Wall -Wextra -UNDEBUG tests/TestHttpDate.cpp $(LDFLAGS) -o $@
 
-test: build/TestParser build/TestParserAdhoc build/TestOtaVersion build/TestHttpDate
+build/TestTimeZone: tests/TestTimeZone.cpp TimeZone.h
+	@mkdir -p build
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++11 -Wall -Wextra -UNDEBUG tests/TestTimeZone.cpp $(LDFLAGS) -o $@
+
+test: build/TestParser build/TestParserAdhoc build/TestOtaVersion build/TestHttpDate build/TestTimeZone
 	./build/TestParser
 	./build/TestParserAdhoc
 	./build/TestOtaVersion
 	./build/TestHttpDate
+	./build/TestTimeZone
 
 .PHONY: all help build upload clean test

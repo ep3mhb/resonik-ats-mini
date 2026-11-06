@@ -211,7 +211,7 @@ void prefsSave(uint32_t items)
     prefs.putUChar("ZoomMenu",    zoomMenu);       // TRUE: Zoom menu
     prefs.putBool("ScrollDir", scrollDirection<0); // TRUE: Reverse scroll
     prefs.putBool("EncHalfStep", encoderHalfStep); // TRUE: Encoder half-step mode
-    prefs.putUChar("UTCOffset",   utcOffsetIdx);   // UTC Offset
+    prefs.putUChar("TimeZone",    utcOffsetIdx);   // Time zone (RESONIK list)
     prefs.putUInt("Squelch",      ((uint32_t)currentSquelch[FM]) |
                                   ((uint32_t)currentSquelch[LSB] << 8) |
                                   ((uint32_t)currentSquelch[USB] << 16) |
@@ -296,7 +296,12 @@ bool prefsLoad(uint32_t items)
     zoomMenu       = prefs.getUChar("ZoomMenu", zoomMenu);      // TRUE: Zoom menu
     scrollDirection = prefs.getBool("ScrollDir", scrollDirection<0)? -1:1; // TRUE: Reverse scroll
     setEncoderHalfStep(prefs.getBool("EncHalfStep", encoderHalfStep)); // Encoder half-step mode
-    utcOffsetIdx   = prefs.getUChar("UTCOffset", utcOffsetIdx); // UTC Offset
+    // Time zone: the RESONIK list replaced the upstream "UTCOffset" list
+    if(prefs.isKey("TimeZone"))
+      utcOffsetIdx = prefs.getUChar("TimeZone", utcOffsetIdx);
+    else if(prefs.isKey("UTCOffset"))
+      utcOffsetIdx = timeZoneFromLegacyIndex(prefs.getUChar("UTCOffset", 0));
+    if(utcOffsetIdx >= getTotalUTCOffsets()) utcOffsetIdx = 0;
     uint32_t squelch = prefs.getUInt("Squelch", ((uint32_t)currentSquelch[FM]) |
                                                 ((uint32_t)currentSquelch[LSB] << 8) |
                                                 ((uint32_t)currentSquelch[USB] << 16) |

@@ -167,11 +167,7 @@ typedef struct
   const char *name;       // Frequency name
 } NamedFreq;
 
-typedef struct
-{
-  int8_t offset;          // UTC offset in 15 minute intervals
-  const char *desc;       // Short description
-} UTCOffset;
+#include "TimeZone.h"
 
 typedef struct
 {
