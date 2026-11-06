@@ -24,7 +24,7 @@ on:
   workflow_dispatch:
     inputs:
       revision:
-        description: "A tag to release, e.g. v1.00"
+        description: "Leave empty for a test build of the branch. A tag to release, e.g. v2.45-r1"
         type: string
         required: false
 
@@ -155,7 +155,9 @@ jobs:
           archive: false
 
   release:
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) }}
+    # RESONIK: publish a release only for a version tag (manual run with a tag, or a pushed tag),
+    # never for an ordinary manual test build of a branch
+    if: ${{ (github.event_name == 'workflow_dispatch' && startsWith(github.event.inputs.revision, 'v')) || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) }}
     needs: build
     runs-on: ubuntu-24.04
     permissions:
