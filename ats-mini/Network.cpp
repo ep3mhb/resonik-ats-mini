@@ -417,7 +417,8 @@ static void wifiConnected(uint32_t now)
     timeSynchronized.store(true);
   });
   esp_sntp_set_sync_interval(4 * 60 * 60 * 1000);
-  configTime(0, 0, "atsmini.pool.ntp.org");
+  // Three servers so one blocked or slow pool does not leave the clock unset.
+  configTime(0, 0, "atsmini.pool.ntp.org", "time.cloudflare.com", "time.google.com");
   attemptStarted = now;
   netState = NetState::Online;
   if(activeNetMode == NET_SYNC)
