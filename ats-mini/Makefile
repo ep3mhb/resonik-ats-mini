@@ -80,9 +80,14 @@ build/TestOtaVersion: tests/TestOtaVersion.cpp OtaVersion.h
 	@mkdir -p build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++11 -Wall -Wextra -UNDEBUG tests/TestOtaVersion.cpp $(LDFLAGS) -o $@
 
-test: build/TestParser build/TestParserAdhoc build/TestOtaVersion
+build/TestHttpDate: tests/TestHttpDate.cpp HttpDate.h
+	@mkdir -p build
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++11 -Wall -Wextra -UNDEBUG tests/TestHttpDate.cpp $(LDFLAGS) -o $@
+
+test: build/TestParser build/TestParserAdhoc build/TestOtaVersion build/TestHttpDate
 	./build/TestParser
 	./build/TestParserAdhoc
 	./build/TestOtaVersion
+	./build/TestHttpDate
 
 .PHONY: all help build upload clean test
