@@ -1,8 +1,19 @@
 # Changelog
 
-The user manual is available at <https://esp32-si4732.github.io/ats-mini/manual.html>. The firmware flashing instructions are available at <https://esp32-si4732.github.io/ats-mini/flash.html>
+RESONIK edition: <https://resonik.mikroutik.com> · Upstream user manual: <https://esp32-si4732.github.io/ats-mini/manual.html> · Flashing instructions: <https://esp32-si4732.github.io/ats-mini/flash.html>
 
 <!-- towncrier release notes start -->
+
+## 2.45-r1 (unreleased)
+
+RESONIK edition, based on ats-mini 2.45. Work in progress — see <https://github.com/ep3mhb/resonik-ats-mini>.
+
+### Changed
+
+- Firmware updates over Wi-Fi now come from the RESONIK repository. Release tags look like `v2.45-r1` (upstream version + RESONIK release); the version is shown as `v2.45-R1` on the About screen.
+- About → Authors credits the RESONIK edition alongside the original authors.
+- Release files are named `resonik-ats-mini-<version>-<variant>.zip` and `resonik-ats-mini-<version>-<variant>-ota.bin`.
+
 
 ## 2.45 (2026-10-22)
 

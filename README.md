@@ -1,26 +1,66 @@
-# ATS Mini
+<img src="docs/resonik-symbol.svg" width="56" alt="RESONIK symbol">
 
-![](docs/source/_static/esp32-si4732-ui-theme.jpg)
+# RESONIK edition of the ATS Mini firmware
 
-This firmware is for use on the SI4732 (ESP32-S3) Mini/Pocket Receiver
+An improved firmware for the **ATS Mini** pocket receiver (ESP32-S3 + SI4732): LW, MW, SW and FM, with AM, LSB and USB.
+It is built on the open-source [ats-mini](https://github.com/esp32-si4732/ats-mini) firmware and keeps everything it does,
+adding features for shortwave listeners and radio amateurs.
 
-Based on the following sources:
+> **Status: in development.** The first release, `v2.45-r1`, is being prepared. Until then, use the official
+> [ats-mini releases](https://github.com/esp32-si4732/ats-mini/releases).
 
-* Volos Projects:    https://github.com/VolosR/TEmbedFMRadio
-* PU2CLR, Ricardo:   https://github.com/pu2clr/SI4735
-* Ralph Xavier:      https://github.com/ralphxavier/SI4735
-* Goshante:          https://github.com/goshante/ats20_ats_ex
-* G8PTN, Dave:       https://github.com/G8PTN/ATS_MINI
+Website, installer and manuals: **<https://resonik.mikroutik.com>**
 
-## Releases
+## Planned for v2.45-r1
 
-Check out the [Releases](https://github.com/esp32-si4732/ats-mini/releases) page.
+- Tile menu (selectable; the classic menu stays available)
+- CW mode: true CW frequency shown, narrow filter, 10 Hz steps
+- IARU Region 1 band plan on the tuning scale, with automatic LSB/USB
+- Dual clock (UTC and local time) with named time zones and automatic daylight saving
+- Battery time remaining
+- Automatic attenuation when strong stations overload the receiver
+- The clock survives switching off: automatic time sync at power-on, and support for an optional clock module
 
-## Documentation
+Later: propagation beacon tracker, better EiBi schedule, memory scanner, signal logger, CAT control,
+and on V4 boards an audio spectrum and an on-screen CW decoder.
 
-The hardware, software and flashing documentation is available at <https://esp32-si4732.github.io/ats-mini/>
+## Which file do I need?
 
-## Discuss
+Each release has two variants. Check **Settings → About** on your radio:
 
-* [GitHub Discussions](https://github.com/esp32-si4732/ats-mini/discussions) - the best place for feature requests, observations, sharing, etc.
-* [TalkRadio Telegram Chat](https://t.me/talkradio/174172) - informal space to chat in Russian and English.
+| PSRAM shown | Variant |
+|---|---|
+| 8192K (8 MB, octal) | `ospi` |
+| 2048K (2 MB, quad) | `qspi` |
+
+The `lilygo-t-embed` variant is only for the LILYGO T-Embed SI4732.
+
+## Installing
+
+- **From ats-mini 2.40 or later:** Settings → Update FW, once this repository has a release.
+- **By USB:** the one-click installer at <https://resonik.mikroutik.com>, or esptool-js / esptool as described in the
+  upstream [flashing guide](https://esp32-si4732.github.io/ats-mini/flash.html). Use the `resonik-ats-mini-…` files.
+
+Make a backup first (see the upstream [backup guide](https://esp32-si4732.github.io/ats-mini/recovery.html)).
+You can always go back to the official firmware by USB.
+
+## Versions
+
+Release tags look like `v2.45-r1`: the ats-mini version the edition is based on, then the RESONIK release number.
+A new upstream release (for example 2.46) is merged in and released as `v2.46-r1`.
+
+## Building
+
+Same as upstream: `make -C ats-mini` with arduino-cli, profile `esp32s3-ospi` or `esp32s3-qspi`
+(see [development](https://esp32-si4732.github.io/ats-mini/development.html)). Unit tests: `make -C ats-mini test`.
+GitHub Actions builds every push and publishes releases for `v*` tags.
+
+## Credits and licence
+
+This is a fork of [esp32-si4732/ats-mini](https://github.com/esp32-si4732/ats-mini) (MIT licence). The original
+authors: PU2CLR (Ricardo Caratti), Volos Projects, Ralph Xavier, Sunnygold, Goshante, G8PTN (Dave), R9UCL (Max Arnold),
+Marat Fayzullin, and all ats-mini contributors. The original README is in [README-upstream.md](README-upstream.md).
+
+RESONIK edition by Mohammad Bahrololoum (EP3MHB). Released under the same MIT licence — see [LICENSE](LICENSE).
+
+RESONIK and the RESONIK symbol are the project's name and mark; the licence covers the code, not the name or mark.

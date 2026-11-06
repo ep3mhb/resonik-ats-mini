@@ -7,6 +7,7 @@
 #include <atomic>
 #include <memory>
 #include <HTTPClient.h>
+#include "OtaVersion.h"
 #include <NetworkClientSecure.h>
 #include <Update.h>
 #include <WiFi.h>
@@ -63,7 +64,7 @@ struct OtaState
   std::atomic<OtaPhase> phase{OTA_IDLE};
   std::atomic<size_t> received{0};
   std::atomic<size_t> imageSize{0};
-  std::atomic<uint16_t> latestVersion{0};
+  std::atomic<uint32_t> latestVersion{0};  // major*10000 + minor*100 + RESONIK release
   std::atomic<const char *> error{nullptr};
   std::atomic<bool> resultPending{false};
   std::atomic<bool> cancelRequested{false};
@@ -181,7 +182,8 @@ OtaStatus otaStatus()
     {
       unsigned version = ota.latestVersion.load();
       char text[40];
-      snprintf(text, sizeof(text), "New release v%u.%02u available.", version / 100, version % 100);
+      snprintf(text, sizeof(text), "New release v%u.%02u-R%u available.",
+               version / 10000, (version / 100) % 100, version % 100);
       return {phase, text};
     }
     case OTA_QUEUED:     return {phase, "Update requested..."};
@@ -256,15 +258,12 @@ static bool otaDownloadLatest(bool install)
     return otaFail("Unable to find the latest release.");
 
   String tag = location.substring(tagPrefix.length());
-  unsigned major, minor;
-  char suffix;
-  // A third conversion detects trailing characters, including prerelease suffixes.
-  if(tag.length() > 7 || sscanf(tag.c_str(), "v%u.%u%c", &major, &minor, &suffix) != 2 ||
-     major > UINT16_MAX / 100 || minor > 99 || major * 100 + minor > UINT16_MAX)
+  // RESONIK tags look like "v2.45-r1" (see OtaVersion.h)
+  uint32_t version;
+  if(!otaParseReleaseTag(tag.c_str(), &version))
     return otaFail("Unexpected release version.");
-  unsigned version = major * 100 + minor;
   ota.latestVersion = version;
-  const bool newer = version > VER_APP;
+  const bool newer = version > VER_FULL;
   if(!newer || !install)
   {
     ota.phase = newer? OTA_AVAILABLE : OTA_CURRENT;
@@ -272,7 +271,7 @@ static bool otaDownloadLatest(bool install)
     return true;
   }
   String url = String(FIRMWARE_URL) + "/releases/download/" + tag +
-               "/ats-mini-" + tag + "-" + otaVariantNames[otaMetadata.variant] + "-ota.bin";
+               "/" OTA_FILE_PREFIX + tag + "-" + otaVariantNames[otaMetadata.variant] + "-ota.bin";
 
   http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
   if(!http.begin(client, url)) return otaFail("Unable to start firmware download.");

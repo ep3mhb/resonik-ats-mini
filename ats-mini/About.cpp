@@ -130,11 +130,13 @@ static void drawAboutSystem(uint8_t arrow)
 static void drawAboutAuthors(uint8_t arrow)
 {
   drawAboutCommon(arrow);
-  spr.drawString(FIRMWARE_URL, 2, 25 + 16, FONT_SMALL);
+  // Full URLs no longer fit on one line; show host and path only
+  spr.drawString(FIRMWARE_URL + 8, 2, 25 + 16, FONT_SMALL);
   spr.drawString(AUTHORS_LINE1, 2, 70, FONT_SMALL);
   spr.drawString(AUTHORS_LINE2, 2, 70 + 16, FONT_SMALL);
   spr.drawString(AUTHORS_LINE3, 2, 70 + 16 * 2, FONT_SMALL);
   spr.drawString(AUTHORS_LINE4, 2, 70 + 16 * 3, FONT_SMALL);
+  spr.drawString(AUTHORS_LINE5, 2, 70 + 16 * 4, FONT_SMALL);
   spr.pushSprite(0, 0);
 }
 
