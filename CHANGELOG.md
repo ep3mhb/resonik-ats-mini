@@ -11,6 +11,11 @@ RESONIK edition, based on ats-mini 2.45. Work in progress — see <https://githu
 ### Added
 
 - RESONIK boot screen (symbol, name, version) and RESONIK header on the About screens.
+- **CW mode** (Mode → CW): the display shows the CW signal's own frequency, received on the upper sideband with the tone at the centre of the filter (0.5k filter: 500 Hz tone; 1.0k: 1000 Hz; wider: 700 Hz). Defaults to the 0.5 kHz filter and 10 Hz steps.
+- **IARU Region 1 band plan** on the tuning scale for 160–10 m (and 60 m): coloured strip for CW, narrow/digital, beacons and all-mode/SSB segments, with the current segment named at the pointer. Settings → **Band Plan**: Off, Scale, or Scale+SSB, which also selects the usual sideband (LSB below 10 MHz, USB above) when you tune into a phone segment.
+- **Battery time remaining**: the voltage alternates with an estimate such as `~8h20`. The `~` means a typical consumption is assumed; after about 10 minutes on battery the radio measures its own.
+- **Automatic attenuation** for AM (Settings → **Auto Att.**, on by default): when a very strong signal would overload the receiver, attenuation is added in steps, and removed again on weaker stations. Shown as `Att: A12` in the info box. Only while AGC/ATTN is set to On.
+- **Tile menu** (Settings → **Menu Style** → Tiles): the menu and settings as a full-screen grid of tiles showing current values (mode, band, volume, step, bandwidth…). The classic menu stays the default.
 - Named time zones with automatic summer time (Europe, North America, Australia, New Zealand) alongside the plain UTC offsets. Settings → **Time Zone** (was "UTC Offset"); your previous offset is carried over.
 - Dual clock: when the time zone is not UTC, the info box alternates local date and time with UTC time.
 - "Time: --:--" in the info box while the clock is not set.

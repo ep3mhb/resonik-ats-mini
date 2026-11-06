@@ -47,7 +47,19 @@
 #define CMD_FM_STEREO  0x3300 // |
 #define CMD_DSP_PATCHES 0x3400 // |
 #define CMD_ABOUT      0x3500 // |
-#define CMD_OFFTIMER   0x3600 //-+
+#define CMD_OFFTIMER   0x3600 // |
+#define CMD_BANDPLAN   0x3700 // | RESONIK
+#define CMD_AUTOATT    0x3800 // | RESONIK
+#define CMD_MENUSTYLE  0x3900 //-+ RESONIK
+
+// Band plan settings (RESONIK)
+#define BANDPLAN_OFF       0
+#define BANDPLAN_SCALE     1
+#define BANDPLAN_AUTO_SSB  2
+
+// Menu styles (RESONIK)
+#define MENU_STYLE_CLASSIC 0
+#define MENU_STYLE_TILES   1
 
 // UI Layouts
 #define UI_DEFAULT  0
@@ -140,6 +152,17 @@ uint8_t getRDSMode();
 int getTotalRDSModes();
 
 int8_t getCurrentUTCOffset();
+
+// RESONIK
+extern uint8_t bandPlanIdx;
+int getTotalBandPlanModes();
+extern uint8_t autoAttIdx;
+extern uint8_t autoAttLevel;
+extern uint8_t menuStyleIdx;
+void autoAttReset();
+bool autoAttTick(uint8_t rssiNow);
+bool bandPlanAutoSideband();
+bool drawTileMenu();
 const TimeZone *getCurrentTimeZone();
 const char *getCurrentTimeZoneAbbr();
 uint8_t timeZoneFromLegacyIndex(uint8_t idx);

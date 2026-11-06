@@ -216,11 +216,15 @@ void prefsSave(uint32_t items)
                                   ((uint32_t)currentSquelch[LSB] << 8) |
                                   ((uint32_t)currentSquelch[USB] << 16) |
                                   ((uint32_t)currentSquelch[AM] << 24)); // Squelch
+    prefs.putUChar("SquelchCW",   currentSquelch[CW]); // Squelch, CW (RESONIK)
     prefs.putUChar("FmRegion",    FmRegionIdx);    // FM region
     prefs.putUChar("FmStereo",    fmStereoIdx);    // FM stereo mode
     prefs.putBool("AudioClamp",   audioClamp);     // Hardware audio clamp present
     prefs.putUChar("DSPPatchset", dspPatchesIdx);  // DSP patches
     prefs.putUChar("UILayout",    uiLayoutIdx);    // UI Layout
+    prefs.putUChar("BandPlan",    bandPlanIdx);    // Band plan (RESONIK)
+    prefs.putUChar("AutoAtt",     autoAttIdx);     // Automatic attenuation (RESONIK)
+    prefs.putUChar("MenuStyle",   menuStyleIdx);   // Menu style (RESONIK)
     prefs.putUChar("BLEMode",     bleModeIdx);     // Bluetooth mode
     prefs.putUChar("USBMode",     usbModeIdx);     // USB mode
     prefs.putUChar("TCPMode",     tcpModeIdx);     // TCP mode
@@ -310,11 +314,15 @@ bool prefsLoad(uint32_t items)
     currentSquelch[LSB] = (squelch >> 8) & 0xff;
     currentSquelch[USB] = (squelch >> 16) & 0xff;
     currentSquelch[AM]  = (squelch >> 24) & 0xff;
+    currentSquelch[CW]  = prefs.getUChar("SquelchCW", currentSquelch[USB]);
     FmRegionIdx    = prefs.getUChar("FmRegion", FmRegionIdx);   // FM region
     fmStereoIdx    = prefs.getUChar("FmStereo", fmStereoIdx);   // FM stereo mode
     audioClamp     = prefs.getBool("AudioClamp", true);        // Hardware audio clamp present
     dspPatchesIdx  = prefs.getUChar("DSPPatchset", DSP_PATCHES_DEFAULT); // Uploaded patch set
     uiLayoutIdx    = prefs.getUChar("UILayout", uiLayoutIdx);   // UI Layout
+    bandPlanIdx    = prefs.getUChar("BandPlan", bandPlanIdx) % getTotalBandPlanModes();
+    autoAttIdx     = prefs.getUChar("AutoAtt", autoAttIdx) ? 1 : 0;
+    menuStyleIdx   = prefs.getUChar("MenuStyle", menuStyleIdx) ? MENU_STYLE_TILES : MENU_STYLE_CLASSIC;
     bleModeIdx     = prefs.getUChar("BLEMode", bleModeIdx);     // Bluetooth mode
     usbModeIdx     = prefs.getUChar("USBMode", usbModeIdx);     // USB mode
     tcpModeIdx     = prefs.getUChar("TCPMode", TCP_OFF);        // TCP mode

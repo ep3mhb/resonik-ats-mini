@@ -11,7 +11,7 @@ adding features for shortwave listeners and radio amateurs.
 
 Website, installer and manuals: **<https://resonik.mikroutik.com>**
 
-## Planned for v2.45-r1
+## In v2.45-r1 (being tested)
 
 - Tile menu (selectable; the classic menu stays available)
 - CW mode: true CW frequency shown, narrow filter, 10 Hz steps

@@ -88,11 +88,21 @@ build/TestTimeZone: tests/TestTimeZone.cpp TimeZone.h
 	@mkdir -p build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++11 -Wall -Wextra -UNDEBUG tests/TestTimeZone.cpp $(LDFLAGS) -o $@
 
-test: build/TestParser build/TestParserAdhoc build/TestOtaVersion build/TestHttpDate build/TestTimeZone
+build/TestBandPlan: tests/TestBandPlan.cpp BandPlan.h
+	@mkdir -p build
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++11 -Wall -Wextra -UNDEBUG tests/TestBandPlan.cpp $(LDFLAGS) -o $@
+
+build/TestBatteryTime: tests/TestBatteryTime.cpp BatteryTime.h
+	@mkdir -p build
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++11 -Wall -Wextra -UNDEBUG tests/TestBatteryTime.cpp $(LDFLAGS) -o $@
+
+test: build/TestParser build/TestParserAdhoc build/TestOtaVersion build/TestHttpDate build/TestTimeZone build/TestBandPlan build/TestBatteryTime
 	./build/TestParser
 	./build/TestParserAdhoc
 	./build/TestOtaVersion
 	./build/TestHttpDate
 	./build/TestTimeZone
+	./build/TestBandPlan
+	./build/TestBatteryTime
 
 .PHONY: all help build upload clean test

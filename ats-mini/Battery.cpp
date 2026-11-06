@@ -1,6 +1,7 @@
 #include "Common.h"
 #include "Themes.h"
 #include "Utils.h"
+#include "BatteryTime.h"
 
 #define VBAT_MON  4                 // GPIO04 -- Battery Monitor PIN
 
@@ -18,6 +19,9 @@ static uint8_t batteryState = 255;
 // Current battery voltage
 static float batteryVolts = 4.0;
 
+// Time remaining estimate (RESONIK)
+static BatteryEstimator batteryEstimator = { false, false, 0, BATT_DEFAULT_RATE, 0, 0, 0 };
+
 //
 // Measure and return battery voltage
 //
@@ -30,6 +34,12 @@ float batteryMonitor()
 
   // Calculate average voltage with correction factor
   batteryVolts = ((float)j / BATT_ADC_READS) * BATT_ADC_FACTOR / 1000;
+
+  // On USB power (see drawBattery) start over; otherwise learn the discharge rate
+  if(batteryVolts > 4.3)
+    batteryEstimatorReset(&batteryEstimator);
+  else
+    batteryEstimatorUpdate(&batteryEstimator, millis(), batteryVolts);
 
   // State machine
   // SOC (%)      batteryState
@@ -108,12 +118,25 @@ bool drawBattery(int x, int y)
   }
   else
   {
-    char voltage[8];
+    char voltage[16];
     uint16_t color;
     int level;
 
-    // Text representation of the voltage
-    sprintf(voltage, "%.02fV", batteryVolts);
+    // Text representation of the voltage, alternating with the time remaining
+    // ("~" while the discharge rate is still the typical value, not measured)
+    uint16_t minutes = batteryEstimatorMinutes(&batteryEstimator);
+    if(minutes && (millis() / BACKGROUND_REFRESH_TIME) % 2 && !switchThemeEditor())
+    {
+      // Same width as "3.95V": "~8h20", "12h", ">99h"
+      if(minutes >= 100 * 60)
+        sprintf(voltage, ">99h");
+      else if(minutes >= 10 * 60)
+        sprintf(voltage, "%s%uh", batteryEstimator.learned ? "" : "~", minutes / 60);
+      else
+        sprintf(voltage, "%s%uh%02u", batteryEstimator.learned ? "" : "~", minutes / 60, minutes % 60);
+    }
+    else
+      sprintf(voltage, "%.02fV", batteryVolts);
 
     // Battery bar color and width
     switch(batteryState)

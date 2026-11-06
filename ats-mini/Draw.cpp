@@ -1,4 +1,5 @@
 #include "Common.h"
+#include "BandPlan.h"
 #include "Themes.h"
 #include "Storage.h"
 #include "Utils.h"
@@ -260,6 +261,45 @@ void drawFrequency(uint32_t freq, int x, int y, int ux, int uy, uint8_t hl)
 //
 // Draw tuner scale
 //
+//
+// IARU Region 1 band plan on the scale (RESONIK)
+//
+static uint16_t bandPlanColor(BandPlanUse use)
+{
+  switch(use)
+  {
+    case BP_CW:     return(0x07FF); // Cyan
+    case BP_NARROW: return(0xFFE0); // Yellow
+    case BP_BEACON: return(0xF800); // Red
+    case BP_ALL:    return(0x07E0); // Green
+    default:        return(0xA514); // Grey: satellite, FM
+  }
+}
+
+static void drawBandPlan(uint32_t freq, uint32_t step)
+{
+  // 8 pixels per scale step, pointer at x = 160
+  const int64_t span = 160LL * step / 8;
+  for(unsigned i = 0 ; i < ITEM_COUNT(bandPlanR1) ; i++)
+  {
+    const BandPlanSegment &seg = bandPlanR1[i];
+    if((int64_t)seg.end < (int64_t)freq - span || (int64_t)seg.start > (int64_t)freq + span) continue;
+    int64_t x1 = 160 + ((int64_t)seg.start - (int64_t)freq) * 8 / (int64_t)step;
+    int64_t x2 = 160 + ((int64_t)seg.end - (int64_t)freq) * 8 / (int64_t)step;
+    if(x1 < 0) x1 = 0;
+    if(x2 > 320) x2 = 320;
+    if(x2 > x1) spr.fillRect(x1, 166, x2 - x1, 4, bandPlanColor(seg.use));
+  }
+
+  const BandPlanSegment *cur = bandPlanFind(freq);
+  if(cur)
+  {
+    spr.setTextDatum(ML_DATUM);
+    spr.setTextColor(bandPlanColor(cur->use), TH.bg);
+    spr.drawString(bandPlanLabel(cur->use), 168, 125, FONT_SMALL);
+  }
+}
+
 void drawScale(uint32_t freq)
 {
   // Scale pointer
@@ -284,6 +324,14 @@ void drawScale(uint32_t freq)
   const Band *band = getCurrentBand();
   uint32_t minFreq = band->minimumFreq;
   uint32_t maxFreq = band->maximumFreq;
+
+  // Band plan (RESONIK): coloured strip under the ticks, label at the pointer
+  if(bandPlanIdx != BANDPLAN_OFF && currentMode != FM)
+  {
+    drawBandPlan(freq, step);
+    spr.setTextDatum(MC_DATUM);
+    spr.setTextColor(TH.scale_text);
+  }
 
   for(int i=0 ; i<(slack + 41 + slack) ; i++, tickFreq+=step)
   {
@@ -461,6 +509,9 @@ void drawScreen()
       drawLayoutDefault();
       break;
   }
+
+  // Tile menu (RESONIK) covers the screen while the menu is open
+  drawTileMenu();
 
   spr.pushSprite(0, 0);
 }
