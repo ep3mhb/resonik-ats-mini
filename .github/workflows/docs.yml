@@ -1,24 +1,8 @@
 name: Publish Docs
 
+# RESONIK: the upstream documentation site (GitHub Pages) is not published from this fork;
+# the RESONIK website is resonik.mikroutik.com. Run manually only.
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'docs/**'
-      - 'changelog/**'
-      - 'CHANGELOG.md'
-      - 'CONTRIBUTING.md'
-      - '.github/workflows/docs.yml'
-  push:
-    branches:
-      - main
-    paths:
-      - 'docs/**'
-      - 'changelog/**'
-      - 'CHANGELOG.md'
-      - 'CONTRIBUTING.md'
-      - '.github/workflows/docs.yml'
   workflow_dispatch:
 
 jobs:
