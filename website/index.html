@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RESONIK — firmware for the ATS Mini receiver</title>
+  <meta name="description" content="RESONIK: free, open-source firmware for the ATS Mini (ESP32-S3 + SI4732) pocket receiver. CW mode, IARU Region 1 band plan, dual clock, battery time and more. Install from your browser.">
+  <meta property="og:title" content="RESONIK — firmware for the ATS Mini">
+  <meta property="og:description" content="CW mode, Region 1 band plan, dual clock, battery time and more for the ATS Mini pocket receiver. Install from your browser.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://resonik.mikroutik.com/">
+  <meta property="og:image" content="https://resonik.mikroutik.com/img/radio-boot.jpg">
+  <link rel="canonical" href="https://resonik.mikroutik.com/">
+  <meta name="theme-color" content="#141414">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="favicon.ico">
+  <link rel="stylesheet" href="site.css">
+  <script type="module" src="esp-web-tools/install-button.js"></script>
+</head>
+<body>
+  <header class="bar">
+    <div class="wrap bar-in">
+      <a class="logo" href="./" aria-label="RESONIK home">
+        <svg class="sym" viewBox="0 0 80 66" aria-hidden="true"><use href="#sym"/></svg>
+        <span class="word">RESONIK</span>
+      </a>
+      <nav aria-label="Sections">
+        <a href="#install">Install</a>
+        <a href="#features">Features</a>
+        <a href="manual/">Manual</a>
+        <a href="https://github.com/ep3mhb/resonik-ats-mini" rel="noopener">GitHub</a>
+        <a href="#fa" lang="fa">فارسی</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap hero-in">
+        <div>
+          <p class="kicker">ATS Mini firmware · <span class="badge">v2.45-r1</span> · 6 November 2026</p>
+          <h1>A sharper ATS Mini, for listeners and radio amateurs.</h1>
+          <p class="lead">RESONIK is free, open-source firmware for the ATS Mini pocket receiver (ESP32-S3 + SI4732). It keeps everything the official <a href="https://github.com/esp32-si4732/ats-mini" rel="noopener">ats-mini</a> firmware does and adds CW, a Region 1 band plan, a dual clock and more.</p>
+          <div class="keys">
+            <a class="btn primary" href="#install">Install from your browser</a>
+            <a class="btn ghost" href="https://github.com/ep3mhb/resonik-ats-mini/releases/latest" rel="noopener">Download files</a>
+          </div>
+        </div>
+        <figure class="shot">
+          <img src="img/radio-boot.jpg" srcset="img/radio-boot-700.jpg 700w, img/radio-boot.jpg 1400w" sizes="(max-width: 860px) 100vw, 520px" width="1400" height="650" alt="ATS Mini V4 showing the RESONIK boot screen: the seven-bar symbol, RESONIK, ATS Mini firmware v2.45-R1, resonik.mikroutik.com">
+        </figure>
+      </div>
+    </section>
+
+    <section id="install" class="band">
+      <div class="wrap">
+        <h2>Install</h2>
+        <p class="lead">Straight from this page, over USB. No software to install, and your settings, memories and Wi-Fi networks are kept.</p>
+
+        <ol class="steps">
+          <li><b>Use Chrome or Edge on a computer</b> (Windows, macOS, Linux or ChromeOS). Phones and Safari or Firefox cannot talk to USB devices.</li>
+          <li><b>Connect the radio</b> with a USB-C <em>data</em> cable and switch it on.</li>
+          <li><b>Check your memory type</b> in <span class="ui">Settings → About</span>: the PSRAM line shows <b>8192K</b> or <b>2048K</b>.</li>
+          <li><b>Press the matching button</b> and pick the port (on a Mac, <code>usbmodem…</code>; not the "debug" one). When asked whether to <b>erase the device, leave it unticked</b> — that keeps your settings — then <span class="ui">Install</span>. It takes about a minute.</li>
+        </ol>
+
+        <div class="installers">
+          <div class="card">
+            <h3>8 MB PSRAM <small>Settings → About shows 8192K</small></h3>
+            <p>For example the AMNVOLT ATS Mini V4. Variant <code>ospi</code>.</p>
+            <esp-web-install-button manifest="firmware/manifest-ospi.json">
+              <button slot="activate" class="btn primary">Install RESONIK · 8 MB (OSPI)</button>
+              <span slot="unsupported" class="warn">This browser cannot install firmware. Open the page in Chrome or Edge on a computer.</span>
+              <span slot="not-allowed" class="warn">Installing needs a secure (https) page.</span>
+            </esp-web-install-button>
+          </div>
+          <div class="card">
+            <h3>2 MB PSRAM <small>Settings → About shows 2048K</small></h3>
+            <p>Radios built with the quad-SPI ESP32-S3 module. Variant <code>qspi</code>.</p>
+            <esp-web-install-button manifest="firmware/manifest-qspi.json">
+              <button slot="activate" class="btn">Install RESONIK · 2 MB (QSPI)</button>
+              <span slot="unsupported" class="warn">This browser cannot install firmware. Open the page in Chrome or Edge on a computer.</span>
+              <span slot="not-allowed" class="warn">Installing needs a secure (https) page.</span>
+            </esp-web-install-button>
+          </div>
+        </div>
+
+        <details class="more">
+          <summary>Before you start, and other ways to install</summary>
+          <ul>
+            <li><b>Back up first.</b> A full copy of the radio's flash lets you return to exactly what you have now. See the upstream <a href="https://esp32-si4732.github.io/ats-mini/recovery.html" rel="noopener">backup and recovery guide</a>.</li>
+            <li><b>The port does not appear?</b> Try another cable (many are charge-only) or another USB port, and close any other program using the radio.</li>
+            <li><b>Already on RESONIK?</b> Later versions install over Wi-Fi: <span class="ui">Settings → Update FW</span>.</li>
+            <li><b>By hand with esptool-js or esptool:</b> download <code>resonik-ats-mini-v2.45-r1-ospi.zip</code> (or <code>-qspi</code>) from <a href="https://github.com/ep3mhb/resonik-ats-mini/releases/latest" rel="noopener">GitHub</a> and flash <code>ats-mini.ino.bootloader.bin</code> at <code>0x0</code>, <code>ats-mini.ino.partitions.bin</code> at <code>0x8000</code>, <code>boot_app0.bin</code> at <code>0xe000</code> and <code>ats-mini.ino.bin</code> at <code>0x10000</code>.</li>
+            <li><b>Going back</b> to the official firmware is the same procedure with the official files.</li>
+          </ul>
+        </details>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="wrap">
+        <h2>What it adds</h2>
+        <div class="grid">
+          <article class="feat"><i style="--c:#22d3ee"></i><h3>CW mode</h3><p>The display shows the CW signal's own frequency. Narrow 0.5 kHz filter with the tone in its centre, and 10 Hz steps.</p></article>
+          <article class="feat"><i style="--c:#22c55e"></i><h3>Region 1 band plan</h3><p>The IARU Region 1 plan drawn under the tuning scale for 160–10 m: CW, digital, beacons and SSB. Tuning into a phone segment selects LSB or USB for you.</p></article>
+          <article class="feat"><i style="--c:#1C7ED6"></i><h3>Dual clock</h3><p>Local time and UTC, with named time zones and summer time handled automatically. The default is UTC.</p></article>
+          <article class="feat"><i style="--c:#facc15"></i><h3>The clock survives power-off</h3><p>With Wi-Fi set to Sync, the time is set at every power-on — even on networks that block internet time servers.</p></article>
+          <article class="feat"><i style="--c:#a3e635"></i><h3>Battery time left</h3><p>The voltage alternates with an estimate in hours, learned from your own radio's consumption.</p></article>
+          <article class="feat"><i style="--c:#f97316"></i><h3>Automatic attenuation</h3><p>On AM, very strong stations no longer overload the receiver: attenuation is added and removed as needed.</p></article>
+          <article class="feat"><i style="--c:#e879f9"></i><h3>Tile menu</h3><p>An optional full-screen menu of tiles that show current values. The classic menu stays the default.</p></article>
+          <article class="feat"><i style="--c:#F6F5F1"></i><h3>Everything else, unchanged</h3><p>All bands, modes, memories, EiBi schedules, RDS, Wi-Fi and Bluetooth of ats-mini 2.45.</p></article>
+        </div>
+        <figure class="shot wide">
+          <img src="img/radio-main.jpg" srcset="img/radio-main-700.jpg 700w, img/radio-main.jpg 1400w" sizes="(max-width: 1000px) 100vw, 960px" width="1400" height="605" loading="lazy" alt="ATS Mini receiving FM at 93.40 MHz with the info box showing step, bandwidth, AGC and volume">
+          <figcaption>Release notes for every version are on <a href="https://github.com/ep3mhb/resonik-ats-mini/releases" rel="noopener">GitHub</a>. How to use the new features: <a href="manual/">the manual</a>.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="fa" class="band fa" lang="fa" dir="rtl">
+      <div class="wrap">
+        <h2>فارسی</h2>
+        <p class="lead">RESONIK فریم‌وری رایگان و متن‌باز برای رادیوی جیبی <bdi>ATS Mini</bdi> است، بر پایهٔ فریم‌ور رسمی <bdi>ats-mini 2.45</bdi>، با حالت <bdi>CW</bdi>، نقشهٔ باند <bdi>IARU</bdi> منطقهٔ ۱ و انتخاب خودکار <bdi>LSB/USB</bdi>، ساعت دوگانهٔ <bdi>UTC</bdi> و محلی، نمایش زمان باقی‌ماندهٔ باتری، تضعیف خودکار و منوی کاشی‌ای.</p>
+        <ol class="steps">
+          <li>این صفحه را در <b>Chrome</b> یا <b>Edge</b> روی کامپیوتر باز کنید (گوشی پشتیبانی نمی‌شود).</li>
+          <li>رادیو را با کابل <bdi>USB-C</bdi> که داده را منتقل می‌کند وصل و روشن کنید.</li>
+          <li>در <bdi class="ui">Settings → About</bdi> مقدار <bdi>PSRAM</bdi> را ببینید: <b><bdi>8192K</bdi></b> یا <b><bdi>2048K</bdi></b>.</li>
+          <li>در بخش <a href="#install">Install</a> دکمهٔ مربوط را بزنید و درگاه رادیو را انتخاب کنید. گزینهٔ <bdi>Erase device</bdi> را <b>علامت نزنید</b> تا تنظیمات و حافظه‌ها حفظ شوند، سپس <bdi>Install</bdi> را بزنید.</li>
+        </ol>
+        <p class="hint">پیش از نصب از رادیو نسخهٔ پشتیبان بگیرید. نسخه‌های بعدی را می‌توان از راه وای‌فای نصب کرد: <bdi class="ui">Settings → Update FW</bdi>.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p><b>RESONIK</b> edition by Mohammad Bahrololoum · <a href="https://mikroutik.com/">mikroutik.com</a> · source on <a href="https://github.com/ep3mhb/resonik-ats-mini" rel="noopener">GitHub</a>, MIT licence.</p>
+      <p>Built on <a href="https://github.com/esp32-si4732/ats-mini" rel="noopener">ats-mini</a> by PU2CLR (Ricardo Caratti), Volos Projects, Ralph Xavier, Sunnygold, Goshante, G8PTN (Dave), R9UCL (Max Arnold), Marat Fayzullin and all ats-mini contributors. Browser installer: <a href="https://esphome.github.io/esp-web-tools/" rel="noopener">ESP Web Tools</a>.</p>
+      <p class="hint">Not affiliated with the makers of ATS Mini radios. RESONIK and the RESONIK symbol are the project's name and mark. Installing third-party firmware is at your own risk; a backup lets you undo it.</p>
+    </div>
+  </footer>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="sym" viewBox="0 0 80 66">
+      <rect x="0" y="55" width="8" height="11" rx="3" fill="currentColor"/>
+      <rect x="12" y="49.5" width="8" height="16.5" rx="3" fill="currentColor"/>
+      <rect x="24" y="38.5" width="8" height="27.5" rx="3" fill="currentColor"/>
+      <rect x="36" y="0" width="8" height="66" rx="3" fill="#1C7ED6"/>
+      <rect x="48" y="38.5" width="8" height="27.5" rx="3" fill="currentColor"/>
+      <rect x="60" y="49.5" width="8" height="16.5" rx="3" fill="currentColor"/>
+      <rect x="72" y="55" width="8" height="11" rx="3" fill="currentColor"/>
+    </symbol>
+  </svg>
+</body>
+</html>
