@@ -95,7 +95,7 @@ typedef struct
 
 extern Band bands[];
 extern uint8_t memoryIdx;
-extern const UTCOffset utcOffsets[];
+extern const TimeZone timeZones[];
 extern const char *bandModeDesc[];
 extern const FMRegion fmRegions[];
 extern const char *const fmStereoDesc[];
@@ -140,6 +140,9 @@ uint8_t getRDSMode();
 int getTotalRDSModes();
 
 int8_t getCurrentUTCOffset();
+const TimeZone *getCurrentTimeZone();
+const char *getCurrentTimeZoneAbbr();
+uint8_t timeZoneFromLegacyIndex(uint8_t idx);
 int getTotalUTCOffsets();
 
 void doSoftMute(int16_t enc);

@@ -152,7 +152,7 @@ static const char *settings[] =
 {
   "Brightness",
   "Date/Time",
-  "UTC Offset",
+  "Time Zone",
   "Sleep Timer",
   "Sleep Mode",
   "Off Timer",
@@ -246,57 +246,117 @@ const char *const sleepModeDesc[] =
 int getTotalSleepModes() { return(ITEM_COUNT(sleepModeDesc)); }
 
 //
-// UTC Offset Menu
+// Time Zone Menu (RESONIK): plain UTC offsets plus named zones with automatic
+// summer time. Index 0 is UTC, the default (upstream defaulted to UTC-5).
 // https://en.wikipedia.org/wiki/List_of_UTC_offsets
-// https://www.timeanddate.com/time/time-zones-interesting.html
 //
-uint8_t utcOffsetIdx = 8;
-const UTCOffset utcOffsets[] =
+uint8_t utcOffsetIdx = 0;
+const TimeZone timeZones[] =
 {
-  { -12 * 4, "UTC-12" },
-  { -11 * 4, "UTC-11" },
-  { -10 * 4, "UTC-10" },
-  { -9 * 4 - 2, "UTC-9:30" },
-  { -9 * 4, "UTC-9" },
-  { -8 * 4, "UTC-8" },
-  { -7 * 4, "UTC-7" },
-  { -6 * 4, "UTC-6" },
-  { -5 * 4, "UTC-5" },
-  { -4 * 4, "UTC-4" },
-  { -3 * 4 - 2, "UTC-3:30" },
-  { -3 * 4, "UTC-3" },
-  { -2 * 4 - 2, "UTC-2:30" },
-  { -2 * 4, "UTC-2" },
-  { -1 * 4, "UTC-1" },
-  {  0 * 4, "UTC+0" },
-  {  1 * 4, "UTC+1" },
-  {  2 * 4, "UTC+2" },
-  {  3 * 4, "UTC+3" },
-  {  3 * 4 + 2, "UTC+3:30" },
-  {  4 * 4, "UTC+4" },
-  {  4 * 4 + 2, "UTC+4:30" },
-  {  5 * 4, "UTC+5" },
-  {  5 * 4 + 2, "UTC+5:30" },
-  {  5 * 4 + 3, "UTC+5:45" },
-  {  6 * 4, "UTC+6" },
-  {  6 * 4 + 2, "UTC+6:30" },
-  {  7 * 4, "UTC+7" },
-  {  8 * 4, "UTC+8" },
-  {  8 * 4 + 3, "UTC+8:45" },
-  {  9 * 4, "UTC+9" },
-  {  9 * 4 + 2, "UTC+9:30" },
-  { 10 * 4, "UTC+10" },
-  { 10 * 4 + 2, "UTC+10:30" },
-  { 11 * 4, "UTC+11" },
-  { 12 * 4, "UTC+12" },
-  { 12 * 4 + 3, "UTC+12:45" },
-  { 13 * 4, "UTC+13" },
-  { 13 * 4 + 3, "UTC+13:45" },
-  { 14 * 4, "UTC+14" },
+  {    0, TZ_NONE, "UTC", "UTC", nullptr, "UTC" },  // Default: index 0
+  {  -720, TZ_NONE, "UTC-12", "UTC-12", nullptr, nullptr },
+  {  -660, TZ_NONE, "UTC-11", "UTC-11", nullptr, nullptr },
+  {  -600, TZ_NONE, "UTC-10", "UTC-10", nullptr, nullptr },
+  {  -600, TZ_NONE, "Honolulu", "HST", nullptr, "Pacific/Honolulu" },
+  {  -570, TZ_NONE, "UTC-9:30", "UTC-9:30", nullptr, nullptr },
+  {  -540, TZ_NONE, "UTC-9", "UTC-9", nullptr, nullptr },
+  {  -540, TZ_US, "Anchorage", "AKST", "AKDT", "America/Anchorage" },
+  {  -480, TZ_NONE, "UTC-8", "UTC-8", nullptr, nullptr },
+  {  -480, TZ_US, "Los Angeles", "PST", "PDT", "America/Los_Angeles" },
+  {  -420, TZ_NONE, "UTC-7", "UTC-7", nullptr, nullptr },
+  {  -420, TZ_US, "Denver", "MST", "MDT", "America/Denver" },
+  {  -420, TZ_NONE, "Phoenix", "MST", nullptr, "America/Phoenix" },
+  {  -360, TZ_NONE, "UTC-6", "UTC-6", nullptr, nullptr },
+  {  -360, TZ_US, "Chicago", "CST", "CDT", "America/Chicago" },
+  {  -360, TZ_NONE, "Mexico City", "CST", nullptr, "America/Mexico_City" },
+  {  -300, TZ_NONE, "UTC-5", "UTC-5", nullptr, nullptr },
+  {  -300, TZ_US, "New York", "EST", "EDT", "America/New_York" },
+  {  -240, TZ_NONE, "UTC-4", "UTC-4", nullptr, nullptr },
+  {  -210, TZ_NONE, "UTC-3:30", "UTC-3:30", nullptr, nullptr },
+  {  -180, TZ_NONE, "UTC-3", "UTC-3", nullptr, nullptr },
+  {  -180, TZ_NONE, "Sao Paulo", "BRT", nullptr, "America/Sao_Paulo" },
+  {  -180, TZ_NONE, "Buenos Aires", "ART", nullptr, "America/Argentina/Buenos_Aires" },
+  {  -150, TZ_NONE, "UTC-2:30", "UTC-2:30", nullptr, nullptr },
+  {  -120, TZ_NONE, "UTC-2", "UTC-2", nullptr, nullptr },
+  {   -60, TZ_NONE, "UTC-1", "UTC-1", nullptr, nullptr },
+  {     0, TZ_NONE, "UTC+0", "UTC+0", nullptr, nullptr },
+  {     0, TZ_EU, "London", "GMT", "BST", "Europe/London" },
+  {     0, TZ_EU, "Lisbon", "WET", "WEST", "Europe/Lisbon" },
+  {    60, TZ_NONE, "UTC+1", "UTC+1", nullptr, nullptr },
+  {    60, TZ_EU, "Berlin/Paris", "CET", "CEST", "Europe/Berlin" },
+  {    60, TZ_NONE, "Lagos", "WAT", nullptr, "Africa/Lagos" },
+  {   120, TZ_NONE, "UTC+2", "UTC+2", nullptr, nullptr },
+  {   120, TZ_EU, "Athens", "EET", "EEST", "Europe/Athens" },
+  {   120, TZ_NONE, "Johannesburg", "SAST", nullptr, "Africa/Johannesburg" },
+  {   180, TZ_NONE, "UTC+3", "UTC+3", nullptr, nullptr },
+  {   180, TZ_NONE, "Moscow", "MSK", nullptr, "Europe/Moscow" },
+  {   180, TZ_NONE, "Istanbul", "TRT", nullptr, "Europe/Istanbul" },
+  {   180, TZ_NONE, "Riyadh", "AST", nullptr, "Asia/Riyadh" },
+  {   210, TZ_NONE, "UTC+3:30", "UTC+3:30", nullptr, nullptr },
+  {   210, TZ_NONE, "Tehran", "IRST", nullptr, "Asia/Tehran" },
+  {   240, TZ_NONE, "UTC+4", "UTC+4", nullptr, nullptr },
+  {   240, TZ_NONE, "Dubai", "GST", nullptr, "Asia/Dubai" },
+  {   240, TZ_NONE, "Muscat", "GST", nullptr, "Asia/Muscat" },
+  {   270, TZ_NONE, "UTC+4:30", "UTC+4:30", nullptr, nullptr },
+  {   270, TZ_NONE, "Kabul", "AFT", nullptr, "Asia/Kabul" },
+  {   300, TZ_NONE, "UTC+5", "UTC+5", nullptr, nullptr },
+  {   300, TZ_NONE, "Karachi", "PKT", nullptr, "Asia/Karachi" },
+  {   330, TZ_NONE, "UTC+5:30", "UTC+5:30", nullptr, nullptr },
+  {   330, TZ_NONE, "Delhi", "IST", nullptr, "Asia/Kolkata" },
+  {   345, TZ_NONE, "UTC+5:45", "UTC+5:45", nullptr, nullptr },
+  {   345, TZ_NONE, "Kathmandu", "NPT", nullptr, "Asia/Kathmandu" },
+  {   360, TZ_NONE, "UTC+6", "UTC+6", nullptr, nullptr },
+  {   360, TZ_NONE, "Dhaka", "BST", nullptr, "Asia/Dhaka" },
+  {   390, TZ_NONE, "UTC+6:30", "UTC+6:30", nullptr, nullptr },
+  {   420, TZ_NONE, "UTC+7", "UTC+7", nullptr, nullptr },
+  {   420, TZ_NONE, "Bangkok", "ICT", nullptr, "Asia/Bangkok" },
+  {   480, TZ_NONE, "UTC+8", "UTC+8", nullptr, nullptr },
+  {   480, TZ_NONE, "Singapore", "SGT", nullptr, "Asia/Singapore" },
+  {   480, TZ_NONE, "Beijing", "CST", nullptr, "Asia/Shanghai" },
+  {   480, TZ_NONE, "Perth", "AWST", nullptr, "Australia/Perth" },
+  {   525, TZ_NONE, "UTC+8:45", "UTC+8:45", nullptr, nullptr },
+  {   540, TZ_NONE, "UTC+9", "UTC+9", nullptr, nullptr },
+  {   540, TZ_NONE, "Tokyo", "JST", nullptr, "Asia/Tokyo" },
+  {   570, TZ_NONE, "UTC+9:30", "UTC+9:30", nullptr, nullptr },
+  {   570, TZ_AU, "Adelaide", "ACST", "ACDT", "Australia/Adelaide" },
+  {   600, TZ_NONE, "UTC+10", "UTC+10", nullptr, nullptr },
+  {   600, TZ_AU, "Sydney", "AEST", "AEDT", "Australia/Sydney" },
+  {   600, TZ_NONE, "Brisbane", "AEST", nullptr, "Australia/Brisbane" },
+  {   630, TZ_NONE, "UTC+10:30", "UTC+10:30", nullptr, nullptr },
+  {   660, TZ_NONE, "UTC+11", "UTC+11", nullptr, nullptr },
+  {   720, TZ_NONE, "UTC+12", "UTC+12", nullptr, nullptr },
+  {   720, TZ_NZ, "Auckland", "NZST", "NZDT", "Pacific/Auckland" },
+  {   765, TZ_NONE, "UTC+12:45", "UTC+12:45", nullptr, nullptr },
+  {   780, TZ_NONE, "UTC+13", "UTC+13", nullptr, nullptr },
+  {   825, TZ_NONE, "UTC+13:45", "UTC+13:45", nullptr, nullptr },
+  {   840, TZ_NONE, "UTC+14", "UTC+14", nullptr, nullptr },
 };
 
-int8_t getCurrentUTCOffset() { return(utcOffsets[utcOffsetIdx].offset); }
-int getTotalUTCOffsets() { return(ITEM_COUNT(utcOffsets)); }
+// Offsets of the upstream "UTCOffset" list (15-minute units), to migrate saved settings
+static const int8_t legacyUtcOffsets[] =
+{
+  -48, -44, -40, -38, -36, -32, -28, -24, -20, -16, -14, -12, -10, -8, -4, 0, 4, 8, 12, 14, 16, 18, 20, 22, 23, 24, 26, 28, 32, 35, 36, 38, 40, 42, 44, 48, 51, 52, 55, 56
+};
+
+uint8_t timeZoneFromLegacyIndex(uint8_t idx)
+{
+  if(idx >= ITEM_COUNT(legacyUtcOffsets)) return(0);
+  int16_t minutes = legacyUtcOffsets[idx] * 15;
+  for(int i = 1 ; i < (int)ITEM_COUNT(timeZones) ; i++)
+    if(!timeZones[i].iana && timeZones[i].stdMinutes == minutes) return(i);
+  return(0);
+}
+
+const TimeZone *getCurrentTimeZone()
+{
+  if(utcOffsetIdx >= ITEM_COUNT(timeZones)) utcOffsetIdx = 0;
+  return(&timeZones[utcOffsetIdx]);
+}
+
+// Current offset in 15-minute units, including summer time
+int8_t getCurrentUTCOffset() { return(tzOffsetMinutes(getCurrentTimeZone(), time(NULL)) / 15); }
+const char *getCurrentTimeZoneAbbr() { return(tzAbbr(getCurrentTimeZone(), time(NULL))); }
+int getTotalUTCOffsets() { return(ITEM_COUNT(timeZones)); }
 
 //
 // Date/Time Menu
@@ -314,6 +374,8 @@ enum DateTimeField
 
 static const uint16_t dateTimeMaxYear = 2105;
 static uint8_t dateTimeField;
+// Until a value is changed, the Date/Time screen follows the running clock
+static bool dateTimeEdited;
 static uint16_t dateTimeYear;
 static uint8_t dateTimeMonth;
 static uint8_t dateTimeDay;
@@ -598,9 +660,8 @@ static uint8_t dateTimeDaysInMonth(uint16_t year, uint8_t month)
   return(fields.tm_mday);
 }
 
-static void dateTimeInit()
+static void dateTimeRefresh()
 {
-  dateTimeField = DATETIME_YEAR;
   dateTimeYear = dateTimeMonth = dateTimeDay = 0;
   dateTimeHour = dateTimeMinute = dateTimeSecond = 0;
 
@@ -621,8 +682,16 @@ static void dateTimeInit()
   dateTimeDay = fields.tm_mday;
 }
 
+static void dateTimeInit()
+{
+  dateTimeField = DATETIME_YEAR;
+  dateTimeEdited = false;
+  dateTimeRefresh();
+}
+
 static void doDateTime(int16_t enc)
 {
+  dateTimeEdited = true;
   bool dateMissing = dateTimeYear < CLOCK_MIN_YEAR || !dateTimeMonth || !dateTimeDay;
   if(dateMissing)
   {
@@ -656,8 +725,10 @@ static void clickDateTime(bool shortPress)
     return;
   }
 
+  // Nothing changed: leave without setting the clock to the time the screen opened
   uint32_t epoch;
-  if(clockUTCDateTimeToEpoch(dateTimeYear, dateTimeMonth, dateTimeDay,
+  if(dateTimeEdited &&
+     clockUTCDateTimeToEpoch(dateTimeYear, dateTimeMonth, dateTimeDay,
                             dateTimeHour, dateTimeMinute, dateTimeSecond, &epoch))
     clockSetEpoch(epoch);
 
@@ -910,7 +981,7 @@ void doRDSMode(int16_t enc)
 
 static void doUTCOffset(int16_t enc)
 {
-  utcOffsetIdx = wrap_range(utcOffsetIdx, enc, 0, LAST_ITEM(utcOffsets));
+  utcOffsetIdx = wrap_range(utcOffsetIdx, enc, 0, LAST_ITEM(timeZones));
   prefsRequestSave(SAVE_SETTINGS);
 }
 
@@ -1772,14 +1843,14 @@ static void drawUTCOffset(int x, int y, int sx)
 {
   drawCommon(settings[MENU_UTCOFFSET], x, y, sx, true);
 
-  int count = ITEM_COUNT(utcOffsets);
+  int count = ITEM_COUNT(timeZones);
   uint8_t idx = utcOffsetIdx;
 
   for(int i=-2 ; i<3 ; i++)
   {
     if(i==0)
     {
-      drawZoomedMenu(utcOffsets[abs((idx+count+i)%count)].desc);
+      drawZoomedMenu(timeZones[abs((idx+count+i)%count)].desc);
       spr.setTextColor(TH.menu_hl_text, TH.menu_hl_bg);
     }
     else
@@ -1788,7 +1859,7 @@ static void drawUTCOffset(int x, int y, int sx)
     }
 
     spr.setTextDatum(MC_DATUM);
-    spr.drawString(utcOffsets[abs((idx+count+i)%count)].desc, 40+x+(sx/2), 64+y+(i*16), FONT_SMALL);
+    spr.drawString(timeZones[abs((idx+count+i)%count)].desc, 40+x+(sx/2), 64+y+(i*16), FONT_SMALL);
   }
 }
 
@@ -1815,6 +1886,8 @@ static void drawDateTime(int x, int y, int sx)
   static const uint8_t lengths[] = { 4, 2, 2, 2, 2, 2 };
   char date[16];
   char time[16];
+
+  if(!dateTimeEdited) dateTimeRefresh();
 
   snprintf(date, sizeof(date), "%04u-%02u-%02u",
     (unsigned)dateTimeYear, (unsigned)dateTimeMonth, (unsigned)dateTimeDay);
@@ -2191,13 +2264,27 @@ static void drawInfo(int x, int y, int sx)
   }
 
   // Alternate the Off Timer countdown with the current date and time.
+  // RESONIK dual clock: with a local zone other than UTC, every other
+  // refresh shows UTC time (for schedules and logs) instead of local time.
   const char *clock = clockGet();
   uint16_t minutes = offTimerRemainingMinutes();
-  if(minutes && (!clock || millis() / BACKGROUND_REFRESH_TIME % 2))
+  uint32_t phase = millis() / BACKGROUND_REFRESH_TIME;
+  bool showUtc = clock && getCurrentUTCOffset() && (minutes ? phase % 3 == 2 : phase % 2);
+  if(minutes && (!clock || phase % 3 == 1))
   {
     snprintf(text, sizeof(text), "%02u:%02u", minutes / 60, minutes % 60);
     spr.drawString("Zzz:", 6+x, 64+y+(2*16), FONT_SMALL);
     spr.drawString(text, 48+x, 64+y+(2*16), FONT_SMALL);
+  }
+  else if(showUtc)
+  {
+    uint8_t hours, mins;
+    if(clockGetHM(&hours, &mins))
+    {
+      snprintf(text, sizeof(text), "%02u:%02u", hours, mins);
+      spr.drawString("UTC:", 6+x, 64+y+(2*16), FONT_SMALL);
+      spr.drawString(text, 48+x, 64+y+(2*16), FONT_SMALL);
+    }
   }
   else if(clock)
   {
@@ -2215,6 +2302,14 @@ static void drawInfo(int x, int y, int sx)
 
     spr.drawString(label, 6+x, 64+y+(2*16), FONT_SMALL);
     spr.drawString(clock, 48+x, 64+y+(2*16), FONT_SMALL);
+  }
+  else
+  {
+    // No time yet: say so, instead of an empty line (Wi-Fi Sync, RDS or Date/Time sets it)
+    spr.drawString("Time:", 6+x, 64+y+(2*16), FONT_SMALL);
+    spr.setTextColor(TH.box_off_text, TH.box_off_bg);
+    spr.drawString("--:--", 48+x, 64+y+(2*16), FONT_SMALL);
+    spr.setTextColor(TH.box_text);
   }
 }
 
