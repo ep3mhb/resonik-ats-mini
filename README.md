@@ -19,7 +19,7 @@ Website, installer and manuals: **<https://resonik.mikroutik.com>**
 - Dual clock (UTC and local time) with named time zones and automatic daylight saving
 - Battery time remaining
 - Automatic attenuation when strong stations overload the receiver
-- The clock survives switching off: automatic time sync at power-on, and support for an optional clock module
+- The clock survives switching off: automatic time sync at power-on, with a web-time fallback for networks that block NTP
 
 Later: propagation beacon tracker, better EiBi schedule, memory scanner, signal logger, CAT control,
 and on V4 boards an audio spectrum and an on-screen CW decoder.
