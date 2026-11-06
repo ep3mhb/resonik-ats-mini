@@ -18,7 +18,8 @@
 #define WIFI_ATTEMPT_TIMEOUT  5000
 #define WIFI_DISCOVERY_TIMEOUT  15000 // Leave time to connect after probing hidden APs
 #define NTP_TIMEOUT  45000 // Allow startup delay and fallback to the third server
-#define HTTP_TIME_AFTER 15000 // No NTP reply by then: read the time from a web server instead
+#define HTTP_TIME_AFTER 12000 // No NTP reply by then: read the time from a web server instead
+#define HTTP_TIME_TRIES 3     // Web attempts at 12, 22 and 32 s, all before NTP_TIMEOUT
 
 #ifndef WIFI_POWER_LEVEL
 #define WIFI_POWER_LEVEL WIFI_POWER_17dBm
@@ -32,8 +33,8 @@ static std::atomic<bool> connectRequested{false};
 static std::atomic<bool> timeSynchronized{false};
 // Retain NTP precedence over RDS even if the user resets clock validity.
 static bool ntpHasTime = false;
-// One HTTP Date fallback attempt per connection, for networks that block NTP (UDP 123).
-static bool httpTimeTried = false;
+// HTTP Date fallback attempts on this connection, for networks that block or delay NTP.
+static uint8_t httpTimeTried = 0;
 static bool httpTimeSync();
 static char timeSyncDiag[48] = "";
 
@@ -195,9 +196,11 @@ bool netTickTime()
       break;
 
     case NetState::Online:
-      if(!ntpHasTime && !httpTimeTried && now - attemptStarted >= HTTP_TIME_AFTER)
+      // Retry: right after joining Wi-Fi, DNS and routing are sometimes not ready yet
+      if(!ntpHasTime && httpTimeTried < HTTP_TIME_TRIES &&
+         now - attemptStarted >= HTTP_TIME_AFTER + httpTimeTried * 10000u)
       {
-        httpTimeTried = true;
+        httpTimeTried++;
         if(httpTimeSync())
         {
           changed = true;
@@ -441,7 +444,7 @@ static void wifiConnected(uint32_t now)
   // Three servers so one blocked or slow pool does not leave the clock unset
   // The last one is Cloudflare by IP address, so time still works if DNS does not
   configTime(0, 0, "atsmini.pool.ntp.org", "time.cloudflare.com", "162.159.200.123");
-  httpTimeTried = false;
+  httpTimeTried = 0;
   timeSyncDiag[0] = 0;
   attemptStarted = now;
   netState = NetState::Online;
