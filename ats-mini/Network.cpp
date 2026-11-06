@@ -35,6 +35,7 @@ static bool ntpHasTime = false;
 // One HTTP Date fallback attempt per connection, for networks that block NTP (UDP 123).
 static bool httpTimeTried = false;
 static bool httpTimeSync();
+static char timeSyncDiag[48] = "";
 
 // Keep the strongest identified AP for each of the three saved networks.
 struct WiFiNetwork
@@ -211,7 +212,7 @@ bool netTickTime()
       if(activeNetMode == NET_SYNC && now - attemptStarted >= NTP_TIMEOUT)
       {
         netStop();
-        statusShow("NTP sync failed");
+        statusShow("Time sync failed", timeSyncDiag[0] ? timeSyncDiag : nullptr, 20000);
       }
       break;
   }
@@ -438,8 +439,10 @@ static void wifiConnected(uint32_t now)
   });
   esp_sntp_set_sync_interval(4 * 60 * 60 * 1000);
   // Three servers so one blocked or slow pool does not leave the clock unset
-  configTime(0, 0, "atsmini.pool.ntp.org", "pool.ntp.org", "time.cloudflare.com");
+  // The last one is Cloudflare by IP address, so time still works if DNS does not
+  configTime(0, 0, "atsmini.pool.ntp.org", "time.cloudflare.com", "162.159.200.123");
   httpTimeTried = false;
+  timeSyncDiag[0] = 0;
   attemptStarted = now;
   netState = NetState::Online;
   if(activeNetMode == NET_SYNC)
@@ -472,30 +475,39 @@ static void wifiConnectionFailed()
 //
 static bool httpTimeSync()
 {
+  // The second address is an IP literal: it works even when DNS is broken
   static const char *urls[] = {
     "http://www.google.com/generate_204",
-    "http://cp.cloudflare.com/",
+    "http://1.1.1.1/",
   };
   static const char *headers[] = { "Date" };
+  int codes[2] = { 0, 0 };
 
-  for(const char *url : urls)
+  for(int i = 0 ; i < 2 ; i++)
   {
     HTTPClient http;
     http.setTimeout(4000);
     http.setConnectTimeout(4000);
-    if(!http.begin(url)) continue;
+    if(!http.begin(urls[i])) continue;
     http.setUserAgent(getUserAgent());
     http.collectHeaders(headers, 1);
-    int code = http.sendRequest("HEAD");
+    // Any reply carries a Date header, including the redirect from 1.1.1.1
+    codes[i] = http.sendRequest("HEAD");
     String date = http.header("Date");
     http.end();
 
     uint32_t epoch;
-    if(code > 0 && httpDateToEpoch(date.c_str(), &epoch))
+    if(codes[i] > 0 && httpDateToEpoch(date.c_str(), &epoch))
     {
       clockSetEpoch(epoch);
       return(true);
     }
   }
+
+  // Shown on failure: DNS server, whether it resolves names, and the web results
+  IPAddress ip;
+  bool dnsOk = WiFi.hostByName("pool.ntp.org", ip) == 1;
+  snprintf(timeSyncDiag, sizeof(timeSyncDiag), "DNS %s %s, web %d/%d",
+    WiFi.dnsIP(0).toString().c_str(), dnsOk ? "ok" : "fail", codes[0], codes[1]);
   return(false);
 }
