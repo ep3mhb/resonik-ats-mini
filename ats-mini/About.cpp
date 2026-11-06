@@ -27,13 +27,14 @@ static void drawAboutCommon(uint8_t arrow)
   if(arrow & 1) spr.fillTriangle(307, 12, 301, 8, 301, 16, TH.text_muted);
 
   spr.setTextDatum(TL_DATUM);
-  // RESONIK symbol and wordmark, then the receiver description
-  int x = 2 + brandDrawSymbol(2, 20, 20, TH.text, BRAND_PEAK_BLUE) + 6;
+  // RESONIK symbol and wordmark, then the receiver description.
+  // One-colour symbol here: a Peak Blue bar disappears on blue themes.
+  int x = 2 + brandDrawSymbol(2, 20, 20, TH.text, TH.text) + 6;
   x += brandDrawWordmark(x, 20 - brandWordmarkHeight(false), false, TH.text, TH.bg) + 8;
   spr.setTextColor(TH.text_muted);
   spr.drawString("ATS Mini", x, 4, FONT_SMALL);
   spr.setTextColor(TH.text);
-  spr.drawString(getVersion(), 2, 25, FONT_SMALL);
+  spr.drawString(getVersion(true), 2, 25, FONT_SMALL);   // the header already names the receiver
 }
 
 //
