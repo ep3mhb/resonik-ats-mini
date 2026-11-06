@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RESONIK manual — ATS Mini firmware</title>
+  <meta name="description" content="How to use the RESONIK additions to the ATS Mini firmware: CW mode, band plan, time zones and dual clock, battery time, automatic attenuation, tile menu and updates.">
+  <link rel="canonical" href="https://resonik.mikroutik.com/manual/">
+  <meta name="theme-color" content="#141414">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="../favicon.ico">
+  <link rel="stylesheet" href="../site.css">
+  <style>
+    .doc { max-width: 46rem; }
+    .doc h2 { margin-top: 2.6rem; font-size: 1.5rem; }
+    .doc table { border-collapse: collapse; width: 100%; margin: .8rem 0; font-size: .95rem; }
+    .doc th, .doc td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .doc th { font-family: "Sora", var(--sans); font-weight: 600; }
+    .sw { display: inline-block; width: 26px; height: 6px; border-radius: 3px; vertical-align: middle; margin-right: .4rem; box-shadow: 0 0 0 1px rgba(0,0,0,.15); }
+    .toc { columns: 2; padding-left: 1.2rem; }
+    @media (max-width: 520px) { .toc { columns: 1; } }
+  </style>
+</head>
+<body>
+  <header class="bar">
+    <div class="wrap bar-in">
+      <a class="logo" href="../" aria-label="RESONIK home">
+        <svg class="sym" viewBox="0 0 80 66" aria-hidden="true">
+          <rect x="0" y="55" width="8" height="11" rx="3" fill="currentColor"/><rect x="12" y="49.5" width="8" height="16.5" rx="3" fill="currentColor"/><rect x="24" y="38.5" width="8" height="27.5" rx="3" fill="currentColor"/><rect x="36" y="0" width="8" height="66" rx="3" fill="#1C7ED6"/><rect x="48" y="38.5" width="8" height="27.5" rx="3" fill="currentColor"/><rect x="60" y="49.5" width="8" height="16.5" rx="3" fill="currentColor"/><rect x="72" y="55" width="8" height="11" rx="3" fill="currentColor"/>
+        </svg>
+        <span class="word">RESONIK</span>
+      </a>
+      <nav aria-label="Sections">
+        <a href="../#install">Install</a>
+        <a href="../#features">Features</a>
+        <a href="./">Manual</a>
+        <a href="https://github.com/ep3mhb/resonik-ats-mini" rel="noopener">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="wrap doc">
+        <p class="kicker" style="color:var(--muted)">Manual · firmware v2.45-r1</p>
+        <h1 style="font-size:2.2rem;margin:.3rem 0 1rem">Using the RESONIK additions</h1>
+        <p class="lead">This page covers what RESONIK adds. Everything else — bands, modes, memories, seek and scan, EiBi schedules, RDS, Wi-Fi and Bluetooth — works as in the official firmware and is described in the <a href="https://esp32-si4732.github.io/ats-mini/manual.html" rel="noopener">ats-mini user manual</a>.</p>
+        <p>The basics: rotate the encoder to tune; a short click opens the volume, a long press opens the <b>Menu</b>, and <span class="ui">Menu → Settings</span> holds everything below.</p>
+        <ul class="toc">
+          <li><a href="#cw">CW mode</a></li>
+          <li><a href="#bandplan">Band plan</a></li>
+          <li><a href="#clock">Time zone and dual clock</a></li>
+          <li><a href="#sync">Setting the clock</a></li>
+          <li><a href="#battery">Battery time</a></li>
+          <li><a href="#att">Automatic attenuation</a></li>
+          <li><a href="#tiles">Tile menu</a></li>
+          <li><a href="#update">Updates</a></li>
+        </ul>
+
+        <h2 id="cw">CW mode</h2>
+        <p>Choose <span class="ui">Menu → Mode → CW</span> (it follows AM). The display shows the frequency of the CW signal itself, the way a CW transceiver does: tune until the frequency matches a spot or a schedule and the tone is in the middle of the filter.</p>
+        <table>
+          <tr><th>Bandwidth</th><th>Tone</th><th>Use</th></tr>
+          <tr><td>0.5k (default)</td><td>500 Hz</td><td>Crowded bands, weak signals</td></tr>
+          <tr><td>1.0k</td><td>1000 Hz</td><td>Finding signals, faster tuning</td></tr>
+          <tr><td>1.2k and wider</td><td>700 Hz</td><td>Listening around the band</td></tr>
+        </table>
+        <p>The step starts at 10 Hz; change it in <span class="ui">Menu → Step</span>. CW uses the USB calibration value of the band (<span class="ui">Settings → Calibration</span>).</p>
+
+        <h2 id="bandplan">Band plan</h2>
+        <p>On the amateur bands from 160 to 10 m, a coloured strip under the tuning scale shows the IARU Region 1 band plan, and the segment you are in is named next to the pointer.</p>
+        <table>
+          <tr><th>Colour</th><th>Segment</th></tr>
+          <tr><td><span class="sw" style="background:#00ffff"></span>Cyan</td><td>CW only</td></tr>
+          <tr><td><span class="sw" style="background:#ffff00"></span>Yellow</td><td>Narrow modes: CW and digital (FT8, PSK, RTTY…)</td></tr>
+          <tr><td><span class="sw" style="background:#ff0000"></span>Red</td><td>International beacons (NCDXF/IARU)</td></tr>
+          <tr><td><span class="sw" style="background:#00ff00"></span>Green</td><td>All modes, including SSB phone</td></tr>
+          <tr><td><span class="sw" style="background:#a0a0a0"></span>Grey</td><td>Satellite and FM (10 m)</td></tr>
+        </table>
+        <p><span class="ui">Settings → Band Plan</span>:</p>
+        <ul>
+          <li><b>Off</b> — no strip.</li>
+          <li><b>Scale</b> — the strip and segment name only.</li>
+          <li><b>Scale+SSB</b> (default) — also selects the usual sideband when you tune into a phone segment in LSB or USB: LSB below 10 MHz, USB above. A short message confirms it. If you then change the sideband yourself, your choice stays until you leave the segment.</li>
+        </ul>
+        <p class="hint">The plan is Region 1 (Europe, Africa, the Middle East). National allocations differ; check your own licence before transmitting with another radio.</p>
+
+        <h2 id="clock">Time zone and dual clock</h2>
+        <p><span class="ui">Settings → Time Zone</span> lists UTC first, then every UTC offset with named places beside it — Dubai and Muscat next to UTC+4, London, Berlin/Paris, New York, Sydney and others. Named places change to summer time and back automatically. A previous offset setting is carried over.</p>
+        <p>When the zone is not UTC, the time line in the info box alternates every few seconds between local date and time and <b>UTC:</b> time — the time used by schedules, logs and beacon timetables. <b>Time: --:--</b> means the clock is not set yet.</p>
+        <p><span class="ui">Settings → Date/Time</span> shows the running time in UTC. Rotate to change a value, long-press for the next field, click to save. Clicking without changing anything leaves the clock alone.</p>
+
+        <h2 id="sync">Setting the clock</h2>
+        <p>The radio has no clock battery, so the time is lost when it is switched off. To have it set automatically at every power-on:</p>
+        <ol>
+          <li>Add your Wi-Fi network (see the <a href="https://esp32-si4732.github.io/ats-mini/manual.html" rel="noopener">ats-mini manual</a>, Wi-Fi).</li>
+          <li>Set <span class="ui">Settings → Wi-Fi → Sync Only</span>. The radio connects, sets the time and switches Wi-Fi off again to save battery. (Connect mode also sets the time, and stays connected.)</li>
+        </ol>
+        <p>Messages: <b>Time synchronized</b> (internet time server), <b>Time set from web</b> (the network blocks time servers; the time was read from a web server instead), or <b>Time sync failed</b> with a second line giving the reason — show it to whoever looks after your network. Without Wi-Fi, an FM station sending RDS time also sets the clock, or use the web settings page: <i>Use Browser Date/Time</i> copies your phone's or computer's time and time zone.</p>
+
+        <h2 id="battery">Battery time</h2>
+        <p>On battery, the voltage at the top right alternates with an estimate of the listening time left, for example <b>~8h20</b>. The <b>~</b> means a typical consumption is assumed; after about ten minutes the radio uses its own measured drain and the <b>~</b> disappears. Screen brightness, volume and Wi-Fi all change the result. On USB power the charging symbol is shown instead.</p>
+
+        <h2 id="att">Automatic attenuation</h2>
+        <p>In AM with <span class="ui">Menu → AGC/ATTN</span> set to <b>On</b>, a very strong signal — a local medium-wave station, a big broadcaster at night — can overload the receiver and cause distortion and stations that should not be there. The radio now adds attenuation in steps when that happens and removes it again on weaker stations. The info box shows <b>Att: A12</b> while it is active (A for automatic). Turn it off in <span class="ui">Settings → Auto Att.</span>, or set AGC/ATTN by hand, which always takes over.</p>
+
+        <h2 id="tiles">Tile menu</h2>
+        <p><span class="ui">Settings → Menu Style → Tiles</span> shows the menu and the settings as a full-screen grid, twelve tiles to a page, with current values on the tiles (mode, band, volume, step, bandwidth, time zone…). The encoder and buttons work exactly as in the classic menu. <b>Classic</b> switches back.</p>
+
+        <h2 id="update">Updates</h2>
+        <p>With Wi-Fi connected, <span class="ui">Settings → Update FW → Check</span> looks for a newer RESONIK release on GitHub, and <b>Update</b> installs it. Settings are kept. New versions are also announced on this site and on <a href="https://github.com/ep3mhb/resonik-ats-mini/releases" rel="noopener">GitHub</a>.</p>
+        <p>To return to the official firmware, install it by USB as described on the <a href="../#install">install</a> section, using the official files.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p><b>RESONIK</b> edition by Mohammad Bahrololoum · <a href="https://mikroutik.com/">mikroutik.com</a> · built on <a href="https://github.com/esp32-si4732/ats-mini" rel="noopener">ats-mini</a> (MIT).</p>
+    </div>
+  </footer>
+</body>
+</html>

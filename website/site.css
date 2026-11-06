@@ -1,0 +1,99 @@
+/* RESONIK site — brand colours from the RESONIK identity guidelines */
+@font-face { font-family: "Sora"; src: url("fonts/sora.woff2") format("woff2"); font-weight: 100 800; font-display: swap; }
+@font-face { font-family: "Vazirmatn"; src: url("fonts/vazirmatn.woff2") format("woff2"); font-weight: 100 900; font-display: swap; unicode-range: U+0600-06FF, U+200C-200D, U+FB50-FDFF, U+FE70-FEFF; }
+
+:root {
+  --black: #141414; --paper: #F6F5F1; --blue: #1C7ED6; --deep: #1864AB;
+  --graphite: #555555; --line: #DDDAD2; --orange: #D9480F;
+  --text: #1f1f1f; --muted: #5d5d5a; --card: #ffffff;
+  --radius: 12px;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--paper); color: var(--text); font: 17px/1.6 var(--sans); -webkit-text-size-adjust: 100%; }
+a { color: var(--deep); }
+code { font-family: var(--mono); font-size: .9em; background: rgba(0,0,0,.05); padding: .05em .35em; border-radius: 4px; }
+.ui { font-weight: 600; white-space: nowrap; }
+.wrap { max-width: 64rem; margin: 0 auto; padding: 0 1rem; }
+h1, h2, h3 { font-family: "Sora", var(--sans); line-height: 1.2; letter-spacing: -.01em; }
+h2 { font-size: 1.9rem; margin: 0 0 .5rem; }
+h3 { font-size: 1.1rem; margin: 0 0 .35rem; }
+section { padding: 3.5rem 0; }
+.lead { font-size: 1.12rem; max-width: 46rem; }
+.hint { color: var(--muted); font-size: .95rem; }
+
+/* Header */
+.bar { background: var(--black); color: var(--paper); position: sticky; top: 0; z-index: 5; border-bottom: 1px solid #262626; }
+.bar-in { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 60px; flex-wrap: wrap; }
+.logo { display: flex; align-items: flex-end; gap: .6rem; color: var(--paper); text-decoration: none; }
+.logo .sym { width: 30px; height: 25px; color: var(--paper); }
+.word { font-family: "Sora", var(--sans); font-weight: 600; letter-spacing: .075em; font-size: 1.25rem; line-height: .9; }
+nav { display: flex; gap: .2rem 1.1rem; flex-wrap: wrap; }
+nav a { color: #d6d5d0; text-decoration: none; font-size: .95rem; }
+nav a:hover { color: #fff; }
+nav a[lang="fa"] { font-family: "Vazirmatn", var(--sans); }
+
+/* Hero */
+.hero { background: radial-gradient(800px 420px at 75% 40%, rgba(28,126,214,.25), transparent 70%), var(--black); color: var(--paper); padding: 3.5rem 0 4rem; }
+.hero-in { display: grid; grid-template-columns: 1.05fr 1fr; gap: 2.5rem; align-items: center; }
+.hero h1 { font-size: clamp(2rem, 4.3vw, 3rem); margin: .4rem 0 1rem; font-weight: 600; }
+.hero .lead { color: #d9d8d3; }
+.hero a { color: #8cc4f5; }
+.kicker { font-family: "Sora", var(--sans); color: #a8a7a2; font-size: .9rem; margin: 0; }
+.badge { background: var(--blue); color: #fff; border-radius: 6px; padding: .1rem .5rem; font-weight: 600; }
+.shot { margin: 0; }
+.shot img { width: 100%; height: auto; display: block; border-radius: var(--radius); box-shadow: 0 24px 60px rgba(0,0,0,.45); }
+.shot.wide { margin-top: 2rem; }
+.shot.wide img { box-shadow: 0 10px 30px rgba(0,0,0,.18); }
+.shot figcaption { color: var(--muted); font-size: .95rem; margin-top: .7rem; }
+
+/* Buttons */
+.keys { display: flex; gap: .7rem; flex-wrap: wrap; margin-top: 1.4rem; }
+.btn { display: inline-block; font: 600 1rem/1.2 var(--sans); padding: .8rem 1.2rem; border-radius: 10px; border: 1.5px solid var(--deep); color: var(--deep); background: #fff; text-decoration: none; cursor: pointer; }
+.btn:hover { background: #eef5fc; }
+.btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+.btn.primary:hover { background: var(--deep); border-color: var(--deep); }
+.btn.ghost { background: transparent; color: var(--paper); border-color: #6b6b68; }
+.btn.ghost:hover { border-color: var(--paper); background: rgba(255,255,255,.06); }
+
+/* Install */
+.band { background: #fff; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.steps { padding-left: 1.4rem; max-width: 48rem; }
+.steps li { margin: .45rem 0; }
+.installers { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.6rem 0 1rem; }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.2rem 1.3rem 1.4rem; }
+.card h3 small { display: block; font-family: var(--sans); font-weight: 500; color: var(--muted); font-size: .85rem; margin-top: .2rem; }
+.card p { margin: .3rem 0 1rem; color: var(--muted); }
+.warn { display: block; color: var(--orange); font-weight: 600; }
+.more { margin-top: 1rem; max-width: 50rem; }
+.more summary { cursor: pointer; font-weight: 600; color: var(--deep); }
+.more li { margin: .4rem 0; }
+
+/* Features */
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1.4rem; }
+.feat { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.1rem 1.1rem 1.2rem; }
+.feat i { display: block; width: 34px; height: 6px; border-radius: 3px; background: var(--c); margin-bottom: .8rem; box-shadow: 0 0 0 1px rgba(0,0,0,.08); }
+.feat p { margin: 0; color: var(--muted); font-size: .95rem; }
+
+/* Persian */
+.fa { font-family: "Vazirmatn", var(--sans); }
+.fa h2 { font-family: "Vazirmatn", var(--sans); }
+.fa .steps { padding-left: 0; padding-right: 1.6rem; list-style: persian; }
+.fa bdi { font-family: var(--sans); }
+
+footer { background: var(--black); color: #bdbcb7; padding: 2.2rem 0; font-size: .92rem; }
+footer a { color: #8cc4f5; }
+footer .hint { color: #8d8c88; }
+
+@media (max-width: 860px) {
+  .hero-in, .installers { grid-template-columns: 1fr; }
+  .grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 520px) {
+  .grid { grid-template-columns: 1fr; }
+  section { padding: 2.5rem 0; }
+  nav { gap: .2rem .8rem; }
+}
