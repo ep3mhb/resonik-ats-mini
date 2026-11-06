@@ -118,13 +118,14 @@ bool statusTick(uint32_t now)
 //
 const char *getVersion(bool shorter)
 {
-  static char versionString[35] = "\0";
+  static char versionString[48] = "\0";
 
-  sprintf(versionString, "%s%sF/W: v%1.1d.%2.2d %s",
+  snprintf(versionString, sizeof(versionString), "%s%sF/W: v%1.1d.%2.2d-R%d %s",
     shorter ? "" : RECEIVER_NAME,
     shorter ? "" : " ",
     VER_APP / 100,
     VER_APP % 100,
+    VER_RESONIK,
     __DATE__
   );
 
@@ -136,7 +137,7 @@ const char *getVersion(bool shorter)
 //
 String getUserAgent()
 {
-  return("ATS-Mini/" + String(getVersion(true)));
+  return("RESONIK-ATS-Mini/" + String(getVersion(true)));
 }
 
 //

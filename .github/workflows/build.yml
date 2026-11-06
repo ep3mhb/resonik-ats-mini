@@ -93,7 +93,7 @@ jobs:
       - name: Get version slug
         id: slug
         run: |
-          echo "slug=$(git describe --tags --match 'v?.??' --always --dirty || echo v0.00)" >> "$GITHUB_OUTPUT"
+          echo "slug=$(git describe --tags --match 'v[0-9]*' --always --dirty || echo v0.00)" >> "$GITHUB_OUTPUT"
 
       - name: Compile firmware
         uses: arduino/compile-sketches@v1
@@ -132,11 +132,11 @@ jobs:
 
       - name: Prepare compiled artifact
         run: |
-          mkdir -p artifact/ats-mini-${{ steps.slug.outputs.slug }}-${{ matrix.board.artifact-suffix }}
-          cp ats-mini/build/esp32.esp32.esp32s3/ats-mini.ino.bin artifact/ats-mini-${{ steps.slug.outputs.slug }}-${{ matrix.board.artifact-suffix }}-ota.bin
-          cp ats-mini/build/esp32.esp32.esp32s3/boot_app0.bin artifact/ats-mini-${{ steps.slug.outputs.slug }}-${{ matrix.board.artifact-suffix }}/
-          mv ats-mini/build/esp32.esp32.esp32s3/*.ino.bin ats-mini/build/esp32.esp32.esp32s3/*.ino.*.bin artifact/ats-mini-${{ steps.slug.outputs.slug }}-${{ matrix.board.artifact-suffix }}/
-          cp CHANGELOG.md artifact/ats-mini-${{ steps.slug.outputs.slug }}-${{ matrix.board.artifact-suffix }}/
+          mkdir -p artifact/resonik-ats-mini-${{ steps.slug.outputs.slug }}-${{ matrix.board.artifact-suffix }}
+          cp ats-mini/build/esp32.esp32.esp32s3/ats-mini.ino.bin artifact/resonik-ats-mini-${{ steps.slug.outputs.slug }}-${{ matrix.board.artifact-suffix }}-ota.bin
+          cp ats-mini/build/esp32.esp32.esp32s3/boot_app0.bin artifact/resonik-ats-mini-${{ steps.slug.outputs.slug }}-${{ matrix.board.artifact-suffix }}/
+          mv ats-mini/build/esp32.esp32.esp32s3/*.ino.bin ats-mini/build/esp32.esp32.esp32s3/*.ino.*.bin artifact/resonik-ats-mini-${{ steps.slug.outputs.slug }}-${{ matrix.board.artifact-suffix }}/
+          cp CHANGELOG.md artifact/resonik-ats-mini-${{ steps.slug.outputs.slug }}-${{ matrix.board.artifact-suffix }}/
 
       - name: Upload compiled artifact
         uses: actions/upload-artifact@v7
@@ -151,7 +151,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           if-no-files-found: error
-          path: artifact/ats-mini-${{ steps.slug.outputs.slug }}-${{ matrix.board.artifact-suffix }}-ota.bin
+          path: artifact/resonik-ats-mini-${{ steps.slug.outputs.slug }}-${{ matrix.board.artifact-suffix }}-ota.bin
           archive: false
 
   release:
@@ -166,7 +166,7 @@ jobs:
       - name: Download the build artifacts
         uses: actions/download-artifact@v8
         with:
-          pattern: 'ats-mini-*'
+          pattern: 'resonik-ats-mini-*'
           merge-multiple: true
           path: artifact
       - name: Archive the build artifacts
@@ -176,7 +176,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           SLUG: ${{ needs.build.outputs.slug }}
         run: >-
-          python -c 'import os,re; t=open(f"""artifact/ats-mini-{os.environ["SLUG"]}-ospi/CHANGELOG.md""").read(); r=re.search(f"""(^## {os.environ["SLUG"][1:].replace(".", "\\.")} .*?)(?=^## \\d|\\Z)""", t, re.MULTILINE | re.DOTALL); print(r.group(0) if r else "")' |
+          python -c 'import os,re; t=open(f"""artifact/resonik-ats-mini-{os.environ["SLUG"]}-ospi/CHANGELOG.md""").read(); r=re.search(f"""(^## {os.environ["SLUG"][1:].replace(".", "\\.")} .*?)(?=^## \\d|\\Z)""", t, re.MULTILINE | re.DOTALL); print(r.group(0) if r else "")' |
           gh release create "$SLUG" --repo '${{ github.repository }}' --notes-file -
       - name: Upload release artifacts
         env:

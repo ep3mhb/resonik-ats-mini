@@ -18,14 +18,21 @@ static constexpr const lgfx::IFont* FONT_DIGITS  = &lgfx::fonts::Font7;  // 48px
 
 #define RECEIVER_DESC  "ESP32-SI4732 Receiver"
 #define RECEIVER_NAME  "ATS-Mini"
-#define FIRMWARE_URL   "https://github.com/esp32-si4732/ats-mini"
-#define MANUAL_URL     "https://esp32-si4732.github.io/ats-mini/manual.html"
+#define FIRMWARE_URL   "https://github.com/ep3mhb/resonik-ats-mini"
+#define FIRMWARE_SITE  "resonik.mikroutik.com"
+#define UPSTREAM_URL   "https://github.com/esp32-si4732/ats-mini"
+#define FIRMWARE_BRAND "RESONIK"
+#define OTA_FILE_PREFIX "resonik-ats-mini-"
+#define MANUAL_URL     "https://resonik.mikroutik.com/manual/"
 #define AUTHORS_LINE1  "Authors: PU2CLR (Ricardo Caratti),"
 #define AUTHORS_LINE2  "Volos Projects, Ralph Xavier, Sunnygold,"
 #define AUTHORS_LINE3  "Goshante, G8PTN (Dave), R9UCL (Max Arnold),"
 #define AUTHORS_LINE4  "Marat Fayzullin"
+#define AUTHORS_LINE5  "RESONIK edition: EP3MHB (M. Bahrololoum)"
 
-#define VER_APP        245  // Firmware version
+#define VER_APP        245  // Upstream ats-mini version this edition is based on
+#define VER_RESONIK      1  // RESONIK release number on top of VER_APP (v2.45-r1)
+#define VER_FULL       (VER_APP * 100 + VER_RESONIK)  // Used for OTA version comparison
 #define VER_OTA          1  // OTA compatibility; bump when a full USB flash is required
 #define VER_SETTINGS    71  // Settings version
 #define VER_MEMORIES    71  // Memories version

@@ -76,8 +76,13 @@ build/TestParserAdhoc: tests/TestParserAdhoc.cpp ParserAdhoc.cpp ParserAdhoc.h P
 	mkdir -p build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++11 -Wall -Wextra -UNDEBUG tests/TestParserAdhoc.cpp ParserAdhoc.cpp Parser.cpp $(LDFLAGS) -o $@
 
-test: build/TestParser build/TestParserAdhoc
+build/TestOtaVersion: tests/TestOtaVersion.cpp OtaVersion.h
+	@mkdir -p build
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++11 -Wall -Wextra -UNDEBUG tests/TestOtaVersion.cpp $(LDFLAGS) -o $@
+
+test: build/TestParser build/TestParserAdhoc build/TestOtaVersion
 	./build/TestParser
 	./build/TestParserAdhoc
+	./build/TestOtaVersion
 
 .PHONY: all help build upload clean test
