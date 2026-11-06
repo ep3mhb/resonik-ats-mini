@@ -4,6 +4,7 @@
 #include "Utils.h"
 #include "Menu.h"
 #include "Draw.h"
+#include "Brand.h"
 #include <LittleFS.h>
 #include <nvs.h>
 #include <nvs_flash.h>
@@ -26,8 +27,11 @@ static void drawAboutCommon(uint8_t arrow)
   if(arrow & 1) spr.fillTriangle(307, 12, 301, 8, 301, 16, TH.text_muted);
 
   spr.setTextDatum(TL_DATUM);
+  // RESONIK symbol and wordmark, then the receiver description
+  int x = 2 + brandDrawSymbol(2, 20, 20, TH.text, BRAND_PEAK_BLUE) + 6;
+  x += brandDrawWordmark(x, 20 - brandWordmarkHeight(false), false, TH.text, TH.bg) + 8;
   spr.setTextColor(TH.text_muted);
-  spr.drawString(RECEIVER_DESC, 0, 0, FONT_LARGE);
+  spr.drawString("ATS Mini", x, 4, FONT_SMALL);
   spr.setTextColor(TH.text);
   spr.drawString(getVersion(), 2, 25, FONT_SMALL);
 }

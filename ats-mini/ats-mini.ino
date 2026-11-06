@@ -18,6 +18,7 @@
 #include "BleMode.h"
 #include "TcpMode.h"
 #include "Splash.h"
+#include "Brand.h"
 #include "Web.h"
 #include <stdlib.h>
 #include <time.h>
@@ -255,8 +256,16 @@ void setup()
   // Draw display for the first time
   if(splashDraw())
   {
+    // A custom splash image uploaded by the user takes precedence
     ledcWrite(PIN_LCD_BL, currentBrt);
     delay(3000);
+  }
+  else
+  {
+    // RESONIK boot screen
+    brandDrawBootScreen();
+    ledcWrite(PIN_LCD_BL, currentBrt);
+    delay(1500);
   }
   drawScreen();
   ledcWrite(PIN_LCD_BL, currentBrt);
