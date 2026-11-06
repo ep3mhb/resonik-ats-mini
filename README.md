@@ -63,6 +63,6 @@ This is a fork of [esp32-si4732/ats-mini](https://github.com/esp32-si4732/ats-mi
 authors: PU2CLR (Ricardo Caratti), Volos Projects, Ralph Xavier, Sunnygold, Goshante, G8PTN (Dave), R9UCL (Max Arnold),
 Marat Fayzullin, and all ats-mini contributors. The original README is in [README-upstream.md](README-upstream.md).
 
-RESONIK edition by Mohammad Bahrololoum (EP3MHB). Released under the same MIT licence — see [LICENSE](LICENSE).
+RESONIK edition by Mohammad Bahrololoum (EP2MHB). Released under the same MIT licence — see [LICENSE](LICENSE).
 
 RESONIK and the RESONIK symbol are the project's name and mark; the licence covers the code, not the name or mark.

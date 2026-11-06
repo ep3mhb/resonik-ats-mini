@@ -28,7 +28,7 @@ static constexpr const lgfx::IFont* FONT_DIGITS  = &lgfx::fonts::Font7;  // 48px
 #define AUTHORS_LINE2  "Volos Projects, Ralph Xavier, Sunnygold,"
 #define AUTHORS_LINE3  "Goshante, G8PTN (Dave), R9UCL (Max Arnold),"
 #define AUTHORS_LINE4  "Marat Fayzullin"
-#define AUTHORS_LINE5  "RESONIK edition: EP3MHB (M. Bahrololoum)"
+#define AUTHORS_LINE5  "RESONIK edition: EP2MHB (M. Bahrololoum)"
 
 #define VER_APP        245  // Upstream ats-mini version this edition is based on
 #define VER_RESONIK      1  // RESONIK release number on top of VER_APP (v2.45-r1)
