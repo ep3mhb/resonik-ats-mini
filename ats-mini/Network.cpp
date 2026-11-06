@@ -10,12 +10,15 @@
 #include <esp_sntp.h>
 #include <esp_wifi.h>
 #include <ESPmDNS.h>
+#include <HTTPClient.h>
+#include "HttpDate.h"
 
 #define CONNECT_TIME  3000  // Time of inactivity to start connecting WiFi
 #define WIFI_TOTAL_TIMEOUT  30000
 #define WIFI_ATTEMPT_TIMEOUT  5000
 #define WIFI_DISCOVERY_TIMEOUT  15000 // Leave time to connect after probing hidden APs
 #define NTP_TIMEOUT  45000 // Allow startup delay and fallback to the third server
+#define HTTP_TIME_AFTER 15000 // No NTP reply by then: read the time from a web server instead
 
 #ifndef WIFI_POWER_LEVEL
 #define WIFI_POWER_LEVEL WIFI_POWER_17dBm
@@ -29,6 +32,9 @@ static std::atomic<bool> connectRequested{false};
 static std::atomic<bool> timeSynchronized{false};
 // Retain NTP precedence over RDS even if the user resets clock validity.
 static bool ntpHasTime = false;
+// One HTTP Date fallback attempt per connection, for networks that block NTP (UDP 123).
+static bool httpTimeTried = false;
+static bool httpTimeSync();
 
 // Keep the strongest identified AP for each of the three saved networks.
 struct WiFiNetwork
@@ -188,6 +194,20 @@ bool netTickTime()
       break;
 
     case NetState::Online:
+      if(!ntpHasTime && !httpTimeTried && now - attemptStarted >= HTTP_TIME_AFTER)
+      {
+        httpTimeTried = true;
+        if(httpTimeSync())
+        {
+          changed = true;
+          if(activeNetMode == NET_SYNC)
+          {
+            netStop();
+            statusShow("Time set from web");
+          }
+          break;
+        }
+      }
       if(activeNetMode == NET_SYNC && now - attemptStarted >= NTP_TIMEOUT)
       {
         netStop();
@@ -417,8 +437,9 @@ static void wifiConnected(uint32_t now)
     timeSynchronized.store(true);
   });
   esp_sntp_set_sync_interval(4 * 60 * 60 * 1000);
-  // Three servers so one blocked or slow pool does not leave the clock unset.
-  configTime(0, 0, "atsmini.pool.ntp.org", "time.cloudflare.com", "time.google.com");
+  // Three servers so one blocked or slow pool does not leave the clock unset
+  configTime(0, 0, "atsmini.pool.ntp.org", "pool.ntp.org", "time.cloudflare.com");
+  httpTimeTried = false;
   attemptStarted = now;
   netState = NetState::Online;
   if(activeNetMode == NET_SYNC)
@@ -443,4 +464,38 @@ static void wifiConnectionFailed()
     statusShow("No WiFi connection", "Use Access Point " RECEIVER_NAME " at 10.1.1.1");
   else
     statusShow("No WiFi connection");
+}
+
+//
+// Fallback clock source: the Date header of a plain HTTP reply.
+// Accurate to about a second, enough for the display clock and EiBi schedules.
+//
+static bool httpTimeSync()
+{
+  static const char *urls[] = {
+    "http://www.google.com/generate_204",
+    "http://cp.cloudflare.com/",
+  };
+  static const char *headers[] = { "Date" };
+
+  for(const char *url : urls)
+  {
+    HTTPClient http;
+    http.setTimeout(4000);
+    http.setConnectTimeout(4000);
+    if(!http.begin(url)) continue;
+    http.setUserAgent(getUserAgent());
+    http.collectHeaders(headers, 1);
+    int code = http.sendRequest("HEAD");
+    String date = http.header("Date");
+    http.end();
+
+    uint32_t epoch;
+    if(code > 0 && httpDateToEpoch(date.c_str(), &epoch))
+    {
+      clockSetEpoch(epoch);
+      return(true);
+    }
+  }
+  return(false);
 }
