@@ -56,6 +56,7 @@
 #define CMD_BEACON     0x3C00 // RESONIK, main menu
 #define CMD_CWDEC      0x3D00 // RESONIK R3: full-screen CW decoder
 #define CMD_CWSTRIP    0x3E00 // RESONIK R3: decoder strip setting
+#define CMD_KNOB       0x3F00 // RESONIK: encoder type
 
 // Band plan settings (RESONIK)
 #define BANDPLAN_OFF       0
