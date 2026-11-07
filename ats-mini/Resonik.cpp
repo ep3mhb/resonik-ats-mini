@@ -254,6 +254,98 @@ bool memScanTick()
 }
 
 //
+// Band scanner (R3): steps up through the band at the tuning step and holds
+// on any signal (the same test as the memory scanner: the mode's squelch, or
+// SNR of 6 dB or more); it moves on 4 seconds after the signal goes and wraps
+// at the band edge. Any encoder action or click stops it on the frequency.
+//
+enum class BandScan : uint8_t { Off, Listen, Hold };
+static BandScan bandScanState = BandScan::Off;
+static uint32_t bandScanTimer, bandScanLastHit;
+
+#define BSCAN_SETTLE_FM   150
+#define BSCAN_SETTLE_AM   120
+
+bool bandScanActive() { return(bandScanState != BandScan::Off); }
+
+// Step between frequencies: the tuning step, at least 1 kHz in SSB and
+// 500 Hz in CW so a pass over a ham band takes seconds, not minutes
+static uint32_t bandScanStep()
+{
+  uint32_t step = getCurrentStep()->step;
+  if(currentMode == CW && step < 500) step = 500;
+  else if(isSSB() && currentMode != CW && step < 1000) step = 1000;
+  return(step);
+}
+
+static void bandScanShow(const char *what)
+{
+  char line[32];
+  if(currentMode == FM) snprintf(line, sizeof(line), "%s %lu.%02lu MHz", what,
+                                 (unsigned long)(currentFrequency / 1000000), (unsigned long)(currentFrequency / 10000 % 100));
+  else snprintf(line, sizeof(line), "%s %lu.%lu kHz", what,
+                (unsigned long)(currentFrequency / 1000), (unsigned long)(currentFrequency % 1000 / 100));
+  statusShow("Scanner", line, 0);
+}
+
+void bandScanStart()
+{
+  memScanStop();
+  beaconFollowIdx = -1;
+  bandScanState = BandScan::Listen;
+  bandScanTimer = millis() + (currentMode == FM ? BSCAN_SETTLE_FM : BSCAN_SETTLE_AM);
+  bandScanShow("Up");
+}
+
+void bandScanStop(const char *why)
+{
+  if(bandScanState == BandScan::Off) return;
+  bandScanState = BandScan::Off;
+  statusShow(why ? why : "Scanner stopped");
+  prefsRequestSave(SAVE_CUR_BAND);
+}
+
+bool bandScanTick()
+{
+  if(bandScanState == BandScan::Off) return(false);
+  uint32_t now = millis();
+  if((int32_t)(now - bandScanTimer) < 0) return(false);
+
+  switch(bandScanState)
+  {
+    case BandScan::Listen:
+      if(memScanHit())
+      {
+        bandScanState = BandScan::Hold;
+        bandScanLastHit = now;
+        bandScanTimer = now + 500;
+        bandScanShow("Hold");
+        return(true);
+      }
+      // Next frequency up, wrapping at the top of the band
+      updateFrequency((int64_t)currentFrequency + bandScanStep(), true);
+      bandScanTimer = now + (currentMode == FM ? BSCAN_SETTLE_FM : BSCAN_SETTLE_AM);
+      return(true);
+
+    case BandScan::Hold:
+      bandScanTimer = now + 500;
+      if(memScanHit()) bandScanLastHit = now;
+      else if(now - bandScanLastHit > MSCAN_RESUME_MS)
+      {
+        bandScanState = BandScan::Listen;
+        bandScanShow("Up");
+        updateFrequency((int64_t)currentFrequency + bandScanStep(), true);
+        bandScanTimer = now + (currentMode == FM ? BSCAN_SETTLE_FM : BSCAN_SETTLE_AM);
+        return(true);
+      }
+      return(false);
+
+    default:
+      return(false);
+  }
+}
+
+//
 // Signal logger: one CSV line per interval to the flash file system,
 // downloadable from the web page (/log.csv). Stops at LOG_MAX_BYTES.
 //

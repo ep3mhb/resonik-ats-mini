@@ -23,6 +23,12 @@ void memScanStart();
 void memScanStop(const char *why = nullptr);
 bool memScanTick();
 
+// Band scanner (R3)
+bool bandScanActive();
+void bandScanStart();
+void bandScanStop(const char *why = nullptr);
+bool bandScanTick();
+
 // Signal logger (CSV in the flash file system)
 #define LOG_PATH   "/log.csv"
 #define LOG_CLEAR  4
