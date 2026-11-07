@@ -20,6 +20,7 @@
 #include "Splash.h"
 #include "Brand.h"
 #include "Resonik.h"
+#include "CwAudio.h"
 #include "Web.h"
 #include <stdlib.h>
 #include <time.h>
@@ -250,6 +251,9 @@ void setup()
 
   // SI4732 STARTUP!
   initVfo();
+
+  // CW decoder audio task (RESONIK R3), idle until the decoder is used
+  cwAudioInit();
   delay(50);
   rx.setVolume(volume);
   rx.setMaxSeekTime(SEEK_TIMEOUT);
@@ -738,6 +742,11 @@ bool handleRotation(int16_t enc, int16_t accelerated, bool pressed)
         changed = doTune(accelerated);
         prefsRequestSave(SAVE_CUR_BAND);
         break;
+      case CMD_CWDEC:
+        // CW decoder page: the knob keeps tuning
+        changed = doTune(accelerated);
+        prefsRequestSave(SAVE_CUR_BAND);
+        break;
       case CMD_FREQ:
         changed = doDigit(enc);
         prefsRequestSave(SAVE_CUR_BAND);
@@ -838,7 +847,7 @@ void loop()
   // Disable commands control
   if((currentTime - elapsedCommand) > ELAPSED_COMMAND)
   {
-    if(currentCmd != CMD_NONE && currentCmd != CMD_SEEK && currentCmd != CMD_SCAN && currentCmd != CMD_MEMORY)
+    if(currentCmd != CMD_NONE && currentCmd != CMD_SEEK && currentCmd != CMD_SCAN && currentCmd != CMD_MEMORY && currentCmd != CMD_CWDEC)
     {
       currentCmd = CMD_NONE;
       needRedraw = true;
@@ -890,6 +899,7 @@ void loop()
   needRedraw |= beaconTick();
   needRedraw |= memScanTick();
   needRedraw |= loggerTick();
+  needRedraw |= cwAudioTick();
 
   // Periodically refresh the main screen
   // This covers the case where there is nothing else triggering a refresh
