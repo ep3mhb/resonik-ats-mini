@@ -1674,10 +1674,17 @@ static void clickSettings(int cmd, bool shortPress)
   }
 }
 
+static bool tileValueIsList(uint16_t cmd);
+
 bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
 {
   // Ignore idle encoder
   if(!enc) return(false);
+
+  // Tile screens move one step per turn, however fast the knob goes: a full
+  // screen redraw takes long enough for several counts to pile up meanwhile
+  if(menuStyleIdx == MENU_STYLE_TILES && (cmd == CMD_MENU || (cmd == tileReturnCmd && tileValueIsList(cmd))))
+    enc = enc > 0 ? 1 : -1;
 
   switch(cmd)
   {
@@ -2940,6 +2947,12 @@ static bool tileValueGet(uint16_t cmd, TileValue &v)
       return(true);
   }
   return(false);
+}
+
+static bool tileValueIsList(uint16_t cmd)
+{
+  TileValue v;
+  return(tileValueGet(cmd, v) && v.list);
 }
 
 static void tileDrawValue(uint16_t cmd, const TileValue &v)
