@@ -403,7 +403,7 @@ void drawPropagation()
     spr.setTextDatum(MC_DATUM);
     spr.setTextColor(TH.text);
     spr.drawString("No data yet.", 160, 70, FONT_SMALL);
-    spr.drawString("Needs the internet: Settings > Wi-Fi", 160, 92, FONT_SMALL);
+    spr.drawString("Needs the internet: Wi-Fi", 160, 92, FONT_SMALL);
     spr.drawString("set to Connect or Sync Only.", 160, 110, FONT_SMALL);
     spr.pushSprite(0, 0);
     return;
