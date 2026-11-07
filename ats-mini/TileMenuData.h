@@ -20,16 +20,43 @@ static const uint16_t tileColors[6] =
   TILE_NAVY,                    // Deep navy
 };
 
+// Icons painted in the palette's own colours; all others keep their own
+static bool tilePaletteIcon(TileIcon icon)
+{
+  switch(icon)
+  {
+    case TI_MEMSCAN: return(true);
+    default:         return(false);
+  }
+}
+
 // Light tiles carry navy labels; white is unreadable on them
 static inline TileItem tileMake(const char *label, TileIcon icon, int ci)
 {
   bool light = ci >= 1 && ci <= 3;
-  return((TileItem){ label, icon, tileColors[ci], 0, (uint16_t)(light ? TILE_NAVY : 0) });
+  return((TileItem){ label, icon, tileColors[ci], 0, (uint16_t)(light ? TILE_NAVY : 0), tilePaletteIcon(icon) });
 }
 
-// Solid tiles, no outline or dimming, full-colour icons with a navy outline,
+// Icon accents from the same palette, for the icons above; an accent that
+// matches its tile takes the palette colour that stands out most on it
+static const TileAccents tileAccents =
+{
+  0xFFFF,                        // White
+  TILE_RGB(0xFF, 0xD1, 0x67),    // Yellow
+  TILE_RGB(0xF7, 0x8C, 0x6A),    // Orange: coral
+  TILE_RGB(0xF0, 0x47, 0x70),    // Red: pink
+  TILE_RGB(0x06, 0xD7, 0xA0),    // Green
+  TILE_RGB(0x10, 0x8A, 0xB1),    // Cyan: blue
+  TILE_RGB(0x10, 0x8A, 0xB1),    // Blue
+  TILE_RGB(0xF0, 0x47, 0x70),    // Pink
+  TILE_NAVY,                     // Dark
+};
+
+
+// Solid tiles, no outline or dimming, full-colour icons in their own colours
+// with a navy outline,
 // and the selected tile pops out by four pixels
-static const TileStyle tileStyle = { false, 0, false, 4, 0, 4, TILE_NAVY };
+static const TileStyle tileStyle = { false, 0, false, 4, 0, 4, TILE_NAVY, &tileAccents };
 
 // Inter SemiBold smooth fonts: 15 px, and 14 px for labels too long to fit
 static const lgfx::IFont *tileFont(bool small)
