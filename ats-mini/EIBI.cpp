@@ -10,10 +10,18 @@
 #include <FS.h>
 
 #include <ctype.h>
+#include <time.h>
+#include <algorithm>
+#include <esp_heap_caps.h>
 #include <string.h>
 
-#define EIBI_PATH "/schedules.bin"
+// RESONIK: new record layout (days, language, target), so a new file name;
+// a schedule loaded by older firmware is ignored until "Load EiBi" runs again.
+#define EIBI_PATH "/schedules2.bin"
+#define OLD_EIBI_PATH "/schedules.bin"
 #define TEMP_PATH "/schedules.tmp"
+#define EIBI_CSV_BASE "http://eibispace.de/dx/"
+#define EIBI_MAX_ENTRIES 20000
 #ifndef EIBI_URL
 #define EIBI_URL  "http://eibispace.de/dx/eibi.txt"
 #endif
@@ -73,20 +81,35 @@ bool eibiAvailable()
   return(LittleFS.exists(EIBI_PATH));
 }
 
+// Today's weekday bit (bit 0 = Monday), from the UTC clock
+static uint8_t todayBit()
+{
+  return(eibiDayBit((uint32_t)time(NULL)));
+}
+
 static bool entryIsNow(const StationSchedule *entry, int now)
 {
+  // Days of the week (RESONIK): a broadcast that runs past midnight
+  // belongs to the day it started
+  uint8_t day = todayBit();
+
   // Check if entry applies to all hours
-  if(entry->start_h < 0 || entry->end_h < 0) return(true);
+  if(entry->start_h < 0 || entry->end_h < 0) return((entry->days & day) != 0);
 
   // These are starting/ending times in minutes
   int start = entry->start_h * 60 + entry->start_m;
   int end   = entry->end_h * 60 + entry->end_m;
 
   // Check for inclusive schedule
-  if(start <= end && now >= start && now <= end) return(true);
+  if(start <= end && now >= start && now <= end) return((entry->days & day) != 0);
 
-  // Check for exclusive schedule
-  if(start > end && (now >= start || now <= end)) return(true);
+  // Check for exclusive schedule (crosses midnight)
+  if(start > end && now >= start) return((entry->days & day) != 0);
+  if(start > end && now <= end)
+  {
+    uint8_t yesterday = day == 0x01 ? 0x40 : day >> 1;
+    return((entry->days & yesterday) != 0);
+  }
 
   // Nope
   return(false);
@@ -382,117 +405,166 @@ static bool eibiParseLine(const char *line, StationSchedule &entry)
   strncpy(entry.name, p, sizeof(entry.name) - 1);
   entry.name[sizeof(entry.name)-1] = '\0';
 
+  // The plain text schedule has no reliable days, language or target columns
+  entry.days = EIBI_ALL_DAYS;
+  entry.lang[0] = entry.target[0] = '\0';
+
   // Done
   return(true);
+}
+
+//
+// Download one schedule into entries[] (in PSRAM). csv selects the parser.
+// Returns: 1 on success, 0 if the file is not there, -1 if cancelled.
+//
+static int eibiDownload(const char *url, bool csv, StationSchedule *entries, size_t *count)
+{
+  static const char *eibiMessage = "Loading EiBi Schedule";
+  HTTPClient http;
+
+  statusShow(eibiMessage, "Connecting...", 0);
+  drawScreen();
+
+  http.setUserAgent(getUserAgent());
+  http.setTimeout(8000);
+  http.begin(url);
+  if(http.GET() != HTTP_CODE_OK)
+  {
+    http.end();
+    return(0);
+  }
+
+  WiFiClient *stream = http.getStreamPtr();
+  int totalLen = http.getSize();
+  int byteCnt, charCnt;
+  char charBuf[256];
+  size_t n = 0;
+
+  for(byteCnt = charCnt = 0 ; http.connected() && (totalLen<0 || byteCnt<totalLen) ; )
+  {
+    if(consumeAbortPending())
+    {
+      http.end();
+      statusShow(eibiMessage, "CANCELED!");
+      return(-1);
+    }
+
+    if(!stream->available()) { delay(1); continue; }
+
+    char c = stream->read();
+    byteCnt++;
+
+    if(c != '\n' && charCnt < (int)sizeof(charBuf) - 1) { charBuf[charCnt++] = c; continue; }
+
+    charBuf[charCnt] = '\0';
+    charCnt = 0;
+    if(c != '\n') charBuf[charCnt++] = c;
+
+    // Skip leading white space; schedule lines start with the frequency
+    char *p = charBuf;
+    while(*p && *p <= ' ') ++p;
+    if(!isdigit((unsigned char)*p) || n >= EIBI_MAX_ENTRIES) continue;
+
+    StationSchedule entry;
+    bool ok;
+    if(csv) ok = eibiParseCsvLine(p, entry);
+    else
+    {
+      // Plain text: trim the end and replace CRs, then use the fixed-column parser
+      for(char *t = p ; *t ; ++t) if(*t == '\r') *t = ' ';
+      for(char *t = p + strlen(p) - 1 ; t >= p && *t <= ' ' ; *t-- = '\0');
+      ok = eibiParseLine(p, entry);
+    }
+    if(!ok) continue;
+
+    entries[n++] = entry;
+    if(!(n & 63))
+    {
+      char statusMessage[64];
+      sprintf(statusMessage, "... %d bytes, %u entries ...", byteCnt, (unsigned)n);
+      statusShow(eibiMessage, statusMessage, 0);
+      drawScreen();
+    }
+  }
+
+  http.end();
+  *count = n;
+  return(n ? 1 : 0);
 }
 
 bool eibiLoadSchedule()
 {
   static const char *eibiMessage = "Loading EiBi Schedule";
-  HTTPClient http;
 
   // Need to be connected to the network
   consumeAbortPending();
   if(getWiFiStatus() < 2)
     return(false);
 
-  statusShow(eibiMessage, "Connecting...", 0);
-  drawScreen();
-
-  // Open HTTP connection to EiBi site
-  http.setUserAgent(getUserAgent());
-  http.begin(EIBI_URL);
-  if(http.GET() != HTTP_CODE_OK)
+  // Collect everything in PSRAM, then sort by frequency for the binary search
+  StationSchedule *entries = (StationSchedule *)heap_caps_malloc(EIBI_MAX_ENTRIES * sizeof(StationSchedule), MALLOC_CAP_SPIRAM);
+  if(!entries)
   {
-    statusShow(eibiMessage, "Failed connecting to EiBi!");
-    http.end();
+    statusShow(eibiMessage, "Not enough memory!");
     return(false);
   }
 
-  // Open file in the local flash file system
+  // The season's CSV (with days, language and target), else the previous
+  // season's, else the plain text schedule as before
+  char cur[16], prev[16];
+  struct tm t;
+  time_t now = time(NULL);
+  gmtime_r(&now, &t);
+  eibiSeasonFiles(t.tm_year + 1900, t.tm_mon + 1, cur, prev);
+
+  size_t count = 0;
+  int result = 0;
+  const char *urls[3] = { cur, prev, nullptr };
+  for(int i = 0 ; i < 3 && result == 0 ; i++)
+  {
+    String url = urls[i] ? String(EIBI_CSV_BASE) + urls[i] : String(EIBI_URL);
+    result = eibiDownload(url.c_str(), urls[i] != nullptr, entries, &count);
+  }
+
+  if(result <= 0)
+  {
+    heap_caps_free(entries);
+    if(!result) statusShow(eibiMessage, "Failed connecting to EiBi!");
+    return(false);
+  }
+
+  std::stable_sort(entries, entries + count, [](const StationSchedule &a, const StationSchedule &b) {
+    return(a.freq < b.freq);
+  });
+
   fs::File file = LittleFS.open(TEMP_PATH, "wb");
   if(!file)
   {
+    heap_caps_free(entries);
     statusShow(eibiMessage, "Failed opening local storage!");
-    http.end();
+    return(false);
+  }
+  size_t bytes = count * sizeof(StationSchedule);
+  bool written = file.write((uint8_t *)entries, bytes) == bytes;
+  file.close();
+  heap_caps_free(entries);
+
+  if(!written)
+  {
+    LittleFS.remove(TEMP_PATH);
+    statusShow(eibiMessage, "Storage full!");
     return(false);
   }
 
-  // Start loading data
-  WiFiClient *stream = http.getStreamPtr();
-  int totalLen = http.getSize();
-  int byteCnt, lineCnt, charCnt;
-  char charBuf[200];
-
-  for(byteCnt = charCnt = lineCnt = 0 ; http.connected() && (totalLen<0 || byteCnt<totalLen) ; )
-  {
-    if(consumeAbortPending())
-    {
-      file.close();
-      http.end();
-      LittleFS.remove(TEMP_PATH);
-      statusShow(eibiMessage, "CANCELED!");
-      return(false);
-    }
-
-    if(!stream->available()) delay(1);
-    else
-    {
-      char c = stream->read();
-      byteCnt++;
-
-      if(c!='\n' && charCnt<sizeof(charBuf)-1) charBuf[charCnt++] = c;
-      else
-      {
-        char *p, *t;
-
-        // Remove whitespace
-        charBuf[charCnt] = '\0';
-        for(p = charBuf ; *p && *p<=' ' ; ++p);
-        for(t = charBuf + charCnt - 1 ; t>=p && *t<=' ' ; *t--='\0');
-
-        // If valid non-empty schedule line...
-        if(t-p+1>0 && isdigit(*p))
-        {
-          // Remove LFs
-          for(t = p ; *t ; ++t)
-            if(*t=='\r') *t = ' ';
-
-          // If parsed a new entry...
-          StationSchedule entry;
-          if(eibiParseLine(p, entry))
-          {
-            // Write it to the output file
-            file.write((uint8_t*)&entry, sizeof(entry));
-            lineCnt++;
-
-            if(!(lineCnt & 31))
-            {
-              char statusMessage[64];
-              sprintf(statusMessage, "... %d bytes, %d entries ...", byteCnt, lineCnt);
-              statusShow(eibiMessage, statusMessage, 0);
-              drawScreen();
-            }
-          }
-        }
-
-        // Done with the current buffer, start a new one
-        charCnt = 0;
-        if(c!='\n') charBuf[charCnt++] = c;
-      }
-    }
-  }
-
-  // Done with file and HTTP connection
-  file.close();
-  http.end();
-
   // Move new schedule to its permanent place
   LittleFS.remove(EIBI_PATH);
+  LittleFS.remove(OLD_EIBI_PATH);
   LittleFS.rename(TEMP_PATH, EIBI_PATH);
 
   // Success
   identifyFrequency(currentFrequency);
-  statusShow(eibiMessage, "DONE!");
+  char done[40];
+  snprintf(done, sizeof(done), "DONE! %u entries", (unsigned)count);
+  statusShow(eibiMessage, done);
   return(true);
 }

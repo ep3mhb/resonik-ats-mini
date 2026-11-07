@@ -4,6 +4,24 @@ RESONIK edition: <https://resonik.mikroutik.com> · Upstream user manual: <https
 
 <!-- towncrier release notes start -->
 
+## 2.45-r2 (unreleased)
+
+RESONIK edition, Phase 2.
+
+### Added
+
+- **Beacon tracker** for the NCDXF/IARU beacons: on 14100, 18110, 21150, 24930 and 28200 kHz the station line names the beacon on the air now, with seconds left in its slot. **Menu → Beacons** follows one beacon across the five bands as it moves, a quick check of which paths are open.
+- **Memory scan** (**Menu → Mem Scan**): steps through the stored memories and holds on any with a signal, resuming 4 seconds after it goes. Uses the mode's squelch setting if one is set. Rotate or click to stop.
+- **Signal logger** (**Settings → Logger**: every 10 s, 1 min or 5 min): time, frequency, mode, band, RSSI, SNR and station name to a CSV file, downloadable from the web page (**Log (CSV)**). Clear it with Settings → Logger → Clear log.
+- **Propagation** (**Settings → Propagation**): solar flux, sunspots, A and K index and the day and night HF band conditions from hamqsl.com (N0NBH). Fetched while Wi-Fi is up, including the Sync at power-on.
+- **CAT control** (**Settings → USB Port → CAT**): Kenwood TS-480 commands for frequency, mode, S-meter and volume, for Hamlib, flrig, WSJT-X (receive), fldigi and logging programs.
+- **EiBi schedules** now come from the season's CSV file, with days of the week (a station is only shown on its broadcast days) and language and target area after the name, e.g. `[E > ME]`. Load the schedule again once after updating (Settings → Load EiBi).
+
+### Changed
+
+- About → Authors: the RESONIK edition line now reads EP2MHB.
+
+
 ## 2.45-r1 (2026-11-06)
 
 First release of the RESONIK edition, based on ats-mini 2.45. Install by USB (see the README); make a backup first.

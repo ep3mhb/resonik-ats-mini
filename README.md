@@ -20,8 +20,10 @@ Website, installer and manuals (coming soon): **<https://resonik.mikroutik.com>*
 - Automatic attenuation when strong stations overload the receiver
 - The clock survives switching off: automatic time sync at power-on, with a web-time fallback for networks that block NTP
 
-Later: propagation beacon tracker, better EiBi schedule, memory scanner, signal logger, CAT control,
-and on V4 boards an audio spectrum and an on-screen CW decoder.
+Coming in v2.45-r2: NCDXF/IARU beacon tracker, EiBi schedules with days, language and target, memory scanner,
+signal logger (CSV), propagation data from hamqsl.com, and Kenwood TS-480 CAT control over USB.
+
+Later, on V4 boards: an audio spectrum and an on-screen CW decoder.
 
 ## Which file do I need?
 
