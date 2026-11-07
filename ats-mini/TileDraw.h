@@ -15,7 +15,7 @@ enum TileIcon : uint8_t
   TI_NONE, TI_MODE, TI_BAND, TI_VOLUME, TI_VFO, TI_STEP, TI_SEEK, TI_SCAN, TI_MEMORY,
   TI_SQUELCH, TI_BANDWIDTH, TI_AGC, TI_AVC, TI_SOFTMUTE, TI_BEACON, TI_MEMSCAN, TI_SETTINGS,
   TI_BRIGHT, TI_CLOCK, TI_GLOBE, TI_MOON, TI_POWER, TI_PALETTE, TI_LAYOUT, TI_ZOOM, TI_SCROLL,
-  TI_RDS, TI_STEREO, TI_DIAL, TI_CHIP, TI_DOWNLOAD, TI_UPLOAD, TI_USB, TI_NETWORK, TI_BT,
+  TI_RDS, TI_STEREO, TI_DIAL, TI_CHIP, TI_DOWNLOAD, TI_FIRMWARE, TI_USB, TI_NETWORK, TI_BT,
   TI_WIFI, TI_BANDPLAN, TI_ATT, TI_TILES, TI_LOG, TI_PROP, TI_INFO, TI_REGION,
   TI_BACK, TI_CLOSE, TI_SLEEPTIMER, TI_FORK,
 };
@@ -27,6 +27,7 @@ typedef struct
   uint16_t color;      // Tile colour (bottom colour when color2 is set)
   uint16_t color2;     // Optional top colour for a vertical gradient, 0 = solid
   uint16_t text;       // Optional label colour for light tiles, 0 = white
+  bool paletteIcon;    // Paint the icon in the style's accent palette
 } TileItem;
 
 // Tile colours, picked to sit well on the dark background with white text
@@ -50,6 +51,12 @@ static inline uint16_t tileBlend(uint16_t c, uint16_t w, uint8_t a)
   return((uint16_t)(((r / 255) << 11) | ((g / 255) << 5) | (b / 255)));
 }
 
+// Accent colours of the full-colour icons (see tileDrawIconColor)
+typedef struct
+{
+  uint16_t w, y, o, r, g, c, b, p, k;
+} TileAccents;
+
 // Optional styles: outline or dimming to mark the selection, icon badge
 typedef struct
 {
@@ -60,6 +67,7 @@ typedef struct
   uint8_t labelShadow; // 0 = none, else strength of a dark shadow under the label
   uint8_t pop;         // Pixels the selected tile grows by on each side
   uint16_t iconOutline; // Colour of a thin outline around full-colour icons, 0 = soft shadow
+  const TileAccents *accents; // Icon accent colours, nullptr = the default set
 } TileStyle;
 
 // Rounded rectangle with a vertical gradient from top to bottom colour
@@ -272,13 +280,12 @@ static void tileDrawIcon(S &s, TileIcon icon, int x, int y, uint16_t c, uint16_t
       }
       break;
     case TI_DOWNLOAD:
-    case TI_UPLOAD:
+    case TI_FIRMWARE:
       s.drawWideLine(x - 11, y + 5, x - 11, y + 11, 1.2f, c);
       s.drawWideLine(x - 11, y + 11, x + 11, y + 11, 1.2f, c);
       s.drawWideLine(x + 11, y + 11, x + 11, y + 5, 1.2f, c);
       s.fillRect(x - 1, y - 11, 3, 15, c);
-      if(icon == TI_DOWNLOAD) s.fillTriangle(x - 7, y + 1, x + 8, y + 1, x, y + 8, c);
-      else s.fillTriangle(x - 7, y - 6, x + 8, y - 6, x, y - 13, c);
+      s.fillTriangle(x - 7, y + 1, x + 8, y + 1, x, y + 8, c);   // Down arrow into the tray
       break;
     case TI_USB:         // USB trident
       s.drawWideLine(x, y + 10, x, y - 8, 1.2f, c);
@@ -369,15 +376,50 @@ static void tileDrawIcon(S &s, TileIcon icon, int x, int y, uint16_t c, uint16_t
 
 // Full-colour icons (RESONIK): white line work with bright accents, in the
 // manner of the band plan strip. Accent colours are the iOS dark-mode set.
-#define TC_W  0xFFFF
-#define TC_Y  TILE_RGB(255, 214,  10)
-#define TC_O  TILE_RGB(255, 159,  10)
-#define TC_R  TILE_RGB(255,  69,  58)
-#define TC_G  TILE_RGB( 48, 209,  88)
-#define TC_C  TILE_RGB(100, 210, 255)
-#define TC_B  TILE_RGB( 10, 132, 255)
-#define TC_P  TILE_RGB(255, 100, 170)
-#define TC_K  TILE_RGB( 40,  40,  44)
+// Accent colours of the full-colour icons. A menu can set its own set to
+// match its palette; tileDrawPage swaps any accent that would vanish on the
+// tile it sits on.
+
+static const TileAccents tileAccentsDefault =
+{
+  0xFFFF, TILE_RGB(255, 214, 10), TILE_RGB(255, 159, 10), TILE_RGB(255, 69, 58),
+  TILE_RGB(48, 209, 88), TILE_RGB(100, 210, 255), TILE_RGB(10, 132, 255),
+  TILE_RGB(255, 100, 170), TILE_RGB(40, 40, 44),
+};
+static TileAccents tileAcc = tileAccentsDefault;
+
+#define TC_W  tileAcc.w
+#define TC_Y  tileAcc.y
+#define TC_O  tileAcc.o
+#define TC_R  tileAcc.r
+#define TC_G  tileAcc.g
+#define TC_C  tileAcc.c
+#define TC_B  tileAcc.b
+#define TC_P  tileAcc.p
+#define TC_K  tileAcc.k
+
+// Distance between two colours, weighted for the eye
+static inline int tileDist(uint16_t a, uint16_t b)
+{
+  int dr = (int)((a >> 11) & 31) - (int)((b >> 11) & 31);
+  int dg = (int)((a >> 5) & 63) - (int)((b >> 5) & 63);
+  int db = (int)(a & 31) - (int)(b & 31);
+  return(dr * dr * 4 + dg * dg + db * db * 4);
+}
+
+// Set the accents for one tile: an accent in the tile's own colour would
+// vanish, so it takes the palette colour that stands out most on that tile
+static void tileAccentsFor(const TileAccents &base, uint16_t tile)
+{
+  tileAcc = base;
+  const uint16_t cand[5] = { base.y, base.o, base.r, base.g, base.b };
+  uint16_t swap = cand[0];
+  for(int j = 1 ; j < 5 ; j++)
+    if(tileDist(cand[j], tile) > tileDist(swap, tile)) swap = cand[j];
+  uint16_t *f = &tileAcc.w;
+  for(int j = 0 ; j < 9 ; j++)
+    if(tileDist(f[j], tile) < 60) f[j] = swap;
+}
 
 template<typename S>
 static void tileDrawIconColor(S &s, TileIcon icon, int x, int y, uint16_t bg)
@@ -395,7 +437,7 @@ static void tileDrawIconColor(S &s, TileIcon icon, int x, int y, uint16_t bg)
       break;
     case TI_BAND:        // Signal bars, green to red
     {
-      static const uint16_t bc[5] = { TC_G, TC_G, TC_Y, TC_O, TC_R };
+      const uint16_t bc[5] = { TC_G, TC_G, TC_Y, TC_O, TC_R };
       for(int i = 0 ; i < 5 ; i++) s.fillRoundRect(x - 12 + i * 5, y + 10 - i * 5, 4, 2 + i * 5, 1, bc[i]);
       break;
     }
@@ -425,7 +467,7 @@ static void tileDrawIconColor(S &s, TileIcon icon, int x, int y, uint16_t bg)
       break;
     case TI_STEP:        // Coloured steps
     {
-      static const uint16_t sc[4] = { TC_G, TC_C, TC_Y, TC_O };
+      const uint16_t sc[4] = { TC_G, TC_C, TC_Y, TC_O };
       for(int i = 0 ; i < 4 ; i++) s.fillRect(x - 12 + i * 6, y + 4 - i * 5, 6, 8 + i * 5, sc[i]);
       break;
     }
@@ -437,7 +479,7 @@ static void tileDrawIconColor(S &s, TileIcon icon, int x, int y, uint16_t bg)
     case TI_SCAN:        // Spectrum and a red sweep line
     {
       static const uint8_t h[7] = { 4, 8, 14, 6, 18, 9, 5 };
-      static const uint16_t hc[7] = { TC_G, TC_G, TC_Y, TC_G, TC_O, TC_Y, TC_G };
+      const uint16_t hc[7] = { TC_G, TC_G, TC_Y, TC_G, TC_O, TC_Y, TC_G };
       for(int i = 0 ; i < 7 ; i++) s.fillRect(x - 12 + i * 3 + i / 2, y + 10 - h[i], 2, h[i], hc[i]);
       s.drawWideLine(x + 9, y - 11, x + 9, y + 10, 1.0f, TC_R);
       break;
@@ -605,19 +647,15 @@ static void tileDrawIconColor(S &s, TileIcon icon, int x, int y, uint16_t bg)
       s.fillCircle(x - 4, y - 4, 1, TC_C);
       break;
     case TI_DOWNLOAD:
-    case TI_UPLOAD:
+    case TI_FIRMWARE:
       s.drawWideLine(x - 11, y + 5, x - 11, y + 11, 1.2f, TC_W);
       s.drawWideLine(x - 11, y + 11, x + 11, y + 11, 1.2f, TC_W);
       s.drawWideLine(x + 11, y + 11, x + 11, y + 5, 1.2f, TC_W);
-      if(icon == TI_DOWNLOAD)
       {
-        s.fillRect(x - 1, y - 11, 4, 13, TC_G);
-        s.fillTriangle(x - 7, y + 1, x + 9, y + 1, x + 1, y + 8, TC_G);
-      }
-      else
-      {
-        s.fillRect(x - 1, y - 6, 4, 13, TC_C);
-        s.fillTriangle(x - 7, y - 5, x + 9, y - 5, x + 1, y - 13, TC_C);
+        // Both arrows point down into the tray: green for EiBi, blue for firmware
+        uint16_t ac = icon == TI_DOWNLOAD ? TC_G : TC_C;
+        s.fillRect(x - 1, y - 11, 4, 13, ac);
+        s.fillTriangle(x - 7, y + 1, x + 9, y + 1, x + 1, y + 8, ac);
       }
       break;
     case TI_USB:
@@ -659,7 +697,7 @@ static void tileDrawIconColor(S &s, TileIcon icon, int x, int y, uint16_t bg)
       break;
     case TI_TILES:
     {
-      static const uint16_t tc[6] = { TC_R, TC_Y, TC_G, TC_C, TC_B, TC_P };
+      const uint16_t tc[6] = { TC_R, TC_Y, TC_G, TC_C, TC_B, TC_P };
       for(int r = 0 ; r < 2 ; r++)
         for(int k = 0 ; k < 3 ; k++)
           s.fillRoundRect(x - 13 + k * 9, y - 9 + r * 10, 8, 8, 2, tc[r * 3 + k]);
@@ -787,7 +825,9 @@ static void tileDrawPage(S &s, const TileItem *items, int count, int sel, uint16
           }
           else
             tileDrawIcon(s, items[i].icon, cx + 1, cy + 1, tileBlend(fill, 0x0000, 140), iconBg);
+          if(st.accents && items[i].paletteIcon) tileAccentsFor(*st.accents, fill);
           tileDrawIconColor(s, items[i].icon, cx, cy, iconBg);
+          tileAcc = tileAccentsDefault;
           break;
         default:
           tileDrawIcon(s, items[i].icon, cx, cy, 0xFFFF, iconBg);
