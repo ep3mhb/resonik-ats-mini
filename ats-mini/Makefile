@@ -112,7 +112,11 @@ build/TestEibiParse: tests/TestEibiParse.cpp EibiParse.h
 	@mkdir -p build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++11 -Wall -Wextra -UNDEBUG tests/TestEibiParse.cpp $(LDFLAGS) -o $@
 
-test: build/TestParser build/TestParserAdhoc build/TestOtaVersion build/TestHttpDate build/TestTimeZone build/TestBandPlan build/TestBatteryTime build/TestBeacons build/TestCatKenwood build/TestPropagation build/TestEibiParse
+build/TestCwDecoder: tests/TestCwDecoder.cpp CwDecoder.h
+	@mkdir -p build
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++11 -Wall -Wextra -UNDEBUG tests/TestCwDecoder.cpp $(LDFLAGS) -o $@
+
+test: build/TestParser build/TestParserAdhoc build/TestOtaVersion build/TestHttpDate build/TestTimeZone build/TestBandPlan build/TestBatteryTime build/TestBeacons build/TestCatKenwood build/TestPropagation build/TestEibiParse build/TestCwDecoder
 	./build/TestParser
 	./build/TestParserAdhoc
 	./build/TestOtaVersion
@@ -124,5 +128,6 @@ test: build/TestParser build/TestParserAdhoc build/TestOtaVersion build/TestHttp
 	./build/TestCatKenwood
 	./build/TestPropagation
 	./build/TestEibiParse
+	./build/TestCwDecoder
 
 .PHONY: all help build upload clean test
