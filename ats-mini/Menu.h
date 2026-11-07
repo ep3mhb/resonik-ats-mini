@@ -50,7 +50,10 @@
 #define CMD_OFFTIMER   0x3600 // |
 #define CMD_BANDPLAN   0x3700 // | RESONIK
 #define CMD_AUTOATT    0x3800 // | RESONIK
-#define CMD_MENUSTYLE  0x3900 //-+ RESONIK
+#define CMD_MENUSTYLE  0x3900 // | RESONIK
+#define CMD_LOGGER     0x3A00 // | RESONIK
+#define CMD_PROPAG     0x3B00 //-+ RESONIK
+#define CMD_BEACON     0x3C00 // RESONIK, main menu
 
 // Band plan settings (RESONIK)
 #define BANDPLAN_OFF       0
@@ -160,6 +163,7 @@ extern uint8_t autoAttIdx;
 extern uint8_t autoAttLevel;
 extern uint8_t menuStyleIdx;
 void autoAttReset();
+bool tuneToMemory(const Memory *memory);
 bool autoAttTick(uint8_t rssiNow);
 bool bandPlanAutoSideband();
 bool drawTileMenu();

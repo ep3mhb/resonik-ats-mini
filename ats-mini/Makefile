@@ -96,7 +96,23 @@ build/TestBatteryTime: tests/TestBatteryTime.cpp BatteryTime.h
 	@mkdir -p build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++11 -Wall -Wextra -UNDEBUG tests/TestBatteryTime.cpp $(LDFLAGS) -o $@
 
-test: build/TestParser build/TestParserAdhoc build/TestOtaVersion build/TestHttpDate build/TestTimeZone build/TestBandPlan build/TestBatteryTime
+build/TestBeacons: tests/TestBeacons.cpp Beacons.h
+	@mkdir -p build
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++11 -Wall -Wextra -UNDEBUG tests/TestBeacons.cpp $(LDFLAGS) -o $@
+
+build/TestCatKenwood: tests/TestCatKenwood.cpp CatKenwood.h
+	@mkdir -p build
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++11 -Wall -Wextra -UNDEBUG tests/TestCatKenwood.cpp $(LDFLAGS) -o $@
+
+build/TestPropagation: tests/TestPropagation.cpp Propagation.h
+	@mkdir -p build
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++11 -Wall -Wextra -UNDEBUG tests/TestPropagation.cpp $(LDFLAGS) -o $@
+
+build/TestEibiParse: tests/TestEibiParse.cpp EibiParse.h
+	@mkdir -p build
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++11 -Wall -Wextra -UNDEBUG tests/TestEibiParse.cpp $(LDFLAGS) -o $@
+
+test: build/TestParser build/TestParserAdhoc build/TestOtaVersion build/TestHttpDate build/TestTimeZone build/TestBandPlan build/TestBatteryTime build/TestBeacons build/TestCatKenwood build/TestPropagation build/TestEibiParse
 	./build/TestParser
 	./build/TestParserAdhoc
 	./build/TestOtaVersion
@@ -104,5 +120,9 @@ test: build/TestParser build/TestParserAdhoc build/TestOtaVersion build/TestHttp
 	./build/TestTimeZone
 	./build/TestBandPlan
 	./build/TestBatteryTime
+	./build/TestBeacons
+	./build/TestCatKenwood
+	./build/TestPropagation
+	./build/TestEibiParse
 
 .PHONY: all help build upload clean test

@@ -8,15 +8,8 @@ struct BandLabel
   const char *name;     // Band name
 };
 
-struct StationSchedule
-{
-  uint16_t freq;        // Frequency in kHz
-  int8_t   start_h;     // Starting hour (0..23, -1 = any)
-  int8_t   start_m;     // Starting minute
-  int8_t   end_h;       // Ending hour
-  int8_t   end_m;       // Ending minute
-  char     name[32];    // Station name (UTF-8)
-};
+// StationSchedule and the CSV parser live in EibiParse.h (host-testable)
+#include "EibiParse.h"
 
 bool eibiAvailable();
 bool eibiLoadSchedule();

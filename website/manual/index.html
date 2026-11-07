@@ -42,10 +42,10 @@
   <main>
     <section>
       <div class="wrap doc">
-        <p class="kicker" style="color:var(--muted)">Manual · firmware v2.45-r1</p>
+        <p class="kicker" style="color:var(--muted)">Manual · firmware v2.45-r1 and later</p>
         <h1 style="font-size:2.2rem;margin:.3rem 0 1rem">Using the RESONIK additions</h1>
         <p class="lead">This page covers what RESONIK adds. Everything else — bands, modes, memories, seek and scan, EiBi schedules, RDS, Wi-Fi and Bluetooth — works as in the official firmware and is described in the <a href="https://esp32-si4732.github.io/ats-mini/manual.html" rel="noopener">ats-mini user manual</a>.</p>
-        <p>The basics: rotate the encoder to tune; a short click opens the volume, a long press opens the <b>Menu</b>, and <span class="ui">Menu → Settings</span> holds everything below.</p>
+        <p>The basics: rotate the encoder to tune. A <b>click</b> (under half a second) opens the <b>Menu</b> and selects; a <b>short press</b> (over half a second) opens the volume, or does the item's second action; a <b>long press</b> (two seconds) turns the display off and on. <span class="ui">Menu → Settings</span> holds most of what follows.</p>
         <ul class="toc">
           <li><a href="#cw">CW mode</a></li>
           <li><a href="#bandplan">Band plan</a></li>
@@ -54,6 +54,12 @@
           <li><a href="#battery">Battery time</a></li>
           <li><a href="#att">Automatic attenuation</a></li>
           <li><a href="#tiles">Tile menu</a></li>
+          <li><a href="#beacons">Beacons <small>r2</small></a></li>
+          <li><a href="#memscan">Memory scan <small>r2</small></a></li>
+          <li><a href="#logger">Signal logger <small>r2</small></a></li>
+          <li><a href="#propagation">Propagation <small>r2</small></a></li>
+          <li><a href="#eibi">EiBi schedules <small>r2</small></a></li>
+          <li><a href="#cat">CAT control <small>r2</small></a></li>
           <li><a href="#update">Updates</a></li>
         </ul>
 
@@ -88,7 +94,7 @@
         <h2 id="clock">Time zone and dual clock</h2>
         <p><span class="ui">Settings → Time Zone</span> lists UTC first, then every UTC offset with named places beside it — Dubai and Muscat next to UTC+4, London, Berlin/Paris, New York, Sydney and others. Named places change to summer time and back automatically. A previous offset setting is carried over.</p>
         <p>When the zone is not UTC, the time line in the info box alternates every few seconds between local date and time and <b>UTC:</b> time — the time used by schedules, logs and beacon timetables. <b>Time: --:--</b> means the clock is not set yet.</p>
-        <p><span class="ui">Settings → Date/Time</span> shows the running time in UTC. Rotate to change a value, long-press for the next field, click to save. Clicking without changing anything leaves the clock alone.</p>
+        <p><span class="ui">Settings → Date/Time</span> shows the running time in UTC. Rotate to change a value, click for the next field, and short-press (over half a second) to save. Leaving without a change leaves the clock alone.</p>
 
         <h2 id="sync">Setting the clock</h2>
         <p>The radio has no clock battery, so the time is lost when it is switched off. To have it set automatically at every power-on:</p>
@@ -106,6 +112,28 @@
 
         <h2 id="tiles">Tile menu</h2>
         <p><span class="ui">Settings → Menu Style → Tiles</span> shows the menu and the settings as a full-screen grid, twelve tiles to a page, with current values on the tiles (mode, band, volume, step, bandwidth, time zone…). The encoder and buttons work exactly as in the classic menu. <b>Classic</b> switches back.</p>
+
+
+        <h2 id="beacons">Beacons <small style="font-size:.7em;color:var(--muted)">v2.45-r2</small></h2>
+        <p>Eighteen beacons of the NCDXF/IARU International Beacon Project take turns on 14100, 18110, 21150, 24930 and 28200 kHz, ten seconds each, and repeat every three minutes. Each sends its callsign in CW and then four dashes at 100 W, 10 W, 1 W and 0.1 W, so how many dashes you hear tells you how good the path is.</p>
+        <p>Tune to one of the five frequencies (CW or USB): the station line shows the beacon on the air now and the seconds left, for example <b>Beacon 4X6TU Israel 6s</b>. The clock must be set.</p>
+        <p><span class="ui">Menu → Beacons</span> and a callsign makes the radio <b>follow</b> that beacon: it changes band every ten seconds as the beacon moves from 20 m to 10 m, and waits while it is silent. Tuning by hand, or choosing <b>Off</b>, ends it.</p>
+
+        <h2 id="memscan">Memory scan <small style="font-size:.7em;color:var(--muted)">v2.45-r2</small></h2>
+        <p><span class="ui">Menu → Mem Scan</span> steps through the stored memories (at least two) and holds on any with a signal; it carries on four seconds after the signal goes. A signal means the mode's squelch level if you have set one, otherwise an SNR of 6 dB or more. Rotate the encoder or click to stop: the radio stays on that memory.</p>
+
+        <h2 id="logger">Signal logger <small style="font-size:.7em;color:var(--muted)">v2.45-r2</small></h2>
+        <p><span class="ui">Settings → Logger</span> writes a line every 10 seconds, minute or five minutes: UTC time, frequency, mode, band, signal strength (dBµV), SNR (dB) and the station name. Leave the radio on a frequency overnight to see when a path opens and closes.</p>
+        <p>Download the file from the radio's web page, <b>Log (CSV)</b>, and open it in a spreadsheet. <b>Clear log</b> in the same menu (click to confirm) deletes it. Logging stops by itself at 1 MB.</p>
+
+        <h2 id="propagation">Propagation <small style="font-size:.7em;color:var(--muted)">v2.45-r2</small></h2>
+        <p><span class="ui">Settings → Propagation</span> shows the solar flux (SFI), sunspot number, A and K index, X-ray level and the day and night conditions for 80–40, 30–20, 17–15 and 12–10 m, as published by N0NBH on hamqsl.com. The data is fetched whenever Wi-Fi is up — including the time Sync at power-on — and at most every 15 minutes. Higher SFI and low K mean better conditions on the higher bands.</p>
+
+        <h2 id="eibi">EiBi schedules <small style="font-size:.7em;color:var(--muted)">v2.45-r2</small></h2>
+        <p><span class="ui">Settings → Load EiBi</span> now loads the season's schedule with its days of the week, so a station that is on air only at weekends is shown only then, and adds the language and target area after the name, for example <b>BBC World Service [E &gt; ME]</b> (English, to the Middle East). After updating from v2.45-r1, load the schedule once more.</p>
+
+        <h2 id="cat">CAT control <small style="font-size:.7em;color:var(--muted)">v2.45-r2</small></h2>
+        <p><span class="ui">Settings → USB Port → CAT</span> makes the radio answer Kenwood TS-480 commands on its USB port, so programs can read and set frequency and mode and read the S-meter. In the program choose <b>Kenwood TS-480</b> (Hamlib rig 2028) on the radio's serial port; the speed setting does not matter. Transmit commands are refused: this is a receiver. Switch back to <b>Ad hoc</b> for the ats-mini remote tools and screenshots.</p>
 
         <h2 id="update">Updates</h2>
         <p>With Wi-Fi connected, <span class="ui">Settings → Update FW → Check</span> looks for a newer RESONIK release on GitHub, and <b>Update</b> installs it. Settings are kept. New versions are also announced on this site and on <a href="https://github.com/ep3mhb/resonik-ats-mini/releases" rel="noopener">GitHub</a>.</p>

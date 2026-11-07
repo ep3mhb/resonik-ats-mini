@@ -4,6 +4,7 @@
 #include "Utils.h"
 #include "Menu.h"
 #include "Memories.h"
+#include "Resonik.h"
 #include <LittleFS.h>
 #include "nvs_flash.h"
 
@@ -225,6 +226,7 @@ void prefsSave(uint32_t items)
     prefs.putUChar("BandPlan",    bandPlanIdx);    // Band plan (RESONIK)
     prefs.putUChar("AutoAtt",     autoAttIdx);     // Automatic attenuation (RESONIK)
     prefs.putUChar("MenuStyle",   menuStyleIdx);   // Menu style (RESONIK)
+    prefs.putUChar("Logger",      loggerIdx < LOG_CLEAR ? loggerIdx : 0); // Signal logger (RESONIK)
     prefs.putUChar("BLEMode",     bleModeIdx);     // Bluetooth mode
     prefs.putUChar("USBMode",     usbModeIdx);     // USB mode
     prefs.putUChar("TCPMode",     tcpModeIdx);     // TCP mode
@@ -323,6 +325,8 @@ bool prefsLoad(uint32_t items)
     bandPlanIdx    = prefs.getUChar("BandPlan", bandPlanIdx) % getTotalBandPlanModes();
     autoAttIdx     = prefs.getUChar("AutoAtt", autoAttIdx) ? 1 : 0;
     menuStyleIdx   = prefs.getUChar("MenuStyle", menuStyleIdx) ? MENU_STYLE_TILES : MENU_STYLE_CLASSIC;
+    loggerIdx      = prefs.getUChar("Logger", 0);
+    if(loggerIdx >= LOG_CLEAR) loggerIdx = 0;
     bleModeIdx     = prefs.getUChar("BLEMode", bleModeIdx);     // Bluetooth mode
     usbModeIdx     = prefs.getUChar("USBMode", usbModeIdx);     // USB mode
     tcpModeIdx     = prefs.getUChar("TCPMode", TCP_OFF);        // TCP mode

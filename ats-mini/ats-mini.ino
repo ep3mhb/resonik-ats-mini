@@ -19,6 +19,7 @@
 #include "TcpMode.h"
 #include "Splash.h"
 #include "Brand.h"
+#include "Resonik.h"
 #include "Web.h"
 #include <stdlib.h>
 #include <time.h>
@@ -702,6 +703,13 @@ bool processRssiSnr()
 bool handleRotation(int16_t enc, int16_t accelerated, bool pressed)
 {
   if(!enc || (sleepOn() && sleepModeIdx == SLEEP_LOCKED)) return false;
+  // Any encoder action stops the memory scanner and stays on that memory
+  if(memScanActive())
+  {
+    memScanStop();
+    elapsedSleep = elapsedCommand = millis();
+    return true;
+  }
   bool changed = false;
   if(pressed)
   {
@@ -751,6 +759,11 @@ bool handleRotation(int16_t enc, int16_t accelerated, bool pressed)
 bool handleClick(bool shortPress)
 {
   elapsedSleep = elapsedCommand = millis();
+  if(memScanActive())
+  {
+    memScanStop();
+    return true;
+  }
   if(sleepOn())
   {
     if(currentSleep)
@@ -867,6 +880,11 @@ void loop()
 
   // Update clock display
   needRedraw |= clockUpdate();
+
+  // RESONIK: beacon tracker, memory scanner and signal logger
+  needRedraw |= beaconTick();
+  needRedraw |= memScanTick();
+  needRedraw |= loggerTick();
 
   // Periodically refresh the main screen
   // This covers the case where there is nothing else triggering a refresh

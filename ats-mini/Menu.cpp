@@ -9,6 +9,7 @@
 #include "Menu.h"
 #include "Memories.h"
 #include "BandPlan.h"
+#include "Resonik.h"
 #include "Patches.h"
 #include "Storage.h"
 
@@ -94,7 +95,9 @@ Band *getCurrentBand() { return(&bands[bandIdx]); }
 #define MENU_AGC_ATT     10
 #define MENU_AVC         11
 #define MENU_SOFTMUTE    12
-#define MENU_SETTINGS    13
+#define MENU_BEACONS     13  // RESONIK
+#define MENU_MEMSCAN     14  // RESONIK
+#define MENU_SETTINGS    15
 
 int8_t menuIdx = MENU_VOLUME;
 
@@ -113,6 +116,8 @@ static const char *menu[] =
   "AGC/ATTN",
   "AVC",
   "SoftMute",
+  "Beacons",
+  "Mem Scan",
   "Settings",
 };
 
@@ -144,7 +149,9 @@ static const char *menu[] =
 #define MENU_BANDPLAN     21  // RESONIK
 #define MENU_AUTOATT      22  // RESONIK
 #define MENU_MENUSTYLE    23  // RESONIK
-#define MENU_ABOUT        24
+#define MENU_LOGGER       24  // RESONIK
+#define MENU_PROPAG       25  // RESONIK
+#define MENU_ABOUT        26
 
 
 static uint8_t updateFwIdx = 0;
@@ -178,6 +185,8 @@ static const char *settings[] =
   "Band Plan",
   "Auto Att.",
   "Menu Style",
+  "Logger",
+  "Propagation",
   "About",
 };
 
@@ -418,7 +427,7 @@ int getTotalUILayouts() { return(ITEM_COUNT(uiLayoutDesc)); }
 
 uint8_t usbModeIdx = USB_OFF;
 const char *const usbModeDesc[] =
-{ "Off", "Ad hoc" };
+{ "Off", "Ad hoc", "CAT" };
 
 int getTotalUSBModes() { return(ITEM_COUNT(usbModeDesc)); }
 
@@ -1382,6 +1391,8 @@ static void clickMenu(int cmd, bool shortPress)
     case MENU_AGC_ATT:  currentCmd = CMD_AGC;       break;
     case MENU_BAND:     currentCmd = CMD_BAND;      break;
     case MENU_SETTINGS: currentCmd = CMD_SETTINGS;  break;
+    case MENU_BEACONS:  currentCmd = CMD_BEACON;    break;
+    case MENU_MEMSCAN:  memScanStart();             break;
     case MENU_SQUELCH:  currentCmd = CMD_SQUELCH;   break;
     case MENU_VOLUME:   currentCmd = CMD_VOLUME;    break;
     case MENU_VFO:      clickVfo(shortPress);       break;
@@ -1459,6 +1470,17 @@ static void clickSettings(int cmd, bool shortPress)
     case MENU_BANDPLAN:   currentCmd = CMD_BANDPLAN;  break;
     case MENU_AUTOATT:    currentCmd = CMD_AUTOATT;   break;
     case MENU_MENUSTYLE:  currentCmd = CMD_MENUSTYLE; break;
+    case MENU_LOGGER:     currentCmd = CMD_LOGGER;    break;
+    case MENU_PROPAG:
+      if(getWiFiStatus() >= 2)
+      {
+        statusShow("Propagation", "Loading...", 0);
+        drawScreen();
+        if(!propagationFetch()) statusShow("Propagation", "No answer from hamqsl.com");
+        else statusShow("");
+      }
+      currentCmd = CMD_PROPAG;
+      break;
     case MENU_UPDATEFW:
       updateFwIdx = 0;
       currentCmd = CMD_UPDATEFW;
@@ -1498,6 +1520,14 @@ bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
     case CMD_BANDPLAN:   doBandPlan(scrollDirection * enc);break;
     case CMD_AUTOATT:    doAutoAtt(scrollDirection * enc);break;
     case CMD_MENUSTYLE:  doMenuStyle(scrollDirection * enc);break;
+    case CMD_LOGGER:
+      loggerIdx = wrap_range(loggerIdx, scrollDirection * enc, 0, LOG_CLEAR);
+      if(loggerIdx != LOG_CLEAR) prefsRequestSave(SAVE_SETTINGS);
+      break;
+    case CMD_BEACON:
+      beaconFollow(wrap_range(beaconFollowIdx + 1, scrollDirection * enc, 0, 18) - 1);
+      break;
+    case CMD_PROPAG:     break;
     case CMD_RDS:        doRDSMode(scrollDirection * enc);break;
     case CMD_MEMORY:     doMemory(scrollDirection * enca);break;
     case CMD_OFFTIMER:   doOffTimer(enca);break;
@@ -1547,6 +1577,17 @@ bool clickHandler(uint16_t cmd, bool shortPress)
     case CMD_SCAN:     clickScan(shortPress);break;
     case CMD_FREQ:     return(clickFreq(shortPress));
     case CMD_DATETIME: clickDateTime(shortPress);break;
+    case CMD_LOGGER:
+      // "Clear log" acts on a click; the intervals apply as soon as they are chosen
+      if(loggerIdx == LOG_CLEAR)
+      {
+        loggerClear();
+        loggerIdx = 0;
+        prefsRequestSave(SAVE_SETTINGS);
+        statusShow("Signal log cleared");
+      }
+      currentCmd = CMD_NONE;
+      break;
     default:           return(false);
   }
 
@@ -2509,6 +2550,8 @@ void drawSideBar(uint16_t cmd, int x, int y, int sx)
     case CMD_BANDPLAN:   drawOptionList(settings[MENU_BANDPLAN], bandPlanDesc, ITEM_COUNT(bandPlanDesc), bandPlanIdx, x, y, sx); break;
     case CMD_AUTOATT:    drawOptionList(settings[MENU_AUTOATT], autoAttDesc, ITEM_COUNT(autoAttDesc), autoAttIdx, x, y, sx); break;
     case CMD_MENUSTYLE:  drawOptionList(settings[MENU_MENUSTYLE], menuStyleDesc, ITEM_COUNT(menuStyleDesc), menuStyleIdx, x, y, sx); break;
+    case CMD_LOGGER:     drawOptionList(settings[MENU_LOGGER], loggerDesc, 5, loggerIdx, x, y, sx); break;
+    case CMD_BEACON:     drawOptionList(menu[MENU_BEACONS], beaconMenuLabels, 19, beaconFollowIdx + 1, x, y, sx); break;
     case CMD_VOLUME:     drawVolume(x, y, sx);     break;
     case CMD_AGC:        drawAgc(x, y, sx);        break;
     case CMD_SOFTMUTE:   drawSoftMuteMaxAtt(x, y, sx);break;
@@ -2582,6 +2625,8 @@ static const char *tileMainValue(int i, char *buf, size_t size)
       else if(autoAttLevel) snprintf(buf, size, "Auto A%02d", autoAttLevel);
       else snprintf(buf, size, "AGC On");
       return(buf);
+    case MENU_BEACONS: return(beaconMenuLabels[beaconFollowIdx + 1]);
+    case MENU_MEMSCAN: return(memScanActive() ? "On" : nullptr);
     case MENU_SQUELCH:
       if(!(currentSquelch[currentMode] & 0x7f)) return("Off");
       snprintf(buf, size, "%d", currentSquelch[currentMode] & 0x7f);
@@ -2603,6 +2648,7 @@ static const char *tileSettingsValue(int i, char *buf, size_t size)
     case MENU_BANDPLAN:   return(bandPlanDesc[bandPlanIdx % ITEM_COUNT(bandPlanDesc)]);
     case MENU_AUTOATT:    return(autoAttDesc[autoAttIdx % ITEM_COUNT(autoAttDesc)]);
     case MENU_MENUSTYLE:  return(menuStyleDesc[menuStyleIdx % ITEM_COUNT(menuStyleDesc)]);
+    case MENU_LOGGER:     return(loggerDesc[loggerIdx < LOG_CLEAR ? loggerIdx : 0]);
   }
   return(nullptr);
 }

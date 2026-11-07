@@ -1,5 +1,6 @@
 #include "Common.h"
 #include "BandPlan.h"
+#include "Resonik.h"
 #include "Themes.h"
 #include "Storage.h"
 #include "Utils.h"
@@ -497,6 +498,13 @@ void drawScreen()
   if(currentCmd==CMD_ABOUT)
   {
     drawAbout();
+    return;
+  }
+
+  // Propagation page (RESONIK)
+  if(currentCmd==CMD_PROPAG)
+  {
+    drawPropagation();
     return;
   }
 

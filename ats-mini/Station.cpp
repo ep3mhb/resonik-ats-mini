@@ -4,6 +4,7 @@
 #include "Menu.h"
 #include "Memories.h"
 #include "EIBI.h"
+#include "Resonik.h"
 
 // CB frequency range in Hz
 #define MIN_CB_FREQUENCY 26060000
@@ -328,8 +329,18 @@ static const char *findScheduleByFreq(uint16_t freq, bool periodic)
     first_offset = last_offset = entry ? last_offset : (size_t)-1;
   }
 
-  // Return just the station name
-  return(entry? entry->name : 0);
+  if(!entry) return(0);
+
+  // RESONIK: add language and target area when the schedule has them,
+  // e.g. "BBC World Service [E > ME]"
+  static char label[48];
+  if(entry->lang[0] && entry->target[0])
+    snprintf(label, sizeof(label), "%s [%s > %s]", entry->name, entry->lang, entry->target);
+  else if(entry->lang[0] || entry->target[0])
+    snprintf(label, sizeof(label), "%s [%s]", entry->name, entry->lang[0] ? entry->lang : entry->target);
+  else
+    return(entry->name);
+  return(label);
 }
 
 bool identifyFrequency(uint32_t freq, bool periodic)
@@ -340,6 +351,15 @@ bool identifyFrequency(uint32_t freq, bool periodic)
 
   // RDS has priority on FM
   if(currentMode==FM) return(false);
+
+  // RESONIK: NCDXF/IARU beacon frequencies show the beacon on the air now
+  // (changes every 10 seconds, so never cached)
+  if(const char *beacon = beaconLabel(freq))
+  {
+    last_freq = freq;
+    name_found = false;
+    return(showStationName(beacon, true));
+  }
 
   // Do not try to look up static names more than once for the same freq
   if(periodic && last_freq==freq && name_found) return(false);

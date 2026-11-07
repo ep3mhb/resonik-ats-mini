@@ -7,6 +7,7 @@
 #include "Storage.h"
 #include "Remote.h"
 #include "ParserAdhoc.h"
+#include "Resonik.h"
 
 static RemoteState remoteSerialState;
 static bool serialDisconnectPending = false;
@@ -456,6 +457,8 @@ static InputEvent serialReadInput(uint8_t& byte)
 
 bool serialLoop(uint8_t usbMode)
 {
+  // RESONIK: Kenwood CAT instead of the ad hoc protocol
+  if(usbMode == USB_CAT) return(catSerialLoop());
   if(usbMode == USB_OFF)
   {
     remoteSerialState = RemoteState{};
@@ -467,5 +470,5 @@ bool serialLoop(uint8_t usbMode)
 
 bool serialConsumeAbortPending(uint8_t usbMode)
 {
-  return usbMode != USB_OFF && remoteConsumeAbortPending(&remoteSerialState, serialReadInput);
+  return usbMode == USB_ADHOC && remoteConsumeAbortPending(&remoteSerialState, serialReadInput);
 }

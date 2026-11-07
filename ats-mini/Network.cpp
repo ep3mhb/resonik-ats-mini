@@ -12,6 +12,7 @@
 #include <ESPmDNS.h>
 #include <HTTPClient.h>
 #include "HttpDate.h"
+#include "Resonik.h"
 
 #define CONNECT_TIME  3000  // Time of inactivity to start connecting WiFi
 #define WIFI_TOTAL_TIMEOUT  30000
@@ -113,6 +114,8 @@ bool netTickTime()
     ntpHasTime = true;
     clockTimeSynchronized();
     changed = true;
+    // RESONIK: while online, also fetch propagation data (a second or two)
+    if(netState == NetState::Online) propagationFetch();
     if(netState == NetState::Online && activeNetMode == NET_SYNC)
     {
       netStop();
@@ -204,6 +207,7 @@ bool netTickTime()
         if(httpTimeSync())
         {
           changed = true;
+          propagationFetch();
           if(activeNetMode == NET_SYNC)
           {
             netStop();

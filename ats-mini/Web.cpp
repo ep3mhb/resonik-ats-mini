@@ -18,6 +18,7 @@
 #include "PageConfig.h"
 #include "PageWiFi.h"
 #include "PageUpdate.h"
+#include "Resonik.h"
 #include "PagePatches.h"
 
 #include <new>
@@ -266,6 +267,16 @@ void webInit()
     // The server closes the connection after the response; aborts release it too.
     request->onDisconnect(webScreenshotRelease);
     response->addHeader("Content-Disposition", String("attachment; filename=\"") + screenshot.filename + "\"");
+    response->addHeader("Cache-Control", "no-store");
+    request->send(response);
+  });
+
+  // RESONIK: signal log download and clearing
+  server.on("/log.csv", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    if(!webIsAuthenticated(request)) return request->requestAuthentication();
+    if(!LittleFS.exists(LOG_PATH))
+      return request->send(404, "text/plain", "The signal log is empty. Turn it on in Settings > Logger.");
+    AsyncWebServerResponse *response = request->beginResponse(LittleFS, LOG_PATH, "text/csv", true);
     response->addHeader("Cache-Control", "no-store");
     request->send(response);
   });
