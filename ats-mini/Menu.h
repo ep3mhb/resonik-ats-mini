@@ -171,6 +171,8 @@ bool bandPlanAutoSideband();
 bool drawTileMenu();
 void tileMenuOpen();
 const lgfx::IFont *uiFont(bool small);   // Inter SemiBold, 15 px or 14 px
+void tileAfterClick(uint16_t prevCmd, bool shortPress);
+void tileReturnCancel();
 const TimeZone *getCurrentTimeZone();
 const char *getCurrentTimeZoneAbbr();
 uint8_t timeZoneFromLegacyIndex(uint8_t idx);
