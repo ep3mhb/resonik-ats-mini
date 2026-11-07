@@ -781,8 +781,13 @@ bool handleClick(bool shortPress)
   {
     if(currentCmd != CMD_NONE)
       currentCmd = CMD_NONE;
+    else if(shortPress)
+      currentCmd = CMD_VOLUME;
     else
-      currentCmd = shortPress ? CMD_VOLUME : CMD_MENU;
+    {
+      tileMenuOpen();
+      currentCmd = CMD_MENU;
+    }
   }
   // Waking the display or loading schedules can take time.
   elapsedSleep = elapsedCommand = millis();
