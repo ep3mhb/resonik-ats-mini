@@ -11,6 +11,7 @@
 #include "BandPlan.h"
 #include "Resonik.h"
 #include "TileMenuData.h"
+#include "CwAudio.h"
 #include "Patches.h"
 #include "Storage.h"
 
@@ -152,7 +153,9 @@ static const char *menu[] =
 #define MENU_MENUSTYLE    23  // RESONIK
 #define MENU_LOGGER       24  // RESONIK
 #define MENU_PROPAG       25  // RESONIK
-#define MENU_ABOUT        26
+#define MENU_CWDEC        26  // RESONIK R3
+#define MENU_CWSTRIP      27  // RESONIK R3
+#define MENU_ABOUT        28
 
 
 static uint8_t updateFwIdx = 0;
@@ -188,6 +191,8 @@ static const char *settings[] =
   "Menu Style",
   "Logger",
   "Propagation",
+  "CW Decoder",
+  "CW Strip",
   "About",
 };
 
@@ -232,7 +237,8 @@ static const TileEntry tileMemory[] =
 static const TileEntry tileHam[] =
 {
   { TI_BANDPLAN, TILE_SET | MENU_BANDPLAN }, { TI_BEACON, MENU_BEACONS },
-  { TI_FORK, TILE_SET | MENU_CALIBRATION }, { TI_DOWNLOAD, TILE_SET | MENU_LOADEIBI },
+  { TI_FORK, TILE_SET | MENU_CALIBRATION }, { TI_CWDEC, TILE_SET | MENU_CWDEC },
+  { TI_CWSTRIP, TILE_SET | MENU_CWSTRIP }, { TI_DOWNLOAD, TILE_SET | MENU_LOADEIBI },
   { TI_PROP, TILE_SET | MENU_PROPAG },
 };
 static const TileEntry tileDisplay[] =
@@ -1621,6 +1627,8 @@ static void clickSettings(int cmd, bool shortPress)
     case MENU_AUTOATT:    currentCmd = CMD_AUTOATT;   break;
     case MENU_MENUSTYLE:  currentCmd = CMD_MENUSTYLE; break;
     case MENU_LOGGER:     currentCmd = CMD_LOGGER;    break;
+    case MENU_CWDEC:      cwPageOpen();               break;
+    case MENU_CWSTRIP:    currentCmd = CMD_CWSTRIP;   break;
     case MENU_PROPAG:
       if(getWiFiStatus() >= 2)
       {
@@ -1670,6 +1678,10 @@ bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
     case CMD_BANDPLAN:   doBandPlan(scrollDirection * enc);break;
     case CMD_AUTOATT:    doAutoAtt(scrollDirection * enc);break;
     case CMD_MENUSTYLE:  doMenuStyle(scrollDirection * enc);break;
+    case CMD_CWSTRIP:
+      cwStripIdx = wrap_range(cwStripIdx, scrollDirection * enc, 0, 1);
+      prefsRequestSave(SAVE_SETTINGS);
+      break;
     case CMD_LOGGER:
       loggerIdx = wrap_range(loggerIdx, scrollDirection * enc, 0, LOG_CLEAR);
       if(loggerIdx != LOG_CLEAR) prefsRequestSave(SAVE_SETTINGS);
@@ -1706,6 +1718,11 @@ bool clickHandler(uint16_t cmd, bool shortPress)
   switch(cmd)
   {
     case CMD_MENU:     clickMenu(menuIdx, shortPress);break;
+    case CMD_CWDEC:
+      // CW decoder page: click clears the text, a short press leaves
+      if(shortPress) currentCmd = CMD_NONE;
+      else cwPageClear();
+      break;
     case CMD_SETTINGS: clickSettings(settingsIdx, shortPress);break;
     case CMD_UPDATEFW: otaRequestLatest(updateFwIdx == 1);break;
     case CMD_MEMORY:   clickMemory(memoryIdx, shortPress);break;
@@ -2701,6 +2718,7 @@ void drawSideBar(uint16_t cmd, int x, int y, int sx)
     case CMD_AUTOATT:    drawOptionList(settings[MENU_AUTOATT], autoAttDesc, ITEM_COUNT(autoAttDesc), autoAttIdx, x, y, sx); break;
     case CMD_MENUSTYLE:  drawOptionList(settings[MENU_MENUSTYLE], menuStyleDesc, ITEM_COUNT(menuStyleDesc), menuStyleIdx, x, y, sx); break;
     case CMD_LOGGER:     drawOptionList(settings[MENU_LOGGER], loggerDesc, 5, loggerIdx, x, y, sx); break;
+    case CMD_CWSTRIP:    drawOptionList(settings[MENU_CWSTRIP], cwStripDesc, 2, cwStripIdx, x, y, sx); break;
     case CMD_BEACON:     drawOptionList(menu[MENU_BEACONS], beaconMenuLabels, 19, beaconFollowIdx + 1, x, y, sx); break;
     case CMD_VOLUME:     drawVolume(x, y, sx);     break;
     case CMD_AGC:        drawAgc(x, y, sx);        break;
@@ -2762,6 +2780,8 @@ bool bandPlanAutoSideband()
 // Signal Mini design. The encoder moves the highlight in reading order and a
 // click selects, exactly as in the classic menu. Drawing is in TileDraw.h.
 //
+const lgfx::IFont *uiFont(bool small) { return(tileFont(small)); }
+
 bool drawTileMenu()
 {
   if(menuStyleIdx != MENU_STYLE_TILES || currentCmd != CMD_MENU) return(false);

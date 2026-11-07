@@ -17,7 +17,7 @@ enum TileIcon : uint8_t
   TI_BRIGHT, TI_CLOCK, TI_GLOBE, TI_MOON, TI_POWER, TI_PALETTE, TI_LAYOUT, TI_ZOOM, TI_SCROLL,
   TI_RDS, TI_STEREO, TI_DIAL, TI_CHIP, TI_DOWNLOAD, TI_FIRMWARE, TI_USB, TI_NETWORK, TI_BT,
   TI_WIFI, TI_BANDPLAN, TI_ATT, TI_TILES, TI_LOG, TI_PROP, TI_INFO, TI_REGION,
-  TI_BACK, TI_CLOSE, TI_SLEEPTIMER, TI_FORK,
+  TI_BACK, TI_CLOSE, TI_SLEEPTIMER, TI_FORK, TI_CWDEC, TI_CWSTRIP,
 };
 
 typedef struct
@@ -355,6 +355,21 @@ static void tileDrawIcon(S &s, TileIcon icon, int x, int y, uint16_t c, uint16_t
       s.drawArc(x, y + 1, 6, 4, 0, 180, c);
       s.drawWideLine(x, y + 6, x, y + 13, 1.8f, c);
       break;
+    case TI_CWDEC:       // Morse turning into text
+      s.fillCircle(x - 10, y - 7, 3, c);
+      s.fillRoundRect(x - 4, y - 9, 9, 5, 2, c);
+      s.fillCircle(x + 10, y - 7, 3, c);
+      s.fillRoundRect(x - 12, y + 2, 24, 3, 1, c);
+      s.fillRoundRect(x - 12, y + 9, 16, 3, 1, c);
+      break;
+    case TI_CWSTRIP:     // Screen with a strip of Morse at the bottom
+      s.drawRoundRect(x - 13, y - 11, 26, 22, 3, c);
+      s.drawRoundRect(x - 12, y - 10, 24, 20, 2, c);
+      s.fillRect(x - 12, y + 2, 24, 8, c);
+      s.fillCircle(x - 6, y + 6, 2, bg);
+      s.fillRect(x - 2, y + 5, 6, 3, bg);
+      s.fillCircle(x + 8, y + 6, 2, bg);
+      break;
     case TI_BACK:        // Arrow back
       s.drawWideLine(x - 11, y, x + 11, y, 1.8f, c);
       s.drawWideLine(x - 11, y, x - 3, y - 8, 1.8f, c);
@@ -627,6 +642,21 @@ static void tileDrawIconColor(S &s, TileIcon icon, int x, int y, uint16_t bg)
       s.fillArc(x, y + 5, 12, 9, 300, 360, TC_R);
       s.drawWideLine(x, y + 5, x + 6, y - 6, 1.4f, TC_W);
       s.fillCircle(x, y + 5, 2, TC_W);
+      break;
+    case TI_CWDEC:       // Yellow Morse above white text
+      s.fillCircle(x - 10, y - 7, 3, TC_Y);
+      s.fillRoundRect(x - 4, y - 9, 9, 5, 2, TC_Y);
+      s.fillCircle(x + 10, y - 7, 3, TC_Y);
+      s.fillRoundRect(x - 12, y + 2, 24, 3, 1, TC_W);
+      s.fillRoundRect(x - 12, y + 9, 16, 3, 1, TC_W);
+      break;
+    case TI_CWSTRIP:     // White screen, blue strip with yellow Morse
+      s.fillRoundRect(x - 13, y - 11, 26, 22, 3, TC_W);
+      s.fillRect(x - 11, y - 9, 22, 9, TC_K);
+      s.fillRect(x - 11, y + 1, 22, 8, TC_B);
+      s.fillCircle(x - 6, y + 5, 2, TC_Y);
+      s.fillRect(x - 2, y + 4, 6, 3, TC_Y);
+      s.fillCircle(x + 8, y + 5, 2, TC_Y);
       break;
     case TI_FORK:        // Tuning fork with sound
       s.drawWideLine(x - 4, y - 12, x - 4, y + 1, 1.5f, TC_W);

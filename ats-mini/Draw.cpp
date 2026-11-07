@@ -7,6 +7,7 @@
 #include "Menu.h"
 #include "BleMode.h"
 #include "Draw.h"
+#include "CwAudio.h"
 
 //
 // Draw preferences write indicator
@@ -498,6 +499,13 @@ void drawScreen()
   if(currentCmd==CMD_ABOUT)
   {
     drawAbout();
+    return;
+  }
+
+  // CW decoder page (RESONIK R3)
+  if(currentCmd==CMD_CWDEC)
+  {
+    drawCwPage();
     return;
   }
 

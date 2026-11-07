@@ -54,6 +54,8 @@
 #define CMD_LOGGER     0x3A00 // | RESONIK
 #define CMD_PROPAG     0x3B00 //-+ RESONIK
 #define CMD_BEACON     0x3C00 // RESONIK, main menu
+#define CMD_CWDEC      0x3D00 // RESONIK R3: full-screen CW decoder
+#define CMD_CWSTRIP    0x3E00 // RESONIK R3: decoder strip setting
 
 // Band plan settings (RESONIK)
 #define BANDPLAN_OFF       0
@@ -168,6 +170,7 @@ bool autoAttTick(uint8_t rssiNow);
 bool bandPlanAutoSideband();
 bool drawTileMenu();
 void tileMenuOpen();
+const lgfx::IFont *uiFont(bool small);   // Inter SemiBold, 15 px or 14 px
 const TimeZone *getCurrentTimeZone();
 const char *getCurrentTimeZoneAbbr();
 uint8_t timeZoneFromLegacyIndex(uint8_t idx);
