@@ -99,7 +99,8 @@ Band *getCurrentBand() { return(&bands[bandIdx]); }
 #define MENU_SOFTMUTE    12
 #define MENU_BEACONS     13  // RESONIK
 #define MENU_MEMSCAN     14  // RESONIK
-#define MENU_SETTINGS    15
+#define MENU_SCANNER     15  // RESONIK R3
+#define MENU_SETTINGS    16
 
 int8_t menuIdx = MENU_VOLUME;
 
@@ -120,6 +121,7 @@ static const char *menu[] =
   "SoftMute",
   "Beacons",
   "Mem Scan",
+  "Scanner",
   "Settings",
 };
 
@@ -224,7 +226,7 @@ static const TileEntry tileTuning[] =
 {
   { TI_BAND, MENU_BAND }, { TI_MODE, MENU_MODE }, { TI_BANDWIDTH, MENU_BW },
   { TI_REGION, TILE_SET | MENU_FM_REGION }, { TI_RDS, TILE_SET | MENU_RDS },
-  { TI_SCAN, MENU_SCAN }, { TI_SEEK, MENU_SEEK }, { TI_STEP, MENU_STEP }, { TI_VFO, MENU_VFO },
+  { TI_SCAN, MENU_SCAN }, { TI_SCANNER, MENU_SCANNER }, { TI_SEEK, MENU_SEEK }, { TI_STEP, MENU_STEP }, { TI_VFO, MENU_VFO },
 };
 static const TileEntry tileAudio[] =
 {
@@ -1593,6 +1595,7 @@ static void clickMenuItem(int cmd, bool shortPress)
     case MENU_SETTINGS: currentCmd = CMD_SETTINGS;  break;
     case MENU_BEACONS:  currentCmd = CMD_BEACON;    break;
     case MENU_MEMSCAN:  memScanStart();             break;
+    case MENU_SCANNER:  bandScanStart();            break;
     case MENU_SQUELCH:  currentCmd = CMD_SQUELCH;   break;
     case MENU_VOLUME:   currentCmd = CMD_VOLUME;    break;
     case MENU_VFO:      clickVfo(shortPress);       break;
