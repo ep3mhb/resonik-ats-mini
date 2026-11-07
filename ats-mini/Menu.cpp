@@ -152,7 +152,8 @@ static const char *menu[] =
 #define MENU_MENUSTYLE    23  // RESONIK
 #define MENU_LOGGER       24  // RESONIK
 #define MENU_PROPAG       25  // RESONIK
-#define MENU_ABOUT        26
+#define MENU_KNOB         26  // RESONIK
+#define MENU_ABOUT        27
 
 
 static uint8_t updateFwIdx = 0;
@@ -188,6 +189,7 @@ static const char *settings[] =
   "Menu Style",
   "Logger",
   "Propagation",
+  "Knob",
   "About",
 };
 
@@ -246,6 +248,7 @@ static const TileEntry tileSystem[] =
 {
   { TI_INFO, TILE_SET | MENU_ABOUT }, { TI_BT, TILE_SET | MENU_BLEMODE },
   { TI_CLOCK, TILE_SET | MENU_DATETIME }, { TI_CHIP, TILE_SET | MENU_DSP_PATCHES },
+  { TI_KNOB, TILE_SET | MENU_KNOB },
   { TI_POWER, TILE_SET | MENU_OFFTIMER }, { TI_NETWORK, TILE_SET | MENU_TCPMODE },
   { TI_GLOBE, TILE_SET | MENU_UTCOFFSET }, { TI_FIRMWARE, TILE_SET | MENU_UPDATEFW },
   { TI_USB, TILE_SET | MENU_USBMODE }, { TI_WIFI, TILE_SET | MENU_WIFIMODE },
@@ -285,11 +288,11 @@ static const char *tileLabel(uint8_t id)
   return(id & TILE_SET ? settings[id & ~TILE_SET] : menu[id]);
 }
 
-// Opening the menu shows the top level with the last category picked
+// Opening the menu comes back to the page used last, so Band then Mode
+// (say) is one click each; Back leads to the six categories
 void tileMenuOpen()
 {
   tileReturnCmd = 0;
-  if(tileCat >= 0) { tileSlot = tileCat; tileCat = -1; }
 }
 
 // After a click: a setting opened from the tiles that has just closed goes
@@ -298,7 +301,7 @@ void tileAfterClick(uint16_t prevCmd, bool shortPress)
 {
   if(!tileReturnCmd) return;
   if(currentCmd == tileReturnCmd) return;           // Still open
-  if(prevCmd == tileReturnCmd && currentCmd == CMD_NONE && !shortPress && menuStyleIdx == MENU_STYLE_TILES)
+  if(prevCmd == tileReturnCmd && currentCmd == CMD_NONE && (!shortPress || prevCmd == CMD_DATETIME || prevCmd == CMD_UPDATEFW) && menuStyleIdx == MENU_STYLE_TILES)
     currentCmd = CMD_MENU;
   tileReturnCmd = 0;
 }
@@ -320,6 +323,7 @@ const char *const autoAttDesc[] = { "Off", "On" };
 
 uint8_t menuStyleIdx = MENU_STYLE_TILES;   // Tiles by default (RESONIK)
 const char *const menuStyleDesc[] = { "Classic", "Tiles" };
+static const char *const knobDesc[] = { "20 clicks", "30 clicks" };
 
 //
 // FM Region Menu
@@ -1547,8 +1551,24 @@ static void clickMenu(int cmd, bool shortPress)
     clickMenuItem(menuIdx, false);
   }
 
-  // A setting opened from the tiles comes back to them when it is done
-  tileReturnCmd = currentCmd == CMD_MENU || currentCmd == CMD_NONE ? 0 : currentCmd;
+  // Items that do nothing in this mode stay on the page and say why
+  if(currentCmd == CMD_NONE)
+  {
+    const char *why = nullptr;
+    if(id == MENU_AVC || id == MENU_SOFTMUTE) why = currentMode == FM ? "Not used in FM" : nullptr;
+    else if(id == (TILE_SET | MENU_CALIBRATION)) why = !isSSB() ? "For LSB, USB and CW" : nullptr;
+    if(why)
+    {
+      statusShow(tileLabel(id), why);
+      currentCmd = CMD_MENU;
+      return;
+    }
+  }
+
+  // Settings opened from the tiles come back to their page when done. Radio
+  // controls (Band, Mode, Step, Volume...) are used on the normal screen
+  // with its frequency and scale, and close the menu like the classic one.
+  tileReturnCmd = !(id & TILE_SET) || currentCmd == CMD_MENU || currentCmd == CMD_NONE ? 0 : currentCmd;
 }
 
 static void clickMenuItem(int cmd, bool shortPress)
@@ -1641,6 +1661,7 @@ static void clickSettings(int cmd, bool shortPress)
     case MENU_FM_STEREO:  currentCmd = CMD_FM_STEREO; break;
     case MENU_DSP_PATCHES: currentCmd = CMD_DSP_PATCHES; break;
     case MENU_ABOUT:      currentCmd = CMD_ABOUT;     break;
+    case MENU_KNOB:       currentCmd = CMD_KNOB;      break;
     case MENU_BANDPLAN:   currentCmd = CMD_BANDPLAN;  break;
     case MENU_AUTOATT:    currentCmd = CMD_AUTOATT;   break;
     case MENU_MENUSTYLE:  currentCmd = CMD_MENUSTYLE; break;
@@ -1666,17 +1687,29 @@ static void clickSettings(int cmd, bool shortPress)
   }
 }
 
-static bool tileValueIsList(uint16_t cmd);
+// Status messages over the tiles, so warnings are not hidden by the menu
+static void tileDrawStatus()
+{
+  if(!statusLines[0][0] && !statusLines[1][0]) return;
+  bool two = statusLines[0][0] && statusLines[1][0];
+  int h = two ? 44 : 26, y = 168 - h;
+  spr.fillRoundRect(8, y, 304, h, 8, TILE_NAVY);
+  spr.drawRoundRect(8, y, 304, h, 8, tileColors[2]);
+  spr.setTextDatum(MC_DATUM);
+  spr.setTextColor(0xFFFF);
+  if(two)
+  {
+    spr.drawString(statusLines[0], 160, y + 12, tileFont(false));
+    spr.setTextColor(tileColors[2]);
+    spr.drawString(statusLines[1], 160, y + 31, tileFont(true));
+  }
+  else spr.drawString(statusLines[0][0] ? statusLines[0] : statusLines[1], 160, y + h / 2, tileFont(false));
+}
 
 bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
 {
   // Ignore idle encoder
   if(!enc) return(false);
-
-  // Tile screens move one step per turn, however fast the knob goes: a full
-  // screen redraw takes long enough for several counts to pile up meanwhile
-  if(menuStyleIdx == MENU_STYLE_TILES && (cmd == CMD_MENU || (cmd == tileReturnCmd && tileValueIsList(cmd))))
-    enc = enc > 0 ? 1 : -1;
 
   switch(cmd)
   {
@@ -1701,6 +1734,11 @@ bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
     case CMD_BANDPLAN:   doBandPlan(scrollDirection * enc);break;
     case CMD_AUTOATT:    doAutoAtt(scrollDirection * enc);break;
     case CMD_MENUSTYLE:  doMenuStyle(scrollDirection * enc);break;
+    case CMD_KNOB:
+      // 20-click knobs count full steps, 30-click knobs half steps
+      setEncoderHalfStep(!encoderHalfStep);
+      prefsRequestSave(SAVE_SETTINGS);
+      break;
     case CMD_LOGGER:
       loggerIdx = wrap_range(loggerIdx, scrollDirection * enc, 0, LOG_CLEAR);
       if(loggerIdx != LOG_CLEAR) prefsRequestSave(SAVE_SETTINGS);
@@ -1738,7 +1776,11 @@ bool clickHandler(uint16_t cmd, bool shortPress)
   {
     case CMD_MENU:     clickMenu(menuIdx, shortPress);break;
     case CMD_SETTINGS: clickSettings(settingsIdx, shortPress);break;
-    case CMD_UPDATEFW: otaRequestLatest(updateFwIdx == 1);break;
+    case CMD_UPDATEFW:
+      // Click runs Check or Update; a short press leaves
+      if(shortPress) currentCmd = CMD_NONE;
+      else otaRequestLatest(updateFwIdx == 1);
+      break;
     case CMD_MEMORY:   clickMemory(memoryIdx, shortPress);break;
     case CMD_BLEMODE:  clickBleMode(bleModeMenuIdx, shortPress);break;
     case CMD_WIFIMODE: clickWiFiMode(wifiModeIdx, shortPress);break;
@@ -2732,6 +2774,7 @@ void drawSideBar(uint16_t cmd, int x, int y, int sx)
     case CMD_AUTOATT:    drawOptionList(settings[MENU_AUTOATT], autoAttDesc, ITEM_COUNT(autoAttDesc), autoAttIdx, x, y, sx); break;
     case CMD_MENUSTYLE:  drawOptionList(settings[MENU_MENUSTYLE], menuStyleDesc, ITEM_COUNT(menuStyleDesc), menuStyleIdx, x, y, sx); break;
     case CMD_LOGGER:     drawOptionList(settings[MENU_LOGGER], loggerDesc, 5, loggerIdx, x, y, sx); break;
+    case CMD_KNOB:       drawOptionList(settings[MENU_KNOB], knobDesc, 2, encoderHalfStep ? 1 : 0, x, y, sx); break;
     case CMD_BEACON:     drawOptionList(menu[MENU_BEACONS], beaconMenuLabels, 19, beaconFollowIdx + 1, x, y, sx); break;
     case CMD_VOLUME:     drawVolume(x, y, sx);     break;
     case CMD_AGC:        drawAgc(x, y, sx);        break;
@@ -2835,6 +2878,7 @@ static const char *tileValueLabel(uint16_t cmd, int i)
     case CMD_UTCOFFSET: return(timeZones[i].desc);
     case CMD_ZOOM:      return(i ? "On" : "Off");
     case CMD_SCROLL:    return(i ? "Reversed" : "Normal");
+    case CMD_KNOB:      return(knobDesc[i]);
     default:            return("");
   }
 }
@@ -2873,6 +2917,7 @@ static bool tileValueGet(uint16_t cmd, TileValue &v)
     case CMD_UTCOFFSET: v.count = ITEM_COUNT(timeZones); v.idx = utcOffsetIdx; return(true);
     case CMD_ZOOM:      v.count = 2; v.idx = zoomMenu ? 1 : 0; return(true);
     case CMD_SCROLL:    v.count = 2; v.idx = scrollDirection > 0 ? 0 : 1; return(true);
+    case CMD_KNOB:      v.count = 2; v.idx = encoderHalfStep ? 1 : 0; return(true);
   }
 
   v.list = false;
@@ -2926,12 +2971,6 @@ static bool tileValueGet(uint16_t cmd, TileValue &v)
       return(true);
   }
   return(false);
-}
-
-static bool tileValueIsList(uint16_t cmd)
-{
-  TileValue v;
-  return(tileValueGet(cmd, v) && v.list);
 }
 
 static void tileDrawValue(uint16_t cmd, const TileValue &v)
@@ -3014,6 +3053,7 @@ bool drawTileMenu()
   if(tileReturnCmd && currentCmd == tileReturnCmd && tileCat >= 0 && tileValueGet(currentCmd, v))
   {
     tileDrawValue(currentCmd, v);
+    tileDrawStatus();
     return(true);
   }
 
@@ -3044,5 +3084,6 @@ bool drawTileMenu()
   // Always on black, whatever the colour theme, so the tile colours read the same
   tileDrawPage(spr, items, count, sel, 0x0000, 0x7BEF, tileFont(false), false,
                &tileStyle, page, pages, tileFont(true));
+  tileDrawStatus();
   return(true);
 }
