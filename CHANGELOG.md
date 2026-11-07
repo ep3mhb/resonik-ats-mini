@@ -19,7 +19,7 @@ RESONIK edition, Phase 2.
 
 ### Changed
 
-- **Tile menu redesigned** after the Signal Mini look: three large coloured tiles by two per page, each with a white icon and its name, the selected tile outlined in white, page dots at the bottom, always on black.
+- **Tile menu redesigned and now the default menu.** The menu opens on six categories: Tuning, Audio, Memory, Ham & SWL, Display and System. Each category is a page of large tiles with a **Back** tile at the top left; everyday items come first, the rest A to Z. FM Region sits under Tuning and FM Stereo under Audio. Solid colours (pink, coral, yellow, green, blue, deep navy), full-colour icons, the Inter SemiBold font, and the selected tile pops out slightly. Click opens or selects, a short press closes the menu from any page. The classic list is still under Display → **Menu Style**. Radios updated from r1 start on the tile menu once; after that the choice is kept.
 - About → Authors: the RESONIK edition line now reads EP2MHB.
 
 

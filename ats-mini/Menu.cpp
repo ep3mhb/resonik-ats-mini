@@ -192,6 +192,104 @@ static const char *settings[] =
 };
 
 //
+// Tile menu (RESONIK): six categories, each a page of tiles behind a Back
+// tile. Items point into menu[] or, with TILE_SET, into settings[], so the
+// labels and actions are shared with the classic menu. Everyday items come
+// first, the rest A to Z.
+//
+#define TILE_SET  0x80
+
+typedef struct
+{
+  TileIcon icon;
+  uint8_t  id;
+} TileEntry;
+
+typedef struct
+{
+  const char *label;
+  TileIcon icon;
+  const TileEntry *items;
+  uint8_t count;
+} TileCategory;
+
+static const TileEntry tileTuning[] =
+{
+  { TI_BAND, MENU_BAND }, { TI_MODE, MENU_MODE }, { TI_BANDWIDTH, MENU_BW },
+  { TI_REGION, TILE_SET | MENU_FM_REGION }, { TI_RDS, TILE_SET | MENU_RDS },
+  { TI_SCAN, MENU_SCAN }, { TI_SEEK, MENU_SEEK }, { TI_STEP, MENU_STEP }, { TI_VFO, MENU_VFO },
+};
+static const TileEntry tileAudio[] =
+{
+  { TI_VOLUME, MENU_VOLUME }, { TI_AGC, MENU_AGC_ATT }, { TI_ATT, TILE_SET | MENU_AUTOATT },
+  { TI_AVC, MENU_AVC }, { TI_STEREO, TILE_SET | MENU_FM_STEREO },
+  { TI_SOFTMUTE, MENU_SOFTMUTE }, { TI_SQUELCH, MENU_SQUELCH },
+};
+static const TileEntry tileMemory[] =
+{
+  { TI_MEMORY, MENU_MEMORY }, { TI_LOG, TILE_SET | MENU_LOGGER }, { TI_MEMSCAN, MENU_MEMSCAN },
+};
+static const TileEntry tileHam[] =
+{
+  { TI_BANDPLAN, TILE_SET | MENU_BANDPLAN }, { TI_BEACON, MENU_BEACONS },
+  { TI_FORK, TILE_SET | MENU_CALIBRATION }, { TI_DOWNLOAD, TILE_SET | MENU_LOADEIBI },
+  { TI_PROP, TILE_SET | MENU_PROPAG },
+};
+static const TileEntry tileDisplay[] =
+{
+  { TI_BRIGHT, TILE_SET | MENU_BRIGHTNESS }, { TI_TILES, TILE_SET | MENU_MENUSTYLE },
+  { TI_SCROLL, TILE_SET | MENU_SCROLL }, { TI_MOON, TILE_SET | MENU_SLEEPMODE },
+  { TI_SLEEPTIMER, TILE_SET | MENU_SLEEP }, { TI_PALETTE, TILE_SET | MENU_THEME },
+  { TI_LAYOUT, TILE_SET | MENU_UI }, { TI_ZOOM, TILE_SET | MENU_ZOOM },
+};
+static const TileEntry tileSystem[] =
+{
+  { TI_INFO, TILE_SET | MENU_ABOUT }, { TI_BT, TILE_SET | MENU_BLEMODE },
+  { TI_CLOCK, TILE_SET | MENU_DATETIME }, { TI_CHIP, TILE_SET | MENU_DSP_PATCHES },
+  { TI_POWER, TILE_SET | MENU_OFFTIMER }, { TI_NETWORK, TILE_SET | MENU_TCPMODE },
+  { TI_GLOBE, TILE_SET | MENU_UTCOFFSET }, { TI_UPLOAD, TILE_SET | MENU_UPDATEFW },
+  { TI_USB, TILE_SET | MENU_USBMODE }, { TI_WIFI, TILE_SET | MENU_WIFIMODE },
+};
+
+static const TileCategory tileCategories[] =
+{
+  { "Tuning",    TI_DIAL,     tileTuning,  ITEM_COUNT(tileTuning)  },
+  { "Audio",     TI_VOLUME,   tileAudio,   ITEM_COUNT(tileAudio)   },
+  { "Memory",    TI_MEMORY,   tileMemory,  ITEM_COUNT(tileMemory)  },
+  { "Ham & SWL", TI_BEACON,   tileHam,     ITEM_COUNT(tileHam)     },
+  { "Display",   TI_BRIGHT,   tileDisplay, ITEM_COUNT(tileDisplay) },
+  { "System",    TI_SETTINGS, tileSystem,  ITEM_COUNT(tileSystem)  },
+};
+
+// Every menu item except Settings, and every settings item, has a tile
+static_assert(ITEM_COUNT(tileTuning) + ITEM_COUNT(tileAudio) + ITEM_COUNT(tileMemory) +
+              ITEM_COUNT(tileHam) + ITEM_COUNT(tileDisplay) + ITEM_COUNT(tileSystem) ==
+              ITEM_COUNT(menu) - 1 + ITEM_COUNT(settings), "a tile for every menu item");
+
+// Where the tile menu is: tileCat -1 is the top level. Inside a category,
+// tileSlot counts the tiles on screen: each page holds Back and five items.
+static int8_t tileCat = -1;
+static int8_t tileSlot = 0;
+
+static int tileSlotCount(int cat)
+{
+  if(cat < 0) return(ITEM_COUNT(tileCategories));
+  int n = tileCategories[cat].count;
+  return((n - 1) / 5 * 6 + 1 + (n - 1) % 5 + 1);
+}
+
+static const char *tileLabel(uint8_t id)
+{
+  return(id & TILE_SET ? settings[id & ~TILE_SET] : menu[id]);
+}
+
+// Opening the menu shows the top level with the last category picked
+void tileMenuOpen()
+{
+  if(tileCat >= 0) { tileSlot = tileCat; tileCat = -1; }
+}
+
+//
 // RESONIK settings: band plan, automatic attenuation, menu style
 //
 uint8_t bandPlanIdx = BANDPLAN_AUTO_SSB;
@@ -201,7 +299,7 @@ int getTotalBandPlanModes() { return(ITEM_COUNT(bandPlanDesc)); }
 uint8_t autoAttIdx = 1;
 const char *const autoAttDesc[] = { "Off", "On" };
 
-uint8_t menuStyleIdx = MENU_STYLE_CLASSIC;
+uint8_t menuStyleIdx = MENU_STYLE_TILES;   // Tiles by default (RESONIK)
 const char *const menuStyleDesc[] = { "Classic", "Tiles" };
 
 //
@@ -1375,10 +1473,61 @@ void doBandwidth(int16_t enc)
 
 static void doMenu(int16_t enc)
 {
-  menuIdx = wrap_range(menuIdx, enc, 0, LAST_ITEM(menu));
+  if(menuStyleIdx == MENU_STYLE_TILES)
+    tileSlot = wrap_range(tileSlot, enc, 0, tileSlotCount(tileCat) - 1);
+  else
+    menuIdx = wrap_range(menuIdx, enc, 0, LAST_ITEM(menu));
 }
 
+static void clickMenuItem(int cmd, bool shortPress);
+static void clickSettings(int cmd, bool shortPress);
+
 static void clickMenu(int cmd, bool shortPress)
+{
+  if(menuStyleIdx != MENU_STYLE_TILES)
+  {
+    clickMenuItem(cmd, shortPress);
+    return;
+  }
+
+  // Tile menu: a short press closes it from any page
+  if(shortPress)
+  {
+    currentCmd = CMD_NONE;
+    return;
+  }
+
+  // Top level: open the category, on its first item
+  if(tileCat < 0)
+  {
+    tileCat = tileSlot;
+    tileSlot = 1;
+    return;
+  }
+
+  // Back: return to the top level on this category
+  if(tileSlot % 6 == 0)
+  {
+    tileSlot = tileCat;
+    tileCat = -1;
+    return;
+  }
+
+  // An item: run it as the classic menu would
+  uint8_t id = tileCategories[tileCat].items[tileSlot / 6 * 5 + tileSlot % 6 - 1].id;
+  if(id & TILE_SET)
+  {
+    settingsIdx = id & ~TILE_SET;
+    clickSettings(settingsIdx, false);
+  }
+  else
+  {
+    menuIdx = id;
+    clickMenuItem(menuIdx, false);
+  }
+}
+
+static void clickMenuItem(int cmd, bool shortPress)
 {
   // No command yet
   currentCmd = CMD_NONE;
@@ -2615,22 +2764,32 @@ bool bandPlanAutoSideband()
 //
 bool drawTileMenu()
 {
-  if(menuStyleIdx != MENU_STYLE_TILES) return(false);
-  bool isMain = currentCmd == CMD_MENU;
-  if(!isMain && currentCmd != CMD_SETTINGS) return(false);
+  if(menuStyleIdx != MENU_STYLE_TILES || currentCmd != CMD_MENU) return(false);
 
-  static_assert(ITEM_COUNT(tileMainIcons) == ITEM_COUNT(menu), "one icon per main menu item");
-  static_assert(ITEM_COUNT(tileSettingsIcons) == ITEM_COUNT(settings), "one icon per settings item");
+  TileItem items[6];
+  int count = 0, sel = 0, page = 0, pages = 1;
 
-  const char *const *labels = isMain ? menu : settings;
-  const TileIcon *icons = isMain ? tileMainIcons : tileSettingsIcons;
-  int count = isMain ? ITEM_COUNT(menu) : ITEM_COUNT(settings);
-  int sel = isMain ? menuIdx : settingsIdx;
-
-  TileItem items[ITEM_COUNT(settings)];
-  for(int i = 0 ; i < count ; i++) items[i] = { labels[i], icons[i], tileColorFor(i) };
+  if(tileCat < 0)
+  {
+    // Top level: one colour per category
+    for(int k = 0 ; k < (int)ITEM_COUNT(tileCategories) ; k++)
+      items[count++] = tileMake(tileCategories[k].label, tileCategories[k].icon, k);
+    sel = tileSlot;
+  }
+  else
+  {
+    // A category page: Back, then up to five items in the five bright colours
+    const TileCategory &c = tileCategories[tileCat];
+    page = tileSlot / 6;
+    pages = (c.count + 4) / 5;
+    sel = tileSlot % 6;
+    items[count++] = tileMake("Back", TI_BACK, 5);
+    for(int i = page * 5 ; i < c.count && count < 6 ; i++)
+      items[count++] = tileMake(tileLabel(c.items[i].id), c.items[i].icon, (i + tileCat * 3 + 1) % 5);
+  }
 
   // Always on black, whatever the colour theme, so the tile colours read the same
-  tileDrawPage(spr, items, count, sel, 0x0000, 0x7BEF);
+  tileDrawPage(spr, items, count, sel, 0x0000, 0x7BEF, tileFont(false), false,
+               &tileStyle, page, pages, tileFont(true));
   return(true);
 }

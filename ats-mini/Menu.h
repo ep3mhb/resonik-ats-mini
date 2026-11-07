@@ -167,6 +167,7 @@ bool tuneToMemory(const Memory *memory);
 bool autoAttTick(uint8_t rssiNow);
 bool bandPlanAutoSideband();
 bool drawTileMenu();
+void tileMenuOpen();
 const TimeZone *getCurrentTimeZone();
 const char *getCurrentTimeZoneAbbr();
 uint8_t timeZoneFromLegacyIndex(uint8_t idx);
