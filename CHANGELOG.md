@@ -19,6 +19,7 @@ RESONIK edition, Phase 2.
 
 ### Changed
 
+- **Tile menu redesigned** after the Signal Mini look: three large coloured tiles by two per page, each with a white icon and its name, the selected tile outlined in white, page dots at the bottom, always on black.
 - About → Authors: the RESONIK edition line now reads EP2MHB.
 
 

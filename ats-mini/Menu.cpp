@@ -10,6 +10,7 @@
 #include "Memories.h"
 #include "BandPlan.h"
 #include "Resonik.h"
+#include "TileMenuData.h"
 #include "Patches.h"
 #include "Storage.h"
 
@@ -2607,104 +2608,29 @@ bool bandPlanAutoSideband()
 }
 
 //
-// Tile menu (RESONIK): the main menu and Settings as a full-screen grid.
-// The encoder moves the highlight in reading order, a click selects, exactly
-// as in the classic menu. Returns true if drawn.
+// Tile menu (RESONIK): the main menu and Settings as full-screen pages of
+// large coloured tiles with icons, three by two, in the style of the
+// Signal Mini design. The encoder moves the highlight in reading order and a
+// click selects, exactly as in the classic menu. Drawing is in TileDraw.h.
 //
-static const char *tileMainValue(int i, char *buf, size_t size)
-{
-  switch(i)
-  {
-    case MENU_MODE:    return(bandModeDesc[currentMode]);
-    case MENU_BAND:    return(getCurrentBand()->bandName);
-    case MENU_VOLUME:  snprintf(buf, size, "%d", volume); return(buf);
-    case MENU_STEP:    return(getCurrentStep()->desc);
-    case MENU_BW:      return(getCurrentBandwidth()->desc);
-    case MENU_AGC_ATT:
-      if(agcIdx) snprintf(buf, size, "Att %02d", agcNdx);
-      else if(autoAttLevel) snprintf(buf, size, "Auto A%02d", autoAttLevel);
-      else snprintf(buf, size, "AGC On");
-      return(buf);
-    case MENU_BEACONS: return(beaconMenuLabels[beaconFollowIdx + 1]);
-    case MENU_MEMSCAN: return(memScanActive() ? "On" : nullptr);
-    case MENU_SQUELCH:
-      if(!(currentSquelch[currentMode] & 0x7f)) return("Off");
-      snprintf(buf, size, "%d", currentSquelch[currentMode] & 0x7f);
-      return(buf);
-  }
-  return(nullptr);
-}
-
-static const char *tileSettingsValue(int i, char *buf, size_t size)
-{
-  switch(i)
-  {
-    case MENU_BRIGHTNESS: snprintf(buf, size, "%u", (unsigned)currentBrt); return(buf);
-    case MENU_UTCOFFSET:  return(getCurrentTimeZone()->desc);
-    case MENU_THEME:      return(TH.name);
-    case MENU_UI:         return(uiLayoutIdx < ITEM_COUNT(uiLayoutDesc) ? uiLayoutDesc[uiLayoutIdx] : nullptr);
-    case MENU_ZOOM:       return(zoomMenu ? "On" : "Off");
-    case MENU_WIFIMODE:   return(wifiModeIdx < ITEM_COUNT(wifiModeDesc) ? wifiModeDesc[wifiModeIdx] : nullptr);
-    case MENU_BANDPLAN:   return(bandPlanDesc[bandPlanIdx % ITEM_COUNT(bandPlanDesc)]);
-    case MENU_AUTOATT:    return(autoAttDesc[autoAttIdx % ITEM_COUNT(autoAttDesc)]);
-    case MENU_MENUSTYLE:  return(menuStyleDesc[menuStyleIdx % ITEM_COUNT(menuStyleDesc)]);
-    case MENU_LOGGER:     return(loggerDesc[loggerIdx < LOG_CLEAR ? loggerIdx : 0]);
-  }
-  return(nullptr);
-}
-
 bool drawTileMenu()
 {
   if(menuStyleIdx != MENU_STYLE_TILES) return(false);
   bool isMain = currentCmd == CMD_MENU;
   if(!isMain && currentCmd != CMD_SETTINGS) return(false);
 
-  const char *const *items = isMain ? menu : settings;
+  static_assert(ITEM_COUNT(tileMainIcons) == ITEM_COUNT(menu), "one icon per main menu item");
+  static_assert(ITEM_COUNT(tileSettingsIcons) == ITEM_COUNT(settings), "one icon per settings item");
+
+  const char *const *labels = isMain ? menu : settings;
+  const TileIcon *icons = isMain ? tileMainIcons : tileSettingsIcons;
   int count = isMain ? ITEM_COUNT(menu) : ITEM_COUNT(settings);
   int sel = isMain ? menuIdx : settingsIdx;
 
-  const int cols = 4, rows = 3, perPage = cols * rows;
-  const int tw = 78, th = 48, gap = 2, top = 20;
-  int page = sel / perPage;
-  int pages = (count + perPage - 1) / perPage;
+  TileItem items[ITEM_COUNT(settings)];
+  for(int i = 0 ; i < count ; i++) items[i] = { labels[i], icons[i], tileColorFor(i) };
 
-  spr.fillSprite(TH.bg);
-
-  // Header: title and page
-  char text[16];
-  spr.setTextColor(TH.menu_hdr);
-  spr.setTextDatum(ML_DATUM);
-  spr.drawString(isMain ? "Menu" : "Settings", 4, 9, FONT_SMALL);
-  snprintf(text, sizeof(text), "%d/%d", page + 1, pages);
-  spr.setTextDatum(MR_DATUM);
-  spr.drawString(text, 316, 9, FONT_SMALL);
-
-  for(int k = 0 ; k < perPage ; k++)
-  {
-    int i = page * perPage + k;
-    if(i >= count) break;
-
-    int cx = (k % cols) * (tw + gap);
-    int cy = top + (k / cols) * (th + gap);
-    bool hl = i == sel;
-
-    spr.fillRoundRect(cx, cy, tw, th, 5, hl ? TH.menu_hl_bg : TH.menu_bg);
-    spr.drawRoundRect(cx, cy, tw, th, 5, hl ? TH.menu_hl_text : TH.menu_border);
-
-    char buf[16];
-    const char *value = isMain ? tileMainValue(i, buf, sizeof(buf)) : tileSettingsValue(i, buf, sizeof(buf));
-
-    // Long labels fall back to the small fixed font so they stay inside the tile
-    spr.setTextDatum(MC_DATUM);
-    spr.setTextColor(hl ? TH.menu_hl_text : TH.menu_item);
-    const lgfx::IFont *font = spr.textWidth(items[i], FONT_SMALL) > tw - 4 ? &lgfx::fonts::Font0 : FONT_SMALL;
-    spr.drawString(items[i], cx + tw / 2, cy + (value ? 16 : th / 2), font);
-    if(value)
-    {
-      font = spr.textWidth(value, FONT_SMALL) > tw - 4 ? &lgfx::fonts::Font0 : FONT_SMALL;
-      spr.setTextColor(hl ? TH.menu_hl_text : TH.menu_param);
-      spr.drawString(value, cx + tw / 2, cy + 33, font);
-    }
-  }
+  // Always on black, whatever the colour theme, so the tile colours read the same
+  tileDrawPage(spr, items, count, sel, 0x0000, 0x7BEF);
   return(true);
 }
