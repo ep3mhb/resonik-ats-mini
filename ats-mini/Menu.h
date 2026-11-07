@@ -54,6 +54,7 @@
 #define CMD_LOGGER     0x3A00 // | RESONIK
 #define CMD_PROPAG     0x3B00 //-+ RESONIK
 #define CMD_BEACON     0x3C00 // RESONIK, main menu
+#define CMD_KNOB       0x3F00 // RESONIK: encoder type
 
 // Band plan settings (RESONIK)
 #define BANDPLAN_OFF       0

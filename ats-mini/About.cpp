@@ -58,7 +58,7 @@ void drawAboutHelp(uint8_t arrow)
   else
   {
     spr.drawString("To see this screen again,", 130, 70 + 16 * 4, FONT_SMALL);
-    spr.drawString("go to Menu->Settings->About.", 130, 70 + 16 * 5, FONT_SMALL);
+    spr.drawString(menuStyleIdx == MENU_STYLE_TILES ? "go to Menu->System->About." : "go to Menu->Settings->About.", 130, 70 + 16 * 5, FONT_SMALL);
   }
   spr.pushSprite(0, 0);
 }

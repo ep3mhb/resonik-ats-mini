@@ -17,7 +17,7 @@ enum TileIcon : uint8_t
   TI_BRIGHT, TI_CLOCK, TI_GLOBE, TI_MOON, TI_POWER, TI_PALETTE, TI_LAYOUT, TI_ZOOM, TI_SCROLL,
   TI_RDS, TI_STEREO, TI_DIAL, TI_CHIP, TI_DOWNLOAD, TI_FIRMWARE, TI_USB, TI_NETWORK, TI_BT,
   TI_WIFI, TI_BANDPLAN, TI_ATT, TI_TILES, TI_LOG, TI_PROP, TI_INFO, TI_REGION,
-  TI_BACK, TI_CLOSE, TI_SLEEPTIMER, TI_FORK,
+  TI_BACK, TI_CLOSE, TI_SLEEPTIMER, TI_FORK, TI_KNOB,
 };
 
 typedef struct
@@ -355,6 +355,13 @@ static void tileDrawIcon(S &s, TileIcon icon, int x, int y, uint16_t c, uint16_t
       s.drawArc(x, y + 1, 6, 4, 0, 180, c);
       s.drawWideLine(x, y + 6, x, y + 13, 1.8f, c);
       break;
+    case TI_KNOB:        // Knob with grip marks
+      s.drawCircle(x, y, 11, c);
+      s.drawCircle(x, y, 10, c);
+      for(int a = 0 ; a < 360 ; a += 45)
+        s.fillCircle(x + (int)(14 * cosf(a * 0.01745f)), y + (int)(14 * sinf(a * 0.01745f)), 1, c);
+      s.drawWideLine(x, y, x, y - 7, 1.6f, c);
+      break;
     case TI_BACK:        // Arrow back
       s.drawWideLine(x - 11, y, x + 11, y, 1.8f, c);
       s.drawWideLine(x - 11, y, x - 3, y - 8, 1.8f, c);
@@ -627,6 +634,13 @@ static void tileDrawIconColor(S &s, TileIcon icon, int x, int y, uint16_t bg)
       s.fillArc(x, y + 5, 12, 9, 300, 360, TC_R);
       s.drawWideLine(x, y + 5, x + 6, y - 6, 1.4f, TC_W);
       s.fillCircle(x, y + 5, 2, TC_W);
+      break;
+    case TI_KNOB:        // Grey knob, yellow pointer, white grip
+      s.fillCircle(x, y, 11, TC_K);
+      s.drawCircle(x, y, 11, TC_W);
+      for(int a = 0 ; a < 360 ; a += 45)
+        s.fillCircle(x + (int)(14 * cosf(a * 0.01745f)), y + (int)(14 * sinf(a * 0.01745f)), 1, TC_W);
+      s.drawWideLine(x, y, x, y - 8, 1.8f, TC_Y);
       break;
     case TI_FORK:        // Tuning fork with sound
       s.drawWideLine(x - 4, y - 12, x - 4, y + 1, 1.5f, TC_W);
