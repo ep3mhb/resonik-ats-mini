@@ -777,17 +777,26 @@ bool handleClick(bool shortPress)
     }
     else return false;
   }
-  else if(!clickHandler(currentCmd, shortPress))
+  else
   {
-    if(currentCmd != CMD_NONE)
-      currentCmd = CMD_NONE;
-    else if(shortPress)
-      currentCmd = CMD_VOLUME;
-    else
+    uint16_t prevCmd = currentCmd;
+    if(!clickHandler(currentCmd, shortPress))
     {
-      tileMenuOpen();
-      currentCmd = CMD_MENU;
+      if(currentCmd != CMD_NONE)
+        currentCmd = CMD_NONE;
+      else if(shortPress)
+      {
+        tileReturnCancel();
+        currentCmd = CMD_VOLUME;
+      }
+      else
+      {
+        tileMenuOpen();
+        currentCmd = CMD_MENU;
+      }
     }
+    // A setting opened from the tile menu goes back to its page when done
+    tileAfterClick(prevCmd, shortPress);
   }
   // Waking the display or loading schedules can take time.
   elapsedSleep = elapsedCommand = millis();
@@ -840,6 +849,7 @@ void loop()
   {
     if(currentCmd != CMD_NONE && currentCmd != CMD_SEEK && currentCmd != CMD_SCAN && currentCmd != CMD_MEMORY)
     {
+      tileReturnCancel();
       currentCmd = CMD_NONE;
       needRedraw = true;
     }

@@ -270,6 +270,8 @@ static_assert(ITEM_COUNT(tileTuning) + ITEM_COUNT(tileAudio) + ITEM_COUNT(tileMe
 // tileSlot counts the tiles on screen: each page holds Back and five items.
 static int8_t tileCat = -1;
 static int8_t tileSlot = 0;
+static uint16_t tileReturnCmd = 0;   // Command opened from a tile; when it ends, the tiles come back
+static int8_t tileValueItem = 0;     // Its item in the category, for the value screen header
 
 static int tileSlotCount(int cat)
 {
@@ -286,7 +288,24 @@ static const char *tileLabel(uint8_t id)
 // Opening the menu shows the top level with the last category picked
 void tileMenuOpen()
 {
+  tileReturnCmd = 0;
   if(tileCat >= 0) { tileSlot = tileCat; tileCat = -1; }
+}
+
+// After a click: a setting opened from the tiles that has just closed goes
+// back to its category page, unless the press was a short one
+void tileAfterClick(uint16_t prevCmd, bool shortPress)
+{
+  if(!tileReturnCmd) return;
+  if(currentCmd == tileReturnCmd) return;           // Still open
+  if(prevCmd == tileReturnCmd && currentCmd == CMD_NONE && !shortPress && menuStyleIdx == MENU_STYLE_TILES)
+    currentCmd = CMD_MENU;
+  tileReturnCmd = 0;
+}
+
+void tileReturnCancel()
+{
+  tileReturnCmd = 0;
 }
 
 //
@@ -1514,7 +1533,9 @@ static void clickMenu(int cmd, bool shortPress)
   }
 
   // An item: run it as the classic menu would
-  uint8_t id = tileCategories[tileCat].items[tileSlot / 6 * 5 + tileSlot % 6 - 1].id;
+  int item = tileSlot / 6 * 5 + tileSlot % 6 - 1;
+  uint8_t id = tileCategories[tileCat].items[item].id;
+  tileValueItem = item;
   if(id & TILE_SET)
   {
     settingsIdx = id & ~TILE_SET;
@@ -1525,6 +1546,9 @@ static void clickMenu(int cmd, bool shortPress)
     menuIdx = id;
     clickMenuItem(menuIdx, false);
   }
+
+  // A setting opened from the tiles comes back to them when it is done
+  tileReturnCmd = currentCmd == CMD_MENU || currentCmd == CMD_NONE ? 0 : currentCmd;
 }
 
 static void clickMenuItem(int cmd, bool shortPress)
@@ -2762,9 +2786,225 @@ bool bandPlanAutoSideband()
 // Signal Mini design. The encoder moves the highlight in reading order and a
 // click selects, exactly as in the classic menu. Drawing is in TileDraw.h.
 //
+//
+// Tile value screens (RESONIK): a setting opened from the tiles is shown
+// full screen in the same style, as a list of values or as a number. Band,
+// Memory, Seek, Scan, Date/Time and DSP Patches keep their classic panels.
+//
+typedef struct
+{
+  bool list;          // A list of values, else a number
+  int count, idx;     // List: number of values and the one in use
+  char value[16];     // Number: the value as shown
+  const char *unit;   // Number: unit or a second line, may be nullptr
+  int pct;            // Number: bar position 0..100, -1 for no bar
+} TileValue;
+
+static const uint8_t tileAmModes[] = { LSB, USB, AM, CW };
+
+static const char *tileValueLabel(uint16_t cmd, int i)
+{
+  switch(cmd)
+  {
+    case CMD_MODE:      return(currentMode == FM ? bandModeDesc[FM] : bandModeDesc[tileAmModes[i]]);
+    case CMD_STEP:      return(steps[currentMode][i].desc);
+    case CMD_BANDWIDTH: return(bandwidths[currentMode][i].desc);
+    case CMD_FM_REGION: return(fmRegions[i].desc);
+    case CMD_RDS:       return(rdsMode[i].desc);
+    case CMD_THEME:     return(theme[i].name);
+    case CMD_UI:        return(uiLayoutDesc[i]);
+    case CMD_FM_STEREO: return(fmStereoDesc[i]);
+    case CMD_BANDPLAN:  return(bandPlanDesc[i]);
+    case CMD_AUTOATT:   return(autoAttDesc[i]);
+    case CMD_MENUSTYLE: return(menuStyleDesc[i]);
+    case CMD_LOGGER:    return(loggerDesc[i]);
+    case CMD_BEACON:    return(beaconMenuLabels[i]);
+    case CMD_SLEEPMODE: return(sleepModeDesc[i]);
+    case CMD_USBMODE:   return(usbModeDesc[i]);
+    case CMD_TCPMODE:   return(tcpModeDesc[i]);
+    case CMD_BLEMODE:   return(bleModeDesc[i]);
+    case CMD_WIFIMODE:  return(wifiModeDesc[i]);
+    case CMD_UPDATEFW:  return(updateFwActions[i]);
+    case CMD_UTCOFFSET: return(timeZones[i].desc);
+    case CMD_ZOOM:      return(i ? "On" : "Off");
+    case CMD_SCROLL:    return(i ? "Reversed" : "Normal");
+    default:            return("");
+  }
+}
+
+static bool tileValueGet(uint16_t cmd, TileValue &v)
+{
+  v.list = true;
+  v.unit = nullptr;
+  v.pct = -1;
+  v.value[0] = '\0';
+  switch(cmd)
+  {
+    case CMD_MODE:
+      v.count = currentMode == FM ? 1 : ITEM_COUNT(tileAmModes);
+      v.idx = 0;
+      for(int j = 0 ; currentMode != FM && j < v.count ; j++) if(tileAmModes[j] == currentMode) v.idx = j;
+      return(true);
+    case CMD_STEP:      v.count = getLastStep(currentMode) + 1; v.idx = bands[bandIdx].currentStepIdx; return(true);
+    case CMD_BANDWIDTH: v.count = getLastBandwidth(currentMode) + 1; v.idx = bands[bandIdx].bandwidthIdx; return(true);
+    case CMD_FM_REGION: v.count = ITEM_COUNT(fmRegions); v.idx = FmRegionIdx; return(true);
+    case CMD_RDS:       v.count = ITEM_COUNT(rdsMode); v.idx = rdsModeIdx; return(true);
+    case CMD_THEME:     v.count = getTotalThemes(); v.idx = themeIdx; return(true);
+    case CMD_UI:        v.count = ITEM_COUNT(uiLayoutDesc); v.idx = uiLayoutIdx; return(true);
+    case CMD_FM_STEREO: v.count = ITEM_COUNT(fmStereoDesc); v.idx = fmStereoIdx; return(true);
+    case CMD_BANDPLAN:  v.count = ITEM_COUNT(bandPlanDesc); v.idx = bandPlanIdx; return(true);
+    case CMD_AUTOATT:   v.count = ITEM_COUNT(autoAttDesc); v.idx = autoAttIdx; return(true);
+    case CMD_MENUSTYLE: v.count = ITEM_COUNT(menuStyleDesc); v.idx = menuStyleIdx; return(true);
+    case CMD_LOGGER:    v.count = 5; v.idx = loggerIdx; return(true);
+    case CMD_BEACON:    v.count = 19; v.idx = beaconFollowIdx + 1; return(true);
+    case CMD_SLEEPMODE: v.count = ITEM_COUNT(sleepModeDesc); v.idx = sleepModeIdx; return(true);
+    case CMD_USBMODE:   v.count = ITEM_COUNT(usbModeDesc); v.idx = usbModeIdx; return(true);
+    case CMD_TCPMODE:   v.count = ITEM_COUNT(tcpModeDesc); v.idx = tcpModeIdx; return(true);
+    case CMD_BLEMODE:   v.count = ITEM_COUNT(bleModeDesc); v.idx = bleModeMenuIdx; return(true);
+    case CMD_WIFIMODE:  v.count = ITEM_COUNT(wifiModeDesc); v.idx = wifiModeIdx; return(true);
+    case CMD_UPDATEFW:  v.count = ITEM_COUNT(updateFwActions); v.idx = updateFwIdx; return(true);
+    case CMD_UTCOFFSET: v.count = ITEM_COUNT(timeZones); v.idx = utcOffsetIdx; return(true);
+    case CMD_ZOOM:      v.count = 2; v.idx = zoomMenu ? 1 : 0; return(true);
+    case CMD_SCROLL:    v.count = 2; v.idx = scrollDirection > 0 ? 0 : 1; return(true);
+  }
+
+  v.list = false;
+  switch(cmd)
+  {
+    case CMD_VOLUME:
+      snprintf(v.value, sizeof(v.value), "%d", volume);
+      v.unit = muteOn(MUTE_MAIN) ? "Muted" : nullptr;
+      v.pct = volume * 100 / 63;
+      return(true);
+    case CMD_BRT:
+      snprintf(v.value, sizeof(v.value), "%d", currentBrt);
+      v.pct = (currentBrt - 10) * 100 / 245;
+      return(true);
+    case CMD_SQUELCH:
+    {
+      uint8_t sq = currentSquelch[currentMode] & 0x7f;
+      bool snrSq = currentSquelch[currentMode] & 0x80;
+      if(sq) snprintf(v.value, sizeof(v.value), "%d", sq); else strcpy(v.value, "Off");
+      v.unit = sq ? (snrSq ? "dB SNR" : "dBuV") : (snrSq ? "SNR" : "RSSI");
+      return(true);
+    }
+    case CMD_SOFTMUTE:
+      snprintf(v.value, sizeof(v.value), "%d", softMuteMaxAttIdx);
+      v.unit = "dB max attenuation";
+      v.pct = softMuteMaxAttIdx * 100 / 32;
+      return(true);
+    case CMD_AVC:
+      if(isSSB() && ssbAvcHold) { strcpy(v.value, "Hold"); return(true); }
+      snprintf(v.value, sizeof(v.value), "%d", isSSB() ? SsbAvcIdx : AmAvcIdx);
+      v.unit = "dB max gain";
+      return(true);
+    case CMD_AGC:
+      if(!agcNdx && !agcIdx) strcpy(v.value, "AGC On");
+      else { snprintf(v.value, sizeof(v.value), "%d", agcNdx); v.unit = "Attenuation"; }
+      return(true);
+    case CMD_CAL:
+      snprintf(v.value, sizeof(v.value), "%d", currentMode == LSB ? getCurrentBand()->lsbCal :
+               (currentMode == USB || currentMode == CW) ? getCurrentBand()->usbCal : 0);
+      v.unit = currentMode == LSB ? "Hz LSB" : "Hz USB";
+      return(true);
+    case CMD_OFFTIMER:
+      if(offTimerMinutes) { snprintf(v.value, sizeof(v.value), "%u", offTimerMinutes); v.unit = "min"; }
+      else strcpy(v.value, "Off");
+      v.pct = offTimerMinutes * 100 / 240;
+      return(true);
+    case CMD_SLEEP:
+      if(currentSleep) { snprintf(v.value, sizeof(v.value), "%u", currentSleep); v.unit = "s"; }
+      else strcpy(v.value, "Off");
+      v.pct = currentSleep * 100 / 255;
+      return(true);
+  }
+  return(false);
+}
+
+static void tileDrawValue(uint16_t cmd, const TileValue &v)
+{
+  const TileCategory &c = tileCategories[tileCat];
+  const TileEntry &e = c.items[tileValueItem];
+  int ci = (tileValueItem + tileCat * 3 + 1) % 5;
+  uint16_t col = tileColors[ci];
+  bool light = ci >= 1 && ci <= 3;
+  uint16_t ink = light ? TILE_NAVY : 0xFFFF;
+
+  spr.fillSprite(0x0000);
+
+  // Header in the tile's own colour, with its icon and the category
+  spr.fillRoundRect(6, 6, 308, 40, 10, col);
+  static const int8_t d[8][2] = {{-1,0},{1,0},{0,-1},{0,1},{-1,-1},{1,-1},{-1,1},{1,1}};
+  for(int j = 0 ; j < 8 ; j++) tileDrawIcon(spr, e.icon, 30 + d[j][0], 26 + d[j][1], TILE_NAVY, col);
+  tileDrawIconColor(spr, e.icon, 30, 26, col);
+  spr.setTextDatum(ML_DATUM);
+  spr.setTextColor(ink);
+  spr.drawString(tileLabel(e.id), 58, 26, tileFont(false));
+  spr.setTextDatum(MR_DATUM);
+  spr.drawString(c.label, 304, 26, tileFont(true));
+
+  const uint16_t muted = TILE_RGB(0x8F, 0xB3, 0xC0);
+  if(v.list)
+  {
+    // Three rows; the highlighted one pops out in the tile's colour
+    const int top = 56, rh = 24, vis = 3;
+    int first = v.idx < 1 ? 0 : v.idx - 1;
+    if(first > v.count - vis) first = v.count - vis;
+    if(first < 0) first = 0;
+    for(int k = 0 ; k < vis && first + k < v.count ; k++)
+    {
+      int i = first + k, y = top + k * (rh + 4);
+      bool hl = i == v.idx;
+      if(hl) spr.fillRoundRect(6, y - 2, 308, rh + 4, 8, col);
+      else spr.fillRoundRect(10, y, 300, rh, 8, TILE_NAVY);
+      spr.setTextDatum(ML_DATUM);
+      spr.setTextColor(hl ? ink : 0xFFFF);
+      spr.drawString(tileValueLabel(cmd, i), 24, y + rh / 2, tileFont(false));
+    }
+    if(v.count > vis)
+    {
+      int h = 3 * 28, bh = h * vis / v.count;
+      int by = top + (h - bh) * first / (v.count - vis);
+      spr.fillRoundRect(316, top, 3, h, 1, TILE_NAVY);
+      spr.fillRoundRect(316, by, 3, bh, 1, 0xFFFF);
+    }
+  }
+  else
+  {
+    spr.setTextDatum(MC_DATUM);
+    spr.setTextColor(0xFFFF);
+    spr.drawString(v.value, 160, v.pct >= 0 ? 84 : 92, &lgfx::fonts::FreeSansBold24pt7b);
+    if(v.unit)
+    {
+      spr.setTextColor(muted);
+      spr.drawString(v.unit, 160, v.pct >= 0 ? 112 : 130, tileFont(false));
+    }
+    if(v.pct >= 0)
+    {
+      int p = v.pct < 0 ? 0 : v.pct > 100 ? 100 : v.pct;
+      spr.fillRoundRect(20, 128, 280, 12, 6, TILE_NAVY);
+      if(p) spr.fillRoundRect(20, 128, 280 * p / 100 < 12 ? 12 : 280 * p / 100, 12, 6, tileColors[3]);
+    }
+  }
+
+  spr.setTextDatum(BC_DATUM);
+  spr.setTextColor(muted);
+  spr.drawString(v.list ? "Turn: choose   Click: done" : "Turn: adjust   Click: done", 160, 168, tileFont(true));
+}
+
 bool drawTileMenu()
 {
-  if(menuStyleIdx != MENU_STYLE_TILES || currentCmd != CMD_MENU) return(false);
+  if(menuStyleIdx != MENU_STYLE_TILES) return(false);
+
+  // A setting opened from the tiles: its value screen
+  TileValue v;
+  if(tileReturnCmd && currentCmd == tileReturnCmd && tileCat >= 0 && tileValueGet(currentCmd, v))
+  {
+    tileDrawValue(currentCmd, v);
+    return(true);
+  }
+
+  if(currentCmd != CMD_MENU) return(false);
 
   TileItem items[6];
   int count = 0, sel = 0, page = 0, pages = 1;

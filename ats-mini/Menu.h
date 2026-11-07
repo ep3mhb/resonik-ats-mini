@@ -168,6 +168,8 @@ bool autoAttTick(uint8_t rssiNow);
 bool bandPlanAutoSideband();
 bool drawTileMenu();
 void tileMenuOpen();
+void tileAfterClick(uint16_t prevCmd, bool shortPress);
+void tileReturnCancel();
 const TimeZone *getCurrentTimeZone();
 const char *getCurrentTimeZoneAbbr();
 uint8_t timeZoneFromLegacyIndex(uint8_t idx);
