@@ -4,7 +4,7 @@ RESONIK edition: <https://resonik.mikroutik.com> · Upstream user manual: <https
 
 <!-- towncrier release notes start -->
 
-## 2.45-r2 (unreleased)
+## 2.45-r2 (2026-11-08)
 
 RESONIK edition, Phase 2.
 
@@ -20,6 +20,9 @@ RESONIK edition, Phase 2.
 ### Changed
 
 - **Tile menu redesigned and now the default menu.** The menu opens on six categories: Tuning, Audio, Memory, Ham & SWL, Display and System. Each category is a page of large tiles with a **Back** tile at the top left; everyday items come first, the rest A to Z. FM Region sits under Tuning and FM Stereo under Audio. Solid colours (pink, coral, yellow, green, blue, deep navy), full-colour icons, the Inter SemiBold font, and the selected tile pops out slightly. Click opens or selects, a short press closes the menu from any page. The classic list is still under Display → **Menu Style**. Radios updated from r1 start on the tile menu once; after that the choice is kept.
+- **Settings in the tile style**: a setting opened from a tile (Brightness, Theme, Band Plan, Logger and the rest) is shown full screen as a list of values or a number with a bar, and a click returns to its category page.
+- **Radio controls go back to the normal screen**: after choosing a Band, Mode, Bandwidth, Step, Volume and the other listening controls, the menu closes so the knob tunes straight away. Settings still return to their page.
+- **System → Knob**: 20 clicks or 30 clicks per turn, for the two kinds of encoder fitted to these radios. If the knob skips or needs two clicks per step, try the other setting (it is the same as Half-step Encoder on the web page).
 - About → Authors: the RESONIK edition line now reads EP2MHB.
 
 
