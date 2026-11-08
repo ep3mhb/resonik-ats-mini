@@ -24,7 +24,7 @@ on:
   workflow_dispatch:
     inputs:
       revision:
-        description: "Leave empty for a test build of the branch. A tag to release, e.g. v2.45-r1"
+        description: "Leave empty for a test build of the branch. A tag to release, e.g. v2.45-r1 (a new tag is made on the branch head)"
         type: string
         required: false
 
@@ -81,6 +81,7 @@ jobs:
 
     outputs:
       slug: ${{ steps.slug.outputs.slug }}
+      sha: ${{ steps.slug.outputs.sha }}
 
     steps:
       - name: Checkout repository
@@ -88,12 +89,24 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
-          ref: "${{ github.event.inputs.revision || github.ref }}"
+
+      # RESONIK: a revision that is an existing tag or commit is built as is; a new
+      # version tag (v...) is made on the branch head here and published by the
+      # release job, so a release needs no tag push
+      - name: Select revision
+        env:
+          REV: ${{ github.event.inputs.revision }}
+        run: |
+          if [ -z "$REV" ]; then exit 0; fi
+          if git rev-parse -q --verify "$REV^{commit}" >/dev/null; then git checkout -q "$REV"
+          elif [ "${REV#v}" != "$REV" ]; then git tag "$REV"
+          else echo "Unknown revision $REV"; exit 1; fi
 
       - name: Get version slug
         id: slug
         run: |
           echo "slug=$(git describe --tags --match 'v[0-9]*' --always --dirty || echo v0.00)" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Compile firmware
         uses: arduino/compile-sketches@v1
@@ -179,7 +192,7 @@ jobs:
           SLUG: ${{ needs.build.outputs.slug }}
         run: >-
           python -c 'import os,re; t=open(f"""artifact/resonik-ats-mini-{os.environ["SLUG"]}-ospi/CHANGELOG.md""").read(); r=re.search(f"""(^## {os.environ["SLUG"][1:].replace(".", "\\.")} .*?)(?=^## \\d|\\Z)""", t, re.MULTILINE | re.DOTALL); print(r.group(0) if r else "")' |
-          gh release create "$SLUG" --repo '${{ github.repository }}' --notes-file -
+          gh release create "$SLUG" --repo '${{ github.repository }}' --target '${{ needs.build.outputs.sha }}' --notes-file -
       - name: Upload release artifacts
         env:
           GITHUB_TOKEN: ${{ github.token }}
