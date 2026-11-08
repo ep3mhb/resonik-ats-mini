@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>راهنمای کاربری RESONIK {{VERSION}}</title>
+<style>
+@font-face { font-family: "Vazirmatn"; src: url("../../website/fonts/vazirmatn.woff2") format("woff2"); font-weight: 100 900; }
+:root { --navy:#073A4B; --blue:#108AB1; --pink:#F04770; --coral:#F78C6A; --yellow:#FFD167; --green:#06D7A0; --ink:#1b1f23; --muted:#5b6670; --line:#d9dee2; --soft:#f3f6f7; }
+@page { size: A4; margin: 18mm 17mm 20mm 17mm; }
+@page :first { margin: 0; }
+* { box-sizing: border-box; }
+html { font-family: "Vazirmatn", sans-serif; color: var(--ink); font-size: 10.6pt; line-height: 1.85; }
+body { margin: 0; }
+bdi, .ltr { unicode-bidi: isolate; direction: ltr; }
+.ui { font-weight: 700; color: var(--navy); white-space: nowrap; }
+h1, h2, h3 { color: var(--navy); line-height: 1.4; }
+h2 { font-size: 17pt; font-weight: 800; margin: 0 0 4mm; padding-bottom: 2mm; border-bottom: 2.5px solid var(--navy); break-after: avoid; }
+h2 .num { color: var(--blue); margin-left: 2mm; }
+h2 .tag { font-size: 9pt; font-weight: 600; color: #fff; background: var(--pink); border-radius: 3px; padding: 0 2mm; margin-right: 2mm; vertical-align: middle; }
+h3 { font-size: 12pt; font-weight: 700; margin: 5mm 0 1.5mm; break-after: avoid; }
+p { margin: 0 0 2.6mm; text-align: justify; }
+section.chapter { break-before: page; }
+section.chapter.cont { break-before: auto; margin-top: 9mm; }
+ul, ol { margin: 0 0 3mm; padding-right: 6mm; }
+li { margin-bottom: 1mm; }
+table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 9.8pt; break-inside: avoid; }
+th { background: var(--navy); color: #fff; font-weight: 700; text-align: right; padding: 1.6mm 2.5mm; }
+td { border-bottom: 1px solid var(--line); padding: 1.6mm 2.5mm; vertical-align: top; }
+tr:nth-child(even) td { background: var(--soft); }
+.sw { display: inline-block; width: 10mm; height: 3mm; border-radius: 1mm; vertical-align: middle; margin-left: 2mm; }
+figure { margin: 3mm 0 4mm; text-align: center; break-inside: avoid; }
+figure img.screen { width: 92mm; border-radius: 2.5mm; border: 2.5mm solid #111; box-shadow: 0 0 0 0.4mm #555; }
+figure img.photo { width: 100%; border-radius: 3mm; }
+figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
+.pair { display: flex; gap: 6mm; justify-content: center; break-inside: avoid; }
+.pair figure { flex: 1; margin: 2mm 0 3mm; }
+.pair img.screen { width: 100%; }
+.note { background: #fff7e0; border-right: 4px solid var(--yellow); padding: 2.5mm 4mm; border-radius: 2mm; margin: 3mm 0 4mm; break-inside: avoid; }
+.tip { background: #e6faf4; border-right: 4px solid var(--green); padding: 2.5mm 4mm; border-radius: 2mm; margin: 3mm 0 4mm; break-inside: avoid; }
+.steps { counter-reset: s; list-style: none; padding: 0; }
+.steps > li { counter-increment: s; position: relative; padding-right: 10mm; margin-bottom: 2.5mm; }
+.steps > li::before { content: counter(s, persian); position: absolute; right: 0; top: 0.3mm; width: 7mm; height: 7mm; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 700; text-align: center; line-height: 7mm; font-size: 9.5pt; }
+.keys { display: grid; grid-template-columns: 34mm 1fr; gap: 1.5mm 4mm; margin: 2mm 0 4mm; }
+.keys b { color: var(--navy); }
+/* Cover */
+.cover { height: 297mm; padding: 0; position: relative; overflow: hidden; background: var(--navy); color: #fff; }
+.cover .top { padding: 26mm 20mm 0; }
+.cover .brand { display: flex; align-items: center; gap: 5mm; direction: ltr; justify-content: flex-end; }
+.cover .brand img { width: 18mm; filter: brightness(0) invert(1); }
+.cover .brand span { font-size: 26pt; font-weight: 800; letter-spacing: 2.5mm; }
+.cover h1 { color: #fff; font-size: 30pt; font-weight: 800; margin: 22mm 0 4mm; line-height: 1.35; }
+.cover .sub { font-size: 14pt; color: #cfe6ee; margin: 0 0 10mm; }
+.cover .ver { display: inline-block; background: var(--yellow); color: var(--navy); font-weight: 800; border-radius: 2mm; padding: 1mm 4mm; font-size: 12pt; }
+.cover .date { color: #cfe6ee; margin-right: 4mm; font-size: 11pt; }
+.cover .photo { position: absolute; left: 0; right: 0; bottom: 52mm; padding: 0 20mm; }
+.cover .photo img { width: 100%; border-radius: 4mm; box-shadow: 0 4mm 10mm rgba(0,0,0,.35); }
+.cover .bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 40mm; background: #fff; color: var(--navy); display: flex; align-items: center; justify-content: space-between; padding: 0 20mm; }
+.cover .bottom img { width: 26mm; height: 26mm; }
+.cover .bottom .site { font-size: 14pt; font-weight: 800; direction: ltr; }
+.cover .bottom small { display: block; color: var(--muted); font-weight: 400; font-size: 9.5pt; direction: rtl; }
+.bars { display: flex; height: 3mm; }
+.bars i { flex: 1; }
+/* Contents */
+.toc { list-style: none; padding: 0; columns: 2; column-gap: 10mm; }
+.toc li { break-inside: avoid; border-bottom: 1px dotted var(--line); padding: 1mm 0; margin: 0; }
+.toc .n { color: var(--blue); font-weight: 700; margin-left: 2mm; }
+.toc small { color: var(--pink); font-weight: 700; margin: 0 2mm; }
+.small { font-size: 9pt; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- Cover -->
+<section class="cover">
+  <div class="bars"><i style="background:#F04770"></i><i style="background:#F78C6A"></i><i style="background:#FFD167"></i><i style="background:#06D7A0"></i><i style="background:#108AB1"></i></div>
+  <div class="top">
+    <div class="brand"><img src="img/resonik-symbol.svg" alt=""><span>RESONIK</span></div>
+    <h1>راهنمای کاربری فریم‌ور RESONIK<br>برای رادیو <bdi>ATS Mini</bdi></h1>
+    <p class="sub">گیرنده‌ی جیبی <bdi>LW · MW · SW · FM</bdi> با مودولاسیون‌های <bdi>AM · LSB · USB · CW</bdi></p>
+    <span class="ver"><bdi>{{VERSION}}</bdi></span><span class="date">{{DATE_FA}} · <bdi>{{DATE_EN}}</bdi></span>
+  </div>
+  <div class="photo"><img src="img/radio-front.jpg" alt="رادیو ATS Mini با صفحه‌ی شروع RESONIK"></div>
+  <div class="bottom">
+    <div><span class="site">resonik.mikroutik.com</span><small>نصب از مرورگر، نسخه‌ی تازه‌ی همین راهنما و آخرین تغییرات</small></div>
+    <img src="img/qr-site.svg" alt="">
+  </div>
+</section>
+
+<!-- Contents -->
+<section class="chapter">
+  <h2>فهرست</h2>
+  <ol class="toc">
+    <li><span class="n">۱</span>درباره‌ی RESONIK</li>
+    <li><span class="n">۲</span>نصب و به‌روزرسانی</li>
+    <li><span class="n">۳</span>کنترل‌ها و صفحه‌ی اصلی</li>
+    <li><span class="n">۴</span>منو<small>R2</small></li>
+    <li><span class="n">۵</span>حالت CW</li>
+    <li><span class="n">۶</span>نقشه‌ی باند</li>
+    <li><span class="n">۷</span>ساعت، منطقه‌ی زمانی و ساعت دوگانه</li>
+    <li><span class="n">۸</span>زمان باقی‌مانده‌ی باتری</li>
+    <li><span class="n">۹</span>تضعیف خودکار</li>
+    <li><span class="n">۱۰</span>بیکن‌ها<small>R2</small></li>
+    <li><span class="n">۱۱</span>اسکن حافظه‌ها<small>R2</small></li>
+    <li><span class="n">۱۲</span>ثبت سیگنال<small>R2</small></li>
+    <li><span class="n">۱۳</span>شرایط انتشار امواج<small>R2</small></li>
+    <li><span class="n">۱۴</span>برنامه‌ی ایستگاه‌های <bdi>EiBi</bdi><small>R2</small></li>
+    <li><span class="n">۱۵</span>کنترل <bdi>CAT</bdi> از کامپیوتر<small>R2</small></li>
+    <li><span class="n">۱۶</span>صفحه‌ی وب رادیو و <bdi>Wi-Fi</bdi></li>
+    <li><span class="n">۱۷</span>ارسال بازخورد و رفع اشکال</li>
+    <li><span class="n">۱۸</span>سازندگان و مجوز</li>
+  </ol>
+  <div class="note">این راهنما برای فریم‌ور <bdi>{{VERSION}}</bdi> نوشته شده و با هر نسخه‌ی جدید به‌روز می‌شود. نسخه‌ی تازه همیشه در <bdi>resonik.mikroutik.com</bdi> است. نسخه‌ی فریم‌ور رادیو را در <span class="ui"><bdi>Menu → System → About</bdi></span> ببینید.</div>
+  <p class="small">بخش‌هایی که با <b style="color:var(--pink)">R2</b> مشخص شده‌اند از نسخه‌ی <bdi>2.45-r2</bdi> به بعد در دسترس‌اند. نام گزینه‌های منو به همان شکل انگلیسی که روی صفحه‌ی رادیو دیده می‌شود آمده است.</p>
+</section>
+
+<!-- 1 -->
+<section class="chapter cont">
+  <h2><span class="num">۱</span>درباره‌ی RESONIK</h2>
+  <p>RESONIK فریم‌وری رایگان و متن‌باز برای رادیوی جیبی <bdi>ATS Mini</bdi> (با پردازنده‌ی <bdi>ESP32-S3</bdi> و تراشه‌ی گیرنده‌ی <bdi>SI4732</bdi>) است. این فریم‌ور بر پایه‌ی فریم‌ور رسمی و متن‌باز <bdi>ats-mini</bdi> نسخه‌ی <bdi>2.45</bdi> ساخته شده، همه‌ی امکانات آن را حفظ می‌کند و امکاناتی برای شنوندگان موج کوتاه و آماتورهای رادیویی به آن اضافه می‌کند.</p>
+  <ul>
+    <li>حالت <bdi>CW</bdi> با نمایش فرکانس واقعی سیگنال، فیلتر باریک و گام <bdi>10 Hz</bdi></li>
+    <li>نقشه‌ی باند <bdi>IARU</bdi> منطقه‌ی ۱ روی اسکیل و انتخاب خودکار <bdi>LSB/USB</bdi></li>
+    <li>ساعت دوگانه‌ی محلی و <bdi>UTC</bdi>، مناطق زمانی با ساعت تابستانی، همگام‌سازی مطمئن ساعت</li>
+    <li>تخمین زمان باقی‌مانده‌ی باتری و تضعیف خودکار برای سیگنال‌های خیلی قوی</li>
+    <li>منوی جدید با شش دسته و برگه‌های تنظیمات تمام‌صفحه <small>(R2)</small></li>
+    <li>ردیاب بیکن‌ها، اسکن حافظه‌ها، ثبت سیگنال، شرایط انتشار امواج، برنامه‌ی <bdi>EiBi</bdi> با روزهای پخش و کنترل <bdi>CAT</bdi> <small>(R2)</small></li>
+  </ul>
+  <p>باندها، مودولاسیون‌ها، حافظه‌ها، <bdi>RDS</bdi>، <bdi>Wi-Fi</bdi> و بلوتوث همانند فریم‌ور رسمی کار می‌کنند. راهنمای کامل فریم‌ور رسمی (به انگلیسی): <bdi>esp32-si4732.github.io/ats-mini/manual.html</bdi></p>
+</section>
+
+<!-- 2 -->
+<section class="chapter">
+  <h2><span class="num">۲</span>نصب و به‌روزرسانی</h2>
+  <div class="note">پیش از نصب از رادیو نسخه‌ی پشتیبان بگیرید (راهنمای <bdi>Backup</bdi> در سایت <bdi>ats-mini</bdi>). همیشه می‌توان با <bdi>USB</bdi> به فریم‌ور رسمی برگشت.</div>
+  <h3>نصب از مرورگر (بار اول)</h3>
+  <ol class="steps">
+    <li>سایت <b><bdi>resonik.mikroutik.com</bdi></b> را در <b>Chrome</b> یا <b>Edge</b> روی کامپیوتر باز کنید (گوشی پشتیبانی نمی‌شود).</li>
+    <li>رادیو را با کابل <bdi>USB-C</bdi> که داده را منتقل می‌کند (نه فقط کابل شارژ) به کامپیوتر وصل و روشن کنید.</li>
+    <li>نوع حافظه را ببینید: در فریم‌ور رسمی <span class="ui"><bdi>Settings → About</bdi></span> و در RESONIK <span class="ui"><bdi>Menu → System → About</bdi></span>. خط <bdi>PSRAM</bdi> یکی از این دو را نشان می‌دهد: <b><bdi>8192K</bdi></b> یا <b><bdi>2048K</bdi></b>.</li>
+    <li>در بخش <bdi>Install</bdi> سایت، دکمه‌ی مربوط را بزنید: برای <bdi>8192K</bdi> دکمه‌ی <bdi>8 MB (OSPI)</bdi> و برای <bdi>2048K</bdi> دکمه‌ی <bdi>2 MB (QSPI)</bdi>. سپس درگاه رادیو را از فهرست انتخاب کنید.</li>
+    <li>گزینه‌ی <bdi>Erase device</bdi> را <b>علامت نزنید</b> تا تنظیمات و حافظه‌ها حفظ شوند، سپس <bdi>Install</bdi> را بزنید. نصب حدود دو دقیقه طول می‌کشد و رادیو خودش دوباره روشن می‌شود.</li>
+  </ol>
+  <h3>به‌روزرسانی از راه <bdi>Wi-Fi</bdi> (نسخه‌های بعدی)</h3>
+  <p>وقتی RESONIK روی رادیو نصب است، نسخه‌های بعدی را بدون کابل نصب کنید: رادیو را به <bdi>Wi-Fi</bdi> وصل کنید (بخش ۱۶)، سپس <span class="ui"><bdi>Menu → System → Update FW</bdi></span>. گزینه‌ی <bdi>Check</bdi> نسخه‌ی تازه را پیدا می‌کند و <bdi>Update</bdi> آن را نصب می‌کند. تنظیمات حفظ می‌شوند. در نسخه‌ی <bdi>R1</bdi> همین گزینه در <span class="ui"><bdi>Settings → Update FW</bdi></span> است.</p>
+  <h3>نصب دستی</h3>
+  <p>فایل <bdi>resonik-ats-mini-{{VERSION}}-ospi.zip</bdi> (یا <bdi>-qspi</bdi>) را از صفحه‌ی <bdi>Releases</bdi> در <bdi>GitHub</bdi> بگیرید و با <bdi>esptool</bdi> این فایل‌ها را بنویسید: <bdi>ats-mini.ino.bootloader.bin</bdi> در <bdi>0x0</bdi>، <bdi>ats-mini.ino.partitions.bin</bdi> در <bdi>0x8000</bdi>، <bdi>boot_app0.bin</bdi> در <bdi>0xe000</bdi> و <bdi>ats-mini.ino.bin</bdi> در <bdi>0x10000</bdi>.</p>
+  <p class="small">نشانی پروژه: <bdi>github.com/ep3mhb/resonik-ats-mini</bdi></p>
+</section>
+
+<!-- 3 -->
+<section class="chapter">
+  <h2><span class="num">۳</span>کنترل‌ها و صفحه‌ی اصلی</h2>
+  <p>همه‌ی کارها با یک ولوم (پیچ تنظیم) انجام می‌شود که هم می‌چرخد و هم فشرده می‌شود:</p>
+  <div class="keys">
+    <b>چرخاندن</b><span>تنظیم فرکانس؛ در منو جابه‌جایی میان گزینه‌ها و تغییر مقدار</span>
+    <b>کلیک</b><span>فشردن و رها کردن سریع (کمتر از نیم ثانیه): باز کردن منو و انتخاب گزینه</span>
+    <b>فشار کوتاه</b><span>نگه داشتن حدود یک ثانیه: تنظیم صدا، یا کار دوم هر گزینه؛ در منو، بستن منو</span>
+    <b>فشار طولانی</b><span>نگه داشتن بیش از دو ثانیه: خاموش و روشن کردن صفحه‌ی نمایش (رادیو کار می‌کند)</span>
+  </div>
+  <figure><img class="screen" src="img/screen-31m.png" alt=""><figcaption>صفحه‌ی اصلی روی باند ۳۱ متر</figcaption></figure>
+  <table>
+    <tr><th style="width:32%">بخش صفحه</th><th>معنی</th></tr>
+    <tr><td>بالا، چپ</td><td>قدرت سیگنال</td></tr>
+    <tr><td>بالا، راست</td><td>باتری: ولتاژ یکی در میان با زمان باقی‌مانده (بخش ۸)، یا علامت شارژ</td></tr>
+    <tr><td>کادر اطلاعات (چپ)</td><td><bdi>Step</bdi> گام تنظیم، <bdi>BW</bdi> پهنای فیلتر، <bdi>AGC</bdi> کنترل بهره یا تضعیف، <bdi>Vol</bdi> صدا، <bdi>AVC</bdi>، و در پایین تاریخ و ساعت</td></tr>
+    <tr><td>وسط</td><td>نام باند، مودولاسیون (مثلاً <bdi>AM</bdi>) و فرکانس</td></tr>
+    <tr><td>پایین</td><td>اسکیل فرکانس با نشانگر قرمز؛ روی باندهای آماتوری نوار رنگی نقشه‌ی باند (بخش ۶)</td></tr>
+  </table>
+  <p>برای عوض کردن باند: کلیک ← <span class="ui"><bdi>Tuning → Band</bdi></span>، باند را با چرخاندن انتخاب کنید و کلیک کنید. منو بسته می‌شود و ولوم بلافاصله فرکانس را تنظیم می‌کند.</p>
+</section>
+
+<!-- 4 -->
+<section class="chapter">
+  <h2><span class="num">۴</span>منو<span class="tag">R2</span></h2>
+  <p>با یک کلیک، منو با شش دسته باز می‌شود. هر دسته یک دکمه‌ی بزرگ رنگی با آیکون است. با چرخاندن ولوم انتخاب را جابه‌جا کنید و با کلیک دسته را باز کنید. در هر دسته، اولین دکمه <b><bdi>Back</bdi></b> (بازگشت) است. دسته‌ای که بیش از پنج گزینه دارد صفحه‌ی دوم دارد؛ نقطه‌های پایین صفحه نشان می‌دهند در کدام صفحه هستید. فشار کوتاه منو را از هر جا می‌بندد.</p>
+  <div class="pair">
+    <figure><img class="screen" src="img/screen-menu.png" alt=""><figcaption>شش دسته‌ی منو</figcaption></figure>
+    <figure><img class="screen" src="img/screen-tuning.png" alt=""><figcaption>دسته‌ی <bdi>Tuning</bdi></figcaption></figure>
+  </div>
+  <table>
+    <tr><th style="width:20%">دسته</th><th>گزینه‌ها</th></tr>
+    <tr><td><bdi>Tuning</bdi><br><span class="small">تنظیم</span></td><td><bdi>Band, Mode, Bandwidth, FM Region, RDS, Scan, Seek, Step, VFO A/B</bdi></td></tr>
+    <tr><td><bdi>Audio</bdi><br><span class="small">صدا</span></td><td><bdi>Volume, AGC/ATTN, Auto Att., AVC, FM Stereo, SoftMute, Squelch</bdi></td></tr>
+    <tr><td><bdi>Memory</bdi><br><span class="small">حافظه</span></td><td><bdi>Memory, Logger, Mem Scan</bdi></td></tr>
+    <tr><td><bdi>Ham &amp; SWL</bdi><br><span class="small">آماتوری و موج کوتاه</span></td><td><bdi>Band Plan, Beacons, Calibration, Load EiBi, Propagation</bdi></td></tr>
+    <tr><td><bdi>Display</bdi><br><span class="small">نمایش</span></td><td><bdi>Brightness, Menu Style, Scroll Dir., Sleep Mode, Sleep Timer, Theme, UI Layout, Zoom Menu</bdi></td></tr>
+    <tr><td><bdi>System</bdi><br><span class="small">سیستم</span></td><td><bdi>About, Bluetooth, Date/Time, DSP Patches, Knob, Off Timer, TCP Port, Time Zone, Update FW, USB Port, Wi-Fi</bdi></td></tr>
+  </table>
+  <h3>کنترل‌های شنیداری و برگه‌های تنظیمات</h3>
+  <p>کنترل‌هایی مانند <bdi>Band</bdi>، <bdi>Mode</bdi>، <bdi>Step</bdi> یا <bdi>Volume</bdi> فهرست خود را مثل قبل باز می‌کنند؛ پس از انتخاب، منو بسته می‌شود تا ولوم بلافاصله فرکانس را تنظیم کند. تنظیمات به صورت برگه‌ی تمام‌صفحه باز می‌شوند: یا فهرستی از مقدارها، یا یک عدد با نوار. با چرخاندن مقدار را عوض کنید؛ کلیک مقدار را نگه می‌دارد و به همان دسته برمی‌گردد.</p>
+  <div class="pair">
+    <figure><img class="screen" src="img/screen-value-list.png" alt=""><figcaption>برگه‌ی فهرستی: <bdi>Band Plan</bdi></figcaption></figure>
+    <figure><img class="screen" src="img/screen-value-number.png" alt=""><figcaption>برگه‌ی عددی: <bdi>Brightness</bdi></figcaption></figure>
+  </div>
+  <h3>تنظیم ولوم: <bdi>System → Knob</bdi></h3>
+  <p>دو نوع ولوم روی این رادیوها نصب می‌شود: <b><bdi>20 clicks</bdi></b> یا <b><bdi>30 clicks</bdi></b> در هر دور. اگر ولوم یک گام را جا می‌اندازد، یا برای یک گام دو بار باید چرخاند، مقدار دیگر را انتخاب کنید. (در صفحه‌ی وب رادیو همین گزینه <bdi>Half-step Encoder</bdi> نام دارد.)</p>
+  <figure><img class="screen" src="img/screen-knob.png" alt=""><figcaption>برگه‌ی <bdi>Knob</bdi></figcaption></figure>
+  <h3>منوی کلاسیک</h3>
+  <p><span class="ui"><bdi>Menu → Display → Menu Style → Classic</bdi></span> منوی فهرستی فریم‌ور رسمی را برمی‌گرداند: کنترل‌های شنیداری در <bdi>Menu</bdi> و بقیه در <bdi>Menu → Settings</bdi>، با همین نام‌ها. گزینه‌ی <bdi>Tiles</bdi> منوی جدید را برمی‌گرداند.</p>
+  <div class="tip">گزینه‌ی <bdi>Scan</bdi> در <bdi>Tuning</bdi> نمودار قدرت سیگنال در طول باند را رسم می‌کند (تصویری لحظه‌ای از باند)؛ رادیو روی ایستگاه‌ها توقف نمی‌کند. <bdi>Seek</bdi> به ایستگاه بعدی می‌رود.</div>
+</section>
+
+<!-- 5 -->
+<section class="chapter">
+  <h2><span class="num">۵</span>حالت CW</h2>
+  <p><span class="ui"><bdi>Menu → Tuning → Mode → CW</bdi></span> (پس از <bdi>AM</bdi>). صفحه فرکانس خود سیگنال <bdi>CW</bdi> را نشان می‌دهد، همان‌طور که یک فرستنده‌گیرنده‌ی <bdi>CW</bdi> نشان می‌دهد: آن‌قدر تنظیم کنید که فرکانس با فرکانس اعلام‌شده یکی شود و تن در وسط فیلتر قرار گیرد.</p>
+  <table>
+    <tr><th>پهنای فیلتر</th><th>تن</th><th>کاربرد</th></tr>
+    <tr><td><bdi>0.5k</bdi> (پیش‌فرض)</td><td><bdi>500 Hz</bdi></td><td>باندهای شلوغ، سیگنال‌های ضعیف</td></tr>
+    <tr><td><bdi>1.0k</bdi></td><td><bdi>1000 Hz</bdi></td><td>پیدا کردن سیگنال، تنظیم سریع‌تر</td></tr>
+    <tr><td><bdi>1.2k</bdi> و پهن‌تر</td><td><bdi>700 Hz</bdi></td><td>گوش دادن به کل باند</td></tr>
+  </table>
+  <p>گام از <bdi>10 Hz</bdi> شروع می‌شود؛ آن را در <span class="ui"><bdi>Menu → Tuning → Step</bdi></span> عوض کنید. <bdi>CW</bdi> از مقدار کالیبراسیون <bdi>USB</bdi> همان باند استفاده می‌کند (<span class="ui"><bdi>Menu → Ham &amp; SWL → Calibration</bdi></span>).</p>
+</section>
+
+<!-- 6 -->
+<section class="chapter cont">
+  <h2><span class="num">۶</span>نقشه‌ی باند</h2>
+  <p>روی باندهای آماتوری ۱۶۰ تا ۱۰ متر، نواری رنگی زیر اسکیل نقشه‌ی باند <bdi>IARU</bdi> منطقه‌ی ۱ را نشان می‌دهد و نام بخشی که در آن هستید کنار نشانگر می‌آید.</p>
+  <div class="pair">
+    <figure><img class="screen" src="img/screen-40m.png" alt=""><figcaption>۴۰ متر، بخش <bdi>SSB</bdi></figcaption></figure>
+    <figure><img class="screen" src="img/screen-40m-cw.png" alt=""><figcaption>۴۰ متر، بخش <bdi>CW</bdi></figcaption></figure>
+  </div>
+  <table>
+    <tr><th style="width:26%">رنگ</th><th>بخش</th></tr>
+    <tr><td><span class="sw" style="background:#22d3ee"></span>فیروزه‌ای</td><td>فقط <bdi>CW</bdi></td></tr>
+    <tr><td><span class="sw" style="background:#facc15"></span>زرد</td><td>مدهای باریک: <bdi>CW</bdi> و دیجیتال (<bdi>FT8، PSK، RTTY…</bdi>)</td></tr>
+    <tr><td><span class="sw" style="background:#ef4444"></span>قرمز</td><td>بیکن‌های بین‌المللی (<bdi>NCDXF/IARU</bdi>)</td></tr>
+    <tr><td><span class="sw" style="background:#22c55e"></span>سبز</td><td>همه‌ی مدها، از جمله صوتی <bdi>SSB</bdi></td></tr>
+    <tr><td><span class="sw" style="background:#a0a0a0"></span>خاکستری</td><td>ماهواره و <bdi>FM</bdi> (۱۰ متر)</td></tr>
+  </table>
+  <p><span class="ui"><bdi>Menu → Ham &amp; SWL → Band Plan</bdi></span>:</p>
+  <ul>
+    <li><b><bdi>Off</bdi></b>: بدون نوار.</li>
+    <li><b><bdi>Scale</bdi></b>: فقط نوار و نام بخش.</li>
+    <li><b><bdi>Scale+SSB</bdi></b> (پیش‌فرض): وقتی در <bdi>LSB</bdi> یا <bdi>USB</bdi> وارد بخش صوتی می‌شوید، باند کناری معمول را هم انتخاب می‌کند: <bdi>LSB</bdi> زیر ۱۰ مگاهرتز و <bdi>USB</bdi> بالای آن. پیام کوتاهی آن را تأیید می‌کند. اگر خودتان باند کناری را عوض کنید، انتخاب شما تا خروج از آن بخش می‌ماند.</li>
+  </ul>
+  <p class="small">نقشه مربوط به منطقه‌ی ۱ (اروپا، آفریقا، خاورمیانه) است. تخصیص‌های ملی متفاوت‌اند؛ پیش از ارسال با رادیوی دیگر، مجوز خود را بررسی کنید.</p>
+</section>
+
+<!-- 7 -->
+<section class="chapter">
+  <h2><span class="num">۷</span>ساعت، منطقه‌ی زمانی و ساعت دوگانه</h2>
+  <p><span class="ui"><bdi>Menu → System → Time Zone</bdi></span> ابتدا <bdi>UTC</bdi> و سپس همه‌ی اختلاف‌های زمانی را نشان می‌دهد، با نام شهرها کنار آن‌ها؛ مثلاً دبی و مسقط کنار <bdi>UTC+4</bdi> و تهران کنار <bdi>UTC+3:30</bdi>. شهرهای دارای ساعت تابستانی خودکار تغییر می‌کنند.</p>
+  <figure><img class="screen" src="img/screen-timezone.png" alt=""><figcaption>برگه‌ی <bdi>Time Zone</bdi></figcaption></figure>
+  <p>وقتی منطقه‌ی زمانی <bdi>UTC</bdi> نیست، خط ساعت در کادر اطلاعات هر چند ثانیه یک بار میان تاریخ و ساعت محلی و ساعت <bdi>UTC</bdi> عوض می‌شود. <bdi>UTC</bdi> زمانی است که برنامه‌ی ایستگاه‌ها، ثبت سیگنال و جدول بیکن‌ها با آن کار می‌کنند. <bdi>Time: --:--</bdi> یعنی ساعت هنوز تنظیم نشده است.</p>
+  <p><span class="ui"><bdi>Menu → System → Date/Time</bdi></span> ساعت جاری را به <bdi>UTC</bdi> نشان می‌دهد. با چرخاندن مقدار را عوض کنید، با کلیک به بخش بعد بروید و با فشار کوتاه ذخیره کنید. اگر چیزی را عوض نکنید ساعت دست نمی‌خورد.</p>
+  <h3>تنظیم خودکار ساعت</h3>
+  <p>رادیو باتری ساعت ندارد و با خاموش شدن، ساعت از دست می‌رود. برای تنظیم خودکار در هر بار روشن شدن:</p>
+  <ol class="steps">
+    <li>شبکه‌ی <bdi>Wi-Fi</bdi> خود را به رادیو اضافه کنید (بخش ۱۶).</li>
+    <li><span class="ui"><bdi>Menu → System → Wi-Fi → Sync Only</bdi></span> را انتخاب کنید. رادیو وصل می‌شود، ساعت را تنظیم می‌کند و برای صرفه‌جویی در باتری <bdi>Wi-Fi</bdi> را خاموش می‌کند. (حالت <bdi>Connect</bdi> هم ساعت را تنظیم می‌کند و وصل می‌ماند.)</li>
+  </ol>
+  <p>پیام‌ها: <bdi>Time synchronized</bdi> (از سرور زمان اینترنت)، <bdi>Time set from web</bdi> (شبکه سرورهای زمان را مسدود می‌کند و ساعت از یک سرور وب خوانده شد)، یا <bdi>Time sync failed</bdi> با خط دومی که علت را می‌گوید. بدون <bdi>Wi-Fi</bdi>، ایستگاه <bdi>FM</bdi> دارای ساعت <bdi>RDS</bdi> هم ساعت را تنظیم می‌کند؛ یا در صفحه‌ی وب رادیو <bdi>Use Browser Date/Time</bdi> ساعت و منطقه‌ی زمانی گوشی یا کامپیوتر را کپی می‌کند.</p>
+</section>
+
+<!-- 8, 9 -->
+<section class="chapter">
+  <h2><span class="num">۸</span>زمان باقی‌مانده‌ی باتری</h2>
+  <p>روی باتری، ولتاژ در بالای صفحه یکی در میان با تخمین زمان باقی‌مانده‌ی شنیدن نمایش داده می‌شود، مثلاً <bdi>~8h20</bdi> (هشت ساعت و بیست دقیقه). علامت <bdi>~</bdi> یعنی مصرف معمول فرض شده است؛ پس از حدود ده دقیقه رادیو مصرف واقعی خود را اندازه می‌گیرد و <bdi>~</bdi> حذف می‌شود. روشنایی صفحه، بلندی صدا و <bdi>Wi-Fi</bdi> نتیجه را تغییر می‌دهند. هنگام شارژ با <bdi>USB</bdi> علامت شارژ نمایش داده می‌شود.</p>
+</section>
+<section class="chapter cont">
+  <h2><span class="num">۹</span>تضعیف خودکار</h2>
+  <p>در <bdi>AM</bdi>، وقتی <span class="ui"><bdi>Menu → Audio → AGC/ATTN</bdi></span> روی <bdi>On</bdi> است، سیگنال خیلی قوی (یک ایستگاه موج متوسط محلی یا یک فرستنده‌ی بزرگ در شب) می‌تواند گیرنده را اشباع کند و صدای ناصاف و ایستگاه‌های ناخواسته بسازد. رادیو در این حالت پله‌پله تضعیف اضافه می‌کند و روی ایستگاه‌های ضعیف‌تر آن را برمی‌دارد. هنگام فعال بودن، کادر اطلاعات <bdi>Att: A12</bdi> را نشان می‌دهد (<bdi>A</bdi> یعنی خودکار). خاموش کردن: <span class="ui"><bdi>Menu → Audio → Auto Att.</bdi></span>؛ تنظیم دستی <bdi>AGC/ATTN</bdi> همیشه اولویت دارد.</p>
+</section>
+
+<!-- 10 -->
+<section class="chapter cont">
+  <h2><span class="num">۱۰</span>بیکن‌ها<span class="tag">R2</span></h2>
+  <p>هجده بیکن پروژه‌ی بین‌المللی <bdi>NCDXF/IARU</bdi> به نوبت روی فرکانس‌های <bdi>14100</bdi>، <bdi>18110</bdi>، <bdi>21150</bdi>، <bdi>24930</bdi> و <bdi>28200</bdi> کیلوهرتز، هر کدام ده ثانیه، ارسال می‌کنند و هر سه دقیقه تکرار می‌شوند. هر بیکن نشانه‌ی خود را با <bdi>CW</bdi> می‌فرستد و سپس چهار خط تیره با توان‌های <bdi>100 W</bdi>، <bdi>10 W</bdi>، <bdi>1 W</bdi> و <bdi>0.1 W</bdi>؛ تعداد خط‌هایی که می‌شنوید کیفیت مسیر را نشان می‌دهد.</p>
+  <figure><img class="screen" src="img/screen-beacon.png" alt=""><figcaption>روی <bdi>14100</bdi>: نام بیکن در حال ارسال و ثانیه‌های باقی‌مانده</figcaption></figure>
+  <p>روی یکی از این پنج فرکانس (<bdi>CW</bdi> یا <bdi>USB</bdi>)، خط ایستگاه بیکن در حال ارسال و ثانیه‌های باقی‌مانده را نشان می‌دهد، مثلاً <bdi>Beacon 4X6TU Israel 6s</bdi>. ساعت رادیو باید تنظیم باشد.</p>
+  <p><span class="ui"><bdi>Menu → Ham &amp; SWL → Beacons</bdi></span> و انتخاب یک نشانه، رادیو را <b>دنبال‌کننده</b>ی آن بیکن می‌کند: هر ده ثانیه همراه بیکن از ۲۰ متر تا ۱۰ متر باند عوض می‌کند و در زمان سکوت آن منتظر می‌ماند. تنظیم دستی فرکانس یا انتخاب <bdi>Off</bdi> آن را پایان می‌دهد.</p>
+</section>
+
+<!-- 11, 12 -->
+<section class="chapter">
+  <h2><span class="num">۱۱</span>اسکن حافظه‌ها<span class="tag">R2</span></h2>
+  <p><span class="ui"><bdi>Menu → Memory → Mem Scan</bdi></span> حافظه‌های ذخیره‌شده (دست‌کم دو حافظه) را یکی‌یکی بررسی می‌کند و روی هر حافظه‌ای که سیگنال دارد می‌ایستد؛ چهار ثانیه پس از قطع سیگنال ادامه می‌دهد. سیگنال یعنی سطح <bdi>Squelch</bdi> همان مودولاسیون اگر تنظیم کرده باشید، وگرنه <bdi>SNR</bdi> برابر <bdi>6 dB</bdi> یا بیشتر. چرخاندن ولوم یا کلیک اسکن را متوقف می‌کند و رادیو روی همان حافظه می‌ماند.</p>
+</section>
+<section class="chapter cont">
+  <h2><span class="num">۱۲</span>ثبت سیگنال<span class="tag">R2</span></h2>
+  <p><span class="ui"><bdi>Menu → Memory → Logger</bdi></span> هر ۱۰ ثانیه، هر دقیقه یا هر پنج دقیقه یک خط ثبت می‌کند: ساعت <bdi>UTC</bdi>، فرکانس، مودولاسیون، باند، قدرت سیگنال (<bdi>dBµV</bdi>)، <bdi>SNR</bdi> (<bdi>dB</bdi>) و نام ایستگاه. رادیو را شب روی یک فرکانس بگذارید تا ببینید مسیر کی باز و بسته می‌شود.</p>
+  <p>فایل را از صفحه‌ی وب رادیو با <bdi>Log (CSV)</bdi> دانلود کنید و در برنامه‌ی صفحه‌گسترده (مثل <bdi>Excel</bdi>) باز کنید. گزینه‌ی <bdi>Clear log</bdi> در همان منو (با کلیک برای تأیید) آن را پاک می‌کند. ثبت در حجم یک مگابایت خودبه‌خود متوقف می‌شود.</p>
+</section>
+<section class="chapter cont">
+  <h2><span class="num">۱۳</span>شرایط انتشار امواج<span class="tag">R2</span></h2>
+  <p><span class="ui"><bdi>Menu → Ham &amp; SWL → Propagation</bdi></span> شار خورشیدی (<bdi>SFI</bdi>)، تعداد لکه‌های خورشیدی، شاخص‌های <bdi>A</bdi> و <bdi>K</bdi>، سطح اشعه‌ی <bdi>X</bdi> و وضعیت روز و شب باندهای <bdi>80–40</bdi>، <bdi>30–20</bdi>، <bdi>17–15</bdi> و <bdi>12–10</bdi> متر را از سایت <bdi>hamqsl.com</bdi> (<bdi>N0NBH</bdi>) نشان می‌دهد. داده‌ها هر بار که <bdi>Wi-Fi</bdi> وصل است (از جمله همگام‌سازی ساعت هنگام روشن شدن) و حداکثر هر ۱۵ دقیقه یک بار گرفته می‌شوند. <bdi>SFI</bdi> بالاتر و <bdi>K</bdi> پایین‌تر یعنی شرایط بهتر در باندهای بالاتر.</p>
+</section>
+<section class="chapter cont">
+  <h2><span class="num">۱۴</span>برنامه‌ی ایستگاه‌های <bdi>EiBi</bdi><span class="tag">R2</span></h2>
+  <p><span class="ui"><bdi>Menu → Ham &amp; SWL → Load EiBi</bdi></span> برنامه‌ی فصلی ایستگاه‌های پخش موج کوتاه را همراه با روزهای پخش بارگذاری می‌کند (به <bdi>Wi-Fi</bdi> نیاز دارد). ایستگاهی که فقط آخر هفته پخش دارد فقط در همان روزها نمایش داده می‌شود و زبان و منطقه‌ی هدف پس از نام می‌آید، مثلاً <bdi>BBC World Service [E &gt; ME]</bdi> (انگلیسی، به خاورمیانه). پس از به‌روزرسانی از نسخه‌ی <bdi>R1</bdi>، برنامه را یک بار دیگر بارگذاری کنید.</p>
+</section>
+
+<!-- 15, 16 -->
+<section class="chapter">
+  <h2><span class="num">۱۵</span>کنترل <bdi>CAT</bdi> از کامپیوتر<span class="tag">R2</span></h2>
+  <p><span class="ui"><bdi>Menu → System → USB Port → CAT</bdi></span> رادیو را وادار می‌کند به فرمان‌های <bdi>Kenwood TS-480</bdi> روی درگاه <bdi>USB</bdi> پاسخ دهد، تا نرم‌افزارها بتوانند فرکانس و مودولاسیون را بخوانند و تنظیم کنند و قدرت سیگنال را بخوانند. در نرم‌افزار (<bdi>flrig</bdi>، <bdi>Hamlib</bdi>، <bdi>WSJT-X</bdi> فقط دریافت، <bdi>fldigi</bdi> یا نرم‌افزار لاگ) رادیوی <bdi>Kenwood TS-480</bdi> (<bdi>Hamlib rig 2028</bdi>) را روی درگاه سریال رادیو انتخاب کنید؛ سرعت اهمیتی ندارد. فرمان‌های ارسال پذیرفته نمی‌شوند، چون این دستگاه فقط گیرنده است. برای ابزارهای کنترل از راه دور و عکس از صفحه، به <bdi>Ad hoc</bdi> برگردید.</p>
+
+  <h2 style="margin-top:9mm"><span class="num">۱۶</span>صفحه‌ی وب رادیو و <bdi>Wi-Fi</bdi></h2>
+  <p>رادیو یک صفحه‌ی وب برای تنظیمات، حافظه‌ها و دانلود فایل ثبت سیگنال دارد. حالت‌های <span class="ui"><bdi>Menu → System → Wi-Fi</bdi></span>:</p>
+  <table>
+    <tr><th style="width:24%">حالت</th><th>کار</th></tr>
+    <tr><td><bdi>Off</bdi></td><td><bdi>Wi-Fi</bdi> خاموش (کمترین مصرف باتری)</td></tr>
+    <tr><td><bdi>AP Only</bdi></td><td>رادیو شبکه‌ی خودش را می‌سازد: به شبکه‌ی <bdi>ATS-Mini</bdi> وصل شوید و <bdi>http://10.1.1.1</bdi> را باز کنید</td></tr>
+    <tr><td><bdi>AP+Connect</bdi></td><td>شبکه‌ی خودش و هم‌زمان اتصال به شبکه‌ی خانه</td></tr>
+    <tr><td><bdi>Connect</bdi></td><td>اتصال به شبکه‌ی خانه؛ نشانی <bdi>IP</bdi> رادیو در صفحه‌ی سوم <bdi>About</bdi> یا با <bdi>atsmini.local</bdi></td></tr>
+    <tr><td><bdi>Sync Only</bdi></td><td>هنگام روشن شدن وصل می‌شود، ساعت را تنظیم می‌کند و خاموش می‌شود</td></tr>
+  </table>
+  <p><b>افزودن شبکه‌ی خانه:</b> <bdi>AP Only</bdi> را انتخاب کنید، با گوشی یا کامپیوتر به شبکه‌ی <bdi>ATS-Mini</bdi> وصل شوید، <bdi>http://10.1.1.1</bdi> را باز کنید، در صفحه‌ی <bdi>Wi-Fi</bdi> نام و رمز شبکه را وارد و ذخیره کنید، سپس <bdi>Connect</bdi> یا <bdi>Sync Only</bdi> را انتخاب کنید.</p>
+  <p class="small">در صفحه‌ی <bdi>http://10.1.1.1/update</bdi> می‌توان فایل <bdi>…-ota.bin</bdi> یک نسخه را مستقیم نصب کرد.</p>
+</section>
+
+<!-- 17, 18 -->
+<section class="chapter">
+  <h2><span class="num">۱۷</span>ارسال بازخورد و رفع اشکال</h2>
+  <p>هر گزارش، چه یک ایراد کوچک و چه یک پیشنهاد، به بهتر شدن نسخه‌ی بعدی کمک می‌کند. در گروه تلگرام پیام بدهید یا در <bdi>GitHub</bdi> یک <bdi>Issue</bdi> باز کنید: <bdi>github.com/ep3mhb/resonik-ats-mini/issues</bdi>. لطفاً بنویسید:</p>
+  <ol class="steps">
+    <li>مدل رادیو (<bdi>V3</bdi>، <bdi>V4</bdi> یا <bdi>V4B</bdi>)</li>
+    <li>نسخه‌ی فریم‌ور (<span class="ui"><bdi>Menu → System → About</bdi></span>)</li>
+    <li>چه کاری انجام دادید و چه اتفاقی افتاد</li>
+    <li>در صورت امکان یک عکس یا ویدیوی کوتاه از صفحه</li>
+  </ol>
+  <h3>مشکلات رایج</h3>
+  <table>
+    <tr><th style="width:36%">مشکل</th><th>راه‌حل</th></tr>
+    <tr><td>ولوم گام‌ها را جا می‌اندازد یا برای هر گام دو بار باید چرخاند</td><td><span class="ui"><bdi>Menu → System → Knob</bdi></span>: مقدار دیگر (<bdi>20</bdi> یا <bdi>30 clicks</bdi>)</td></tr>
+    <tr><td>ساعت <bdi>--:--</bdi> است</td><td>بخش ۷: <bdi>Wi-Fi → Sync Only</bdi> یا تنظیم دستی</td></tr>
+    <tr><td>نام بیکن نمایش داده نمی‌شود</td><td>ساعت باید تنظیم و درست باشد</td></tr>
+    <tr><td>دکمه‌ی <bdi>Install</bdi> درگاهی نشان نمی‌دهد</td><td>کابل <bdi>USB</bdi> دیگری (کابل داده) امتحان کنید؛ <bdi>Chrome</bdi> یا <bdi>Edge</bdi> روی کامپیوتر</td></tr>
+    <tr><td>منوی قدیمی را می‌خواهید</td><td><span class="ui"><bdi>Menu → Display → Menu Style → Classic</bdi></span></td></tr>
+    <tr><td>برنامه‌ی <bdi>EiBi</bdi> روزها را نشان نمی‌دهد</td><td>یک بار دیگر <bdi>Load EiBi</bdi></td></tr>
+  </table>
+
+  <h2 style="margin-top:9mm"><span class="num">۱۸</span>سازندگان و مجوز</h2>
+  <p>نسخه‌ی RESONIK: <bdi>EP2MHB</bdi> (محمد بحرالعلوم). بر پایه‌ی <bdi>ats-mini</bdi> اثر <bdi>PU2CLR (Ricardo Caratti)</bdi>، <bdi>Volos Projects</bdi>، <bdi>Ralph Xavier</bdi>، <bdi>Sunnygold</bdi>، <bdi>Goshante</bdi>، <bdi>G8PTN (Dave)</bdi>، <bdi>R9UCL (Max Arnold)</bdi>، <bdi>Marat Fayzullin</bdi> و همه‌ی مشارکت‌کنندگان. کد منبع با مجوز <bdi>MIT</bdi> در <bdi>GitHub</bdi> است.</p>
+  <p class="small">RESONIK وابسته به سازندگان رادیوهای <bdi>ATS Mini</bdi> نیست. نصب فریم‌ور غیررسمی با مسئولیت خود شماست؛ نسخه‌ی پشتیبان امکان بازگشت را می‌دهد.</p>
+  <p class="small" style="text-align:center">73 · <bdi>resonik.mikroutik.com</bdi></p>
+</section>
+
+</body>
+</html>
