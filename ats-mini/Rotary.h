@@ -16,7 +16,7 @@ class Rotary
   public:
     Rotary(char, char, bool);
     // Process pin(s)
-    unsigned char process();
+    ICACHE_RAM_ATTR unsigned char process();
     // Emit codes at both 00 and 11 instead of at 00 only
     void setHalfStep(bool);
   private:

@@ -329,7 +329,7 @@ bool prefsLoad(uint32_t items)
     bandPlanIdx    = prefs.getUChar("BandPlan", bandPlanIdx) % getTotalBandPlanModes();
     autoAttIdx     = prefs.getUChar("AutoAtt", autoAttIdx) ? 1 : 0;
     bandPlanArea   = prefs.getUChar("BpArea", bandPlanArea) % BP_AREA_COUNT;
-    cwStripIdx     = prefs.getUChar("CwStrip", cwStripIdx) ? 1 : 0;
+    cwStripIdx     = prefs.getUChar("CwStrip", cwStripIdx) ? 1 : 0;   // Default Off (R3)
     menuStyleIdx   = prefs.getUChar("MenuStyle2", menuStyleIdx) ? MENU_STYLE_TILES : MENU_STYLE_CLASSIC;
     loggerIdx      = prefs.getUChar("Logger", 0);
     if(loggerIdx >= LOG_CLEAR) loggerIdx = 0;
