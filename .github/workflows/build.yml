@@ -38,7 +38,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          ref: "${{ github.event.inputs.revision || github.ref }}"
+          fetch-depth: 0
+          fetch-tags: true
+      # An existing tag or commit is tested as is; a new version tag means the branch head
+      - name: Select revision
+        env:
+          REV: ${{ github.event.inputs.revision }}
+        run: |
+          if [ -n "$REV" ] && git rev-parse -q --verify "$REV^{commit}" >/dev/null; then git checkout -q "$REV"; fi
       - name: Run unit tests
         run: make -C ats-mini test
 
