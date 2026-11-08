@@ -16,6 +16,7 @@ enum BandPlanUse : uint8_t
   BP_ALL,      // All modes: SSB phone, also CW and digital
   BP_SAT,      // Satellite service
   BP_FM,       // FM simplex and repeaters (10 m)
+  BP_BLOCKED,  // Outside the national allocation: not allowed
 };
 
 typedef struct
@@ -84,6 +85,34 @@ static inline const BandPlanSegment *bandPlanFind(uint32_t freq)
   return(nullptr);
 }
 
+// Plan areas: the IARU Region 1 plan, narrowed where a country's licence
+// allows less. UAE: TDRA Regulations for Amateur Radio v3.0 (Dec 2020),
+// art. 4.1 (160 m is 1810-1850 kHz only). Iran: Region 1 until the CRA
+// table is confirmed.
+enum BandPlanArea : uint8_t { BP_AREA_R1 = 0, BP_AREA_UAE, BP_AREA_IRAN, BP_AREA_COUNT };
+
+static const BandPlanSegment bandPlanBlockedUAE[] =
+{
+  {  1850000,  2000000, BP_BLOCKED },
+};
+
+static inline const BandPlanSegment *bandPlanBlocked(uint8_t area, unsigned *count)
+{
+  if(area == BP_AREA_UAE) { *count = sizeof(bandPlanBlockedUAE) / sizeof(bandPlanBlockedUAE[0]); return(bandPlanBlockedUAE); }
+  *count = 0;
+  return(nullptr);
+}
+
+// Segment for an area: a blocked part wins over the Region 1 segment
+static inline const BandPlanSegment *bandPlanFindArea(uint32_t freq, uint8_t area)
+{
+  unsigned n;
+  const BandPlanSegment *b = bandPlanBlocked(area, &n);
+  for(unsigned i = 0 ; i < n ; i++)
+    if(freq >= b[i].start && freq < b[i].end) return(&b[i]);
+  return(bandPlanFind(freq));
+}
+
 // Short label for the screen
 static inline const char *bandPlanLabel(BandPlanUse use)
 {
@@ -95,6 +124,7 @@ static inline const char *bandPlanLabel(BandPlanUse use)
     case BP_ALL:    return("SSB");
     case BP_SAT:    return("SAT");
     case BP_FM:     return("FM");
+    case BP_BLOCKED: return("NOT ALLOWED");
     default:        return("");
   }
 }

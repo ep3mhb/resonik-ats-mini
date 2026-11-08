@@ -57,6 +57,7 @@
 #define CMD_CWDEC      0x3D00 // RESONIK R3: full-screen CW decoder
 #define CMD_CWSTRIP    0x3E00 // RESONIK R3: decoder strip setting
 #define CMD_KNOB       0x3F00 // RESONIK: encoder type
+#define CMD_BPAREA     0x4000 // RESONIK R3: band plan area (region or country)
 
 // Band plan settings (RESONIK)
 #define BANDPLAN_OFF       0
@@ -169,6 +170,8 @@ void autoAttReset();
 bool tuneToMemory(const Memory *memory);
 bool autoAttTick(uint8_t rssiNow);
 bool bandPlanAutoSideband();
+extern uint8_t bandPlanArea;
+extern const char *const bandPlanAreaDesc[];
 bool drawTileMenu();
 void tileMenuOpen();
 const lgfx::IFont *uiFont(bool small);   // Inter SemiBold, 15 px or 14 px

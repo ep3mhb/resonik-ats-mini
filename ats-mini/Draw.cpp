@@ -274,6 +274,7 @@ static uint16_t bandPlanColor(BandPlanUse use)
     case BP_NARROW: return(0xFFE0); // Yellow
     case BP_BEACON: return(0xF800); // Red
     case BP_ALL:    return(0x07E0); // Green
+    case BP_BLOCKED: return(0x4208); // Dark grey: not allowed in this country
     default:        return(0xA514); // Grey: satellite, FM
   }
 }
@@ -293,7 +294,19 @@ static void drawBandPlan(uint32_t freq, uint32_t step)
     if(x2 > x1) spr.fillRect(x1, 166, x2 - x1, 4, bandPlanColor(seg.use));
   }
 
-  const BandPlanSegment *cur = bandPlanFind(freq);
+  // Parts the chosen country does not allow, over the Region 1 colours
+  unsigned nb;
+  const BandPlanSegment *blocked = bandPlanBlocked(bandPlanArea, &nb);
+  for(unsigned i = 0 ; i < nb ; i++)
+  {
+    int64_t x1 = 160 + ((int64_t)blocked[i].start - (int64_t)freq) * 8 / (int64_t)step;
+    int64_t x2 = 160 + ((int64_t)blocked[i].end - (int64_t)freq) * 8 / (int64_t)step;
+    if(x1 < 0) x1 = 0;
+    if(x2 > 320) x2 = 320;
+    if(x2 > x1) spr.fillRect(x1, 166, x2 - x1, 4, bandPlanColor(BP_BLOCKED));
+  }
+
+  const BandPlanSegment *cur = bandPlanFindArea(freq, bandPlanArea);
   if(cur)
   {
     spr.setTextDatum(ML_DATUM);

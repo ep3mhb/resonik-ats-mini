@@ -158,7 +158,8 @@ static const char *menu[] =
 #define MENU_KNOB         26  // RESONIK
 #define MENU_CWDEC        27  // RESONIK R3
 #define MENU_CWSTRIP      28  // RESONIK R3
-#define MENU_ABOUT        29
+#define MENU_BPAREA       29  // RESONIK R3
+#define MENU_ABOUT        30
 
 
 static uint8_t updateFwIdx = 0;
@@ -197,6 +198,7 @@ static const char *settings[] =
   "Knob",
   "CW Decoder",
   "CW Strip",
+  "Plan Area",
   "About",
 };
 
@@ -243,7 +245,7 @@ static const TileEntry tileHam[] =
   { TI_BANDPLAN, TILE_SET | MENU_BANDPLAN }, { TI_BEACON, MENU_BEACONS },
   { TI_FORK, TILE_SET | MENU_CALIBRATION }, { TI_CWDEC, TILE_SET | MENU_CWDEC },
   { TI_CWSTRIP, TILE_SET | MENU_CWSTRIP }, { TI_DOWNLOAD, TILE_SET | MENU_LOADEIBI },
-  { TI_PROP, TILE_SET | MENU_PROPAG },
+  { TI_GLOBE, TILE_SET | MENU_BPAREA }, { TI_PROP, TILE_SET | MENU_PROPAG },
 };
 static const TileEntry tileDisplay[] =
 {
@@ -323,7 +325,9 @@ void tileReturnCancel()
 // RESONIK settings: band plan, automatic attenuation, menu style
 //
 uint8_t bandPlanIdx = BANDPLAN_AUTO_SSB;
-const char *const bandPlanDesc[] = { "Off", "Scale", "Scale+SSB" };
+const char *const bandPlanDesc[] = { "Off", "Scale", "Auto" };
+uint8_t bandPlanArea = BP_AREA_R1;
+const char *const bandPlanAreaDesc[] = { "Region 1", "UAE (A6)", "Iran (EP)" };
 int getTotalBandPlanModes() { return(ITEM_COUNT(bandPlanDesc)); }
 
 uint8_t autoAttIdx = 1;
@@ -1672,6 +1676,7 @@ static void clickSettings(int cmd, bool shortPress)
     case MENU_ABOUT:      currentCmd = CMD_ABOUT;     break;
     case MENU_KNOB:       currentCmd = CMD_KNOB;      break;
     case MENU_BANDPLAN:   currentCmd = CMD_BANDPLAN;  break;
+    case MENU_BPAREA:     currentCmd = CMD_BPAREA;    break;
     case MENU_AUTOATT:    currentCmd = CMD_AUTOATT;   break;
     case MENU_MENUSTYLE:  currentCmd = CMD_MENUSTYLE; break;
     case MENU_LOGGER:     currentCmd = CMD_LOGGER;    break;
@@ -1747,6 +1752,11 @@ bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
     case CMD_MENUSTYLE:  doMenuStyle(scrollDirection * enc);break;
     case CMD_CWSTRIP:
       cwStripIdx = wrap_range(cwStripIdx, scrollDirection * enc, 0, 1);
+      prefsRequestSave(SAVE_SETTINGS);
+      break;
+    case CMD_BPAREA:
+      bandPlanArea = wrap_range(bandPlanArea, scrollDirection * enc, 0, BP_AREA_COUNT - 1);
+      if(bandPlanArea == BP_AREA_IRAN) statusShow("Iran: Region 1 plan", "National table not yet confirmed");
       prefsRequestSave(SAVE_SETTINGS);
       break;
     case CMD_KNOB:
@@ -1876,7 +1886,7 @@ void selectBand(uint8_t idx, bool drawLoadingPatch)
   muteOn(MUTE_TEMP, false, !audioClamp);
 
   // Band plan: entering a phone segment is measured from here
-  bandPlanLastSeg = bandPlanFind(currentFrequency);
+  bandPlanLastSeg = bandPlanFindArea(currentFrequency, bandPlanArea);
 }
 
 //
@@ -2795,6 +2805,7 @@ void drawSideBar(uint16_t cmd, int x, int y, int sx)
     case CMD_MENUSTYLE:  drawOptionList(settings[MENU_MENUSTYLE], menuStyleDesc, ITEM_COUNT(menuStyleDesc), menuStyleIdx, x, y, sx); break;
     case CMD_LOGGER:     drawOptionList(settings[MENU_LOGGER], loggerDesc, 5, loggerIdx, x, y, sx); break;
     case CMD_CWSTRIP:    drawOptionList(settings[MENU_CWSTRIP], cwStripDesc, 2, cwStripIdx, x, y, sx); break;
+    case CMD_BPAREA:     drawOptionList(settings[MENU_BPAREA], bandPlanAreaDesc, BP_AREA_COUNT, bandPlanArea, x, y, sx); break;
     case CMD_KNOB:       drawOptionList(settings[MENU_KNOB], knobDesc, 2, encoderHalfStep ? 1 : 0, x, y, sx); break;
     case CMD_BEACON:     drawOptionList(menu[MENU_BEACONS], beaconMenuLabels, 19, beaconFollowIdx + 1, x, y, sx); break;
     case CMD_VOLUME:     drawVolume(x, y, sx);     break;
@@ -2826,27 +2837,61 @@ void drawSideBar(uint16_t cmd, int x, int y, int sx)
 }
 
 //
-// Band plan: automatic sideband (RESONIK). When tuning into the phone part
-// of an amateur band in LSB or USB, switch to the usual sideband there:
-// LSB below 10 MHz, USB above. Only on entering, so a manual choice sticks.
-// Returns true if the mode changed.
+// Band plan: automatic setup (RESONIK). With Band Plan set to Auto, tuning
+// into a segment of an amateur band sets the radio up for it: CW parts get
+// CW with the 0.5k filter and 100 Hz steps, digital parts USB 3.0k, beacons
+// CW 1.0k, phone parts LSB below 10 MHz or USB above with 2.2k and 1 kHz
+// steps. Only on entering a segment, so a choice made by hand inside it
+// sticks. AM and FM listening is left alone. Returns true if anything changed.
 //
+static int bandwidthIndexOf(const char *desc)
+{
+  for(int i = 0 ; i <= getLastBandwidth(LSB) ; i++) if(!strcmp(bandwidths[LSB][i].desc, desc)) return(i);
+  return(-1);
+}
+
 bool bandPlanAutoSideband()
 {
-  const BandPlanSegment *seg = bandPlanFind(currentFrequency);
-  bool entered = seg && seg->use == BP_ALL && seg != bandPlanLastSeg;
+  const BandPlanSegment *seg = bandPlanFindArea(currentFrequency, bandPlanArea);
+  bool entered = seg && seg != bandPlanLastSeg;
   bandPlanLastSeg = seg;
 
   if(bandPlanIdx != BANDPLAN_AUTO_SSB || !entered) return(false);
-  if(currentMode != LSB && currentMode != USB) return(false);
+  if(seg->use == BP_BLOCKED)
+  {
+    statusShow("Band plan", "Not allowed here in this country");
+    return(true);
+  }
+  if(currentMode != LSB && currentMode != USB && currentMode != CW) return(false);
 
-  uint8_t want = bandPlanPhoneIsLSB(currentFrequency) ? LSB : USB;
-  if(want == currentMode) return(false);
+  uint8_t mode;
+  const char *bw;
+  int stepHz;
+  switch(seg->use)
+  {
+    case BP_CW:     mode = CW;  bw = "0.5k"; stepHz = 100;  break;
+    case BP_BEACON: mode = CW;  bw = "1.0k"; stepHz = 100;  break;
+    case BP_NARROW: mode = USB; bw = "3.0k"; stepHz = 1000; break;
+    case BP_ALL:    mode = bandPlanPhoneIsLSB(currentFrequency) ? LSB : USB; bw = "2.2k"; stepHz = 1000; break;
+    default:        return(false);
+  }
 
-  bands[bandIdx].bandMode = want;
-  bands[bandIdx].currentFreq = currentFrequency;
+  int bwIdx = bandwidthIndexOf(bw);
+  int stepIdx = -1;
+  for(int i = 0 ; i <= getLastStep(mode) ; i++) if(steps[mode][i].step == stepHz) stepIdx = i;
+  Band &band = bands[bandIdx];
+  if(mode == currentMode && (bwIdx < 0 || band.bandwidthIdx == bwIdx) && (stepIdx < 0 || band.currentStepIdx == stepIdx))
+    return(false);
+
+  band.bandMode = mode;
+  band.currentFreq = currentFrequency;
+  if(bwIdx >= 0) band.bandwidthIdx = bwIdx;
+  if(stepIdx >= 0) band.currentStepIdx = stepIdx;
   selectBand(bandIdx, false);
-  statusShow(want == LSB ? "Band plan: LSB" : "Band plan: USB");
+
+  char line[32];
+  snprintf(line, sizeof(line), "%s %s %s", bandPlanLabel(seg->use), bandModeDesc[mode], bw);
+  statusShow("Band plan", line);
   prefsRequestSave(SAVE_CUR_BAND);
   return(true);
 }
@@ -2902,6 +2947,7 @@ static const char *tileValueLabel(uint16_t cmd, int i)
     case CMD_SCROLL:    return(i ? "Reversed" : "Normal");
     case CMD_CWSTRIP:   return(cwStripDesc[i]);
     case CMD_KNOB:      return(knobDesc[i]);
+    case CMD_BPAREA:    return(bandPlanAreaDesc[i]);
     default:            return("");
   }
 }
@@ -2941,6 +2987,7 @@ static bool tileValueGet(uint16_t cmd, TileValue &v)
     case CMD_ZOOM:      v.count = 2; v.idx = zoomMenu ? 1 : 0; return(true);
     case CMD_SCROLL:    v.count = 2; v.idx = scrollDirection > 0 ? 0 : 1; return(true);
     case CMD_CWSTRIP:   v.count = 2; v.idx = cwStripIdx; return(true);
+    case CMD_BPAREA:    v.count = BP_AREA_COUNT; v.idx = bandPlanArea; return(true);
     case CMD_KNOB:      v.count = 2; v.idx = encoderHalfStep ? 1 : 0; return(true);
   }
 
