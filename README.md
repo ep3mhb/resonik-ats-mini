@@ -22,7 +22,7 @@ Website, browser installer and manual: **<https://resonik.mikroutik.com>**
 - EiBi schedules with days of the week, language and target area
 - System → Knob: 20 or 30 clicks per turn, for the two kinds of encoder
 
-## Since v2.45-r1
+## Also included (from v2.45-r1)
 
 - CW mode: true CW frequency shown, narrow filter, 10 Hz steps
 - IARU Region 1 band plan on the tuning scale, with automatic LSB/USB
