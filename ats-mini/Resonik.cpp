@@ -210,7 +210,7 @@ bool memScanTick()
         if(!tuneToMemory(&m)) continue;
         memoryIdx = memScanSlot;
         char line[32];
-        snprintf(line, sizeof(line), "M%02d %s", memScanSlot + 1, m.name[0] ? m.name : "");
+        snprintf(line, sizeof(line), "M%02d %.10s", memScanSlot + 1, m.name);
         statusShow("Memory scan", line, 0);
         memScanState = MemScan::Listen;
         memScanTimer = now + MSCAN_SETTLE_MS;
@@ -226,7 +226,7 @@ bool memScanTick()
       {
         char line[32];
         Memory m = getMemory(memScanSlot);
-        snprintf(line, sizeof(line), "Hold M%02d %s", memScanSlot + 1, m.name);
+        snprintf(line, sizeof(line), "Hold M%02d %.10s", memScanSlot + 1, m.name);
         statusShow("Memory scan", line, 0);
         memScanState = MemScan::Hold;
         memScanLastHit = now;
