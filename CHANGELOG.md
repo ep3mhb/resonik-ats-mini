@@ -4,6 +4,28 @@ RESONIK edition: <https://resonik.mikroutik.com> · Upstream user manual: <https
 
 <!-- towncrier release notes start -->
 
+## 2.45-r3 (unreleased)
+
+RESONIK edition, Phase 3.
+
+### Added
+
+- **FT8 decoder** (**Menu → Ham & SWL → FT8**): a full-screen page that decodes FT8 from the radio's own audio, with a waterfall and the messages of each 15 second slot (signal report, audio frequency, text; CQ calls in green). It tunes the FT8 frequency of the band in use (or 40 m) in USB 3.0k; the knob steps through 160, 80, 40, 30, 20, 17, 15, 12 and 10 m. The clock must be set (time sync over Wi-Fi), the page pauses Wi-Fi and silences the speaker while it is open, and leaving puts the radio back exactly as it was. Needs the V4B board, which wires the speaker line to GPIO11. Uses ft8_lib (Karlis Goba, MIT) and KISS FFT (Mark Borgerding, BSD-3), following the epiHATR fork, which first decoded FT8 on this radio.
+- **CW decoder** (**Menu → Ham & SWL → CW Decoder**): Morse to text on a full-screen page, with speed, tone, level and key indicators; **CW Strip** shows the decoded text on the normal screen in CW mode.
+- **Band scanner** (**Menu → Tuning → Scanner**): steps through the band and holds on a signal, resuming a few seconds after it goes. Turn or click to stop.
+- **Band Plan → Auto**: tuning into a segment of an amateur band sets mode, filter and step for it (CW, digital, beacons, phone). **Plan Area** selects Region 1, UAE or Iran.
+
+### Fixed
+
+- Seek stays inside the band (upstream #165, after the mattafaak fork).
+- Encoder acceleration eases off one step at a time; smoother SSB tuning; steadier RDS station names (after the jokubasver fork).
+- The CW decoder input is disconnected from the ADC while idle, so no faint buzz reaches the speaker.
+
+### Credits
+
+- About → Authors names the forks whose work is in this release: epiHATR (FT8), jokubasver and mattafaak (fixes).
+
+
 ## 2.45-r2 (unreleased)
 
 RESONIK edition, Phase 2.

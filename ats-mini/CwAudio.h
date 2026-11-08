@@ -17,4 +17,9 @@ bool cwStripShown();                       // The strip replaces the scale on th
 void drawCwStrip();
 void drawCwPage();
 
+// Sampler shared with the FT8 page (Ft8.cpp)
+void audioFt8Ring(int16_t *ring, uint32_t size);   // nullptr gives it back to CW
+uint32_t audioFt8Written();                          // Samples written into the ring so far
+uint16_t audioInputLevel();                          // Mean deviation on GPIO11, ADC counts
+
 #endif // CW_AUDIO_H

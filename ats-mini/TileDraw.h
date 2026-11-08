@@ -17,7 +17,7 @@ enum TileIcon : uint8_t
   TI_BRIGHT, TI_CLOCK, TI_GLOBE, TI_MOON, TI_POWER, TI_PALETTE, TI_LAYOUT, TI_ZOOM, TI_SCROLL,
   TI_RDS, TI_STEREO, TI_DIAL, TI_CHIP, TI_DOWNLOAD, TI_FIRMWARE, TI_USB, TI_NETWORK, TI_BT,
   TI_WIFI, TI_BANDPLAN, TI_ATT, TI_TILES, TI_LOG, TI_PROP, TI_INFO, TI_REGION,
-  TI_BACK, TI_CLOSE, TI_SLEEPTIMER, TI_FORK, TI_KNOB, TI_CWDEC, TI_CWSTRIP, TI_SCANNER,
+  TI_BACK, TI_CLOSE, TI_SLEEPTIMER, TI_FORK, TI_KNOB, TI_CWDEC, TI_CWSTRIP, TI_SCANNER, TI_FT8,
 };
 
 typedef struct
@@ -377,6 +377,13 @@ static void tileDrawIcon(S &s, TileIcon icon, int x, int y, uint16_t c, uint16_t
         s.fillCircle(x + (int)(14 * cosf(a * 0.01745f)), y + (int)(14 * sinf(a * 0.01745f)), 1, c);
       s.drawWideLine(x, y, x, y - 7, 1.6f, c);
       break;
+    case TI_FT8:         // Waterfall screen with three signal traces
+      s.drawRoundRect(x - 13, y - 11, 26, 22, 3, c);
+      s.drawRoundRect(x - 12, y - 10, 24, 20, 2, c);
+      s.fillRect(x - 8, y - 6, 3, 12, c);
+      s.fillRect(x - 1, y - 2, 3, 8, c);
+      s.fillRect(x + 6, y - 7, 3, 13, c);
+      break;
     case TI_SCANNER:     // Radar sweep
       s.drawArc(x - 10, y + 10, 22, 20, 270, 360, c);
       s.drawArc(x - 10, y + 10, 14, 12, 270, 360, c);
@@ -677,6 +684,13 @@ static void tileDrawIconColor(S &s, TileIcon icon, int x, int y, uint16_t bg)
       for(int a = 0 ; a < 360 ; a += 45)
         s.fillCircle(x + (int)(14 * cosf(a * 0.01745f)), y + (int)(14 * sinf(a * 0.01745f)), 1, TC_W);
       s.drawWideLine(x, y, x, y - 8, 1.8f, TC_Y);
+      break;
+    case TI_FT8:         // Dark waterfall, green, yellow and pink traces
+      s.fillRoundRect(x - 13, y - 11, 26, 22, 3, TC_W);
+      s.fillRect(x - 11, y - 9, 22, 18, TC_K);
+      s.fillRect(x - 8, y - 6, 3, 13, TC_G);
+      s.fillRect(x - 1, y - 2, 3, 9, TC_Y);
+      s.fillRect(x + 6, y - 8, 3, 15, TC_P);
       break;
     case TI_SCANNER:     // Green radar sweep, white needle, red blip
       s.drawArc(x - 10, y + 10, 22, 20, 270, 360, TC_G);

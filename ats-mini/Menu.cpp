@@ -12,6 +12,7 @@
 #include "Resonik.h"
 #include "TileMenuData.h"
 #include "CwAudio.h"
+#include "Ft8.h"
 #include "Patches.h"
 #include "Storage.h"
 
@@ -159,7 +160,8 @@ static const char *menu[] =
 #define MENU_CWDEC        27  // RESONIK R3
 #define MENU_CWSTRIP      28  // RESONIK R3
 #define MENU_BPAREA       29  // RESONIK R3
-#define MENU_ABOUT        30
+#define MENU_FT8          30  // RESONIK R3
+#define MENU_ABOUT        31
 
 
 static uint8_t updateFwIdx = 0;
@@ -199,6 +201,7 @@ static const char *settings[] =
   "CW Decoder",
   "CW Strip",
   "Plan Area",
+  "FT8",
   "About",
 };
 
@@ -244,7 +247,8 @@ static const TileEntry tileHam[] =
 {
   { TI_BANDPLAN, TILE_SET | MENU_BANDPLAN }, { TI_BEACON, MENU_BEACONS },
   { TI_FORK, TILE_SET | MENU_CALIBRATION }, { TI_CWDEC, TILE_SET | MENU_CWDEC },
-  { TI_CWSTRIP, TILE_SET | MENU_CWSTRIP }, { TI_DOWNLOAD, TILE_SET | MENU_LOADEIBI },
+  { TI_CWSTRIP, TILE_SET | MENU_CWSTRIP }, { TI_FT8, TILE_SET | MENU_FT8 },
+  { TI_DOWNLOAD, TILE_SET | MENU_LOADEIBI },
   { TI_GLOBE, TILE_SET | MENU_BPAREA }, { TI_PROP, TILE_SET | MENU_PROPAG },
 };
 static const TileEntry tileDisplay[] =
@@ -1681,6 +1685,7 @@ static void clickSettings(int cmd, bool shortPress)
     case MENU_MENUSTYLE:  currentCmd = CMD_MENUSTYLE; break;
     case MENU_LOGGER:     currentCmd = CMD_LOGGER;    break;
     case MENU_CWDEC:      cwPageOpen();               break;
+    case MENU_FT8:        ft8PageOpen();              break;
     case MENU_CWSTRIP:    currentCmd = CMD_CWSTRIP;   break;
     case MENU_PROPAG:
       if(getWiFiStatus() >= 2)
@@ -1804,6 +1809,11 @@ bool clickHandler(uint16_t cmd, bool shortPress)
       // CW decoder page: click clears the text, a short press leaves
       if(shortPress) currentCmd = CMD_NONE;
       else cwPageClear();
+      break;
+    case CMD_FT8:
+      // FT8 page: click clears the list, a short press leaves
+      if(shortPress) currentCmd = CMD_NONE;
+      else ft8Clear();
       break;
     case CMD_SETTINGS: clickSettings(settingsIdx, shortPress);break;
     case CMD_UPDATEFW:
@@ -2894,6 +2904,68 @@ bool bandPlanAutoSideband()
   statusShow("Band plan", line);
   prefsRequestSave(SAVE_CUR_BAND);
   return(true);
+}
+
+//
+// FT8 page (RESONIK R3): the FT8 dial frequencies of the amateur bands in
+// the band list (60 m is not in it), always USB with the 3.0k filter. The
+// page saves the whole band table on opening and puts it back on leaving, so
+// the radio returns exactly to where it was.
+//
+static const struct { const char *band; uint32_t freq; } ft8Channels[] =
+{
+  { "160M", 1840000 }, { "80M", 3573000 }, { "40M", 7074000 }, { "30M", 10136000 },
+  { "20M", 14074000 }, { "17M", 18100000 }, { "15M", 21074000 }, { "12M", 24915000 },
+  { "10M", 28074000 },
+};
+
+int ft8ChannelCount() { return(ITEM_COUNT(ft8Channels)); }
+const char *ft8ChannelName(int ch) { return(ft8Channels[ch].band); }
+
+static int bandIndexOf(const char *name)
+{
+  for(int i = 0 ; i < (int)ITEM_COUNT(bands) ; i++) if(!strcmp(bands[i].bandName, name)) return(i);
+  return(-1);
+}
+
+int ft8ChannelOfCurrent()
+{
+  for(int i = 0 ; i < (int)ITEM_COUNT(ft8Channels) ; i++)
+    if(!strcmp(ft8Channels[i].band, bands[bandIdx].bandName)) return(i);
+  return(-1);
+}
+
+void ft8SelectChannel(int ch)
+{
+  int idx = bandIndexOf(ft8Channels[ch].band);
+  if(idx < 0) return;
+  Band &band = bands[idx];
+  band.bandMode = USB;
+  band.currentFreq = ft8Channels[ch].freq;
+  int bw = bandwidthIndexOf("3.0k");
+  if(bw >= 0) band.bandwidthIdx = bw;
+  for(int i = 0 ; i <= getLastStep(USB) ; i++) if(steps[USB][i].step == 1000) band.currentStepIdx = i;
+  selectBand(idx, false);
+}
+
+static Band ft8SavedBands[ITEM_COUNT(bands)];
+static int ft8SavedIdx = -1;
+
+void ft8SaveRadio()
+{
+  memcpy(ft8SavedBands, bands, sizeof(bands));
+  ft8SavedIdx = bandIdx;
+  // The current frequency lives in the band only once it is saved there
+  ft8SavedBands[bandIdx].currentFreq = currentFrequency;
+  ft8SavedBands[bandIdx].bandMode = currentMode;
+}
+
+void ft8RestoreRadio()
+{
+  if(ft8SavedIdx < 0) return;
+  memcpy(bands, ft8SavedBands, sizeof(bands));
+  selectBand(ft8SavedIdx, false);
+  ft8SavedIdx = -1;
 }
 
 //

@@ -58,6 +58,7 @@
 #define CMD_CWSTRIP    0x3E00 // RESONIK R3: decoder strip setting
 #define CMD_KNOB       0x3F00 // RESONIK: encoder type
 #define CMD_BPAREA     0x4000 // RESONIK R3: band plan area (region or country)
+#define CMD_FT8        0x4100 // RESONIK R3: full-screen FT8 decoder
 
 // Band plan settings (RESONIK)
 #define BANDPLAN_OFF       0

@@ -43,6 +43,12 @@ static char shownText[CwDecoder::TEXT_MAX + 1];
 static bool shownKey = false;
 static int shownWpm = 0;
 
+// FT8 (Ft8.cpp) borrows the sampler: at 12 kHz the samples go into its ring
+#define FT8_FS        12000
+static int16_t *volatile ft8Ring = nullptr;
+static uint32_t ft8RingSize = 0;
+static volatile uint32_t ft8Written = 0;   // Samples written since the start
+
 static void sampler(void *)
 {
   int16_t buf[CW_BLOCK];
@@ -60,6 +66,8 @@ static void sampler(void *)
       vTaskDelay(pdMS_TO_TICKS(50));
       continue;
     }
+    int16_t *ring = ft8Ring;
+    int fs = ring ? FT8_FS : CW_FS;
     if(!sampling)
     {
       sampling = true;
@@ -68,9 +76,9 @@ static void sampler(void *)
     }
 
     // Busy-wait to the next sample time: steady timing matters more than the
-    // idle core, and this only runs while the decoder is in use
+    // idle core, and this only runs while a decoder is in use
     while(esp_timer_get_time() < next);
-    next += 1000000 / CW_FS;
+    next += 1000000 / fs;
 
     int v = 0;
     if(adc_oneshot_read(adc, CW_ADC_CH, &v) != ESP_OK)
@@ -78,17 +86,23 @@ static void sampler(void *)
       adcErrors++;
       v = (int)dc;
     }
-    buf[n++] = (int16_t)v;
 
     // Audio level for the input check on the page
     dc += (v - dc) * 0.001f;
     dev += fabsf(v - dc);
-    if(++devCount >= CW_FS / 2)
+    if(++devCount >= (uint32_t)fs / 2)
     {
       audioLevel = (uint16_t)(dev / devCount);
       dev = 0;
       devCount = 0;
     }
+
+    if(ring)
+    {
+      ring[ft8Written % ft8RingSize] = (int16_t)v;
+      ft8Written = ft8Written + 1;
+    }
+    else buf[n++] = (int16_t)v;
 
     if(n == CW_BLOCK)
     {
@@ -99,11 +113,12 @@ static void sampler(void *)
     }
 
     // Let the idle task run now and then, or the watchdog bites
-    if(++sinceYield >= CW_FS / 2)
+    if(++sinceYield >= (uint32_t)fs / 2)
     {
       sinceYield = 0;
       vTaskDelay(1);
-      next = esp_timer_get_time();
+      // FT8 counts samples against the clock: catch up rather than skip
+      if(!ring) next = esp_timer_get_time();
     }
     // Fell far behind (interrupts): start the timing again
     if(esp_timer_get_time() - next > 10000) next = esp_timer_get_time();
@@ -137,7 +152,20 @@ static bool adcOpen()
 
 static bool wifiOn() { return(WiFi.getMode() != WIFI_MODE_NULL); }
 
-static bool pageOpen() { return(currentCmd == CMD_CWDEC); }
+// The CW decoder page, or the FT8 page, which uses the same sampler
+static bool pageOpen() { return(currentCmd == CMD_CWDEC || currentCmd == CMD_FT8); }
+
+// FT8 page (Ft8.cpp): hand the sampler a ring, or nullptr to give it back
+void audioFt8Ring(int16_t *ring, uint32_t size)
+{
+  if(ring) { ft8RingSize = size; ft8Written = 0; }
+  ft8Ring = ring;
+  // Let a sample in flight land before the caller frees the old ring
+  if(!ring) { int64_t t = esp_timer_get_time(); while(esp_timer_get_time() - t < 300); }
+}
+
+uint32_t audioFt8Written() { return(ft8Written); }
+uint16_t audioInputLevel() { return(audioLevel); }
 
 bool cwStripShown()
 {

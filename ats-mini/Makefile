@@ -116,7 +116,14 @@ build/TestCwDecoder: tests/TestCwDecoder.cpp CwDecoder.h
 	@mkdir -p build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++11 -Wall -Wextra -UNDEBUG tests/TestCwDecoder.cpp $(LDFLAGS) -o $@
 
-test: build/TestParser build/TestParserAdhoc build/TestOtaVersion build/TestHttpDate build/TestTimeZone build/TestBandPlan build/TestBatteryTime build/TestBeacons build/TestCatKenwood build/TestPropagation build/TestEibiParse build/TestCwDecoder
+FT8_C = $(wildcard src/ft8/*.c)
+
+build/TestFt8: tests/TestFt8.cpp Ft8Rx.h $(FT8_C) $(wildcard src/ft8/*.h)
+	@mkdir -p build/ft8
+	for f in $(FT8_C); do $(CC) -O2 -c $$f -o build/ft8/$$(basename $$f .c).o || exit 1; done
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -O2 -std=c++11 -Wall -Wextra -UNDEBUG tests/TestFt8.cpp build/ft8/*.o $(LDFLAGS) -lm -o $@
+
+test: build/TestParser build/TestParserAdhoc build/TestOtaVersion build/TestHttpDate build/TestTimeZone build/TestBandPlan build/TestBatteryTime build/TestBeacons build/TestCatKenwood build/TestPropagation build/TestEibiParse build/TestCwDecoder build/TestFt8
 	./build/TestParser
 	./build/TestParserAdhoc
 	./build/TestOtaVersion
@@ -129,5 +136,6 @@ test: build/TestParser build/TestParserAdhoc build/TestOtaVersion build/TestHttp
 	./build/TestPropagation
 	./build/TestEibiParse
 	./build/TestCwDecoder
+	./build/TestFt8
 
 .PHONY: all help build upload clean test
