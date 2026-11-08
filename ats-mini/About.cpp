@@ -142,6 +142,7 @@ static void drawAboutAuthors(uint8_t arrow)
   spr.drawString(AUTHORS_LINE3, 2, 70 + 16 * 2, FONT_SMALL);
   spr.drawString(AUTHORS_LINE4, 2, 70 + 16 * 3, FONT_SMALL);
   spr.drawString(AUTHORS_LINE5, 2, 70 + 16 * 4, FONT_SMALL);
+  spr.drawString(AUTHORS_LINE6, 2, 70 + 16 * 5, FONT_SMALL);
   spr.pushSprite(0, 0);
 }
 

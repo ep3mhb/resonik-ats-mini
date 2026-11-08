@@ -8,6 +8,7 @@
 #include "BleMode.h"
 #include "Draw.h"
 #include "CwAudio.h"
+#include "Ft8.h"
 
 //
 // Draw preferences write indicator
@@ -519,6 +520,13 @@ void drawScreen()
   if(currentCmd==CMD_CWDEC)
   {
     drawCwPage();
+    return;
+  }
+
+  // FT8 page (RESONIK R3)
+  if(currentCmd==CMD_FT8)
+  {
+    drawFt8Page();
     return;
   }
 

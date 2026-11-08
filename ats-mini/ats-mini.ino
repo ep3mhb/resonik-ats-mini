@@ -21,6 +21,7 @@
 #include "Brand.h"
 #include "Resonik.h"
 #include "CwAudio.h"
+#include "Ft8.h"
 #include "Web.h"
 #include <stdlib.h>
 #include <time.h>
@@ -758,6 +759,11 @@ bool handleRotation(int16_t enc, int16_t accelerated, bool pressed)
         changed = doTune(accelerated);
         prefsRequestSave(SAVE_CUR_BAND);
         break;
+      case CMD_FT8:
+        // FT8 page: the knob steps through the FT8 bands
+        ft8Turn(enc);
+        changed = true;
+        break;
       case CMD_FREQ:
         changed = doDigit(enc);
         prefsRequestSave(SAVE_CUR_BAND);
@@ -868,7 +874,7 @@ void loop()
   // Disable commands control
   if((currentTime - elapsedCommand) > ELAPSED_COMMAND)
   {
-    if(currentCmd != CMD_NONE && currentCmd != CMD_SEEK && currentCmd != CMD_SCAN && currentCmd != CMD_MEMORY && currentCmd != CMD_CWDEC)
+    if(currentCmd != CMD_NONE && currentCmd != CMD_SEEK && currentCmd != CMD_SCAN && currentCmd != CMD_MEMORY && currentCmd != CMD_CWDEC && currentCmd != CMD_FT8)
     {
       tileReturnCancel();
       currentCmd = CMD_NONE;
@@ -923,6 +929,7 @@ void loop()
   needRedraw |= bandScanTick();
   needRedraw |= loggerTick();
   needRedraw |= cwAudioTick();
+  needRedraw |= ft8Tick();
 
   // Periodically refresh the main screen
   // This covers the case where there is nothing else triggering a refresh
