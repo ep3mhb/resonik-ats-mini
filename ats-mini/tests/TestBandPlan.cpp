@@ -25,6 +25,14 @@ int main()
   assert(bandPlanFind(29600000)->use == BP_FM);
   assert(!bandPlanFind(9650000));                 // 31 m broadcast
 
+  // Plan areas: UAE blocks 160 m above 1850 kHz, Iran follows Region 1
+  assert(bandPlanFindArea(1840000, BP_AREA_UAE)->use == BP_NARROW);
+  assert(bandPlanFindArea(1900000, BP_AREA_UAE)->use == BP_BLOCKED);
+  assert(bandPlanFindArea(1900000, BP_AREA_R1)->use == BP_ALL);
+  assert(bandPlanFindArea(1900000, BP_AREA_IRAN)->use == BP_ALL);
+  assert(bandPlanFindArea(7010000, BP_AREA_UAE)->use == BP_CW);
+  assert(!bandPlanFindArea(9650000, BP_AREA_UAE));
+
   assert(bandPlanPhoneIsLSB(3700000));
   assert(bandPlanPhoneIsLSB(7100000));
   assert(!bandPlanPhoneIsLSB(5360000));
