@@ -67,6 +67,8 @@ const char *rbdsProgramTypes[32] =
 };
 
 static char bufStationName[50]  = "";
+static char stageStationName[16] = "";   // PS name waiting to settle
+static uint32_t stageStationNameMs = 0;
 static char bufRadioText[100]   = "";
 static char bufProgramInfo[100] = "";
 static uint16_t piCode = 0x0000;
@@ -105,6 +107,8 @@ uint16_t getRdsPiCode()
 void clearStationInfo()
 {
   bufStationName[0] = '\0';
+  stageStationName[0] = '\0';
+  stageStationNameMs = 0;
   bufProgramInfo[0] = '\0';
   bufRadioText[0]   = '\0'; // Multiline!
   bufRadioText[1]   = '\0';
@@ -130,6 +134,31 @@ static bool showStationName(const char *stationName, bool isLong = false)
   return(false);
 }
 
+// RDS PS name: 8 characters sent 2 at a time, a full cycle takes about
+// 350 ms. Show it only once it has held still for 400 ms, so half-received
+// names do not flicker (after jokubasver).
+#define PS_STABLE_MS 400
+
+static bool showRdsStationName(const char *stationName)
+{
+  char cleaned[16];
+  int d = 0;
+  if(!stationName) return(false);
+  for(int i = 0 ; stationName[i] && d < (int)sizeof(cleaned) - 1 ; i++)
+    if((uint8_t)stationName[i] >= ' ') cleaned[d++] = stationName[i];
+  while(d > 0 && cleaned[d-1] == ' ') d--;
+  cleaned[d] = '\0';
+
+  if(strcmp(cleaned, stageStationName))
+  {
+    strcpy(stageStationName, cleaned);
+    stageStationNameMs = millis();
+    return(false);
+  }
+  if(millis() - stageStationNameMs < PS_STABLE_MS) return(false);
+  return(showStationName(cleaned));
+}
+
 static bool showRadioText(const char *radioText, uint8_t width = 32)
 {
   bool changed = false;
@@ -145,6 +174,9 @@ static bool showRadioText(const char *radioText, uint8_t width = 32)
   // Terminate at 0x0D, split into lines by 0x0A
   for(j=0 ; (i<64) && radioText[i] && (radioText[i]!=0x0D) ; i++)
   {
+    // Skip control characters other than the 0x0A line break (after jokubasver)
+    if(((uint8_t)radioText[i] < ' ') && (radioText[i] != 0x0A)) continue;
+
     if((radioText[i]==0x0A) || ((radioText[i]==' ') && (j>=width)))
     {
       c = '\0';
@@ -233,7 +265,7 @@ bool checkRds()
     // Empty responses may retain event flags and stale A/B blocks.
     if(!count) break;
 
-    needRedraw |= (mode & RDS_PS) && showStationName(rx.getRdsStationName());
+    needRedraw |= (mode & RDS_PS) && showRdsStationName(rx.getRdsStationName());
     needRedraw |= (mode & RDS_RT) && showRadioText(rx.getRdsVersionCode()? rx.getRdsText2B() : rx.getRdsText2A());
     needRedraw |= (mode & RDS_PI) && showRdsPiCode(rx.getRdsPI());
     needRedraw |= (mode & RDS_CT) && showRdsTime();

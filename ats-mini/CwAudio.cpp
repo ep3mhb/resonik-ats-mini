@@ -17,6 +17,7 @@
 #include <WiFi.h>
 #include <esp_adc/adc_oneshot.h>
 #include <esp_timer.h>
+#include <driver/gpio.h>
 #include <freertos/semphr.h>
 
 #define CW_FS         4000      // Sample rate, Hz
@@ -24,13 +25,14 @@
 #define CW_ADC_UNIT   ADC_UNIT_2
 #define CW_ADC_CH     ADC_CHANNEL_0   // GPIO11
 
-uint8_t cwStripIdx = 1;
+uint8_t cwStripIdx = 0;   // Off by default: sampling GPIO11 can be heard faintly on the speaker
 const char *const cwStripDesc[2] = { "Off", "On" };
 
 static CwDecoder decoder;
 static SemaphoreHandle_t lock = nullptr;
 static adc_oneshot_unit_handle_t adc = nullptr;
 static volatile bool want = false;        // The main loop wants samples
+static bool padDetachPending = false;
 static volatile bool sampling = false;    // The task is sampling
 static volatile uint16_t audioLevel = 0;  // Mean deviation of the raw samples, ADC counts
 static volatile uint32_t adcErrors = 0;
@@ -170,7 +172,32 @@ bool cwAudioTick()
     netInit(wifiModeIdx);
   }
 
-  want = (page || cwStripShown()) && !wifiOn() && adcOpen();
+  bool need = (page || cwStripShown()) && !wifiOn();
+  if(need && !want)
+  {
+    // Connect the pad to the ADC again (it is detached while idle)
+    if(adcOpen())
+    {
+      adc_oneshot_chan_cfg_t ch = {};
+      ch.atten = ADC_ATTEN_DB_12;
+      ch.bitwidth = ADC_BITWIDTH_DEFAULT;
+      adc_oneshot_config_channel(adc, CW_ADC_CH, &ch);
+      want = true;
+    }
+  }
+  else if(!need && want)
+  {
+    want = false;
+    padDetachPending = true;
+  }
+  // Once the task has stopped, detach the pad: an ADC left on GPIO11 couples
+  // a faint buzz into the speaker line (found by the epiHATR FT8 fork)
+  if(padDetachPending && !sampling)
+  {
+    padDetachPending = false;
+    gpio_reset_pin((gpio_num_t)11);
+    pinMode(11, INPUT);
+  }
 
   // Follow the CW pitch of the current filter
   if(want && (int)decoder.getTone() != cwPitch())

@@ -289,13 +289,13 @@ void setup()
 }
 
 
-int16_t accelerateEncoder(int8_t dir)
+ICACHE_RAM_ATTR int16_t accelerateEncoder(int8_t dir)
 {
   const uint32_t speedThresholds[] = {350, 60, 45, 35, 25}; // ms between clicks
   const uint16_t accelFactors[] =      {1,  2,  4,  8, 16}; // corresponding multipliers
   static uint32_t lastEncoderTime = 0;
   static uint32_t lastSpeed = speedThresholds[0];
-  static uint16_t lastAccelFactor = accelFactors[0];
+  static uint8_t lastAccelIdx = 0;
   static int8_t lastEncoderDir = 0;
 
   uint32_t currentTime = millis();
@@ -304,21 +304,22 @@ int16_t accelerateEncoder(int8_t dir)
   // Reset acceleration on timeout or direction change
   if (lastSpeed > speedThresholds[0] || lastEncoderDir != dir) {
     lastSpeed = speedThresholds[0];
-    lastAccelFactor = accelFactors[0];
+    lastAccelIdx = 0;
   } else {
-    // Lookup acceleration factor
+    // Ramp up at once, ease down one level at a time so a single slow click
+    // in a fast spin does not drop straight back to 1x (after jokubasver)
+    uint8_t targetIdx = 0;
     for (int8_t i = LAST_ITEM(speedThresholds); i >= 0; i--) {
-      if (lastSpeed <= speedThresholds[i] && lastAccelFactor < accelFactors[i]) {
-        lastAccelFactor = accelFactors[i];
-        break;
-      }
+      if (lastSpeed <= speedThresholds[i]) { targetIdx = (uint8_t)i; break; }
     }
+    if (targetIdx >= lastAccelIdx) lastAccelIdx = targetIdx;
+    else if (lastAccelIdx > 0) lastAccelIdx--;
   }
   lastEncoderTime = currentTime;
   lastEncoderDir = dir;
 
   // Apply acceleration with direction
-  return(dir * lastAccelFactor);
+  return(dir * accelFactors[lastAccelIdx]);
 }
 
 //
@@ -499,14 +500,18 @@ bool updateFrequency(int64_t newFreq, bool wrap)
   }
 
   uint16_t receiverFreq = getReceiverFrequency(newFreq);
-  if(!isSSB() || receiverFreq != getReceiverFrequency(currentFrequency))
-  {
-    rx.setFrequency(receiverFreq);
-    if(isSSB()) doAgc(0);
-  }
+  bool carrierChanged = !isSSB() || receiverFreq != getReceiverFrequency(currentFrequency);
+  if(carrierChanged) rx.setFrequency(receiverFreq);
 
   currentFrequency = isSSB()? newFreq : freqToHz(rx.getFrequency(), currentMode);
-  if(isSSB()) applyBFO();
+  // SSB: set the BFO straight after the carrier change, so the chip has the
+  // right offset the moment it unmutes, then AGC (less of a thump; after the
+  // jokubasver fork)
+  if(isSSB())
+  {
+    applyBFO();
+    if(carrierChanged) doAgc(0);
+  }
   band->currentFreq = currentFrequency;
   return true;
 }
