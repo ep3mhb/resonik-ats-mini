@@ -571,9 +571,14 @@ bool doSeek(int16_t enc, int16_t enca)
       // Clear only the encoder latch. Pending remote input cancels the seek
       // and is consumed without executing its command.
       seekStop = false;
+      uint32_t preSeekFreq = currentFrequency;
       if(!consumeAbortPending())
         rx.seekStationProgress(showFrequencySeek, consumeAbortPending, enc>0? 1 : 0);
-      updateFrequency(freqToHz(rx.getFrequency(), currentMode), true);
+      // A seek that ends outside the band would wrap to the far edge: stay put
+      // instead (upstream issue #165, fix from the mattafaak fork)
+      uint32_t seekedFreq = freqToHz(rx.getFrequency(), currentMode);
+      if(!isFreqInBand(getCurrentBand(), seekedFreq)) seekedFreq = preSeekFreq;
+      updateFrequency(seekedFreq, true);
     }
   }
   else if(seekMode() == SEEK_SCHEDULE && enc)
