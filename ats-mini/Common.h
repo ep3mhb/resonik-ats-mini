@@ -31,7 +31,7 @@ static constexpr const lgfx::IFont* FONT_DIGITS  = &lgfx::fonts::Font7;  // 48px
 #define AUTHORS_LINE5  "RESONIK edition: EP2MHB (M. Bahrololoum)"
 
 #define VER_APP        245  // Upstream ats-mini version this edition is based on
-#define VER_RESONIK      1  // RESONIK release number on top of VER_APP (v2.45-r1)
+#define VER_RESONIK      2  // RESONIK release number on top of VER_APP (v2.45-r2)
 #define VER_FULL       (VER_APP * 100 + VER_RESONIK)  // Used for OTA version comparison
 #define VER_OTA          1  // OTA compatibility; bump when a full USB flash is required
 #define VER_SETTINGS    71  // Settings version
