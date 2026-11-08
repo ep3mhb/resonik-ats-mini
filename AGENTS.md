@@ -17,3 +17,4 @@ Arduino firmware for the ATS Mini ESP32-S3/SI4732 receiver.
 - For user-visible firmware changes, edit an existing unreleased Towncrier fragment for the same feature in `changelog/`, or create one if none exists. Skip documentation changes, dependency bumps, and internal changes with no user-visible effect. See `pyproject.toml` for categories.
 - Update documentation when user-facing behavior changes. Stay brief, use the existing writing style, avoid describing the implementation details.
 - Report validation performed and any behavior needing hardware testing.
+- RESONIK: commits are authored by ep3mhb alone; do not add Co-Authored-By or Claude-Session lines to commit messages or pull requests.
