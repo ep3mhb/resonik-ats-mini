@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>RESONIK — firmware for the ATS Mini receiver</title>
-  <meta name="description" content="RESONIK: free, open-source firmware for the ATS Mini (ESP32-S3 + SI4732) pocket receiver. CW mode, IARU Region 1 band plan, dual clock, battery time and more. Install from your browser.">
+  <meta name="description" content="RESONIK: free, open-source firmware for the ATS Mini (ESP32-S3 + SI4732) pocket receiver. CW mode, IARU Region 1 band plan, beacon tracker, memory scan, signal logger, propagation, CAT control, a new tile menu and more. Install from your browser.">
   <meta property="og:title" content="RESONIK — firmware for the ATS Mini">
-  <meta property="og:description" content="CW mode, Region 1 band plan, dual clock, battery time and more for the ATS Mini pocket receiver. Install from your browser.">
+  <meta property="og:description" content="CW mode, Region 1 band plan, beacon tracker, memory scan, CAT control, a new tile menu and more for the ATS Mini pocket receiver. Install from your browser.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://resonik.mikroutik.com/">
   <meta property="og:image" content="https://resonik.mikroutik.com/img/radio-front.jpg">
@@ -38,9 +38,9 @@
     <section class="hero">
       <div class="wrap hero-in">
         <div>
-          <p class="kicker">ATS Mini firmware · <span class="badge">v2.45-r1</span> · 6 November 2026</p>
+          <p class="kicker">ATS Mini firmware · <span class="badge">v2.45-r2</span> · 8 November 2026</p>
           <h1>A sharper ATS Mini, for listeners and radio amateurs.</h1>
-          <p class="lead">RESONIK is free, open-source firmware for the ATS Mini pocket receiver (ESP32-S3 + SI4732). It keeps everything the official <a href="https://github.com/esp32-si4732/ats-mini" rel="noopener">ats-mini</a> firmware does and adds CW, a Region 1 band plan, a dual clock and more.</p>
+          <p class="lead">RESONIK is free, open-source firmware for the ATS Mini pocket receiver (ESP32-S3 + SI4732). It keeps everything the official <a href="https://github.com/esp32-si4732/ats-mini" rel="noopener">ats-mini</a> firmware does and adds CW, a Region 1 band plan, a dual clock, a beacon tracker, a new menu and more.</p>
           <div class="keys">
             <a class="btn primary" href="#install">Install from your browser</a>
             <a class="btn ghost" href="https://github.com/ep3mhb/resonik-ats-mini/releases/latest" rel="noopener">Download files</a>
@@ -90,8 +90,8 @@
           <ul>
             <li><b>Back up first.</b> A full copy of the radio's flash lets you return to exactly what you have now. See the upstream <a href="https://esp32-si4732.github.io/ats-mini/recovery.html" rel="noopener">backup and recovery guide</a>.</li>
             <li><b>The port does not appear?</b> Try another cable (many are charge-only) or another USB port, and close any other program using the radio.</li>
-            <li><b>Already on RESONIK?</b> Later versions install over Wi-Fi: <span class="ui">Settings → Update FW</span>.</li>
-            <li><b>By hand with esptool-js or esptool:</b> download <code>resonik-ats-mini-v2.45-r1-ospi.zip</code> (or <code>-qspi</code>) from <a href="https://github.com/ep3mhb/resonik-ats-mini/releases/latest" rel="noopener">GitHub</a> and flash <code>ats-mini.ino.bootloader.bin</code> at <code>0x0</code>, <code>ats-mini.ino.partitions.bin</code> at <code>0x8000</code>, <code>boot_app0.bin</code> at <code>0xe000</code> and <code>ats-mini.ino.bin</code> at <code>0x10000</code>.</li>
+            <li><b>Already on RESONIK?</b> Later versions install over Wi-Fi: <span class="ui">Menu → System → Update FW</span> (on r1: <span class="ui">Settings → Update FW</span>).</li>
+            <li><b>By hand with esptool-js or esptool:</b> download <code>resonik-ats-mini-v2.45-r2-ospi.zip</code> (or <code>-qspi</code>) from <a href="https://github.com/ep3mhb/resonik-ats-mini/releases/latest" rel="noopener">GitHub</a> and flash <code>ats-mini.ino.bootloader.bin</code> at <code>0x0</code>, <code>ats-mini.ino.partitions.bin</code> at <code>0x8000</code>, <code>boot_app0.bin</code> at <code>0xe000</code> and <code>ats-mini.ino.bin</code> at <code>0x10000</code>.</li>
             <li><b>Going back</b> to the official firmware is the same procedure with the official files.</li>
           </ul>
         </details>
@@ -108,8 +108,13 @@
           <article class="feat"><i style="--c:#facc15"></i><h3>The clock survives power-off</h3><p>With Wi-Fi set to Sync, the time is set at every power-on — even on networks that block internet time servers.</p></article>
           <article class="feat"><i style="--c:#a3e635"></i><h3>Battery time left</h3><p>The voltage alternates with an estimate in hours, learned from your own radio's consumption.</p></article>
           <article class="feat"><i style="--c:#f97316"></i><h3>Automatic attenuation</h3><p>On AM, very strong stations no longer overload the receiver: attenuation is added and removed as needed.</p></article>
-          <article class="feat"><i style="--c:#e879f9"></i><h3>Tile menu</h3><p>An optional full-screen menu of tiles that show current values. The classic menu stays the default.</p></article>
-          <article class="feat"><i style="--c:#F6F5F1"></i><h3>Everything else, unchanged</h3><p>All bands, modes, memories, EiBi schedules, RDS, Wi-Fi and Bluetooth of ats-mini 2.45.</p></article>
+          <article class="feat"><i style="--c:#e879f9"></i><h3>A new menu</h3><p>Six categories of large coloured tiles with icons: Tuning, Audio, Memory, Ham &amp; SWL, Display and System. Settings open full screen. The classic list is still there. <small>r2</small></p></article>
+          <article class="feat"><i style="--c:#F04770"></i><h3>Beacon tracker</h3><p>Names the NCDXF/IARU beacon on the air on 14100–28200 kHz, or follows one beacon across the five bands to see which paths are open. <small>r2</small></p></article>
+          <article class="feat"><i style="--c:#06D7A0"></i><h3>Memory scan and logger</h3><p>Steps through your memories and stops on signals; logs frequency, signal and station to a CSV file you download from the radio's web page. <small>r2</small></p></article>
+          <article class="feat"><i style="--c:#FFD167"></i><h3>Propagation</h3><p>Solar flux, sunspots, A and K index and HF band conditions from hamqsl.com, fetched over Wi-Fi. <small>r2</small></p></article>
+          <article class="feat"><i style="--c:#108AB1"></i><h3>CAT control</h3><p>Kenwood TS-480 commands over USB, for flrig, Hamlib, WSJT-X (receive), fldigi and logging programs. <small>r2</small></p></article>
+          <article class="feat"><i style="--c:#F78C6A"></i><h3>Better EiBi schedules</h3><p>The season's schedule with days of the week, language and target area, so you only see stations that are on today. <small>r2</small></p></article>
+          <article class="feat"><i style="--c:#F6F5F1"></i><h3>Everything else, unchanged</h3><p>All bands, modes, memories, RDS, Wi-Fi and Bluetooth of ats-mini 2.45.</p></article>
         </div>
         <figure class="shot wide">
           <img src="img/radio-main.jpg" srcset="img/radio-main-700.jpg 700w, img/radio-main.jpg 1400w" sizes="(max-width: 1000px) 100vw, 960px" width="1400" height="605" loading="lazy" alt="ATS Mini receiving FM at 93.40 MHz with the info box showing step, bandwidth, AGC and volume">
@@ -121,14 +126,15 @@
     <section id="fa" class="band fa" lang="fa" dir="rtl">
       <div class="wrap">
         <h2>فارسی</h2>
-        <p class="lead">RESONIK فریم‌وری رایگان و متن‌باز برای رادیوی جیبی <bdi>ATS Mini</bdi> است، بر پایهٔ فریم‌ور رسمی <bdi>ats-mini 2.45</bdi>، با حالت <bdi>CW</bdi>، نقشهٔ باند <bdi>IARU</bdi> منطقهٔ ۱ و انتخاب خودکار <bdi>LSB/USB</bdi>، ساعت دوگانهٔ <bdi>UTC</bdi> و محلی، نمایش زمان باقی‌ماندهٔ باتری، تضعیف خودکار و منوی کاشی‌ای.</p>
+        <p class="lead">RESONIK فریم‌وری رایگان و متن‌باز برای رادیوی جیبی <bdi>ATS Mini</bdi> است، بر پایهٔ فریم‌ور رسمی <bdi>ats-mini 2.45</bdi>، با حالت <bdi>CW</bdi>، نقشهٔ باند <bdi>IARU</bdi> منطقهٔ ۱ و انتخاب خودکار <bdi>LSB/USB</bdi>، ساعت دوگانهٔ <bdi>UTC</bdi> و محلی، نمایش زمان باقی‌ماندهٔ باتری، تضعیف خودکار؛ و از نسخهٔ <bdi>R2</bdi>: منوی جدید با شش دسته، ردیاب بیکن‌های <bdi>NCDXF/IARU</bdi>، اسکن حافظه‌ها، ثبت سیگنال، شرایط انتشار امواج، کنترل <bdi>CAT</bdi> و برنامهٔ ایستگاه‌های <bdi>EiBi</bdi> همراه با روزهای پخش.</p>
         <ol class="steps">
           <li>این صفحه را در <b>Chrome</b> یا <b>Edge</b> روی کامپیوتر باز کنید (گوشی پشتیبانی نمی‌شود).</li>
           <li>رادیو را با کابل <bdi>USB-C</bdi> که داده را منتقل می‌کند وصل و روشن کنید.</li>
           <li>در <bdi class="ui">Settings → About</bdi> مقدار <bdi>PSRAM</bdi> را ببینید: <b><bdi>8192K</bdi></b> یا <b><bdi>2048K</bdi></b>.</li>
           <li>در بخش <a href="#install">Install</a> دکمهٔ مربوط را بزنید و درگاه رادیو را انتخاب کنید. گزینهٔ <bdi>Erase device</bdi> را <b>علامت نزنید</b> تا تنظیمات و حافظه‌ها حفظ شوند، سپس <bdi>Install</bdi> را بزنید.</li>
         </ol>
-        <p class="hint">پیش از نصب از رادیو نسخهٔ پشتیبان بگیرید. نسخه‌های بعدی را می‌توان از راه وای‌فای نصب کرد: <bdi class="ui">Settings → Update FW</bdi>.</p>
+        <p><a class="btn primary" href="manual/resonik-manual-fa.pdf">دانلود راهنمای کاربری فارسی <bdi>(PDF)</bdi></a></p>
+        <p class="hint">پیش از نصب از رادیو نسخهٔ پشتیبان بگیرید. نسخه‌های بعدی را می‌توان از راه وای‌فای نصب کرد: <bdi class="ui">Menu → System → Update FW</bdi>. در نسخهٔ <bdi>R1</bdi> این گزینه در <bdi class="ui">Settings → Update FW</bdi> است.</p>
       </div>
     </section>
   </main>
