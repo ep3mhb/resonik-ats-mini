@@ -39,7 +39,7 @@ def main():
             page.wait_for_load_state("networkidle")
             page.evaluate("document.fonts.ready")
             out_dir.mkdir(parents=True, exist_ok=True)
-            for name, pages in (("resonik-roadmap.pdf", "1"), ("resonik-roadmap-fa.pdf", "2-4")):
+            for name, pages in (("resonik-roadmap.pdf", "1"), ("resonik-roadmap-fa.pdf", "2")):
                 page.pdf(path=str(out_dir / name), format="A4", print_background=True,
                          prefer_css_page_size=True, page_ranges=pages)
                 print(out_dir / name)
