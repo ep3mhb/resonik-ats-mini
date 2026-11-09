@@ -10,7 +10,7 @@ adding features for shortwave listeners and radio amateurs.
 
 Website, browser installer and manual: **<https://resonik.mikroutik.com>**
 
-What is coming in each release: [roadmap (PDF)](https://resonik.mikroutik.com/resonik-roadmap.pdf) · [نقشه‌ی راه فارسی (PDF)](https://resonik.mikroutik.com/resonik-roadmap-fa.pdf), source in `docs/roadmap/`.
+What is coming in each release: [roadmap (PDF)](website/resonik-roadmap.pdf) · [نقشه‌ی راه فارسی (PDF)](website/resonik-roadmap-fa.pdf), source in `docs/roadmap/`.
 
 ## What v2.45-r2 adds
 
