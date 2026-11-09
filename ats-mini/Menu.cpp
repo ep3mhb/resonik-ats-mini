@@ -1761,7 +1761,7 @@ bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
       break;
     case CMD_BPAREA:
       bandPlanArea = wrap_range(bandPlanArea, scrollDirection * enc, 0, BP_AREA_COUNT - 1);
-      if(bandPlanArea == BP_AREA_IRAN) statusShow("Iran: Region 1 plan", "National table not yet confirmed");
+      if(bandPlanArea == BP_AREA_IRAN) statusShow("Iran (EP)", "No 160, 80 or 30 m");
       prefsRequestSave(SAVE_SETTINGS);
       break;
     case CMD_KNOB:

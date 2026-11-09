@@ -87,8 +87,9 @@ static inline const BandPlanSegment *bandPlanFind(uint32_t freq)
 
 // Plan areas: the IARU Region 1 plan, narrowed where a country's licence
 // allows less. UAE: TDRA Regulations for Amateur Radio v3.0 (Dec 2020),
-// art. 4.1 (160 m is 1810-1850 kHz only). Iran: Region 1 until the CRA
-// table is confirmed.
+// art. 4.1 (160 m is 1810-1850 kHz only). Iran: CRA National Table of
+// Frequency Allocations, 6th edition (2019), national column: no amateur
+// allocation on 160 m, 80 m or 30 m (60 m is secondary, 40 m is 7000-7200).
 enum BandPlanArea : uint8_t { BP_AREA_R1 = 0, BP_AREA_UAE, BP_AREA_IRAN, BP_AREA_COUNT };
 
 static const BandPlanSegment bandPlanBlockedUAE[] =
@@ -96,9 +97,17 @@ static const BandPlanSegment bandPlanBlockedUAE[] =
   {  1850000,  2000000, BP_BLOCKED },
 };
 
+static const BandPlanSegment bandPlanBlockedIran[] =
+{
+  {  1810000,  2000000, BP_BLOCKED },
+  {  3500000,  3800000, BP_BLOCKED },
+  { 10100000, 10150000, BP_BLOCKED },
+};
+
 static inline const BandPlanSegment *bandPlanBlocked(uint8_t area, unsigned *count)
 {
   if(area == BP_AREA_UAE) { *count = sizeof(bandPlanBlockedUAE) / sizeof(bandPlanBlockedUAE[0]); return(bandPlanBlockedUAE); }
+  if(area == BP_AREA_IRAN) { *count = sizeof(bandPlanBlockedIran) / sizeof(bandPlanBlockedIran[0]); return(bandPlanBlockedIran); }
   *count = 0;
   return(nullptr);
 }
