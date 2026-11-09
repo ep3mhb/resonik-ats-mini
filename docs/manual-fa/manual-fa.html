@@ -5,25 +5,25 @@
 <title>راهنمای کاربری RESONIK {{VERSION}}</title>
 <style>
 @font-face { font-family: "Vazirmatn"; src: url("../../website/fonts/vazirmatn.woff2") format("woff2"); font-weight: 100 900; }
-:root { --navy:#073A4B; --blue:#108AB1; --pink:#F04770; --coral:#F78C6A; --yellow:#FFD167; --green:#06D7A0; --ink:#1b1f23; --muted:#5b6670; --line:#d9dee2; --soft:#f3f6f7; }
-@page { size: A4; margin: 18mm 17mm 20mm 17mm; }
+:root { --navy:#073A4B; --blue:#108AB1; --pink:#F04770; --coral:#F78C6A; --yellow:#FFD167; --green:#06D7A0; --ink:#1b1f23; --muted:#3f4a54; --line:#d9dee2; --soft:#f3f6f7; }
+@page { size: A4; margin: 15mm 13mm 18mm 13mm; }
 @page :first { margin: 0; }
 * { box-sizing: border-box; }
-html { font-family: "Vazirmatn", sans-serif; color: var(--ink); font-size: 10.6pt; line-height: 1.85; }
+html { font-family: "Vazirmatn", sans-serif; color: var(--ink); font-size: 12.5pt; line-height: 1.9; }
 body { margin: 0; }
 bdi, .ltr { unicode-bidi: isolate; direction: ltr; }
 .ui { font-weight: 700; color: var(--navy); white-space: nowrap; }
 h1, h2, h3 { color: var(--navy); line-height: 1.4; }
-h2 { font-size: 17pt; font-weight: 800; margin: 0 0 4mm; padding-bottom: 2mm; border-bottom: 2.5px solid var(--navy); break-after: avoid; }
+h2 { font-size: 19pt; font-weight: 800; margin: 0 0 4mm; padding-bottom: 2mm; border-bottom: 2.5px solid var(--navy); break-after: avoid; }
 h2 .num { color: var(--blue); margin-left: 2mm; }
 h2 .tag { font-size: 9pt; font-weight: 600; color: #fff; background: var(--pink); border-radius: 3px; padding: 0 2mm; margin-right: 2mm; vertical-align: middle; }
-h3 { font-size: 12pt; font-weight: 700; margin: 5mm 0 1.5mm; break-after: avoid; }
+h3 { font-size: 14pt; font-weight: 700; margin: 5mm 0 1.5mm; break-after: avoid; }
 p { margin: 0 0 2.6mm; text-align: justify; }
 section.chapter { break-before: page; }
 section.chapter.cont { break-before: auto; margin-top: 9mm; }
 ul, ol { margin: 0 0 3mm; padding-right: 6mm; }
 li { margin-bottom: 1mm; }
-table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 9.8pt; break-inside: avoid; }
+table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 11.5pt; break-inside: avoid; }
 th { background: var(--navy); color: #fff; font-weight: 700; text-align: right; padding: 1.6mm 2.5mm; }
 td { border-bottom: 1px solid var(--line); padding: 1.6mm 2.5mm; vertical-align: top; }
 tr:nth-child(even) td { background: var(--soft); }
@@ -31,7 +31,7 @@ tr:nth-child(even) td { background: var(--soft); }
 figure { margin: 3mm 0 4mm; text-align: center; break-inside: avoid; }
 figure img.screen { width: 92mm; border-radius: 2.5mm; border: 2.5mm solid #111; box-shadow: 0 0 0 0.4mm #555; }
 figure img.photo { width: 100%; border-radius: 3mm; }
-figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
+figcaption { font-size: 10.5pt; color: var(--muted); margin-top: 1.5mm; }
 .pair { display: flex; gap: 6mm; justify-content: center; break-inside: avoid; }
 .pair figure { flex: 1; margin: 2mm 0 3mm; }
 .pair img.screen { width: 100%; }
@@ -39,8 +39,8 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
 .tip { background: #e6faf4; border-right: 4px solid var(--green); padding: 2.5mm 4mm; border-radius: 2mm; margin: 3mm 0 4mm; break-inside: avoid; }
 .steps { counter-reset: s; list-style: none; padding: 0; }
 .steps > li { counter-increment: s; position: relative; padding-right: 10mm; margin-bottom: 2.5mm; }
-.steps > li::before { content: counter(s, persian); position: absolute; right: 0; top: 0.3mm; width: 7mm; height: 7mm; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 700; text-align: center; line-height: 7mm; font-size: 9.5pt; }
-.keys { display: grid; grid-template-columns: 34mm 1fr; gap: 1.5mm 4mm; margin: 2mm 0 4mm; }
+.steps > li::before { content: counter(s, persian); position: absolute; right: 0; top: 0.3mm; width: 7mm; height: 7mm; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 700; text-align: center; line-height: 7mm; font-size: 11pt; }
+.keys { display: grid; grid-template-columns: 40mm 1fr; gap: 1.5mm 4mm; margin: 2mm 0 4mm; }
 .keys b { color: var(--navy); }
 /* Cover */
 .cover { height: 297mm; padding: 0; position: relative; overflow: hidden; background: var(--navy); color: #fff; }
@@ -65,7 +65,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
 .toc li { break-inside: avoid; border-bottom: 1px dotted var(--line); padding: 1mm 0; margin: 0; }
 .toc .n { color: var(--blue); font-weight: 700; margin-left: 2mm; }
 .toc small { color: var(--pink); font-weight: 700; margin: 0 2mm; }
-.small { font-size: 9pt; color: var(--muted); }
+.small { font-size: 10.5pt; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -129,7 +129,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
 </section>
 
 <!-- 2 -->
-<section class="chapter">
+<section class="chapter cont">
   <h2><span class="num">۲</span>نصب و به‌روزرسانی</h2>
   <div class="note">پیش از نصب از رادیو نسخه‌ی پشتیبان بگیرید (راهنمای <bdi>Backup</bdi> در سایت <bdi>ats-mini</bdi>). همیشه می‌توان با <bdi>USB</bdi> به فریم‌ور رسمی برگشت.</div>
   <h3>نصب از مرورگر (بار اول)</h3>
@@ -201,7 +201,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
 </section>
 
 <!-- 5 -->
-<section class="chapter">
+<section class="chapter cont">
   <h2><span class="num">۵</span>حالت CW</h2>
   <p><span class="ui"><bdi>Menu → Tuning → Mode → CW</bdi></span> (پس از <bdi>AM</bdi>). صفحه فرکانس خود سیگنال <bdi>CW</bdi> را نشان می‌دهد، همان‌طور که یک فرستنده‌گیرنده‌ی <bdi>CW</bdi> نشان می‌دهد: آن‌قدر تنظیم کنید که فرکانس با فرکانس اعلام‌شده یکی شود و تن در وسط فیلتر قرار گیرد.</p>
   <table>
@@ -255,7 +255,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
 </section>
 
 <!-- 8, 9 -->
-<section class="chapter">
+<section class="chapter cont">
   <h2><span class="num">۸</span>زمان باقی‌مانده‌ی باتری</h2>
   <p>روی باتری، ولتاژ در بالای صفحه یکی در میان با تخمین زمان باقی‌مانده‌ی شنیدن نمایش داده می‌شود، مثلاً <bdi>~8h20</bdi> (هشت ساعت و بیست دقیقه). علامت <bdi>~</bdi> یعنی مصرف معمول فرض شده است؛ پس از حدود ده دقیقه رادیو مصرف واقعی خود را اندازه می‌گیرد و <bdi>~</bdi> حذف می‌شود. روشنایی صفحه، بلندی صدا و <bdi>Wi-Fi</bdi> نتیجه را تغییر می‌دهند. هنگام شارژ با <bdi>USB</bdi> علامت شارژ نمایش داده می‌شود.</p>
 </section>
@@ -335,7 +335,6 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
   <h2 style="margin-top:9mm"><span class="num">۱۸</span>سازندگان و مجوز</h2>
   <p>نسخه‌ی RESONIK: <bdi>EP2MHB</bdi> (محمد بحرالعلوم). بر پایه‌ی <bdi>ats-mini</bdi> اثر <bdi>PU2CLR (Ricardo Caratti)</bdi>، <bdi>Volos Projects</bdi>، <bdi>Ralph Xavier</bdi>، <bdi>Sunnygold</bdi>، <bdi>Goshante</bdi>، <bdi>G8PTN (Dave)</bdi>، <bdi>R9UCL (Max Arnold)</bdi>، <bdi>Marat Fayzullin</bdi> و همه‌ی مشارکت‌کنندگان. کد منبع با مجوز <bdi>MIT</bdi> در <bdi>GitHub</bdi> است.</p>
   <p class="small">RESONIK وابسته به سازندگان رادیوهای <bdi>ATS Mini</bdi> نیست. نصب فریم‌ور غیررسمی با مسئولیت خود شماست؛ نسخه‌ی پشتیبان امکان بازگشت را می‌دهد.</p>
-  <p class="small" style="text-align:center">73 · <bdi>resonik.mikroutik.com</bdi></p>
 </section>
 
 </body>
