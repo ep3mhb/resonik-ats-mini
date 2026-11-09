@@ -10,6 +10,8 @@ adding features for shortwave listeners and radio amateurs.
 
 Website, browser installer and manual: **<https://resonik.mikroutik.com>**
 
+What is coming in each release: [roadmap (PDF)](https://resonik.mikroutik.com/resonik-roadmap.pdf), source in `docs/roadmap/`.
+
 ## What v2.45-r2 adds
 
 - A new default menu: six categories of large coloured tiles (Tuning, Audio, Memory, Ham & SWL, Display, System),
