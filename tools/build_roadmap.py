@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-"""Build the roadmap PDF (A4, English and Persian pages) from docs/roadmap/roadmap.html.
+"""Build the roadmap PDFs (A4) from docs/roadmap/roadmap.html: page 1 is the
+English roadmap, page 2 the Persian one, printed as two separate files.
 
-Usage: build_roadmap.py [out.pdf]   (default: website/resonik-roadmap.pdf)
+Usage: build_roadmap.py [out_dir]   (default: website/)
+  -> resonik-roadmap.pdf (English) and resonik-roadmap-fa.pdf (Persian)
 
 Update docs/roadmap/roadmap.html when a release ships or the plans change
 (move a release from Planned to In testing to Released, with its date), then
@@ -19,7 +21,7 @@ SRC = ROOT / "docs" / "roadmap" / "roadmap.html"
 
 
 def main():
-    out = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "website" / "resonik-roadmap.pdf"
+    out_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "website"
     d = date.today()
     jy, jm, jd = jalali(d)
     html = SRC.read_text()
@@ -36,12 +38,14 @@ def main():
             page.goto(Path(tmp.name).as_uri())
             page.wait_for_load_state("networkidle")
             page.evaluate("document.fonts.ready")
-            out.parent.mkdir(parents=True, exist_ok=True)
-            page.pdf(path=str(out), format="A4", print_background=True, prefer_css_page_size=True)
+            out_dir.mkdir(parents=True, exist_ok=True)
+            for name, pages in (("resonik-roadmap.pdf", "1"), ("resonik-roadmap-fa.pdf", "2")):
+                page.pdf(path=str(out_dir / name), format="A4", print_background=True,
+                         prefer_css_page_size=True, page_ranges=pages)
+                print(out_dir / name)
             browser.close()
     finally:
         Path(tmp.name).unlink()
-    print(out)
 
 
 if __name__ == "__main__":
