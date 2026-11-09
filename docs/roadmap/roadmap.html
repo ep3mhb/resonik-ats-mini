@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RESONIK roadmap</title>
+<style>
+@font-face { font-family: "Vazirmatn"; src: url("../../website/fonts/vazirmatn.woff2") format("woff2"); font-weight: 100 900; }
+@font-face { font-family: "Sora"; src: url("../../website/fonts/sora.woff2") format("woff2"); font-weight: 100 900; }
+:root { --navy:#073A4B; --blue:#108AB1; --pink:#F04770; --coral:#F78C6A; --yellow:#FFD167; --green:#06D7A0; --ink:#1b1f23; --muted:#5b6670; --line:#d9dee2; --soft:#f3f6f7; }
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+html { font-family: "Sora", "Vazirmatn", sans-serif; color: var(--ink); font-size: 8.9pt; line-height: 1.4; }
+body { margin: 0; }
+.page { width: 210mm; height: 297mm; position: relative; overflow: hidden; break-after: page; }
+.page:last-child { break-after: auto; }
+.head { background: var(--navy); color: #fff; padding: 10mm 16mm 6mm; position: relative; }
+.bars { position: absolute; top: 0; left: 0; right: 0; display: flex; height: 2.5mm; }
+.bars i { flex: 1; }
+.brand { display: flex; align-items: center; gap: 4mm; }
+.brand img { width: 11mm; filter: brightness(0) invert(1); }
+.brand span { font-size: 17pt; font-weight: 800; letter-spacing: 1.6mm; }
+.head h1 { font-size: 20pt; margin: 3.5mm 0 1mm; font-weight: 800; }
+.head p { margin: 0; color: #cfe6ee; font-size: 10.5pt; }
+.legend { display: flex; gap: 5mm; margin-top: 3mm; font-size: 8.6pt; color: #e8f3f6; }
+.legend b { display: inline-block; width: 3.2mm; height: 3.2mm; border-radius: 1mm; vertical-align: -0.4mm; margin-right: 1.5mm; }
+.body { padding: 4.5mm 16mm 0; }
+.rel { display: grid; grid-template-columns: 31mm 1fr; gap: 0 6mm; position: relative; }
+.rel .when { text-align: right; padding-top: 1mm; }
+.rel .when .v { font-size: 13pt; font-weight: 800; color: var(--navy); line-height: 1.1; }
+.rel .when .d { font-size: 8.4pt; color: var(--muted); }
+.chip { display: inline-block; font-size: 7.6pt; font-weight: 700; padding: 0.4mm 2.2mm; border-radius: 4mm; margin-top: 1.2mm; color: var(--navy); }
+.card { border-left: 1.2mm solid var(--c); background: var(--soft); border-radius: 0 2.5mm 2.5mm 0; padding: 2mm 4.5mm 2.2mm; margin-bottom: 2.4mm; break-inside: avoid; }
+.card h2 { margin: 0 0 0.8mm; font-size: 10.2pt; color: var(--navy); }
+.card ul { margin: 0; padding-left: 4.5mm; columns: 2; column-gap: 7mm; }
+.card li { margin: 0 0 0.3mm; break-inside: avoid; }
+.card.one ul { columns: 1; }
+.card p { margin: 0 0 1.5mm; }
+.no { background: #fff; border: 1px dashed var(--line); border-left: 1.2mm solid #b9c2c8; }
+.foot { position: absolute; bottom: 0; left: 0; right: 0; padding: 3mm 16mm 4.5mm; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; font-size: 8.4pt; color: var(--muted); }
+.foot b { color: var(--navy); }
+.foot img { width: 13mm; height: 13mm; }
+/* Persian page */
+.fa { font-family: "Vazirmatn", sans-serif; direction: rtl; font-size: 9pt; line-height: 1.55; }
+.fa .rel { grid-template-columns: 31mm 1fr; }
+.fa .rel .when { text-align: left; }
+.fa .card { border-left: none; border-right: 1.2mm solid var(--c); border-radius: 2.5mm 0 0 2.5mm; }
+.fa .card ul { padding-left: 0; padding-right: 4.5mm; }
+.fa .no { border-right: 1.2mm solid #b9c2c8; }
+.fa .brand { direction: ltr; justify-content: flex-end; }
+bdi { unicode-bidi: isolate; direction: ltr; white-space: nowrap; }
+.fa .legend { direction: rtl; justify-content: flex-start; }
+.fa .legend b { margin-right: 0; margin-left: 1.5mm; }
+</style>
+</head>
+<body>
+
+<!-- English -->
+<section class="page">
+  <div class="head">
+    <div class="bars"><i style="background:#F04770"></i><i style="background:#F78C6A"></i><i style="background:#FFD167"></i><i style="background:#06D7A0"></i><i style="background:#108AB1"></i></div>
+    <div class="brand"><img src="../manual-fa/img/resonik-symbol.svg" alt=""><span>RESONIK</span></div>
+    <h1>Roadmap</h1>
+    <p>What each release of the free ATS Mini firmware brings · {{DATE_EN}}</p>
+    <div class="legend"><span><b style="background:#06D7A0"></b>Released</span><span><b style="background:#FFD167"></b>In testing</span><span><b style="background:#108AB1"></b>Planned</span><span><b style="background:#b9c2c8"></b>Ideas</span></div>
+  </div>
+  <div class="body">
+    <div class="rel"><div class="when"><div class="v">v2.45-r1</div><div class="d">6 Nov 2026</div><span class="chip" style="background:#06D7A0">Released</span></div>
+      <div class="card" style="--c:#06D7A0"><h2>The basics for listeners and hams</h2><ul>
+        <li>CW mode with the true CW frequency</li><li>IARU Region 1 band plan on the scale, automatic LSB/USB</li>
+        <li>Dual clock (local and UTC), named time zones</li><li>Reliable clock sync at power-on</li>
+        <li>Battery time remaining</li><li>Automatic attenuation for strong AM stations</li>
+        <li>Browser installer and Wi-Fi updates from RESONIK</li><li>RESONIK boot screen and About</li></ul></div></div>
+
+    <div class="rel"><div class="when"><div class="v">v2.45-r2</div><div class="d">8 Nov 2026</div><span class="chip" style="background:#06D7A0">Released</span></div>
+      <div class="card" style="--c:#06D7A0"><h2>New menu and station tools</h2><ul>
+        <li>New default menu: six categories of coloured tiles</li><li>Full-screen settings pages</li>
+        <li>NCDXF/IARU beacon tracker</li><li>Memory scan, stops on signals</li>
+        <li>Signal logger to a CSV file</li><li>Propagation data from hamqsl.com</li>
+        <li>CAT control from a PC (Kenwood TS-480)</li><li>EiBi schedules with days, language and target</li>
+        <li>Knob setting: 20 or 30 clicks</li><li>Persian user manual (PDF)</li></ul></div></div>
+
+    <div class="rel"><div class="when"><div class="v">v2.45-r3</div><div class="d">testing now</div><span class="chip" style="background:#FFD167">In testing</span></div>
+      <div class="card" style="--c:#FFD167"><h2>Decoders and smarter tuning</h2><ul>
+        <li>CW decoder: Morse to text, full screen or as a strip</li><li>FT8 decoder with waterfall and message list</li>
+        <li>Band scanner that holds on signals</li><li>Band Plan Auto: mode, filter and step set per band segment</li>
+        <li>Plan areas: Region 1, UAE and Iran</li><li>Fixes from other ats-mini forks</li></ul>
+        <p style="margin-top:1.5mm;color:var(--muted);font-size:8.4pt">CW and FT8 decoding use the speaker line wired to GPIO11 on V4/V4B boards.</p></div></div>
+
+    <div class="rel"><div class="when"><div class="v">v2.45-r4</div><div class="d">next</div><span class="chip" style="background:#108AB1;color:#fff">Planned</span></div>
+      <div class="card" style="--c:#108AB1"><h2>More decoding and a better view of the band</h2><ul>
+        <li>RTTY decoder</li><li>Scan as a waterfall, blue to yellow</li>
+        <li>Status page: ESP32 temperature, memory, uptime, restart</li><li>Propagation map with the day/night line</li></ul></div></div>
+
+    <div class="rel"><div class="when"><div class="v">Later</div><div class="d">under study</div><span class="chip" style="background:#d9dee2">Ideas</span></div>
+      <div class="card one" style="--c:#b9c2c8"><h2>Ideas</h2><ul>
+        <li>Automatic mode detection from the received audio (experimental)</li>
+        <li>New ats-mini versions merged in as they are released</li>
+        <li>Your suggestions: send them in the Telegram group or on GitHub</li></ul></div></div>
+
+    <div class="rel"><div class="when"><div class="v" style="font-size:11pt">Not possible</div><div class="d">on this radio</div></div>
+      <div class="card one no"><h2>Noise reduction and sound effects</h2>
+        <p>The sound goes straight from the receiver chip to the speaker; the processor can only listen to it. It can decode signals, but it cannot change what you hear. For a cleaner sound use a narrower Bandwidth, SoftMute, AVC or Squelch.</p></div></div>
+  </div>
+  <div class="foot"><div><b>resonik.mikroutik.com</b> · github.com/ep3mhb/resonik-ats-mini<br>Plans and their order may change. Updates install over Wi-Fi: Menu → System → Update FW.</div><img src="../manual-fa/img/qr-site.svg" alt=""></div>
+</section>
+
+<!-- Persian -->
+<section class="page fa" lang="fa">
+  <div class="head">
+    <div class="bars"><i style="background:#F04770"></i><i style="background:#F78C6A"></i><i style="background:#FFD167"></i><i style="background:#06D7A0"></i><i style="background:#108AB1"></i></div>
+    <div class="brand"><img src="../manual-fa/img/resonik-symbol.svg" alt=""><span>RESONIK</span></div>
+    <h1>نقشه‌ی راه</h1>
+    <p>فریم‌ور رایگان و متن‌باز برای رادیو <bdi>ATS Mini</bdi> · امکانات هر نسخه · {{DATE_FA}}</p>
+    <div class="legend"><span><b style="background:#06D7A0"></b>منتشر شده</span><span><b style="background:#FFD167"></b>در حال تست</span><span><b style="background:#108AB1"></b>برنامه‌ریزی شده</span><span><b style="background:#b9c2c8"></b>ایده‌ها</span></div>
+  </div>
+  <div class="body">
+    <div class="rel"><div class="when"><div class="v"><bdi>v2.45-r1</bdi></div><div class="d">۱۵ آبان ۱۴۰۵</div><span class="chip" style="background:#06D7A0">منتشر شده</span></div>
+      <div class="card" style="--c:#06D7A0"><h2>امکانات پایه برای شنوندگان و آماتورها</h2><ul>
+        <li>حالت <bdi>CW</bdi> با نمایش فرکانس واقعی سیگنال</li><li>نقشه‌ی باند <bdi>IARU</bdi> منطقه‌ی ۱ و انتخاب خودکار <bdi>LSB/USB</bdi></li>
+        <li>ساعت دوگانه‌ی محلی و <bdi>UTC</bdi> با مناطق زمانی</li><li>همگام‌سازی مطمئن ساعت هنگام روشن شدن</li>
+        <li>تخمین زمان باقی‌مانده‌ی باتری</li><li>تضعیف خودکار برای ایستگاه‌های قوی <bdi>AM</bdi></li>
+        <li>نصب از مرورگر و به‌روزرسانی از راه <bdi>Wi-Fi</bdi></li><li>صفحه‌ی شروع و بخش <bdi>About</bdi> با نشان RESONIK</li></ul></div></div>
+
+    <div class="rel"><div class="when"><div class="v"><bdi>v2.45-r2</bdi></div><div class="d">۱۷ آبان ۱۴۰۵</div><span class="chip" style="background:#06D7A0">منتشر شده</span></div>
+      <div class="card" style="--c:#06D7A0"><h2>منوی جدید و ابزارهای ایستگاه</h2><ul>
+        <li>منوی جدید و پیش‌فرض با شش دسته و آیکون‌های رنگی</li><li>برگه‌های تنظیمات تمام‌صفحه</li>
+        <li>ردیاب بیکن‌های <bdi>NCDXF/IARU</bdi></li><li>اسکن حافظه‌ها با توقف روی سیگنال</li>
+        <li>ثبت سیگنال در فایل <bdi>CSV</bdi></li><li>شرایط انتشار امواج از <bdi>hamqsl.com</bdi></li>
+        <li>کنترل <bdi>CAT</bdi> از کامپیوتر (<bdi>Kenwood TS-480</bdi>)</li><li>برنامه‌ی <bdi>EiBi</bdi> با روزهای پخش، زبان و منطقه‌ی هدف</li>
+        <li>تنظیم نوع ولوم: ۲۰ یا ۳۰ کلیک</li><li>راهنمای کاربری فارسی (<bdi>PDF</bdi>)</li></ul></div></div>
+
+    <div class="rel"><div class="when"><div class="v"><bdi>v2.45-r3</bdi></div><div class="d">هم‌اکنون</div><span class="chip" style="background:#FFD167">در حال تست</span></div>
+      <div class="card" style="--c:#FFD167"><h2>دیکودرها و تنظیم هوشمندتر</h2><ul>
+        <li>دیکودر <bdi>CW</bdi>: تبدیل مورس به متن، تمام‌صفحه یا نواری</li><li>دیکودر <bdi>FT8</bdi> با واترفال و فهرست پیام‌ها</li>
+        <li>اسکنر باند با توقف روی سیگنال</li><li><bdi>Band Plan Auto</bdi>: تنظیم خودکار مد، فیلتر و گام در هر بخش باند</li>
+        <li>نقشه‌ی باند منطقه‌ی ۱، امارات و ایران</li><li>رفع اشکال‌های برگرفته از دیگر نسخه‌های <bdi>ats-mini</bdi></li></ul>
+        <p style="margin-top:1.5mm;color:var(--muted);font-size:8.6pt">دیکودرهای <bdi>CW</bdi> و <bdi>FT8</bdi> از خط صدای بلندگو که در بردهای <bdi>V4/V4B</bdi> به <bdi>GPIO11</bdi> وصل است استفاده می‌کنند.</p></div></div>
+
+    <div class="rel"><div class="when"><div class="v"><bdi>v2.45-r4</bdi></div><div class="d">نسخه‌ی بعد</div><span class="chip" style="background:#108AB1;color:#fff">برنامه‌ریزی شده</span></div>
+      <div class="card" style="--c:#108AB1"><h2>دیکودر بیشتر و نمای بهتر از باند</h2><ul>
+        <li>دیکودر <bdi>RTTY</bdi></li><li>نمایش واترفال آبی‌وزرد برای <bdi>Scan</bdi></li>
+        <li>صفحه‌ی وضعیت: دمای <bdi>ESP32</bdi>، حافظه، زمان کارکرد، ری‌استارت</li><li>نقشه‌ی انتشار امواج با خط روز و شب</li></ul></div></div>
+
+    <div class="rel"><div class="when"><div class="v">بعدها</div><div class="d">در حال بررسی</div><span class="chip" style="background:#d9dee2">ایده‌ها</span></div>
+      <div class="card one" style="--c:#b9c2c8"><h2>ایده‌ها</h2><ul>
+        <li>تشخیص خودکار مدولاسیون از روی صدای دریافتی (آزمایشی)</li>
+        <li>افزودن نسخه‌های تازه‌ی <bdi>ats-mini</bdi> پس از انتشار</li>
+        <li>پیشنهادهای شما: در گروه تلگرام یا در <bdi>GitHub</bdi> بفرستید</li></ul></div></div>
+
+    <div class="rel"><div class="when"><div class="v" style="font-size:11pt">ممکن نیست</div><div class="d">در این رادیو</div></div>
+      <div class="card one no"><h2>حذف نویز و افکت‌های صدا</h2>
+        <p>صدا مستقیم از تراشه‌ی گیرنده به بلندگو می‌رود و پردازنده فقط می‌تواند آن را بشنود؛ پس می‌تواند سیگنال‌ها را رمزگشایی کند، اما صدایی را که می‌شنوید تغییر نمی‌دهد. برای صدای تمیزتر از <bdi>Bandwidth</bdi> باریک‌تر، <bdi>SoftMute</bdi>، <bdi>AVC</bdi> یا <bdi>Squelch</bdi> استفاده کنید.</p></div></div>
+  </div>
+  <div class="foot"><div><b><bdi>resonik.mikroutik.com</bdi></b><br>برنامه‌ها و ترتیب آن‌ها ممکن است تغییر کند. به‌روزرسانی از راه <bdi>Wi-Fi</bdi>: <bdi>Menu → System → Update FW</bdi></div><img src="../manual-fa/img/qr-site.svg" alt=""></div>
+</section>
+
+</body>
+</html>
