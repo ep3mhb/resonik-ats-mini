@@ -102,6 +102,7 @@
             </esp-web-install-button>
           </div>
         </div>
+        <p class="stats" id="stats" hidden>Installed from this page <b id="st-web">0</b> times · downloaded from GitHub <b id="st-gh">0</b> times</p>
 
         <details class="more">
           <summary>Before you start, and other ways to install</summary>
@@ -177,5 +178,14 @@
       <rect x="72" y="55" width="8" height="11" rx="3" fill="currentColor"/>
     </symbol>
   </svg>
+  <script>
+    fetch("/api/stats").then(r => r.ok ? r.json() : Promise.reject())
+      .then(d => {
+        const f = n => Number(n).toLocaleString("en");
+        document.getElementById("st-web").textContent = f(d.web.total);
+        document.getElementById("st-gh").textContent = f(d.github.total ?? 0);
+        document.getElementById("stats").hidden = false;
+      }).catch(() => {});
+  </script>
 </body>
 </html>

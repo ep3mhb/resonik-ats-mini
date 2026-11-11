@@ -2,6 +2,10 @@
 
 # RESONIK edition of the ATS Mini firmware
 
+[![GitHub downloads](https://img.shields.io/github/downloads/ep3mhb/resonik-ats-mini/total?label=GitHub%20downloads&color=108AB1)](https://github.com/ep3mhb/resonik-ats-mini/releases)
+[![Web installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fresonik.mikroutik.com%2Fapi%2Fbadge%3Ftype%3Dweb)](https://resonik.mikroutik.com)
+[![Total downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fresonik.mikroutik.com%2Fapi%2Fbadge%3Ftype%3Dtotal)](https://resonik.mikroutik.com)
+
 An improved firmware for the **ATS Mini** pocket receiver (ESP32-S3 + SI4732): LW, MW, SW and FM, with AM, LSB, USB and CW.
 It is built on the open-source [ats-mini](https://github.com/esp32-si4732/ats-mini) firmware and keeps everything it does,
 adding features for shortwave listeners and radio amateurs.
