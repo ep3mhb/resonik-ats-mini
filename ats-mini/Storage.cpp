@@ -223,6 +223,7 @@ void prefsSave(uint32_t items)
     prefs.putUChar("FmRegion",    FmRegionIdx);    // FM region
     prefs.putUChar("FmStereo",    fmStereoIdx);    // FM stereo mode
     prefs.putBool("AudioClamp",   audioClamp);     // Hardware audio clamp present
+    prefs.putBool("AutoAntCap", autoAntennaCapacitor);
     prefs.putUChar("DSPPatchset", dspPatchesIdx);  // DSP patches
     prefs.putUChar("UILayout",    uiLayoutIdx);    // UI Layout
     prefs.putUChar("BandPlan",    bandPlanIdx);    // Band plan (RESONIK)
@@ -324,6 +325,7 @@ bool prefsLoad(uint32_t items)
     FmRegionIdx    = prefs.getUChar("FmRegion", FmRegionIdx);   // FM region
     fmStereoIdx    = prefs.getUChar("FmStereo", fmStereoIdx);   // FM stereo mode
     audioClamp     = prefs.getBool("AudioClamp", true);        // Hardware audio clamp present
+    autoAntennaCapacitor = prefs.getBool("AutoAntCap", false);
     dspPatchesIdx  = prefs.getUChar("DSPPatchset", DSP_PATCHES_DEFAULT); // Uploaded patch set
     uiLayoutIdx    = prefs.getUChar("UILayout", uiLayoutIdx);   // UI Layout
     bandPlanIdx    = prefs.getUChar("BandPlan", bandPlanIdx) % getTotalBandPlanModes();
