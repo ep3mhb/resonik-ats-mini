@@ -1,0 +1,13 @@
+# Deploy with: npx wrangler deploy   (after creating the KV namespace and pasting its id)
+name = "resonik-counter"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+
+routes = [
+  { pattern = "resonik.mikroutik.com/firmware/*", zone_name = "mikroutik.com" },
+  { pattern = "resonik.mikroutik.com/api/*", zone_name = "mikroutik.com" },
+]
+
+[[kv_namespaces]]
+binding = "COUNTS"
+id = "PASTE_KV_NAMESPACE_ID_HERE"
