@@ -345,10 +345,27 @@ static void wifiRegisterPowerLevelCallback()
   registered = true;
 }
 
+// Transmit power from the Wi-Fi Power setting (RESONIK R3): Low and Lowest
+// help boards that reset when Wi-Fi transmits, and save some battery
+static wifi_power_t wifiTxPower()
+{
+  switch(wifiPowerIdx)
+  {
+    case 1:  return(WIFI_POWER_13dBm);
+    case 2:  return(WIFI_POWER_8_5dBm);
+    default: return(WIFI_POWER_LEVEL);
+  }
+}
+
+void wifiApplyTxPower()
+{
+  if(WiFi.getMode() != WIFI_MODE_NULL) WiFi.setTxPower(wifiTxPower());
+}
+
 static void wifiPowerLevelOnEvent(WiFiEvent_t event)
 {
   (void)event;
-  WiFi.setTxPower(WIFI_POWER_LEVEL);
+  WiFi.setTxPower(wifiTxPower());
 }
 
 //

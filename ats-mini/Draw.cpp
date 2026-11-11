@@ -134,6 +134,15 @@ void drawBandAndMode(const char *band, const char *mode, int x, int y)
   spr.drawRoundRect(vfoX, y + 7, 17, 17, 4, TH.mode_border);
   spr.setTextDatum(TC_DATUM);
   spr.drawString(vfoIdx? "B" : "A", vfoX + 9, y + 8, FONT_SMALL);
+
+  // Frequency lock (RESONIK R3): a small padlock after the VFO box
+  if(freqLock)
+  {
+    int lx = vfoX + 21;
+    spr.drawRoundRect(lx, y + 7, 17, 17, 4, TH.mode_border);
+    spr.drawArc(lx + 8, y + 13, 4, 3, 180, 360, TH.mode_text);
+    spr.fillRect(lx + 4, y + 13, 9, 7, TH.mode_text);
+  }
 }
 
 //

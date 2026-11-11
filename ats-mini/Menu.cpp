@@ -161,7 +161,9 @@ static const char *menu[] =
 #define MENU_CWSTRIP      28  // RESONIK R3
 #define MENU_BPAREA       29  // RESONIK R3
 #define MENU_FT8          30  // RESONIK R3
-#define MENU_ABOUT        31
+#define MENU_FREQLOCK     31  // RESONIK R3
+#define MENU_WIFIPOWER    32  // RESONIK R3
+#define MENU_ABOUT        33
 
 
 static uint8_t updateFwIdx = 0;
@@ -201,7 +203,9 @@ static const char *settings[] =
   "CW Decoder",
   "CW Strip",
   "Plan Area",
-  "FT8",
+  "FT8/FT4",
+  "Freq Lock",
+  "Wi-Fi Power",
   "About",
 };
 
@@ -230,6 +234,7 @@ typedef struct
 static const TileEntry tileTuning[] =
 {
   { TI_BAND, MENU_BAND }, { TI_MODE, MENU_MODE }, { TI_BANDWIDTH, MENU_BW },
+  { TI_LOCK, TILE_SET | MENU_FREQLOCK },
   { TI_REGION, TILE_SET | MENU_FM_REGION }, { TI_RDS, TILE_SET | MENU_RDS },
   { TI_SCAN, MENU_SCAN }, { TI_SCANNER, MENU_SCANNER }, { TI_SEEK, MENU_SEEK }, { TI_STEP, MENU_STEP }, { TI_VFO, MENU_VFO },
 };
@@ -266,6 +271,7 @@ static const TileEntry tileSystem[] =
   { TI_POWER, TILE_SET | MENU_OFFTIMER }, { TI_NETWORK, TILE_SET | MENU_TCPMODE },
   { TI_GLOBE, TILE_SET | MENU_UTCOFFSET }, { TI_FIRMWARE, TILE_SET | MENU_UPDATEFW },
   { TI_USB, TILE_SET | MENU_USBMODE }, { TI_WIFI, TILE_SET | MENU_WIFIMODE },
+  { TI_WIFIPOWER, TILE_SET | MENU_WIFIPOWER },
 };
 
 static const TileCategory tileCategories[] =
@@ -340,6 +346,10 @@ const char *const autoAttDesc[] = { "Off", "On" };
 uint8_t menuStyleIdx = MENU_STYLE_TILES;   // Tiles by default (RESONIK)
 const char *const menuStyleDesc[] = { "Classic", "Tiles" };
 static const char *const knobDesc[] = { "20 clicks", "30 clicks" };
+uint8_t freqLock = 0;
+static const char *const freqLockDesc[] = { "Off", "On" };
+uint8_t wifiPowerIdx = 0;
+const char *const wifiPowerDesc[] = { "Normal", "Low", "Lowest" };
 
 //
 // FM Region Menu
@@ -1679,6 +1689,8 @@ static void clickSettings(int cmd, bool shortPress)
     case MENU_DSP_PATCHES: currentCmd = CMD_DSP_PATCHES; break;
     case MENU_ABOUT:      currentCmd = CMD_ABOUT;     break;
     case MENU_KNOB:       currentCmd = CMD_KNOB;      break;
+    case MENU_FREQLOCK:   currentCmd = CMD_FREQLOCK;  break;
+    case MENU_WIFIPOWER:  currentCmd = CMD_WIFIPOWER; break;
     case MENU_BANDPLAN:   currentCmd = CMD_BANDPLAN;  break;
     case MENU_BPAREA:     currentCmd = CMD_BPAREA;    break;
     case MENU_AUTOATT:    currentCmd = CMD_AUTOATT;   break;
@@ -1762,6 +1774,17 @@ bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
     case CMD_BPAREA:
       bandPlanArea = wrap_range(bandPlanArea, scrollDirection * enc, 0, BP_AREA_COUNT - 1);
       if(bandPlanArea == BP_AREA_IRAN) statusShow("Iran (EP)", "No 160, 80 or 30 m");
+      prefsRequestSave(SAVE_SETTINGS);
+      break;
+    case CMD_FREQLOCK:
+      freqLock = !freqLock;
+      statusShow(freqLock ? "Frequency locked" : "Frequency unlocked",
+                 freqLock ? "Knob sets the volume" : nullptr);
+      prefsRequestSave(SAVE_SETTINGS);
+      break;
+    case CMD_WIFIPOWER:
+      wifiPowerIdx = wrap_range(wifiPowerIdx, scrollDirection * enc, 0, 2);
+      wifiApplyTxPower();
       prefsRequestSave(SAVE_SETTINGS);
       break;
     case CMD_KNOB:
@@ -2817,6 +2840,8 @@ void drawSideBar(uint16_t cmd, int x, int y, int sx)
     case CMD_CWSTRIP:    drawOptionList(settings[MENU_CWSTRIP], cwStripDesc, 2, cwStripIdx, x, y, sx); break;
     case CMD_BPAREA:     drawOptionList(settings[MENU_BPAREA], bandPlanAreaDesc, BP_AREA_COUNT, bandPlanArea, x, y, sx); break;
     case CMD_KNOB:       drawOptionList(settings[MENU_KNOB], knobDesc, 2, encoderHalfStep ? 1 : 0, x, y, sx); break;
+    case CMD_FREQLOCK:   drawOptionList(settings[MENU_FREQLOCK], freqLockDesc, 2, freqLock, x, y, sx); break;
+    case CMD_WIFIPOWER:  drawOptionList(settings[MENU_WIFIPOWER], wifiPowerDesc, 3, wifiPowerIdx, x, y, sx); break;
     case CMD_BEACON:     drawOptionList(menu[MENU_BEACONS], beaconMenuLabels, 19, beaconFollowIdx + 1, x, y, sx); break;
     case CMD_VOLUME:     drawVolume(x, y, sx);     break;
     case CMD_AGC:        drawAgc(x, y, sx);        break;
@@ -2913,19 +2938,25 @@ bool bandPlanAutoSideband()
 
 //
 // FT8 page (RESONIK R3): the FT8 dial frequencies of the amateur bands in
-// the band list (60 m is not in it), always USB with the 3.0k filter. The
+// the band list (60 m is not in it), then the FT4 ones, always USB with the
+// 3.0k filter. The
 // page saves the whole band table on opening and puts it back on leaving, so
 // the radio returns exactly to where it was.
 //
-static const struct { const char *band; uint32_t freq; } ft8Channels[] =
+static const struct { const char *band; uint32_t freq; bool ft4; } ft8Channels[] =
 {
   { "160M", 1840000 }, { "80M", 3573000 }, { "40M", 7074000 }, { "30M", 10136000 },
   { "20M", 14074000 }, { "17M", 18100000 }, { "15M", 21074000 }, { "12M", 24915000 },
   { "10M", 28074000 },
+  // FT4 (R3)
+  { "80M", 3575000, true }, { "40M", 7047500, true }, { "30M", 10140000, true },
+  { "20M", 14080000, true }, { "17M", 18104000, true }, { "15M", 21140000, true },
+  { "12M", 24919000, true }, { "10M", 28180000, true },
 };
 
 int ft8ChannelCount() { return(ITEM_COUNT(ft8Channels)); }
 const char *ft8ChannelName(int ch) { return(ft8Channels[ch].band); }
+bool ft8ChannelIsFt4(int ch) { return(ft8Channels[ch].ft4); }
 
 static int bandIndexOf(const char *name)
 {
@@ -2936,7 +2967,7 @@ static int bandIndexOf(const char *name)
 int ft8ChannelOfCurrent()
 {
   for(int i = 0 ; i < (int)ITEM_COUNT(ft8Channels) ; i++)
-    if(!strcmp(ft8Channels[i].band, bands[bandIdx].bandName)) return(i);
+    if(!ft8Channels[i].ft4 && !strcmp(ft8Channels[i].band, bands[bandIdx].bandName)) return(i);
   return(-1);
 }
 
@@ -3024,6 +3055,8 @@ static const char *tileValueLabel(uint16_t cmd, int i)
     case CMD_SCROLL:    return(i ? "Reversed" : "Normal");
     case CMD_CWSTRIP:   return(cwStripDesc[i]);
     case CMD_KNOB:      return(knobDesc[i]);
+    case CMD_FREQLOCK:  return(freqLockDesc[i]);
+    case CMD_WIFIPOWER: return(wifiPowerDesc[i]);
     case CMD_BPAREA:    return(bandPlanAreaDesc[i]);
     default:            return("");
   }
@@ -3066,6 +3099,8 @@ static bool tileValueGet(uint16_t cmd, TileValue &v)
     case CMD_CWSTRIP:   v.count = 2; v.idx = cwStripIdx; return(true);
     case CMD_BPAREA:    v.count = BP_AREA_COUNT; v.idx = bandPlanArea; return(true);
     case CMD_KNOB:      v.count = 2; v.idx = encoderHalfStep ? 1 : 0; return(true);
+    case CMD_FREQLOCK:  v.count = 2; v.idx = freqLock; return(true);
+    case CMD_WIFIPOWER: v.count = 3; v.idx = wifiPowerIdx; return(true);
   }
 
   v.list = false;

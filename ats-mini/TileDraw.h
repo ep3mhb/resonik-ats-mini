@@ -18,6 +18,7 @@ enum TileIcon : uint8_t
   TI_RDS, TI_STEREO, TI_DIAL, TI_CHIP, TI_DOWNLOAD, TI_FIRMWARE, TI_USB, TI_NETWORK, TI_BT,
   TI_WIFI, TI_BANDPLAN, TI_ATT, TI_TILES, TI_LOG, TI_PROP, TI_INFO, TI_REGION,
   TI_BACK, TI_CLOSE, TI_SLEEPTIMER, TI_FORK, TI_KNOB, TI_CWDEC, TI_CWSTRIP, TI_SCANNER, TI_FT8,
+  TI_LOCK, TI_WIFIPOWER,
 };
 
 typedef struct
@@ -377,6 +378,20 @@ static void tileDrawIcon(S &s, TileIcon icon, int x, int y, uint16_t c, uint16_t
         s.fillCircle(x + (int)(14 * cosf(a * 0.01745f)), y + (int)(14 * sinf(a * 0.01745f)), 1, c);
       s.drawWideLine(x, y, x, y - 7, 1.6f, c);
       break;
+    case TI_LOCK:        // Padlock
+      s.drawArc(x, y - 3, 8, 6, 180, 360, c);
+      s.fillRect(x - 8, y - 3, 3, 4, c);
+      s.fillRect(x + 6, y - 3, 3, 4, c);
+      s.fillRoundRect(x - 11, y + 1, 23, 13, 2, c);
+      break;
+    case TI_WIFIPOWER:   // Wi-Fi arcs with a level bar
+      s.fillCircle(x - 4, y + 9, 2, c);
+      s.drawArc(x - 4, y + 9, 8, 6, 225, 315, c);
+      s.drawArc(x - 4, y + 9, 14, 12, 225, 315, c);
+      s.fillRect(x + 9, y + 5, 3, 6, c);
+      s.fillRect(x + 13, y + 1, 3, 10, c);
+      s.drawRect(x + 17, y - 4, 3, 15, c);
+      break;
     case TI_FT8:         // Waterfall screen with three signal traces
       s.drawRoundRect(x - 13, y - 11, 26, 22, 3, c);
       s.drawRoundRect(x - 12, y - 10, 24, 20, 2, c);
@@ -684,6 +699,22 @@ static void tileDrawIconColor(S &s, TileIcon icon, int x, int y, uint16_t bg)
       for(int a = 0 ; a < 360 ; a += 45)
         s.fillCircle(x + (int)(14 * cosf(a * 0.01745f)), y + (int)(14 * sinf(a * 0.01745f)), 1, TC_W);
       s.drawWideLine(x, y, x, y - 8, 1.8f, TC_Y);
+      break;
+    case TI_LOCK:        // Yellow padlock, dark keyhole
+      s.drawArc(x, y - 3, 8, 6, 180, 360, TC_W);
+      s.fillRect(x - 8, y - 3, 3, 4, TC_W);
+      s.fillRect(x + 6, y - 3, 3, 4, TC_W);
+      s.fillRoundRect(x - 11, y + 1, 23, 13, 2, TC_Y);
+      s.fillCircle(x, y + 6, 2, TC_K);
+      s.fillRect(x - 1, y + 7, 3, 4, TC_K);
+      break;
+    case TI_WIFIPOWER:   // Wi-Fi arcs, green, yellow and empty level bars
+      s.fillCircle(x - 4, y + 9, 2, TC_W);
+      s.drawArc(x - 4, y + 9, 8, 6, 225, 315, TC_G);
+      s.drawArc(x - 4, y + 9, 14, 12, 225, 315, TC_Y);
+      s.fillRect(x + 9, y + 5, 3, 6, TC_G);
+      s.fillRect(x + 13, y + 1, 3, 10, TC_Y);
+      s.drawRect(x + 17, y - 4, 3, 15, TC_W);
       break;
     case TI_FT8:         // Dark waterfall, green, yellow and pink traces
       s.fillRoundRect(x - 13, y - 11, 26, 22, 3, TC_W);

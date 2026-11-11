@@ -59,6 +59,8 @@
 #define CMD_KNOB       0x3F00 // RESONIK: encoder type
 #define CMD_BPAREA     0x4000 // RESONIK R3: band plan area (region or country)
 #define CMD_FT8        0x4100 // RESONIK R3: full-screen FT8 decoder
+#define CMD_FREQLOCK   0x4200 // RESONIK R3: frequency lock
+#define CMD_WIFIPOWER  0x4300 // RESONIK R3: Wi-Fi transmit power
 
 // Band plan settings (RESONIK)
 #define BANDPLAN_OFF       0
@@ -172,6 +174,9 @@ bool tuneToMemory(const Memory *memory);
 bool autoAttTick(uint8_t rssiNow);
 bool bandPlanAutoSideband();
 extern uint8_t bandPlanArea;
+extern uint8_t freqLock;           // RESONIK R3: 1 = knob tuning locked
+extern uint8_t wifiPowerIdx;       // RESONIK R3: 0 Normal, 1 Low, 2 Lowest
+extern const char *const wifiPowerDesc[];
 extern const char *const bandPlanAreaDesc[];
 bool drawTileMenu();
 void tileMenuOpen();

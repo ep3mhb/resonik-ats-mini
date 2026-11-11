@@ -3,8 +3,9 @@
 
 // RESONIK: FT8 receiver core. Takes raw audio samples (12-bit ADC values,
 // any DC offset) at 12 kHz, builds the FT8 waterfall with ft8_lib's monitor
-// and decodes a 15 second slot. No Arduino dependencies, so it is tested on
-// the host (tests/TestFt8.cpp). The ESP32 side is in Ft8.cpp.
+// and decodes a 15 second slot, or a 7.5 second FT4 slot. No Arduino
+// dependencies, so it is tested on the host (tests/TestFt8.cpp). The ESP32
+// side is in Ft8.cpp.
 //
 // ft8_lib (Karlis Goba, MIT) and KISS FFT (Mark Borgerding, BSD-3) are in
 // src/ft8, as adapted for the ESP32-S3 by the epiHATR ats-mini fork.
@@ -36,16 +37,19 @@ public:
   static const int TIME_OSR = 2, FREQ_OSR = 2;
   static const int F_MIN = 200, F_MAX = 2900;
 
-  bool begin()
+  // FT8 by default; begin(true) for FT4. Switching protocol starts afresh.
+  bool begin(bool ft4 = false)
   {
-    if(ready) return(true);
+    if(ready && isFt4 == ft4) return(true);
+    if(ready) end();
+    isFt4 = ft4;
     monitor_config_t cfg = {};
     cfg.f_min = F_MIN;
     cfg.f_max = F_MAX;
     cfg.sample_rate = FS;
     cfg.time_osr = TIME_OSR;
     cfg.freq_osr = FREQ_OSR;
-    cfg.protocol = FTX_PROTOCOL_FT8;
+    cfg.protocol = ft4 ? FTX_PROTOCOL_FT4 : FTX_PROTOCOL_FT8;
     monitor_init(&mon, &cfg);
     frame = new float[mon.block_size];
     if(!mon.wf.mag || !mon.window || !mon.fft_cfg || !frame)
@@ -103,6 +107,8 @@ public:
   }
 
   bool isReady() const { return(ready); }
+  bool ft4() const { return(isFt4); }
+  int slotMs() const { return(isFt4 ? 7500 : 15000); }
   int blocks() const { return(ready ? mon.wf.num_blocks : 0); }
   int maxBlocks() const { return(ready ? mon.wf.max_blocks : 0); }
   int bins() const { return(ready ? mon.wf.num_bins : 0); }
@@ -118,7 +124,7 @@ public:
   // Decode the slot collected so far; returns the number of messages
   int decode(Msg *out, int maxOut)
   {
-    if(!ready || mon.wf.num_blocks < FT8_NN / 2) return(0);
+    if(!ready || mon.wf.num_blocks < symbols() / 2) return(0);
 
     static ftx_candidate_t cand[MAX_CANDIDATES];
     int num = ftx_find_candidates(&mon.wf, MAX_CANDIDATES, cand, MIN_SCORE);
@@ -158,6 +164,9 @@ private:
 
   monitor_t mon = {};
   bool ready = false;
+  bool isFt4 = false;
+
+  int symbols() const { return(isFt4 ? FT4_NN : FT8_NN); }
   float *frame = nullptr;
   int fill = 0;
   float dc = 0, dev = 0;
@@ -176,13 +185,15 @@ private:
   }
 
   // Signal level on the decoded tones against the noise per bin, scaled to
-  // the 2500 Hz bandwidth WSJT-X uses: 10 log10(2500 / 6.25) = 26 dB
+  // the 2500 Hz bandwidth WSJT-X uses: 10 log10(2500 / 6.25) = 26 dB for FT8,
+  // 10 log10(2500 / 20.8) = 20.8 dB for FT4
   int8_t snr(const ftx_message_t *msg, const ftx_candidate_t *c, int noise) const
   {
-    uint8_t tones[FT8_NN];
-    ft8_encode(msg->payload, tones);
+    uint8_t tones[FT4_NN > FT8_NN ? FT4_NN : FT8_NN];
+    if(isFt4) ft4_encode(msg->payload, tones); else ft8_encode(msg->payload, tones);
+    const int nn = symbols();
     int sum = 0, count = 0;
-    for(int s = 0 ; s < FT8_NN ; s++)
+    for(int s = 0 ; s < nn ; s++)
     {
       int block = c->time_offset + s;
       int bin = c->freq_offset + tones[s];
@@ -196,7 +207,8 @@ private:
     float db = ((float)sum / count - noise) / 2.0f - 1.6f;
     // The tone bin holds signal plus noise
     float ratio = powf(10.0f, db / 10.0f) - 1.0f;
-    float s = ratio > 0.001f ? 10.0f * log10f(ratio) - 26.0f : -30.0f;
+    float bandDb = 10.0f * log10f(2500.0f * mon.symbol_period);
+    float s = ratio > 0.001f ? 10.0f * log10f(ratio) - bandDb : -30.0f;
     if(s < -30) s = -30;
     if(s > 40) s = 40;
     return((int8_t)lroundf(s));

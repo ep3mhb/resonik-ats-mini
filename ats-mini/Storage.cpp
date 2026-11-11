@@ -230,6 +230,8 @@ void prefsSave(uint32_t items)
     prefs.putUChar("AutoAtt",     autoAttIdx);     // Automatic attenuation (RESONIK)
     prefs.putUChar("BpArea",      bandPlanArea);   // Band plan area (RESONIK R3)
     prefs.putUChar("CwStrip",     cwStripIdx);     // CW decoder strip (RESONIK R3)
+    prefs.putUChar("FreqLock",    freqLock);       // Frequency lock (RESONIK R3)
+    prefs.putUChar("WifiPower",   wifiPowerIdx);   // Wi-Fi transmit power (RESONIK R3)
     prefs.putUChar("MenuStyle2",  menuStyleIdx);   // Menu style (RESONIK); new key so the tile default reaches radios updated from r1
     prefs.putUChar("Logger",      loggerIdx < LOG_CLEAR ? loggerIdx : 0); // Signal logger (RESONIK)
     prefs.putUChar("BLEMode",     bleModeIdx);     // Bluetooth mode
@@ -332,6 +334,8 @@ bool prefsLoad(uint32_t items)
     autoAttIdx     = prefs.getUChar("AutoAtt", autoAttIdx) ? 1 : 0;
     bandPlanArea   = prefs.getUChar("BpArea", bandPlanArea) % BP_AREA_COUNT;
     cwStripIdx     = prefs.getUChar("CwStrip", cwStripIdx) ? 1 : 0;   // Default Off (R3)
+    freqLock       = prefs.getUChar("FreqLock", freqLock) ? 1 : 0;
+    wifiPowerIdx   = prefs.getUChar("WifiPower", wifiPowerIdx) % 3;
     menuStyleIdx   = prefs.getUChar("MenuStyle2", menuStyleIdx) ? MENU_STYLE_TILES : MENU_STYLE_CLASSIC;
     loggerIdx      = prefs.getUChar("Logger", 0);
     if(loggerIdx >= LOG_CLEAR) loggerIdx = 0;

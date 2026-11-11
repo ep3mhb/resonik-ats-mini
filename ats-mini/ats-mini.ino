@@ -744,6 +744,8 @@ bool handleRotation(int16_t enc, int16_t accelerated, bool pressed)
     switch(currentCmd)
     {
       case CMD_NONE:
+        // Frequency lock (RESONIK R3): no digit tuning while locked
+        if(freqLock) { statusShow("Frequency locked", "Menu: Tuning > Freq Lock"); break; }
         currentCmd = CMD_FREQ;
         changed = true;
         break;
@@ -762,6 +764,19 @@ bool handleRotation(int16_t enc, int16_t accelerated, bool pressed)
     switch(currentCmd)
     {
       case CMD_NONE:
+        // Frequency lock (RESONIK R3): the knob sets the volume instead
+        if(freqLock)
+        {
+          doVolume(enc);
+          char v[8];
+          snprintf(v, sizeof(v), "%d", volume);
+          statusShow("Locked: volume", v, 1200);
+          changed = true;
+          break;
+        }
+        changed = doTune(accelerated);
+        prefsRequestSave(SAVE_CUR_BAND);
+        break;
       case CMD_SCAN:
         changed = doTune(accelerated);
         prefsRequestSave(SAVE_CUR_BAND);
