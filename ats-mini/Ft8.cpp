@@ -4,7 +4,8 @@
 // CW decoder's sampler (CwAudio.cpp, core 0) reads it at 12 kHz into a ring
 // in PSRAM; a worker task here feeds Ft8Rx.h, cuts the audio at the UTC
 // 15 second slot edges and decodes each slot while the next one is coming in.
-// The main loop only draws. Like the CW page, the page pauses Wi-Fi (ADC2 is
+// The main loop only draws. Turning the knob past 10 m goes on to the FT4
+// frequencies, with 7.5 second slots. Like the CW page, the page pauses Wi-Fi (ADC2 is
 // shared with the Wi-Fi radio) and gives it back on leaving.
 //
 // On opening, the page saves the radio set-up, tunes the FT8 dial frequency
@@ -45,6 +46,7 @@ static volatile bool running = false;     // The worker should process audio
 static volatile uint32_t generation = 0;  // Bumped on every start and band change
 static uint32_t cpuSaved = 0;
 static int channel = 2;                   // 40 m until a band says otherwise
+static volatile bool wantFt4 = false;     // Protocol of the channel; the worker switches
 
 // Shared with the worker (under lock)
 typedef struct
@@ -161,8 +163,17 @@ static void work(void *)
     struct timeval tv;
     gettimeofday(&tv, nullptr);
     uint32_t written = audioFt8Written();
-    int64_t now = tv.tv_sec / 15;
-    uint32_t msInSlot = (uint32_t)(tv.tv_sec % 15) * 1000 + tv.tv_usec / 1000;
+
+    if(gen != generation && ft8.ft4() != wantFt4 && !ft8.begin(wantFt4))
+    {
+      // Out of memory switching protocol: try again shortly
+      vTaskDelay(pdMS_TO_TICKS(200));
+      continue;
+    }
+    const int64_t slotMs = ft8.slotMs();
+    int64_t ms = (int64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000;
+    int64_t now = ms / slotMs;
+    uint32_t msInSlot = (uint32_t)(ms % slotMs);
 
     if(gen != generation)
     {
@@ -225,7 +236,10 @@ static bool start()
 {
   if(!lock) lock = xSemaphoreCreateMutex();
   if(!ring) ring = (int16_t *)heap_caps_malloc(RING_SAMPLES * sizeof(int16_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
-  if(!ring || !ft8.begin())
+  int ch = ft8ChannelOfCurrent();
+  if(ch >= 0) channel = ch;
+  wantFt4 = ft8ChannelIsFt4(channel);
+  if(!ring || !ft8.begin(wantFt4))
   {
     statusShow("FT8", "Not enough memory");
     return(false);
@@ -233,8 +247,6 @@ static bool start()
   if(!worker) xTaskCreatePinnedToCore(work, "ft8", 12288, nullptr, 1, &worker, 1);
 
   ft8SaveRadio();
-  int ch = ft8ChannelOfCurrent();
-  if(ch >= 0) channel = ch;
   ft8SelectChannel(channel);
   audioForFt8();
 
@@ -273,6 +285,7 @@ void ft8Turn(int16_t enc)
   if(!pageActive || !enc) return;
   int n = ft8ChannelCount();
   channel = (channel + (enc > 0 ? 1 : -1) + n) % n;
+  wantFt4 = ft8ChannelIsFt4(channel);
   ft8SelectChannel(channel);
   audioForFt8();
   // The list and the waterfall belong to the band that was left
@@ -384,8 +397,11 @@ void drawFt8Page()
   char buf[40];
   struct timeval tv;
   gettimeofday(&tv, nullptr);
-  int sec = tv.tv_sec % 15;
-  uint32_t slotNow = tv.tv_sec / 15;
+  const bool ft4 = wantFt4;
+  const int slotMs = ft4 ? 7500 : 15000;
+  int64_t ms = (int64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000;
+  int msIn = (int)(ms % slotMs);
+  uint32_t slotNow = (uint32_t)(ms / slotMs);
 
   spr.fillSprite(FT_DEEP);
 
@@ -393,11 +409,13 @@ void drawFt8Page()
   spr.fillRect(0, 0, 320, 28, FT_NAVY);
   spr.setTextDatum(ML_DATUM);
   spr.setTextColor(0xFFFF);
-  spr.drawString("FT8", 10, 14, uiFont(false));
+  spr.setTextColor(ft4 ? FT_YELLOW : 0xFFFF);
+  spr.drawString(ft4 ? "FT4" : "FT8", 10, 14, uiFont(false));
   spr.setTextColor(FT_MUTED);
   spr.drawString(ft8ChannelName(channel), 48, 14, uiFont(true));
   snprintf(buf, sizeof(buf), "%lu.%03lu", (unsigned long)(currentFrequency / 1000000), (unsigned long)(currentFrequency / 1000 % 1000));
   spr.setTextColor(FT_YELLOW);
+  if(ft4) spr.setTextColor(0xFFFF);
   spr.drawString(buf, 88, 15, &lgfx::fonts::FreeSansBold12pt7b);
   spr.setTextDatum(MR_DATUM);
   if(clockAvailable())
@@ -417,7 +435,7 @@ void drawFt8Page()
 
   // Slot progress: green while a slot is being collected
   spr.fillRect(0, 28, 320, 3, FT_TRACK);
-  spr.fillRect(0, 28, (sec * 1000 + tv.tv_usec / 1000) * 320 / 15000, 3, collecting ? FT_GREEN : FT_MUTED);
+  spr.fillRect(0, 28, msIn * 320 / slotMs, 3, collecting ? FT_GREEN : FT_MUTED);
 
   // Waterfall, newest row at the bottom
   const int wy = 32;
@@ -459,8 +477,8 @@ void drawFt8Page()
   if(!shown)
   {
     const char *l1, *l2 = nullptr;
-    snprintf(buf, sizeof(buf), "First slot in %d s", 15 - sec);
-    if(!clockAvailable()) { l1 = "Clock not set"; l2 = "FT8 needs UTC: sync the time over Wi-Fi first"; }
+    snprintf(buf, sizeof(buf), "First slot in %d s", (slotMs - msIn + 999) / 1000);
+    if(!clockAvailable()) { l1 = "Clock not set"; l2 = ft4 ? "FT4 needs UTC: sync the time over Wi-Fi first" : "FT8 needs UTC: sync the time over Wi-Fi first"; }
     else if(audioInputLevel() < 2) { l1 = "No audio on the decoder input"; l2 = "Needs the V4B board (speaker line on GPIO11)"; }
     else if(decoded < 0) { l1 = "Listening"; l2 = collecting ? "Decoding at the end of this slot" : buf; }
     else { l1 = "Nothing decoded yet"; l2 = "Check the antenna, or try another band"; }
@@ -479,6 +497,6 @@ void drawFt8Page()
   else snprintf(buf, sizeof(buf), "In %u", audioInputLevel());
   spr.drawString(buf, 6, 169, font);
   spr.setTextDatum(BR_DATUM);
-  spr.drawString("Turn: band  Press: exit", 314, 169, font);
+  spr.drawString("Turn: band, FT8/FT4  Press: exit", 314, 169, font);
   spr.pushSprite(0, 0);
 }

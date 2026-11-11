@@ -22,30 +22,32 @@ static double gauss()
   return(u * s);
 }
 
-// One 15 s slot of ADC samples
-static std::vector<int16_t> slot(const std::vector<Tx> &txs, double noiseCounts, int dcOffset)
+// One 15 s slot of ADC samples (7.5 s for FT4)
+static std::vector<int16_t> slot(const std::vector<Tx> &txs, double noiseCounts, int dcOffset, bool ft4 = false)
 {
   const int fs = Ft8Rx::FS;
-  const int n = fs * 15;
+  const int n = ft4 ? fs * 15 / 2 : fs * 15;
+  const int nn = ft4 ? FT4_NN : FT8_NN;
+  const double spacing = ft4 ? 12000.0 / 576 : 6.25;
   std::vector<double> a(n, 0.0);
   for(const Tx &t : txs)
   {
     ftx_message_t msg;
     ftx_message_init(&msg);
     assert(ftx_message_encode(&msg, nullptr, t.text) == FTX_MESSAGE_RC_OK);
-    uint8_t tones[FT8_NN];
-    ft8_encode(msg.payload, tones);
+    uint8_t tones[FT4_NN];
+    if(ft4) ft4_encode(msg.payload, tones); else ft8_encode(msg.payload, tones);
     // Noise power in 2500 Hz against the signal power A^2 / 2
     double n2500 = noiseCounts * noiseCounts * 2500.0 / (fs / 2.0);
     double amp = sqrt(2.0 * n2500 * pow(10.0, t.snr / 10.0));
     double phase = 0;
-    int sps = fs * 0.16;
+    int sps = ft4 ? 576 : 1920;
     int first = (int)(t.start * fs);
-    for(int s = 0 ; s < FT8_NN ; s++)
+    for(int s = 0 ; s < nn ; s++)
       for(int k = 0 ; k < sps ; k++)
       {
         int i = first + s * sps + k;
-        phase += 2 * M_PI * (t.freq + tones[s] * 6.25) / fs;
+        phase += 2 * M_PI * (t.freq + tones[s] * spacing) / fs;
         if(i >= 0 && i < n) a[i] += amp * sin(phase);
       }
   }
@@ -60,7 +62,7 @@ static std::vector<int16_t> slot(const std::vector<Tx> &txs, double noiseCounts,
 
 static int run(Ft8Rx &rx, const std::vector<Tx> &txs, double noise, Ft8Rx::Msg *msgs)
 {
-  std::vector<int16_t> s = slot(txs, noise, 1900);
+  std::vector<int16_t> s = slot(txs, noise, 1900, rx.ft4());
   rx.reset();
   // Fed in small pieces, as the sampler hands them over
   for(size_t i = 0 ; i < s.size() ; i += 240) rx.push(&s[i], (int)std::min<size_t>(240, s.size() - i));
@@ -128,6 +130,40 @@ int main()
 
   // A very quiet input still decodes: 3 counts of noise on the ADC
   n = run(rx, { { "CQ EP2MHB LL58", 1000, -5, 0.5f } }, 3, m);
+  assert(find(m, n, "CQ EP2MHB LL58"));
+
+  // FT4: 7.5 s slots, 105 symbols of 48 ms, 20.8 Hz tone spacing
+  assert(rx.begin(true));
+  assert(rx.ft4() && rx.slotMs() == 7500);
+  printf("  FT4: %d bins, %d blocks\n", rx.bins(), rx.maxBlocks());
+  std::vector<Tx> ft4busy =
+  {
+    { "CQ EP2MHB LL58", 900, -5, 0.5f },
+    { "K1ABC A61AB R-08", 2000, 0, 0.6f },
+  };
+  n = run(rx, ft4busy, 40, m);
+  for(int i = 0 ; i < n ; i++) printf("  FT4 %+3d dB %4u Hz  %s\n", m[i].snr, m[i].freq, m[i].text);
+  for(const Tx &t : ft4busy)
+  {
+    const Ft8Rx::Msg *f = find(m, n, t.text);
+    assert(f);
+    assert(abs((int)f->freq - (int)t.freq) <= 21);
+    assert(abs(f->snr - (int)t.snr) <= 4);
+  }
+  for(int snr : { -8, -11, -14, -17 })
+  {
+    n = run(rx, { { "CQ DX EP2MHB LL58", 1300, (float)snr, 0.5f } }, 40, m);
+    bool ok = find(m, n, "CQ DX EP2MHB LL58") != nullptr;
+    printf("  FT4 %d dB: %s\n", snr, ok ? "decoded" : "missed");
+    if(snr >= -11) assert(ok);
+  }
+  n = run(rx, {}, 40, m);
+  assert(n == 0);
+
+  // Back to FT8 works
+  assert(rx.begin(false));
+  assert(!rx.ft4() && rx.maxBlocks() == 93);
+  n = run(rx, { { "CQ EP2MHB LL58", 1000, -5, 0.5f } }, 40, m);
   assert(find(m, n, "CQ EP2MHB LL58"));
 
   rx.end();

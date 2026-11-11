@@ -277,6 +277,7 @@ bool ntpIsAvailable();
 
 void netSetScanHidden(bool enabled);
 void netRequestConnect();
+void wifiApplyTxPower();   // RESONIK R3: apply the Wi-Fi Power setting now
 bool netTickTime();
 
 // Shared receiver control actions. Return whether the display needs updating.
