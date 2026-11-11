@@ -2864,6 +2864,8 @@ bool bandPlanAutoSideband()
 {
   const BandPlanSegment *seg = bandPlanFindArea(currentFrequency, bandPlanArea);
   bool entered = seg && seg != bandPlanLastSeg;
+  // Came in from outside the amateur bands (AM is switched only then)
+  bool fromOutside = entered && !bandPlanLastSeg;
   bandPlanLastSeg = seg;
 
   if(bandPlanIdx != BANDPLAN_AUTO_SSB || !entered) return(false);
@@ -2872,7 +2874,10 @@ bool bandPlanAutoSideband()
     statusShow("Band plan", "Not allowed here in this country");
     return(true);
   }
-  if(currentMode != LSB && currentMode != USB && currentMode != CW) return(false);
+  // AM is switched only when tuning into a band from outside, so AM
+  // chosen by hand inside the band stays until the band is left
+  bool fromAM = currentMode == AM && fromOutside;
+  if(currentMode != LSB && currentMode != USB && currentMode != CW && !fromAM) return(false);
 
   uint8_t mode;
   const char *bw;
