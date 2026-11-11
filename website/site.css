@@ -97,3 +97,6 @@ footer .hint { color: #8d8c88; }
   section { padding: 2.5rem 0; }
   nav { gap: .2rem .8rem; }
 }
+
+.stats { margin: 0.8rem 0 0; font-size: 0.95rem; color: var(--muted); }
+.stats b { color: var(--text); }
