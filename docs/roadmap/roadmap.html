@@ -40,6 +40,8 @@ body { margin: 0; }
 .foot b { color: var(--navy); }
 .foot img { width: 13mm; height: 13mm; }
 /* Persian page */
+.head.small { padding: 8mm 16mm 5mm; }
+.head.small h1 { font-size: 16pt; margin-top: 2mm; }
 .fa { font-family: "Vazirmatn", sans-serif; direction: rtl; font-size: 8.7pt; line-height: 1.5; }
 .fa .rel { grid-template-columns: 31mm 1fr; }
 .fa .rel .when { text-align: left; }
@@ -83,15 +85,31 @@ bdi { unicode-bidi: isolate; direction: ltr; white-space: nowrap; }
       <div class="card" style="--c:#FFD167"><h2>Decoders and smarter tuning</h2><ul>
         <li>CW decoder: Morse to text, full screen or as a strip</li><li>FT8 decoder with waterfall and message list</li>
         <li>Band scanner that holds on signals</li><li>Band Plan Auto: mode, filter and step set per band segment</li>
-        <li>Plan areas: Region 1, UAE and Iran</li><li>Fixes from other ats-mini forks</li></ul>
-        <p style="margin-top:1.5mm;color:var(--muted);font-size:8.4pt">CW and FT8 decoding use the speaker line wired to GPIO11 on V4/V4B boards.</p></div></div>
+        <li>Plan areas: Region 1, UAE and Iran</li><li>FT4 decoder on the FT8 page</li>
+        <li>Frequency lock: the knob sets the volume instead</li><li>Wi-Fi power setting for boards that reset</li>
+        <li>Fixes from other ats-mini forks</li></ul>
+        <p style="margin-top:1.5mm;color:var(--muted);font-size:8.4pt">CW, FT8 and FT4 decoding use the speaker line wired to GPIO11 on V4/V4B boards.</p></div></div>
 
+  </div>
+  <div class="foot"><div><b>resonik.mikroutik.com</b><br>Continued on the next page</div></div>
+</section>
+<section class="page">
+  <div class="head small">
+    <div class="bars"><i style="background:#F04770"></i><i style="background:#F78C6A"></i><i style="background:#FFD167"></i><i style="background:#06D7A0"></i><i style="background:#108AB1"></i></div>
+    <div class="brand"><img src="../manual-fa/img/resonik-symbol.svg" alt=""><span>RESONIK</span></div>
+    <h1>Roadmap (continued)</h1>
+  </div>
+  <div class="body">
     <div class="rel"><div class="when"><div class="v">v2.45-r4</div><div class="d">next</div><span class="chip" style="background:#108AB1;color:#fff">Planned</span></div>
       <div class="card" style="--c:#108AB1"><h2>More decoding and a better view of the band</h2><ul>
         <li>RTTY decoder</li><li>Scan as a waterfall, blue to yellow</li>
         <li>Status page: ESP32 temperature, memory, uptime, last restart reason, restart</li><li>Propagation map with the day/night line</li>
         <li>Web Control: the radio's screen live in the browser, with remote knob and buttons</li><li>Backup and restore of all settings from the web page</li></ul></div></div>
 
+    <div class="rel"><div class="when"><div class="v">v2.45-r5</div><div class="d">after R4</div><span class="chip" style="background:#108AB1;color:#fff">Planned</span></div>
+      <div class="card" style="--c:#108AB1"><h2>Maps and images</h2><ul>
+        <li>FT8 station map with country flags, distance and bearing</li><li>EiBi transmitter location, distance and bearing</li>
+        <li>SSTV picture decoder</li></ul></div></div>
     <div class="rel"><div class="when"><div class="v">Later</div><div class="d">under study</div><span class="chip" style="background:#d9dee2">Ideas</span></div>
       <div class="card one" style="--c:#b9c2c8"><h2>Ideas</h2><ul>
         <li>Automatic mode detection from the received audio (experimental)</li>
@@ -104,7 +122,6 @@ bdi { unicode-bidi: isolate; direction: ltr; white-space: nowrap; }
   </div>
   <div class="foot"><div><b>resonik.mikroutik.com</b> · github.com/ep3mhb/resonik-ats-mini<br>Plans and their order may change. Updates install over Wi-Fi: Menu → System → Update FW.</div><img src="../manual-fa/img/qr-site.svg" alt=""></div>
 </section>
-
 <!-- Persian -->
 <section class="page fa" lang="fa">
   <div class="head">
@@ -134,15 +151,31 @@ bdi { unicode-bidi: isolate; direction: ltr; white-space: nowrap; }
       <div class="card" style="--c:#FFD167"><h2>دیکودرها و تنظیم هوشمندتر</h2><ul>
         <li>دیکودر <bdi>CW</bdi>: تبدیل مورس به متن، تمام‌صفحه یا نواری</li><li>دیکودر <bdi>FT8</bdi> با واترفال و فهرست پیام‌ها</li>
         <li>اسکنر باند با توقف روی سیگنال</li><li><bdi>Band Plan Auto</bdi>: تنظیم خودکار مد، فیلتر و گام در هر بخش باند</li>
-        <li>نقشه‌ی باند منطقه‌ی ۱، امارات و ایران</li><li>رفع اشکال‌های برگرفته از دیگر نسخه‌های <bdi>ats-mini</bdi></li></ul>
-        <p style="margin-top:1.5mm;color:var(--muted);font-size:8.6pt">دیکودرهای <bdi>CW</bdi> و <bdi>FT8</bdi> از خط صدای بلندگو که در بردهای <bdi>V4/V4B</bdi> به <bdi>GPIO11</bdi> وصل است استفاده می‌کنند.</p></div></div>
+        <li>نقشه‌ی باند منطقه‌ی ۱، امارات و ایران</li><li>دیکودر <bdi>FT4</bdi> در صفحه‌ی <bdi>FT8</bdi></li>
+        <li>قفل فرکانس: پیچ به جای فرکانس، ولوم را تنظیم می‌کند</li><li>تنظیم توان <bdi>Wi-Fi</bdi> برای بردهایی که ری‌استارت می‌شوند</li>
+        <li>رفع اشکال‌های برگرفته از دیگر نسخه‌های <bdi>ats-mini</bdi></li></ul>
+        <p style="margin-top:1.5mm;color:var(--muted);font-size:8.6pt">دیکودرهای <bdi>CW</bdi>، <bdi>FT8</bdi> و <bdi>FT4</bdi> از خط صدای بلندگو که در بردهای <bdi>V4/V4B</bdi> به <bdi>GPIO11</bdi> وصل است استفاده می‌کنند.</p></div></div>
 
+  </div>
+  <div class="foot"><div><b><bdi>resonik.mikroutik.com</bdi></b><br>ادامه در صفحه‌ی بعد</div></div>
+</section>
+<section class="page fa" lang="fa">
+  <div class="head small">
+    <div class="bars"><i style="background:#F04770"></i><i style="background:#F78C6A"></i><i style="background:#FFD167"></i><i style="background:#06D7A0"></i><i style="background:#108AB1"></i></div>
+    <div class="brand"><img src="../manual-fa/img/resonik-symbol.svg" alt=""><span>RESONIK</span></div>
+    <h1>نقشه‌ی راه (ادامه)</h1>
+  </div>
+  <div class="body">
     <div class="rel"><div class="when"><div class="v"><bdi>v2.45-r4</bdi></div><div class="d">نسخه‌ی بعد</div><span class="chip" style="background:#108AB1;color:#fff">برنامه‌ریزی شده</span></div>
       <div class="card" style="--c:#108AB1"><h2>دیکودر بیشتر و نمای بهتر از باند</h2><ul>
         <li>دیکودر <bdi>RTTY</bdi></li><li>نمایش واترفال آبی‌وزرد برای <bdi>Scan</bdi></li>
         <li>صفحه‌ی وضعیت: دمای <bdi>ESP32</bdi>، حافظه، زمان کارکرد، علت آخرین ری‌استارت، ری‌استارت</li><li>نقشه‌ی انتشار امواج با خط روز و شب</li>
         <li>کنترل از مرورگر: نمایش زنده‌ی صفحه‌ی رادیو با ولوم و دکمه‌های راه دور</li><li>پشتیبان‌گیری و بازگردانی همه‌ی تنظیمات از صفحه‌ی وب</li></ul></div></div>
 
+    <div class="rel"><div class="when"><div class="v"><bdi>v2.45-r5</bdi></div><div class="d">پس از <bdi>R4</bdi></div><span class="chip" style="background:#108AB1;color:#fff">برنامه‌ریزی شده</span></div>
+      <div class="card" style="--c:#108AB1"><h2>نقشه‌ها و تصویرها</h2><ul>
+        <li>نقشه‌ی ایستگاه‌های <bdi>FT8</bdi> با پرچم کشور، فاصله و جهت</li><li>محل فرستنده‌های <bdi>EiBi</bdi> با فاصله و جهت</li>
+        <li>دیکودر تصویر <bdi>SSTV</bdi></li></ul></div></div>
     <div class="rel"><div class="when"><div class="v">بعدها</div><div class="d">در حال بررسی</div><span class="chip" style="background:#d9dee2">ایده‌ها</span></div>
       <div class="card one" style="--c:#b9c2c8"><h2>ایده‌ها</h2><ul>
         <li>تشخیص خودکار مدولاسیون از روی صدای دریافتی (آزمایشی)</li>
@@ -155,6 +188,5 @@ bdi { unicode-bidi: isolate; direction: ltr; white-space: nowrap; }
   </div>
   <div class="foot"><div><b><bdi>resonik.mikroutik.com</bdi></b><br>برنامه‌ها و ترتیب آن‌ها ممکن است تغییر کند. به‌روزرسانی از راه <bdi>Wi-Fi</bdi>: <bdi>Menu → System → Update FW</bdi></div><img src="../manual-fa/img/qr-site.svg" alt=""></div>
 </section>
-
 </body>
 </html>
