@@ -5,7 +5,14 @@
 // in PSRAM; a worker task here feeds Ft8Rx.h, cuts the audio at the UTC
 // 15 second slot edges and decodes each slot while the next one is coming in.
 // The main loop only draws. Turning the knob past 10 m goes on to the FT4
-// frequencies, with 7.5 second slots. Like the CW page, the page pauses Wi-Fi (ADC2 is
+// frequencies, with 7.5 second slots.
+//
+// Without a clock (R3) the page still decodes: it runs on the radio's own
+// timer and looks for the band's slot edges itself. While searching it moves
+// its windows by 3 s (FT8) or 1.2 s (FT4) after each empty slot, so within a
+// minute or so a window lines up with the stations. The first decode tells
+// it where the real edge is, and from then on it stays locked to the
+// signals, refining the edge a little with every slot that decodes. Like the CW page, the page pauses Wi-Fi (ADC2 is
 // shared with the Wi-Fi radio) and gives it back on leaving.
 //
 // On opening, the page saves the radio set-up, tunes the FT8 dial frequency
@@ -47,6 +54,30 @@ static volatile uint32_t generation = 0;  // Bumped on every start and band chan
 static uint32_t cpuSaved = 0;
 static int channel = 2;                   // 40 m until a band says otherwise
 static volatile bool wantFt4 = false;     // Protocol of the channel; the worker switches
+
+// Timing without a clock: our timer plus an offset found from the signals
+static Ft8Sync slotSync;
+
+// Milliseconds on the time line the slots are cut from
+static int64_t slotClockMs()
+{
+  if(clockAvailable())
+  {
+    struct timeval tv;
+    gettimeofday(&tv, nullptr);
+    return((int64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000);
+  }
+  return((int64_t)millis() + slotSync.offsetMs);
+}
+
+// After a slot without a clock: line up with the stations heard, or move on
+static void syncAfterSlot(const Ft8Rx::Msg *found, int n)
+{
+  if(clockAvailable()) { slotSync.state = Ft8Sync::UTC; return; }
+  if(slotSync.state == Ft8Sync::UTC) slotSync.state = Ft8Sync::SEARCH;
+  if(slotSync.afterSlot<Ft8Rx::Msg, Ft8Rx::edgeCorrectionMs>(found, n, ft8.ft4()))
+    generation++;                         // Start again on the moved edge
+}
 
 // Shared with the worker (under lock)
 typedef struct
@@ -123,6 +154,7 @@ static void decodeSlot(uint32_t slot)
   uint32_t t = millis();
   int n = ft8.decode(found, LOG_MAX);
   t = millis() - t;
+  syncAfterSlot(found, n);
 
   // Strongest first
   for(int i = 1 ; i < n ; i++)
@@ -160,8 +192,6 @@ static void work(void *)
       continue;
     }
 
-    struct timeval tv;
-    gettimeofday(&tv, nullptr);
     uint32_t written = audioFt8Written();
 
     if(gen != generation && ft8.ft4() != wantFt4 && !ft8.begin(wantFt4))
@@ -171,7 +201,7 @@ static void work(void *)
       continue;
     }
     const int64_t slotMs = ft8.slotMs();
-    int64_t ms = (int64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000;
+    int64_t ms = slotClockMs();
     int64_t now = ms / slotMs;
     uint32_t msInSlot = (uint32_t)(ms % slotMs);
 
@@ -257,6 +287,7 @@ static bool start()
   wfHead = wfCount = 0;
   lastDecoded = -1;
   xSemaphoreGive(lock);
+  slotSync.state = clockAvailable() ? Ft8Sync::UTC : Ft8Sync::SEARCH;
 
   audioFt8Ring(ring, RING_SAMPLES);
   generation++;
@@ -285,9 +316,14 @@ void ft8Turn(int16_t enc)
   if(!pageActive || !enc) return;
   int n = ft8ChannelCount();
   channel = (channel + (enc > 0 ? 1 : -1) + n) % n;
+  bool wasFt4 = wantFt4;
   wantFt4 = ft8ChannelIsFt4(channel);
   ft8SelectChannel(channel);
   audioForFt8();
+  // Without a clock the edges found hold on every band: FT8 edges (every
+  // 15 s) are FT4 edges too, but FT4 edges (every 7.5 s) may be half an FT8
+  // slot off, so going from FT4 to FT8 looks for them again
+  if(slotSync.state == Ft8Sync::LOCKED && wasFt4 && !wantFt4) slotSync.state = Ft8Sync::SEARCH;
   // The list and the waterfall belong to the band that was left
   xSemaphoreTake(lock, portMAX_DELAY);
   wfHead = wfCount = 0;
@@ -399,7 +435,7 @@ void drawFt8Page()
   gettimeofday(&tv, nullptr);
   const bool ft4 = wantFt4;
   const int slotMs = ft4 ? 7500 : 15000;
-  int64_t ms = (int64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000;
+  int64_t ms = slotClockMs();
   int msIn = (int)(ms % slotMs);
   uint32_t slotNow = (uint32_t)(ms / slotMs);
 
@@ -428,8 +464,10 @@ void drawFt8Page()
   }
   else
   {
-    snprintf(buf, sizeof(buf), "No clock");
-    spr.setTextColor(FT_PINK);
+    // No clock: say whether the edges are found from the signals yet
+    bool locked = slotSync.state == Ft8Sync::LOCKED;
+    snprintf(buf, sizeof(buf), locked ? "Synced to band" : "No clock: syncing");
+    spr.setTextColor(locked ? FT_GREEN : FT_YELLOW);
   }
   spr.drawString(buf, 312, 14, uiFont(true));
 
@@ -478,8 +516,8 @@ void drawFt8Page()
   {
     const char *l1, *l2 = nullptr;
     snprintf(buf, sizeof(buf), "First slot in %d s", (slotMs - msIn + 999) / 1000);
-    if(!clockAvailable()) { l1 = "Clock not set"; l2 = ft4 ? "FT4 needs UTC: sync the time over Wi-Fi first" : "FT8 needs UTC: sync the time over Wi-Fi first"; }
-    else if(audioInputLevel() < 2) { l1 = "No audio on the decoder input"; l2 = "Needs the V4B board (speaker line on GPIO11)"; }
+    if(audioInputLevel() < 2) { l1 = "No audio on the decoder input"; l2 = "Needs the V4B board (speaker line on GPIO11)"; }
+    else if(!clockAvailable() && slotSync.state != Ft8Sync::LOCKED) { l1 = "Finding the slot timing"; l2 = "No clock: lining up with the stations heard"; }
     else if(decoded < 0) { l1 = "Listening"; l2 = collecting ? "Decoding at the end of this slot" : buf; }
     else { l1 = "Nothing decoded yet"; l2 = "Check the antenna, or try another band"; }
     spr.setTextDatum(MC_DATUM);

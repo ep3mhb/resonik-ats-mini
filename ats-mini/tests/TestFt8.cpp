@@ -116,6 +116,22 @@ int main()
     weakOk += ok;
   }
 
+  // Start times: dt follows where the signal really starts
+  for(float st : { 0.0f, 0.5f, 0.73f, 1.3f, -0.4f, 2.0f })
+  {
+    n = run(rx, { { "CQ EP2MHB LL58", 1000, -6, st } }, 40, m);
+    const Ft8Rx::Msg *f = find(m, n, "CQ EP2MHB LL58");
+    assert(f);
+    printf("  start %+.2f s: dt %+.2f s, edge correction %+d ms\n", st, f->dt, (int)Ft8Rx::edgeCorrectionMs(f, 1));
+    assert(fabsf(f->dt - st) <= 0.1f);
+    assert(abs(Ft8Rx::edgeCorrectionMs(f, 1) - (int)lroundf((st - 0.5f) * 1000)) <= 100);
+  }
+  {
+    Ft8Rx::Msg three[3] = {};
+    three[0].dt = 1.4f; three[1].dt = 1.5f; three[2].dt = 4.0f;   // one odd station
+    assert(Ft8Rx::edgeCorrectionMs(three, 3) == 1000);
+  }
+
   // Off the 6.25 Hz grid and off the half-symbol time grid
   n = run(rx, { { "CQ EP2MHB LL58", 1203.1f, -12, 0.73f } }, 40, m);
   assert(find(m, n, "CQ EP2MHB LL58"));
@@ -159,6 +175,55 @@ int main()
   }
   n = run(rx, {}, 40, m);
   assert(n == 0);
+  for(float st : { 0.5f, 0.9f, -0.2f })
+  {
+    n = run(rx, { { "CQ EP2MHB LL58", 1100, -4, st } }, 40, m);
+    const Ft8Rx::Msg *f = find(m, n, "CQ EP2MHB LL58");
+    assert(f);
+    printf("  FT4 start %+.2f s: dt %+.2f s\n", st, f->dt);
+    assert(fabsf(f->dt - st) <= 0.06f);
+  }
+
+  // No clock: the radio's timer is 7.3 s off the band. Stations call in
+  // every slot 0.5 s after the real edge; the windows are cut on our timer
+  // and Ft8Sync has to find the real edges.
+  for(int proto = 0 ; proto < 2 ; proto++)
+  {
+    bool ft4 = proto == 1;
+    assert(rx.begin(ft4));
+    const int slotMs = rx.slotMs();
+    const int32_t timerOff = ft4 ? 3100 : 7300;  // our time = band time + timerOff
+    Ft8Sync sync;
+    int64_t bandMs = 2000;                        // band time now
+    int lockedAt = -1, decodedAfter = 0;
+    for(int k = 0 ; k < 16 ; k++)
+    {
+      // Next window edge on our timer, in band time
+      int64_t our = bandMs + timerOff + sync.offsetMs;
+      int64_t edgeOur = (our / slotMs + 1) * slotMs;
+      int64_t W = edgeOur - timerOff - sync.offsetMs;
+      // Transmissions overlapping [W, W + slot)
+      std::vector<Tx> txs;
+      for(int64_t s = (W / slotMs - 1) * slotMs ; s < W + slotMs ; s += slotMs)
+      {
+        float st = (float)(s + 500 - W) / 1000.0f;
+        txs.push_back({ "CQ EP2MHB LL58", 1000, -6, st });
+        txs.push_back({ "A61AB K1ABC -12", 1800, -9, st + 0.1f });
+      }
+      n = run(rx, txs, 40, m);
+      bool moved = sync.afterSlot<Ft8Rx::Msg, Ft8Rx::edgeCorrectionMs>(m, n, ft4);
+      int err = (int)(((W % slotMs) + slotMs) % slotMs);
+      if(err > slotMs / 2) err -= slotMs;
+      printf("  %s no clock, slot %2d: window %+5d ms off the band edge, %d decoded%s%s\n", ft4 ? "FT4" : "FT8",
+             k, err, n, moved ? ", moved" : "", sync.state == Ft8Sync::LOCKED ? ", locked" : "");
+      if(sync.state == Ft8Sync::LOCKED && lockedAt < 0) lockedAt = k;
+      if(lockedAt >= 0 && k > lockedAt) { assert(abs(err) <= 100); if(n >= 2) decodedAfter++; }
+      bandMs = W + slotMs + (ft4 ? 300 : 1500);  // decoding takes a moment
+    }
+    printf("  %s locked after %d slots\n", ft4 ? "FT4" : "FT8", lockedAt + 1);
+    assert(lockedAt >= 0 && lockedAt <= (ft4 ? 8 : 6));
+    assert(decodedAfter >= 16 - lockedAt - 3);
+  }
 
   // Back to FT8 works
   assert(rx.begin(false));

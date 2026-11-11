@@ -21,6 +21,37 @@
 #include "src/ft8/encode.h"
 #include "src/ft8/constants.h"
 
+// Slot timing without a clock (R3): the page runs on the radio's own timer
+// plus an offset, and this finds the offset from the signals. Searching, it
+// moves the windows by 3 s (FT8) or 1.2 s (FT4) after each empty slot, which
+// is less than the start times one window can decode (about -1.6..+2.4 s for
+// FT8, -0.5..+0.9 s for FT4). A decode gives the real edge; locked, it
+// follows the decodes gently.
+struct Ft8Sync
+{
+  enum State : uint8_t { UTC, SEARCH, LOCKED };
+  volatile State state = SEARCH;
+  volatile int32_t offsetMs = 0;          // Added to the radio's timer
+
+  // After a decoded (or empty) slot; returns true if the edges moved
+  template<typename Msg, int32_t (*Correction)(const Msg *, int)>
+  bool afterSlot(const Msg *found, int n, bool ft4)
+  {
+    int32_t fix = 0;
+    if(n > 0)
+    {
+      fix = Correction(found, n);
+      if(state == LOCKED) fix /= 2;
+      state = LOCKED;
+      if(fix > -40 && fix < 40) fix = 0;
+    }
+    else if(state == SEARCH) fix = ft4 ? 1200 : 3000;
+    if(!fix) return(false);
+    offsetMs -= fix;
+    return(true);
+  }
+};
+
 class Ft8Rx
 {
 public:
@@ -29,7 +60,25 @@ public:
     char text[36];       // Decoded message, for instance "CQ EP2MHB LL58"
     int8_t snr;          // dB in 2500 Hz, as WSJT-X shows it (estimated)
     uint16_t freq;       // Audio frequency of the lowest tone, Hz
+    float dt;            // Start of the signal after the window start, seconds
   };
+
+  // Without a clock (R3): how far the window edge is from the real slot
+  // edge, in ms, judged from the decoded signals. Transmissions start 0.5 s
+  // after the UTC edge, so a window on the edge sees dt = 0.5; the median of
+  // the messages is used so one odd station does not pull it. Add the result
+  // to the free-running clock to line the windows up with the band.
+  static int32_t edgeCorrectionMs(const Msg *m, int n)
+  {
+    if(n <= 0) return(0);
+    float d[40];
+    if(n > 40) n = 40;
+    for(int i = 0 ; i < n ; i++) d[i] = m[i].dt;
+    for(int i = 1 ; i < n ; i++)
+      for(int j = i ; j > 0 && d[j] < d[j - 1] ; j--) { float t = d[j]; d[j] = d[j - 1]; d[j - 1] = t; }
+    float med = n & 1 ? d[n / 2] : (d[n / 2 - 1] + d[n / 2]) / 2;
+    return((int32_t)lroundf((med - 0.5f) * 1000.0f));
+  }
 
   static const int FS = 12000;
   // Half-symbol time and half-bin frequency steps: real signals start and
@@ -153,6 +202,8 @@ public:
       float bin = mon.min_bin + cand[i].freq_offset + (float)cand[i].freq_sub / mon.wf.freq_osr;
       m.freq = (uint16_t)(bin / mon.symbol_period + 0.5f);
       m.snr = snr(&msg, &cand[i], noise);
+      // A waterfall row is filed when its FFT window ends, one symbol after it starts
+      m.dt = ((float)cand[i].time_offset + (float)cand[i].time_sub / mon.wf.time_osr - 1.0f) * mon.symbol_period;
     }
     return(n);
   }
