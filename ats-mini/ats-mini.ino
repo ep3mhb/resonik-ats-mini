@@ -869,25 +869,78 @@ bool handleClick(bool shortPress)
 // corner ("D 240 draw" = the screen drawing took 240 ms). Off in releases.
 //
 #ifdef RESONIK_DIAG
-static uint32_t diagT, diagLoopT, diagWorstMs, diagWorstLoopMs, diagWindow;
+// Slow loops are also kept in a log (RAM, last DIAG_LINES events) that the
+// web page serves as /diag.txt: time, loop length, the parts that took time,
+// and what the radio was doing (band, mode, frequency, menu, Wi-Fi, CPU).
+#define DIAG_SLOW_MS  80   // Log loops (or gaps between loops) this long
+#define DIAG_LINES   300
+#define DIAG_PARTS     6
+static uint32_t diagT, diagLoopT, diagLoopEndT, diagWorstMs, diagWorstLoopMs, diagWindow, diagCount;
 static const char *diagWorstName = "";
-char diagText[24] = "";
+static struct { const char *name; uint16_t ms; } diagParts[DIAG_PARTS];
+static uint8_t diagNParts;
+static char (*diagLog)[112] = nullptr;
+static uint32_t diagHead = 0;
+char diagText[32] = "";
 #define DIAG_T0 diagT = millis()
-#define DIAG_T1(name) do { uint32_t d_ = millis() - diagT; if(d_ > diagWorstMs) { diagWorstMs = d_; diagWorstName = name; } } while(0)
-static void diagLoopStart() { diagLoopT = millis(); }
+#define DIAG_T1(name) diagPart(name, millis() - diagT)
+static void diagPart(const char *name, uint32_t d)
+{
+  if(d > diagWorstMs) { diagWorstMs = d; diagWorstName = name; }
+  if(d >= 5 && diagNParts < DIAG_PARTS) { diagParts[diagNParts].name = name; diagParts[diagNParts].ms = d > 65535 ? 65535 : d; diagNParts++; }
+}
+static void diagAdd(const char *kind, uint32_t ms)
+{
+  if(!diagLog) diagLog = (char (*)[112])heap_caps_calloc(DIAG_LINES, 112, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+  if(!diagLog) return;
+  char parts[48] = "";
+  int n = 0;
+  for(int i = 0; i < diagNParts && n < (int)sizeof(parts) - 12; i++)
+    n += snprintf(parts + n, sizeof(parts) - n, "%s%s=%u", i ? " " : "", diagParts[i].name, diagParts[i].ms);
+  Band *band = getCurrentBand();
+  snprintf(diagLog[diagHead % DIAG_LINES], 112, "%7lu.%01lu %-4s %5lu  %-26s %-6s %-3s %6u cmd%-3u wifi%u %3luMHz",
+    (unsigned long)(millis() / 1000), (unsigned long)(millis() / 100 % 10), kind, (unsigned long)ms, parts,
+    band ? band->bandName : "?", bandModeDesc[currentMode], currentFrequency, currentCmd, wifiModeIdx,
+    (unsigned long)getCpuFrequencyMhz());
+  diagHead++;
+  diagCount++;
+}
+void diagDump(String &out)
+{
+  out = "RESONIK test build diagnostics\n";
+  out += "Reset reason " + String((int)esp_reset_reason()) + ", up " + String(millis() / 1000) + " s, free heap " + String(ESP.getFreeHeap()) + "\n";
+  out += "Logged: main loop passes (loop) or gaps between passes (gap) of " + String(DIAG_SLOW_MS) + " ms or more\n";
+  out += "  time_s kind    ms  parts(ms)                  band   mod   freq menu wifi  cpu\n";
+  if(!diagLog || !diagHead) { out += "(nothing slow yet)\n"; return; }
+  for(uint32_t i = diagHead > DIAG_LINES ? diagHead - DIAG_LINES : 0; i < diagHead; i++)
+  {
+    out += diagLog[i % DIAG_LINES];
+    out += '\n';
+  }
+}
+static void diagLoopStart()
+{
+  diagLoopT = millis();
+  diagNParts = 0;
+  // Time spent outside loop() (other tasks holding the core)
+  if(diagLoopEndT && diagLoopT - diagLoopEndT >= DIAG_SLOW_MS) diagAdd("gap", diagLoopT - diagLoopEndT);
+}
 static void diagLoopEnd()
 {
   uint32_t now = millis(), l = now - diagLoopT;
   if(l > diagWorstLoopMs) diagWorstLoopMs = l;
+  if(l >= DIAG_SLOW_MS) diagAdd("loop", l);
   if(now - diagWindow >= 3000)
   {
-    snprintf(diagText, sizeof(diagText), "D %lu %s L%lu", (unsigned long)diagWorstMs, diagWorstName, (unsigned long)diagWorstLoopMs);
+    snprintf(diagText, 32, "D %lu %s L%lu #%lu", (unsigned long)diagWorstMs, diagWorstName, (unsigned long)diagWorstLoopMs, (unsigned long)diagCount);
     diagWorstMs = diagWorstLoopMs = 0; diagWorstName = ""; diagWindow = now;
   }
+  diagLoopEndT = millis();
 }
 #else
 #define DIAG_T0
 #define DIAG_T1(name)
+void diagDump(String &out) { out = "Diagnostics are only in test builds\n"; }
 static inline void diagLoopStart() {}
 static inline void diagLoopEnd() {}
 #endif

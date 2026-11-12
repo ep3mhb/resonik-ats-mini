@@ -286,6 +286,18 @@ void webInit()
     request->send(response);
   });
 
+  // RESONIK test builds: slow-loop log
+  server.on("/diag.txt", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    if(!webIsAuthenticated(request)) return request->requestAuthentication();
+    extern void diagDump(String &out);
+    String out;
+    diagDump(out);
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", out);
+    response->addHeader("Content-Disposition", "attachment; filename=\"resonik-diag.txt\"");
+    response->addHeader("Cache-Control", "no-store");
+    request->send(response);
+  });
+
   server.on("/splash.png", HTTP_GET, [] (AsyncWebServerRequest *request) {
     if(!LittleFS.exists(SPLASH_PATH))
       return request->send(404, "text/plain", "Not found");
