@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ATS Mini Hardware: Schematics, Pinout and Board Versions · RESONIK</title>
+  <meta name="description" content="ATS Mini (ESP32-S3 + SI4732) hardware: V4, V4A and V4B boards, the audio tap, original schematic and PCB PDFs, GPIO pinout, chips and datasheets.">
+  <link rel="canonical" href="https://resonik.mikroutik.com/hardware/">
+  <meta name="theme-color" content="#141414">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="../favicon.ico">
+  <link rel="stylesheet" href="../site.css">
+  <style>
+    .doc { max-width: 46rem; }
+    .doc h2 { margin-top: 2.6rem; font-size: 1.5rem; }
+    .doc table { border-collapse: collapse; width: 100%; margin: .8rem 0; font-size: .95rem; }
+    .doc th, .doc td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .doc th { font-family: "Sora", var(--sans); font-weight: 600; }
+    .sw { display: inline-block; width: 26px; height: 6px; border-radius: 3px; vertical-align: middle; margin-right: .4rem; box-shadow: 0 0 0 1px rgba(0,0,0,.15); }
+    .toc { columns: 2; padding-left: 1.2rem; }
+    .fa .toc, .fa ul { padding-left: 0; padding-right: 1.2rem; }
+    .fa table th, .fa table td { text-align: right; }
+    .ok { color: #06a77d; font-weight: 700; } .no { color: var(--muted); }
+    @media (max-width: 520px) { .toc { columns: 1; } }
+  </style>
+</head>
+<body>
+  <header class="bar">
+    <div class="wrap bar-in">
+      <a class="logo" href="../" aria-label="RESONIK home">
+        <svg class="sym" viewBox="0 0 80 66" aria-hidden="true">
+          <rect x="0" y="55" width="8" height="11" rx="3" fill="currentColor"/><rect x="12" y="49.5" width="8" height="16.5" rx="3" fill="currentColor"/><rect x="24" y="38.5" width="8" height="27.5" rx="3" fill="currentColor"/><rect x="36" y="0" width="8" height="66" rx="3" fill="#1C7ED6"/><rect x="48" y="38.5" width="8" height="27.5" rx="3" fill="currentColor"/><rect x="60" y="49.5" width="8" height="16.5" rx="3" fill="currentColor"/><rect x="72" y="55" width="8" height="11" rx="3" fill="currentColor"/>
+        </svg>
+        <span class="word">RESONIK</span>
+      </a>
+      <nav aria-label="Sections">
+        <a href="../#install">Install</a>
+        <a href="../#features">Features</a>
+        <a href="../manual/">Manual</a>
+        <a href="./">Hardware</a>
+        <a href="https://github.com/ep3mhb/resonik-ats-mini" rel="noopener">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="wrap doc">
+        <p class="kicker" style="color:var(--muted)">Hardware · ATS Mini (ESP32-S3 + SI4732)</p>
+        <h1 style="font-size:2.2rem;margin:.3rem 0 1rem">Schematics, pinout and board versions</h1>
+        <p><a href="#fa" lang="fa" dir="rtl">مستندات سخت‌افزار به فارسی</a> · Persian section below</p>
+        <p class="lead">Everything known about the ATS Mini hardware in one place: how to tell the board versions apart, the original schematic and PCB drawings, the GPIO pinout and the chips with their datasheets. RESONIK is firmware only; this page is for owners who want to understand, repair or modify their radio.</p>
+        <ul class="toc">
+          <li><a href="#versions">Which board do I have?</a></li>
+          <li><a href="#schematic">Schematic and PCB</a></li>
+          <li><a href="#pinout">GPIO pinout</a></li>
+          <li><a href="#chips">Chips and datasheets</a></li>
+          <li><a href="#mods">Mods, backup and recovery</a></li>
+          <li><a href="#fa" lang="fa">فارسی</a></li>
+        </ul>
+
+        <h2 id="versions">Which board do I have?</h2>
+        <p>Radios sold as ATS Mini V4 come with three different boards. All three carry the same "ATS MINI V4" silkscreen and look the same from outside; they differ in a few small parts on the board:</p>
+        <table>
+          <tr><th>Board</th><th>Audio tap to GPIO11<br><small>(decoding resistor and capacitor)</small></th><th>Headphone antenna via coax, ferrite beads</th><th>VCO isolation inductor</th></tr>
+          <tr><td>V4 (late 2025)</td><td class="no">no</td><td class="no">no</td><td class="no">no</td></tr>
+          <tr><td>V4A</td><td>resistor only (not enough for decoding)</td><td class="no">no</td><td class="no">no</td></tr>
+          <tr><td>V4B</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td></tr>
+        </table>
+        <p>The audio tap feeds the receiver audio to the ESP32's GPIO11, so the processor can hear the signal. The CW, FT8 and FT4 decoders in RESONIK (and in other firmwares) need it. The other V4B parts improve FM reception with headphones and lower noise. Boards sold from 2026 are reported to come ready for decoding. The comparison follows Peter Neufeld's overview in the <a href="https://www.facebook.com/groups/1514587792854848/" rel="noopener">ATS MINI ESP32-S3 SI4732 Pocket Radio fans</a> group.</p>
+        <p><b>Quick test with RESONIK R3:</b> tune a strong AM station, set the volume to about 50 and open <span class="ui">Menu → Ham &amp; SWL → CW Decoder</span>. If <b>In</b> at the bottom left reads above 0 and moves with the sound, your board has the audio tap. If it stays at 0, it does not.</p>
+
+        <h2 id="schematic">Schematic and PCB</h2>
+        <p>The ATS Mini descends from an open-hardware receiver by <b>Sunnygold</b>, published on OSHWHub. Its schematic and PCB drawings (version 1.2) are the closest public documents of the radio:</p>
+        <ul>
+          <li><a href="ats-mini-schematic-v1.2.pdf">Schematic, version 1.2 (PDF, 0.3 MB)</a></li>
+          <li><a href="ats-mini-pcb-v1.2.pdf">PCB layout, version 1.2 (PDF, 3 pages, 1.5 MB)</a></li>
+          <li>Gerber files, 3D-printable case and the original source: <a href="https://github.com/esp32-si4732/esp32-si4732-oshwhub" rel="noopener">esp32-si4732-oshwhub</a> on GitHub, and the <a href="https://oshwhub.com/sunnygold/esp32s3-si4732-shou-yin-ji" rel="noopener">original project page</a> (Chinese).</li>
+        </ul>
+        <p>The boards now sold (V4, V4A, V4B) are later versions of this design; no schematics have been published for them. The main circuit is the same, but parts and positions differ, the audio tap above in particular.</p>
+        <p class="hint">Schematic and PCB © Sunnygold, licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="noopener">CC BY-NC-SA 3.0</a>: free to share and adapt for non-commercial use, with credit and under the same licence. The files are shown here unchanged.</p>
+
+        <h2 id="pinout">GPIO pinout</h2>
+        <table>
+          <tr><th>GPIO</th><th>Function</th><th>Notes</th></tr>
+          <tr><td>IO1, IO2</td><td>Encoder B, A</td><td>Rotary encoder</td></tr>
+          <tr><td>IO21</td><td>Encoder button</td><td></td></tr>
+          <tr><td>IO0</td><td>BOOT button</td><td>Hold while plugging in USB to force download mode</td></tr>
+          <tr><td>IO3</td><td>Audio mute</td><td>1 = left/right audio muted</td></tr>
+          <tr><td>IO10</td><td>Audio amplifier enable</td><td>1 = speaker amplifier on</td></tr>
+          <tr><td>IO4</td><td>Battery voltage</td><td>Through a divider</td></tr>
+          <tr><td>IO15</td><td>Radio power</td><td>Enables the SI4732 LDO (1 = on)</td></tr>
+          <tr><td>IO16</td><td>SI4732 reset</td><td></td></tr>
+          <tr><td>IO17, IO18</td><td>I2C clock, data</td><td>To the SI4732</td></tr>
+          <tr><td>IO38</td><td>LCD backlight</td><td>PWM brightness</td></tr>
+          <tr><td>IO5–IO9</td><td>LCD reset, CS, DC, WR, RD</td><td>8-bit parallel display</td></tr>
+          <tr><td>IO39–IO42, IO45–IO48</td><td>LCD data D0–D7</td><td></td></tr>
+          <tr><td>IO19, IO20</td><td>USB D−, D+</td><td>USB-C serial and flashing</td></tr>
+          <tr><td>IO11</td><td>Audio tap (V4A/V4B)</td><td>ADC2 channel 0; free on older boards. Shared with Wi-Fi, so decoders pause Wi-Fi</td></tr>
+          <tr><td>IO12–IO14</td><td>Free</td><td>Not connected</td></tr>
+          <tr><td>IO35–IO37</td><td>—</td><td>Used by the PSRAM on 8 MB (OSPI) modules</td></tr>
+        </table>
+        <p class="hint">From the upstream <a href="https://esp32-si4732.github.io/ats-mini/hardware.html" rel="noopener">ats-mini hardware notes</a>, which also give the schematic net names.</p>
+
+        <h2 id="chips">Chips and datasheets</h2>
+        <table>
+          <tr><th>Part</th><th>Role</th><th>Datasheet</th></tr>
+          <tr><td>ESP32-S3-WROOM-1 (N16R8 or N8R2)</td><td>Processor, Wi-Fi, Bluetooth</td><td><a href="https://www.espressif.com/sites/default/files/documentation/esp32-s3-wroom-1_wroom-1u_datasheet_en.pdf" rel="noopener">module</a> · <a href="https://www.espressif.com/sites/default/files/documentation/esp32-s3_datasheet_en.pdf" rel="noopener">chip</a></td></tr>
+          <tr><td>SI4732-A10</td><td>Receiver: FM, AM, SW, LW, SSB</td><td><a href="https://www.skyworksinc.com/-/media/Skyworks/SL/documents/public/application-notes/AN332.pdf" rel="noopener">AN332 programming guide</a> · <a href="https://www.skyworksinc.com/-/media/Skyworks/SL/documents/public/application-notes/AN383.pdf" rel="noopener">AN383 antenna</a></td></tr>
+          <tr><td>ST7789 or GC9307</td><td>Display controller</td><td><a href="https://www.buydisplay.com/download/ic/ST7789.pdf" rel="noopener">ST7789</a> · <a href="https://www.buydisplay.com/download/ic/GC9307.pdf" rel="noopener">GC9307</a></td></tr>
+          <tr><td>NS4160 or AD4150B</td><td>Speaker amplifier</td><td><a href="https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Shenzhen-Nsiway-Tech-NS4160_C219017.pdf" rel="noopener">NS4160</a> · <a href="https://www.lcsc.com/datasheet/lcsc_datasheet_2208261700_IDCHIP-AD4150B_C5125078.pdf" rel="noopener">AD4150B</a></td></tr>
+          <tr><td>ME6217</td><td>3.3 V regulators</td><td><a href="https://www.lcsc.com/datasheet/lcsc_datasheet_2410121326_MICRONE-Nanjing-Micro-One-Elec-ME6217C33M5G_C427602.pdf" rel="noopener">ME6217</a></td></tr>
+          <tr><td>TP4056</td><td>Battery charger</td><td><a href="http://toppwr.com/uploadfile/file/20240130/65b892bb04a3c.pdf" rel="noopener">TP4056</a></td></tr>
+        </table>
+
+        <h2 id="mods">Mods, backup and recovery</h2>
+        <ul>
+          <li><a href="https://esp32-si4732.github.io/ats-mini/mods.html" rel="noopener">Hardware mods</a> (upstream): BOOT and RESET buttons, antenna and audio improvements.</li>
+          <li><a href="https://esp32-si4732.github.io/ats-mini/recovery.html" rel="noopener">Firmware backup and recovery</a>: make a full copy of the flash before changing anything.</li>
+          <li><a href="https://esp32-si4732.github.io/ats-mini/accessories.html" rel="noopener">Accessories</a>: cases, stands, antennas.</li>
+        </ul>
+        <p class="hint">Opening the radio and soldering is at your own risk. Disconnect the battery before working on the board.</p>
+      </div>
+    </section>
+
+    <section id="fa" class="band fa" lang="fa" dir="rtl">
+      <div class="wrap doc">
+        <h2>مستندات سخت‌افزار <bdi>ATS Mini</bdi></h2>
+        <p class="lead">همه‌ی اطلاعات موجود درباره‌ی سخت‌افزار رادیو در یک جا: تفاوت نسخه‌های برد، نقشه‌ی مدار و برد اصلی، پایه‌های پردازنده و قطعات اصلی. RESONIK فقط فریم‌ور است؛ این بخش برای کسانی است که می‌خواهند رادیو را بشناسند، تعمیر یا تغییر دهند.</p>
+
+        <h3>برد من کدام است؟</h3>
+        <p>رادیوهایی که با نام <bdi>ATS Mini V4</bdi> فروخته می‌شوند سه نوع برد دارند. روی هر سه نوشته شده <bdi>ATS MINI V4</bdi> و از بیرون یکسان‌اند؛ تفاوت در چند قطعه‌ی کوچک روی برد است:</p>
+        <table>
+          <tr><th>برد</th><th>انشعاب صدا به <bdi>GPIO11</bdi></th><th>آنتن هدفون و فریت</th><th>سلف جداساز <bdi>VCO</bdi></th></tr>
+          <tr><td><bdi>V4</bdi> (اواخر ۲۰۲۵)</td><td class="no">ندارد</td><td class="no">ندارد</td><td class="no">ندارد</td></tr>
+          <tr><td><bdi>V4A</bdi></td><td>فقط مقاومت (برای دیکود کافی نیست)</td><td class="no">ندارد</td><td class="no">ندارد</td></tr>
+          <tr><td><bdi>V4B</bdi></td><td class="ok">دارد</td><td class="ok">دارد</td><td class="ok">دارد</td></tr>
+        </table>
+        <p>دیکودرهای <bdi>CW</bdi>، <bdi>FT8</bdi> و <bdi>FT4</bdi> به انشعاب صدا نیاز دارند. گفته می‌شود بردهای ۲۰۲۶ این آمادگی را دارند.</p>
+        <p><b>آزمایش ساده با <bdi>RESONIK R3</bdi>:</b> یک ایستگاه قوی <bdi>AM</bdi> را بگیرید، ولوم را حدود ۵۰ بگذارید و <bdi>Menu → Ham &amp; SWL → CW Decoder</bdi> را باز کنید. اگر عدد <bdi>In</bdi> پایین صفحه بالای صفر باشد و با صدا تغییر کند، برد شما انشعاب صدا دارد.</p>
+
+        <h3>نقشه‌ی مدار و برد</h3>
+        <p>رادیو از یک طرح سخت‌افزار باز به نام <bdi>Sunnygold</bdi> آمده است. نقشه‌ی مدار و برد نسخه‌ی ۱٫۲ آن نزدیک‌ترین مدرک عمومی است:</p>
+        <ul>
+          <li><a href="ats-mini-schematic-v1.2.pdf">نقشه‌ی مدار، نسخه‌ی ۱٫۲ (<bdi>PDF</bdi>)</a></li>
+          <li><a href="ats-mini-pcb-v1.2.pdf">نقشه‌ی برد، نسخه‌ی ۱٫۲ (<bdi>PDF</bdi>، سه صفحه)</a></li>
+          <li>فایل‌های <bdi>Gerber</bdi> و جعبه‌ی چاپ سه‌بعدی: <a href="https://github.com/esp32-si4732/esp32-si4732-oshwhub" rel="noopener"><bdi>GitHub</bdi></a></li>
+        </ul>
+        <p>برای بردهای فعلی (<bdi>V4</bdi>، <bdi>V4A</bdi>، <bdi>V4B</bdi>) نقشه‌ای منتشر نشده است. مدار اصلی همان است، اما قطعات و جای آن‌ها فرق دارد.</p>
+        <p class="hint">نقشه‌ها از <bdi>Sunnygold</bdi> با مجوز <bdi>CC BY-NC-SA 3.0</bdi>: استفاده و انتشار غیرتجاری با ذکر منبع آزاد است.</p>
+
+        <h3>پایه‌های مهم پردازنده</h3>
+        <p>جدول کامل در بخش انگلیسی بالا آمده است. پایه‌های مهم: <bdi>IO11</bdi> انشعاب صدا برای دیکودرها، <bdi>IO10</bdi> روشن کردن تقویت‌کننده‌ی بلندگو، <bdi>IO17/IO18</bdi> ارتباط با <bdi>SI4732</bdi>، <bdi>IO1/IO2/IO21</bdi> ولوم و دکمه‌ی آن، <bdi>IO4</bdi> ولتاژ باتری.</p>
+
+        <h3>قطعات اصلی</h3>
+        <ul>
+          <li><bdi>ESP32-S3-WROOM-1</bdi>: پردازنده، <bdi>Wi-Fi</bdi> و بلوتوث</li>
+          <li><bdi>SI4732-A10</bdi>: گیرنده‌ی <bdi>FM</bdi>، <bdi>AM</bdi>، موج کوتاه و <bdi>SSB</bdi></li>
+          <li><bdi>NS4160</bdi> یا <bdi>AD4150B</bdi>: تقویت‌کننده‌ی بلندگو</li>
+          <li><bdi>TP4056</bdi>: شارژر باتری؛ <bdi>ME6217</bdi>: رگولاتور ۳٫۳ ولت</li>
+        </ul>
+        <p class="hint">باز کردن رادیو و لحیم‌کاری با مسئولیت خودتان است. پیش از کار روی برد، باتری را جدا کنید و از حافظه‌ی رادیو پشتیبان کامل بگیرید.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p><b>RESONIK</b> edition by Mohammad Bahrololoum · <a href="https://mikroutik.com/">mikroutik.com</a> · built on <a href="https://github.com/esp32-si4732/ats-mini" rel="noopener">ats-mini</a> (MIT).</p>
+    </div>
+  </footer>
+</body>
+</html>

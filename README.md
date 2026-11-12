@@ -11,6 +11,8 @@ It is built on the open-source [ats-mini](https://github.com/esp32-si4732/ats-mi
 adding features for shortwave listeners and radio amateurs.
 
 > **Latest release: [v2.45-r2](https://github.com/ep3mhb/resonik-ats-mini/releases/latest)** (8 November 2026).
+>
+> **Beta for testers: [v2.45-r3-beta1](https://github.com/ep3mhb/resonik-ats-mini/releases/tag/v2.45-r3-beta1)** (12 November 2026): FT8/FT4 and CW decoders, band scanner, automatic band plan, frequency lock and more. Install by hand (see the release notes); R2 stays the stable version.
 
 Website, browser installer and manual: **<https://resonik.mikroutik.com>**
 
