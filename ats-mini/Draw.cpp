@@ -559,5 +559,17 @@ void drawScreen()
   // Tile menu (RESONIK) covers the screen while the menu is open
   drawTileMenu();
 
+#ifdef RESONIK_DIAG
+  // Test builds: slowest part of the main loop in the last 3 s
+  extern char diagText[];
+  if(diagText[0])
+  {
+    spr.fillRect(0, 0, 112, 10, TFT_BLACK);
+    spr.setTextDatum(TL_DATUM);
+    spr.setTextColor(TFT_YELLOW, TFT_BLACK);
+    spr.drawString(diagText, 1, 1, 1);
+  }
+#endif
+
   spr.pushSprite(0, 0);
 }
