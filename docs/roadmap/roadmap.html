@@ -102,7 +102,7 @@ bdi { unicode-bidi: isolate; direction: ltr; white-space: nowrap; }
   <div class="body">
     <div class="rel"><div class="when"><div class="v">v2.45-r4</div><div class="d">next</div><span class="chip" style="background:#108AB1;color:#fff">Planned</span></div>
       <div class="card" style="--c:#108AB1"><h2>More decoding and a better view of the band</h2><ul>
-        <li>RTTY decoder</li><li>Scan as a waterfall, blue to yellow</li>
+        <li>RTTY decoder, with amateur and DWD weather presets</li><li>Scan as a waterfall, blue to yellow</li><li>Best band now, sunrise and sunset</li><li>On air now: EiBi stations on the current band</li>
         <li>Status page: ESP32 temperature, memory, uptime, last restart reason, restart</li><li>Propagation map with the day/night line</li>
         <li>Web Control: the radio's screen live in the browser, with remote knob and buttons</li><li>Backup and restore of all settings from the web page</li>
         <li>Setup wizard at first start: time zone, Wi-Fi, knob, plan area</li><li>Wi-Fi set up on the radio: network scan and on-screen keyboard</li><li>Number pad to type a frequency</li><li>Auto-store: scan the band and fill a station list</li>
@@ -111,10 +111,10 @@ bdi { unicode-bidi: isolate; direction: ltr; white-space: nowrap; }
     <div class="rel"><div class="when"><div class="v">v2.45-r5</div><div class="d">after R4</div><span class="chip" style="background:#108AB1;color:#fff">Planned</span></div>
       <div class="card" style="--c:#108AB1"><h2>Maps and images</h2><ul>
         <li>FT8 station map with country flags, distance and bearing</li><li>EiBi transmitter location, distance and bearing</li>
-        <li>SSTV picture decoder</li></ul></div></div>
+        <li>SSTV picture decoder</li><li>FT8/FT4 hopping to the bands that are open</li></ul></div></div>
     <div class="rel"><div class="when"><div class="v">Later</div><div class="d">under study</div><span class="chip" style="background:#d9dee2">Ideas</span></div>
       <div class="card one" style="--c:#b9c2c8"><h2>Ideas</h2><ul>
-        <li>Automatic mode detection from the received audio (experimental)</li>
+        <li>Automatic mode detection from the received audio (experimental)</li><li>PSK31 decoder</li><li>Space-weather alerts (solar flares, storms)</li><li>Menus in more languages</li><li>Microphone input for boards without the audio tap</li>
         <li>New ats-mini versions merged in as they are released</li>
         <li>Your suggestions: send them in the Telegram group or on GitHub</li></ul></div></div>
 
@@ -170,7 +170,7 @@ bdi { unicode-bidi: isolate; direction: ltr; white-space: nowrap; }
   <div class="body">
     <div class="rel"><div class="when"><div class="v"><bdi>v2.45-r4</bdi></div><div class="d">نسخه‌ی بعد</div><span class="chip" style="background:#108AB1;color:#fff">برنامه‌ریزی شده</span></div>
       <div class="card" style="--c:#108AB1"><h2>دیکودر بیشتر و نمای بهتر از باند</h2><ul>
-        <li>دیکودر <bdi>RTTY</bdi></li><li>نمایش واترفال آبی‌وزرد برای <bdi>Scan</bdi></li>
+        <li>دیکودر <bdi>RTTY</bdi> با فرکانس‌های آماتوری و هواشناسی <bdi>DWD</bdi></li><li>نمایش واترفال آبی‌وزرد برای <bdi>Scan</bdi></li><li>بهترین باند همین حالا، طلوع و غروب آفتاب</li><li>ایستگاه‌های <bdi>EiBi</bdi> در حال پخش روی باند فعلی</li>
         <li>صفحه‌ی وضعیت: دمای <bdi>ESP32</bdi>، حافظه، زمان کارکرد، علت آخرین ری‌استارت، ری‌استارت</li><li>نقشه‌ی انتشار امواج با خط روز و شب</li>
         <li>کنترل از مرورگر: نمایش زنده‌ی صفحه‌ی رادیو با ولوم و دکمه‌های راه دور</li><li>پشتیبان‌گیری و بازگردانی همه‌ی تنظیمات از صفحه‌ی وب</li>
         <li>راه‌اندازی گام‌به‌گام در اولین روشن شدن: منطقه‌ی زمانی، <bdi>Wi-Fi</bdi>، نوع ولوم و نقشه‌ی باند</li><li>اتصال به <bdi>Wi-Fi</bdi> روی خود رادیو: جست‌وجوی شبکه و صفحه‌کلید روی صفحه</li><li>صفحه‌کلید عددی برای وارد کردن فرکانس</li><li>ذخیره‌ی خودکار ایستگاه‌ها با اسکن باند</li>
@@ -179,10 +179,10 @@ bdi { unicode-bidi: isolate; direction: ltr; white-space: nowrap; }
     <div class="rel"><div class="when"><div class="v"><bdi>v2.45-r5</bdi></div><div class="d">پس از <bdi>R4</bdi></div><span class="chip" style="background:#108AB1;color:#fff">برنامه‌ریزی شده</span></div>
       <div class="card" style="--c:#108AB1"><h2>نقشه‌ها و تصویرها</h2><ul>
         <li>نقشه‌ی ایستگاه‌های <bdi>FT8</bdi> با پرچم کشور، فاصله و جهت</li><li>محل فرستنده‌های <bdi>EiBi</bdi> با فاصله و جهت</li>
-        <li>دیکودر تصویر <bdi>SSTV</bdi></li></ul></div></div>
+        <li>دیکودر تصویر <bdi>SSTV</bdi></li><li>پرش خودکار <bdi>FT8/FT4</bdi> به باندهای باز</li></ul></div></div>
     <div class="rel"><div class="when"><div class="v">بعدها</div><div class="d">در حال بررسی</div><span class="chip" style="background:#d9dee2">ایده‌ها</span></div>
       <div class="card one" style="--c:#b9c2c8"><h2>ایده‌ها</h2><ul>
-        <li>تشخیص خودکار مدولاسیون از روی صدای دریافتی (آزمایشی)</li>
+        <li>تشخیص خودکار مدولاسیون از روی صدای دریافتی (آزمایشی)</li><li>دیکودر <bdi>PSK31</bdi></li><li>هشدار آب‌وهوای فضایی (شراره‌ی خورشیدی، طوفان)</li><li>منو به زبان‌های بیشتر</li><li>ورودی میکروفون برای بردهای بدون انشعاب صدا</li>
         <li>افزودن نسخه‌های تازه‌ی <bdi>ats-mini</bdi> پس از انتشار</li>
         <li>پیشنهادهای شما: در گروه تلگرام یا در <bdi>GitHub</bdi> بفرستید</li></ul></div></div>
 
