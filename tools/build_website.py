@@ -58,6 +58,7 @@ def main():
         f"  <url><loc>https://resonik.mikroutik.com/</loc><lastmod>{today}</lastmod></url>\n"
         f"  <url><loc>https://resonik.mikroutik.com/manual/</loc><lastmod>{today}</lastmod></url>\n"
         f"  <url><loc>https://resonik.mikroutik.com/manual/resonik-manual-fa.pdf</loc><lastmod>{today}</lastmod></url>\n"
+        f"  <url><loc>https://resonik.mikroutik.com/hardware/</loc><lastmod>{today}</lastmod></url>\n"
         f"  <url><loc>https://resonik.mikroutik.com/resonik-roadmap.pdf</loc><lastmod>{today}</lastmod></url>\n"
         f"  <url><loc>https://resonik.mikroutik.com/resonik-roadmap-fa.pdf</loc><lastmod>{today}</lastmod></url>\n"
         "</urlset>\n")
