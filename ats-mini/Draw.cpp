@@ -564,7 +564,7 @@ void drawScreen()
   extern char diagText[];
   if(diagText[0])
   {
-    spr.fillRect(0, 0, 112, 10, TFT_BLACK);
+    spr.fillRect(0, 0, 140, 10, TFT_BLACK);
     spr.setTextDatum(TL_DATUM);
     spr.setTextColor(TFT_YELLOW, TFT_BLACK);
     spr.drawString(diagText, 1, 1, 1);
