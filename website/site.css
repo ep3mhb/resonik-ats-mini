@@ -100,3 +100,6 @@ footer .hint { color: #8d8c88; }
 
 .stats { margin: 0.8rem 0 0; font-size: 0.95rem; color: var(--muted); }
 .stats b { color: var(--text); }
+
+.beta { border: 2px solid #FFD167; background: rgba(255,209,103,.12); border-radius: 12px; padding: .2rem 1rem; margin: 1rem 0 1.4rem; }
+.beta p { margin: .7rem 0; }
