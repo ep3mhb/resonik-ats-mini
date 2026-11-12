@@ -200,6 +200,7 @@ jobs:
         run: >-
           python -c 'import os,re; t=open(f"""artifact/resonik-ats-mini-{os.environ["SLUG"]}-ospi/CHANGELOG.md""").read(); r=re.search(f"""(^## {os.environ["SLUG"][1:].replace(".", "\\.")} .*?)(?=^## \\d|\\Z)""", t, re.MULTILINE | re.DOTALL); print(r.group(0) if r else "")' |
           gh release create "$SLUG" --repo '${{ github.repository }}' --title "$SLUG" --target '${{ needs.build.outputs.sha }}' --notes-file -
+          $(case "$SLUG" in *beta*|*rc*) echo --prerelease;; esac)
       - name: Upload release artifacts
         env:
           GITHUB_TOKEN: ${{ github.token }}

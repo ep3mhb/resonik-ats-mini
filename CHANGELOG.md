@@ -4,9 +4,13 @@ RESONIK edition: <https://resonik.mikroutik.com> · Upstream user manual: <https
 
 <!-- towncrier release notes start -->
 
-## 2.45-r3 (unreleased)
+## 2.45-r3-beta1 (2026-11-12, beta)
 
-RESONIK edition, Phase 3.
+RESONIK edition, Phase 3, **beta for testing**. Not offered by Update FW over Wi-Fi; install it by hand (see below). The final R3 follows after the tests.
+
+**Install:** Menu → System → Wi-Fi → AP Only, join the Wi-Fi network ATS-Mini, open http://10.1.1.1/update and upload `resonik-ats-mini-v2.45-r3-beta1-ospi-ota.bin` (8 MB PSRAM radios; `qspi` for 2 MB). Settings and memories are kept. Back to R2 at any time: Install button on https://resonik.mikroutik.com.
+
+**Known issues in this beta:** Plan Area offers only Region 1, UAE and Iran (Regions 2 and 3 and an "All" choice come in the final R3); the Scanner does not yet work well in FM; turning the knob stops the Scanner instead of reversing its direction. Please report problems on GitHub Issues or in the Telegram group.
 
 ### Added
 
