@@ -863,8 +863,38 @@ bool handleClick(bool shortPress)
 //
 // Main event loop
 //
+//
+// RESONIK test builds: loop timing diagnostics. With RESONIK_DIAG set, the
+// slowest part of the main loop over the last 3 s is shown in the top left
+// corner ("D 240 draw" = the screen drawing took 240 ms). Off in releases.
+//
+#ifdef RESONIK_DIAG
+static uint32_t diagT, diagLoopT, diagWorstMs, diagWorstLoopMs, diagWindow;
+static const char *diagWorstName = "";
+char diagText[24] = "";
+#define DIAG_T0 diagT = millis()
+#define DIAG_T1(name) do { uint32_t d_ = millis() - diagT; if(d_ > diagWorstMs) { diagWorstMs = d_; diagWorstName = name; } } while(0)
+static void diagLoopStart() { diagLoopT = millis(); }
+static void diagLoopEnd()
+{
+  uint32_t now = millis(), l = now - diagLoopT;
+  if(l > diagWorstLoopMs) diagWorstLoopMs = l;
+  if(now - diagWindow >= 3000)
+  {
+    snprintf(diagText, sizeof(diagText), "D %lu %s L%lu", (unsigned long)diagWorstMs, diagWorstName, (unsigned long)diagWorstLoopMs);
+    diagWorstMs = diagWorstLoopMs = 0; diagWorstName = ""; diagWindow = now;
+  }
+}
+#else
+#define DIAG_T0
+#define DIAG_T1(name)
+static inline void diagLoopStart() {}
+static inline void diagLoopEnd() {}
+#endif
+
 void loop()
 {
+  diagLoopStart();
   webScreenshotTick();
   offTimerTick();
   bool needRedraw = false;
@@ -882,19 +912,17 @@ void loop()
   if(!button.isPressed) physicalPushAndRotate = false;
 
   if(encCount)
-    needRedraw |= handleRotation(encCount, encCountAccel, button.isPressed);
+    { DIAG_T0; needRedraw |= handleRotation(encCount, encCountAccel, button.isPressed); DIAG_T1("knob"); }
   else if(!physicalPushAndRotate && button.isLongPressed)
   {
     sleepOn(!sleepOn());
     elapsedSleep = elapsedCommand = millis();
   }
   else if(!physicalPushAndRotate && (button.wasClicked || button.wasShortPressed))
-    needRedraw |= handleClick(button.wasShortPressed);
+    { DIAG_T0; needRedraw |= handleClick(button.wasShortPressed); DIAG_T1("click"); }
 
   // Each source executes independently, so simultaneous inputs are not lost.
-  needRedraw |= serialLoop(usbModeIdx);
-  needRedraw |= bleLoop(bleModeIdx);
-  needRedraw |= tcpLoop(tcpModeIdx);
+  { DIAG_T0; needRedraw |= serialLoop(usbModeIdx); needRedraw |= bleLoop(bleModeIdx); needRedraw |= tcpLoop(tcpModeIdx); DIAG_T1("usb/bt"); }
   uint32_t currentTime = millis();
   const bool heldRotation = physicalPushAndRotate || blePushAndRotate();
   needRedraw |= heldRotation != pushAndRotate;
@@ -924,42 +952,39 @@ void loop()
 
   if((currentTime - elapsedRSSI) > MIN_ELAPSED_RSSI_TIME)
   {
-    needRedraw |= processRssiSnr();
+    { DIAG_T0; needRedraw |= processRssiSnr(); DIAG_T1("rssi"); }
     elapsedRSSI = currentTime;
   }
 
   // Periodically check received RDS information
   if((currentTime - lastRDSCheck) > RDS_CHECK_TIME)
   {
-    needRedraw |= (currentMode == FM) && checkRds();
+    { DIAG_T0; needRedraw |= (currentMode == FM) && checkRds(); DIAG_T1("rds"); }
     lastRDSCheck = currentTime;
   }
 
   // Periodically check schedule
   if((currentTime - lastScheduleCheck) > SCHEDULE_CHECK_TIME)
   {
-    needRedraw |= identifyFrequency(currentFrequency, true);
+    { DIAG_T0; needRedraw |= identifyFrequency(currentFrequency, true); DIAG_T1("eibi"); }
     lastScheduleCheck = currentTime;
   }
 
   // Tick preferences time, saving changes when there has
   // been no activity for a while
-  prefsTickTime();
+  { DIAG_T0; prefsTickTime(); DIAG_T1("save"); }
 
   // Apply queued web operations, then advance WiFi and time synchronization.
-  needRedraw |= webTick();
-  needRedraw |= netTickTime();
+  { DIAG_T0; needRedraw |= webTick(); DIAG_T1("web"); }
+  { DIAG_T0; needRedraw |= netTickTime(); DIAG_T1("wifi"); }
 
   // Update clock display
   needRedraw |= clockUpdate();
 
   // RESONIK: beacon tracker, memory scanner and signal logger
-  needRedraw |= beaconTick();
-  needRedraw |= memScanTick();
-  needRedraw |= bandScanTick();
-  needRedraw |= loggerTick();
-  needRedraw |= cwAudioTick();
-  needRedraw |= ft8Tick();
+  { DIAG_T0; needRedraw |= beaconTick(); needRedraw |= memScanTick(); needRedraw |= bandScanTick(); DIAG_T1("scan"); }
+  { DIAG_T0; needRedraw |= loggerTick(); DIAG_T1("log"); }
+  { DIAG_T0; needRedraw |= cwAudioTick(); needRedraw |= ft8Tick(); DIAG_T1("decod"); }
 
   // Periodically refresh the main screen
   // This covers the case where there is nothing else triggering a refresh
@@ -974,8 +999,9 @@ void loop()
   needRedraw |= statusTick(millis());
 
   // Redraw screen if necessary
-  if(needRedraw) drawScreen();
+  if(needRedraw) { DIAG_T0; drawScreen(); DIAG_T1("draw"); }
 
+  diagLoopEnd();
   // Add a small default delay in the main loop
   delay(5);
 }
