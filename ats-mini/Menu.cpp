@@ -163,7 +163,8 @@ static const char *menu[] =
 #define MENU_FT8          30  // RESONIK R3
 #define MENU_FREQLOCK     31  // RESONIK R3
 #define MENU_WIFIPOWER    32  // RESONIK R3
-#define MENU_ABOUT        33
+#define MENU_PERF         33  // RESONIK R3
+#define MENU_ABOUT        34
 
 
 static uint8_t updateFwIdx = 0;
@@ -206,6 +207,7 @@ static const char *settings[] =
   "FT8/FT4",
   "Freq Lock",
   "Wi-Fi Power",
+  "Performance",
   "About",
 };
 
@@ -271,7 +273,7 @@ static const TileEntry tileSystem[] =
   { TI_POWER, TILE_SET | MENU_OFFTIMER }, { TI_NETWORK, TILE_SET | MENU_TCPMODE },
   { TI_GLOBE, TILE_SET | MENU_UTCOFFSET }, { TI_FIRMWARE, TILE_SET | MENU_UPDATEFW },
   { TI_USB, TILE_SET | MENU_USBMODE }, { TI_WIFI, TILE_SET | MENU_WIFIMODE },
-  { TI_WIFIPOWER, TILE_SET | MENU_WIFIPOWER },
+  { TI_WIFIPOWER, TILE_SET | MENU_WIFIPOWER }, { TI_PERF, TILE_SET | MENU_PERF },
 };
 
 static const TileCategory tileCategories[] =
@@ -350,6 +352,19 @@ uint8_t freqLock = 0;
 static const char *const freqLockDesc[] = { "Off", "On" };
 uint8_t wifiPowerIdx = 0;
 const char *const wifiPowerDesc[] = { "Normal", "Low", "Lowest" };
+
+// Performance (RESONIK R3): processor speed. Upstream runs at 80 MHz to save
+// battery; faster makes the screen, menus and tuning feel quicker at the cost
+// of battery time. The FT8 page still runs at 240 MHz while it is open.
+uint8_t perfIdx = 0;
+static const char *const perfDesc[] = { "Battery 80 MHz", "Balanced 160 MHz", "Fast 240 MHz" };
+static const uint16_t perfMhz[] = { 80, 160, 240 };
+
+void perfApply()
+{
+  if(perfIdx > 2) perfIdx = 0;
+  if(getCpuFrequencyMhz() != perfMhz[perfIdx]) setCpuFrequencyMhz(perfMhz[perfIdx]);
+}
 
 //
 // FM Region Menu
@@ -1691,6 +1706,7 @@ static void clickSettings(int cmd, bool shortPress)
     case MENU_KNOB:       currentCmd = CMD_KNOB;      break;
     case MENU_FREQLOCK:   currentCmd = CMD_FREQLOCK;  break;
     case MENU_WIFIPOWER:  currentCmd = CMD_WIFIPOWER; break;
+    case MENU_PERF:       currentCmd = CMD_PERF;      break;
     case MENU_BANDPLAN:   currentCmd = CMD_BANDPLAN;  break;
     case MENU_BPAREA:     currentCmd = CMD_BPAREA;    break;
     case MENU_AUTOATT:    currentCmd = CMD_AUTOATT;   break;
@@ -1780,6 +1796,11 @@ bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
       freqLock = !freqLock;
       statusShow(freqLock ? "Frequency locked" : "Frequency unlocked",
                  freqLock ? "Knob sets the volume" : nullptr);
+      prefsRequestSave(SAVE_SETTINGS);
+      break;
+    case CMD_PERF:
+      perfIdx = wrap_range(perfIdx, scrollDirection * enc, 0, 2);
+      perfApply();
       prefsRequestSave(SAVE_SETTINGS);
       break;
     case CMD_WIFIPOWER:
@@ -2842,6 +2863,7 @@ void drawSideBar(uint16_t cmd, int x, int y, int sx)
     case CMD_KNOB:       drawOptionList(settings[MENU_KNOB], knobDesc, 2, encoderHalfStep ? 1 : 0, x, y, sx); break;
     case CMD_FREQLOCK:   drawOptionList(settings[MENU_FREQLOCK], freqLockDesc, 2, freqLock, x, y, sx); break;
     case CMD_WIFIPOWER:  drawOptionList(settings[MENU_WIFIPOWER], wifiPowerDesc, 3, wifiPowerIdx, x, y, sx); break;
+    case CMD_PERF:       drawOptionList(settings[MENU_PERF], perfDesc, 3, perfIdx, x, y, sx); break;
     case CMD_BEACON:     drawOptionList(menu[MENU_BEACONS], beaconMenuLabels, 19, beaconFollowIdx + 1, x, y, sx); break;
     case CMD_VOLUME:     drawVolume(x, y, sx);     break;
     case CMD_AGC:        drawAgc(x, y, sx);        break;
@@ -3057,6 +3079,7 @@ static const char *tileValueLabel(uint16_t cmd, int i)
     case CMD_KNOB:      return(knobDesc[i]);
     case CMD_FREQLOCK:  return(freqLockDesc[i]);
     case CMD_WIFIPOWER: return(wifiPowerDesc[i]);
+    case CMD_PERF:      return(perfDesc[i]);
     case CMD_BPAREA:    return(bandPlanAreaDesc[i]);
     default:            return("");
   }
@@ -3101,6 +3124,7 @@ static bool tileValueGet(uint16_t cmd, TileValue &v)
     case CMD_KNOB:      v.count = 2; v.idx = encoderHalfStep ? 1 : 0; return(true);
     case CMD_FREQLOCK:  v.count = 2; v.idx = freqLock; return(true);
     case CMD_WIFIPOWER: v.count = 3; v.idx = wifiPowerIdx; return(true);
+    case CMD_PERF:      v.count = 3; v.idx = perfIdx; return(true);
   }
 
   v.list = false;
