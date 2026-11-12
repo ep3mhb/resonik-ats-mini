@@ -236,6 +236,9 @@ void setup()
 
   digitalWrite(AUDIO_MUTE, audioClamp ? HIGH : LOW);
 
+  // Processor speed from the Performance setting (RESONIK R3)
+  perfApply();
+
   // Start a fresh countdown using the configured duration.
   offTimerRestart();
 
