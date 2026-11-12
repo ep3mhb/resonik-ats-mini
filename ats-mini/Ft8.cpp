@@ -241,10 +241,17 @@ static void work(void *)
 // Page
 //
 
+// Some boards take the decoder input before the speaker amplifier, others
+// after it (the audio tap of the V4B). With the amplifier off the second kind
+// gets nothing, so the page starts with it off and switches it on if the
+// input stays silent; that holds until the radio is switched off.
+static bool ampNeeded = false;
+static uint32_t openedAt = 0;
+
 static void audioForFt8()
 {
-  // Speaker amplifier off, line level up for the ADC
-  if(PIN_AMP_EN >= 0) digitalWrite(PIN_AMP_EN, LOW);
+  // Speaker amplifier off unless the input needs it, line level up for the ADC
+  if(PIN_AMP_EN >= 0) digitalWrite(PIN_AMP_EN, ampNeeded ? HIGH : LOW);
   if(audioClamp) digitalWrite(AUDIO_MUTE, LOW);
   rx.setAudioMute(false);
   rx.setVolume(LINE_VOLUME);
@@ -290,6 +297,7 @@ static bool start()
   slotSync.state = clockAvailable() ? Ft8Sync::UTC : Ft8Sync::SEARCH;
 
   audioFt8Ring(ring, RING_SAMPLES);
+  openedAt = millis();
   generation++;
   running = true;
   xTaskNotifyGive(worker);
@@ -358,6 +366,13 @@ bool ft8Tick()
     return(true);
   }
   if(!pageActive) return(false);
+
+  // Silent input with the amplifier off: this board taps after it
+  if(!ampNeeded && PIN_AMP_EN >= 0 && millis() - openedAt > 1500 && audioInputLevel() < 2)
+  {
+    ampNeeded = true;
+    audioForFt8();
+  }
 
   // Redraw on news, and every half second for the clock and slot bar
   static uint32_t seen = 0, lastDraw = 0;
@@ -531,10 +546,11 @@ void drawFt8Page()
   spr.drawFastHLine(0, 154, 320, FT_TRACK);
   spr.setTextDatum(BL_DATUM);
   spr.setTextColor(FT_MUTED);
-  if(decoded >= 0) snprintf(buf, sizeof(buf), "In %u  Last %d", audioInputLevel(), decoded);
-  else snprintf(buf, sizeof(buf), "In %u", audioInputLevel());
+  // "Spk" when the speaker had to stay on for the input to get audio
+  if(decoded >= 0) snprintf(buf, sizeof(buf), "In %u%s  Last %d", audioInputLevel(), ampNeeded ? " Spk" : "", decoded);
+  else snprintf(buf, sizeof(buf), "In %u%s", audioInputLevel(), ampNeeded ? " Spk" : "");
   spr.drawString(buf, 6, 169, font);
   spr.setTextDatum(BR_DATUM);
-  spr.drawString("Turn: band, FT8/FT4  Press: exit", 314, 169, font);
+  spr.drawString("Turn: band  Press: exit", 314, 169, font);
   spr.pushSprite(0, 0);
 }
