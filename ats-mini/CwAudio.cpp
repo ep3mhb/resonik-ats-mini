@@ -70,6 +70,8 @@ static int webTimerFs = 0;
 static volatile bool timedSampling = false;  // Wi-Fi is on: use the timer
 // Timed sampling statistics for the Web Control page (R4 test)
 static volatile uint32_t readUsMax = 0, readUsAvg = 0, samplesLate = 0;
+static volatile uint32_t samplesCaughtUp = 0;   // Missed ticks: filled in (web) or taken late (decoders)
+static volatile uint32_t webOverrun = 0;        // Lost because the ring was not read in time
 
 static bool IRAM_ATTR webTimerAlarm(gptimer_handle_t, const gptimer_alarm_event_data_t *, void *)
 {
@@ -119,6 +121,8 @@ static void sampler(void *)
   uint64_t k = 0;
   int lastFs = 0;
   uint32_t sinceYield = 0;
+  uint32_t webInterp = 0;          // Web audio: missed ticks to fill in
+  int webLast = 2048;
   float dc = 2048, dev = 0;
   uint32_t devCount = 0;
 
@@ -156,6 +160,10 @@ static void sampler(void *)
         uint32_t c = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(5));
         if(!c) continue;
         if(c > 32) { samplesLate += c - 32; c = 32; }
+        if(c > 1) samplesCaughtUp += c - 1;
+        // Web audio: one fresh reading, the missed ones filled in between
+        // (a burst of late readings sounds like a buzz). Decoders: catch up.
+        if(web && c > 1) { webInterp = c - 1; c = 1; }
         backlog = c;
       }
       backlog--;
@@ -204,6 +212,13 @@ static void sampler(void *)
     }
     else if(web)
     {
+      for(uint32_t i = 1; i <= webInterp; i++)
+      {
+        webRing[webWritten % WEB_RING] = (int16_t)(webLast + (v - webLast) * (int)i / (int)(webInterp + 1));
+        webWritten = webWritten + 1;
+      }
+      webInterp = 0;
+      webLast = v;
       webRing[webWritten % WEB_RING] = (int16_t)v;
       webWritten = webWritten + 1;
     }
@@ -282,11 +297,13 @@ bool audioWebStreaming() { return(webAudio && sampling); }
 
 // Copy the samples written since *pos (at most max); the oldest are skipped
 // when the reader fell more than a ring behind
-void audioTimedStats(uint32_t *avgUs, uint32_t *maxUs, uint32_t *late)
+void audioTimedStats(uint32_t *avgUs, uint32_t *maxUs, uint32_t *late, uint32_t *caughtUp, uint32_t *overrun)
 {
   *avgUs = readUsAvg / 16;
   *maxUs = readUsMax;
   *late = samplesLate;
+  *caughtUp = samplesCaughtUp;
+  *overrun = webOverrun;
   readUsMax = 0;
 }
 
@@ -294,7 +311,7 @@ uint32_t audioWebRead(int16_t *dst, uint32_t max, uint32_t *pos)
 {
   if(!webRing) return(0);
   uint32_t w = webWritten;
-  if(w - *pos > WEB_RING - 256) *pos = w - 2048;
+  if(w - *pos > WEB_RING - 256) { webOverrun += (w - 2048) - *pos; *pos = w - 2048; }
   uint32_t n = 0;
   while(*pos != w && n < max) dst[n++] = webRing[(*pos)++ % WEB_RING];
   return(n);

@@ -97,7 +97,7 @@ function tune(){const v=parseFloat(document.getElementById('f').value.replace(',
 document.getElementById('go').onclick=tune;
 document.getElementById('f').addEventListener('keydown',e=>{if(e.key==='Enter')tune();});
 // Audio: 8 kHz samples scheduled with a small buffer
-let ac=null,next=0,listening=false,gain=null;
+let ac=null,next=0,listening=false,gain=null,gaps=0,gapMs=0;
 document.getElementById('au').onclick=function(){
  listening=!listening;this.textContent=listening?'\u{1F507} Stop listening':'\u{1F50A} Listen (experimental)';
  if(listening&&!ac){ac=new(window.AudioContext||window.webkitAudioContext)();gain=ac.createGain();gain.gain.value=1;gain.connect(ac.destination);}
@@ -108,10 +108,18 @@ function play(s){if(!listening||!ac)return;
  let peak=0;for(let i=0;i<s.length;i++){ch[i]=s[i]/32768;peak=Math.max(peak,Math.abs(ch[i]));}
  if(peak>0.003)gain.gain.value=Math.min(40,Math.max(0.5,gain.gain.value*0.9+0.1*(0.5/peak)));
  const src=ac.createBufferSource();src.buffer=buf;src.connect(gain);
- const t=ac.currentTime;if(next<t+0.05||next>t+1)next=t+0.25;src.start(next);next+=buf.duration;}
-function status(j){ai.innerHTML=(j.audio?'<b>Streaming</b> 8 kHz':'Audio off')+
- ' &middot; level '+j.level+' &middot; ADC dropouts '+j.adcErrors+' &middot; late '+j.late+' &middot; read '+j.readUs+'/'+j.readMax+' &micro;s &middot; '+j.cpu+' MHz &middot; speaker '+({on:'on',testing:'testing…',off:'off',quiet:'quieter (V4B: amplifier needed)'}[j.spk]||j.spk)+
- (j.audio&&j.level<2?' &middot; <b>no audio on GPIO11 (V4B board needed)</b>':'');}
+ const t=ac.currentTime;
+ // Ran dry: the sound stopped until this packet (a gap you hear)
+ if(next<t+0.02){if(next>0){gaps++;gapMs+=Math.round((t+0.35-next)*1000);}next=t+0.35;}
+ else if(next>t+1.5)next=t+0.35;
+ src.start(next);next+=buf.duration;}
+function status(j){
+ if(!j.audio){ai.innerHTML='Audio off'+(j.level<2?' &middot; <b>no audio on GPIO11 (V4B board needed)</b>':'');return;}
+ ai.innerHTML='<b>Streaming</b> 8 kHz &middot; level '+j.level+' &middot; '+j.cpu+' MHz &middot; speaker '+
+  ({on:'on',testing:'testing\u2026',off:'off',quiet:'quieter'}[j.spk]||j.spk)+'<br>'+
+  'Radio: ADC failed '+j.adcErrors+', dropped '+j.late+', filled in '+j.caughtUp+', ring overrun '+j.overrun+
+  ', read '+j.readUs+'/'+j.readMax+' &micro;s<br>'+
+  'Network: busy '+j.waits+'<br>Browser: gaps '+gaps+' ('+gapMs+' ms)';}
 connect();
 </script></body></html>)HTML";
 

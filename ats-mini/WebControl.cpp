@@ -185,14 +185,18 @@ static void webSendScreen()
 // Audio: DC removed, about 100 ms per message
 //
 static uint32_t audioPos = 0;
+static uint32_t audioSendWaits = 0;      // Times the connection was too busy
 static float audioDc = 2048;
 
 static void webSendAudio()
 {
   static uint8_t msg[2 + 2 * 1024];
   int16_t *s = (int16_t *)(msg + 2);
+  // Connection busy: leave the samples in the ring for the next try (they
+  // used to be read and thrown away here, without being counted)
+  if(!ws.availableForWriteAll()) { audioSendWaits++; return; }
   uint32_t n = audioWebRead(s, 1024, &audioPos);
-  if(!n || !ws.availableForWriteAll()) return;
+  if(!n) return;
   for(uint32_t i = 0; i < n; i++)
   {
     audioDc += (s[i] - audioDc) * 0.002f;
@@ -349,15 +353,16 @@ bool webControlTick()
   if(now - lastStatus >= 1000)
   {
     lastStatus = now;
-    char json[220];
-    uint32_t avgUs, maxUs, late;
-    audioTimedStats(&avgUs, &maxUs, &late);
+    char json[300];
+    uint32_t avgUs, maxUs, late, caughtUp, overrun;
+    audioTimedStats(&avgUs, &maxUs, &late, &caughtUp, &overrun);
     snprintf(json, sizeof(json),
       "{\"audio\":%d,\"adcErrors\":%lu,\"restarts\":%lu,\"level\":%u,\"clients\":%u,\"freq\":%lu,"
-      "\"readUs\":%lu,\"readMax\":%lu,\"late\":%lu,\"cpu\":%lu,\"spk\":\"%s\"}",
+      "\"readUs\":%lu,\"readMax\":%lu,\"late\":%lu,\"cpu\":%lu,\"spk\":\"%s\",\"caughtUp\":%lu,\"overrun\":%lu,\"waits\":%lu}",
       audioWebStreaming() ? 1 : 0, (unsigned long)audioAdcErrors(), (unsigned long)audioTimingRestarts(),
       audioInputLevel(), (unsigned)ws.count(), (unsigned long)currentFrequency,
-      (unsigned long)avgUs, (unsigned long)maxUs, (unsigned long)late, (unsigned long)getCpuFrequencyMhz(), spkName[(int)spk]);
+      (unsigned long)avgUs, (unsigned long)maxUs, (unsigned long)late, (unsigned long)getCpuFrequencyMhz(), spkName[(int)spk],
+      (unsigned long)caughtUp, (unsigned long)overrun, (unsigned long)audioSendWaits);
     ws.textAll(json);
   }
   return(redraw);
