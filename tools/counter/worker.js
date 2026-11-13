@@ -55,7 +55,9 @@ async function githubStats(env, ctx) {
   const headers = { "User-Agent": "resonik-counter", Accept: "application/vnd.github+json" };
   if (env.GITHUB_TOKEN) headers.Authorization = `Bearer ${env.GITHUB_TOKEN}`;
   const r = await fetch(`https://api.github.com/repos/${REPO}/releases?per_page=100`, { headers });
-  if (!r.ok) return { total: null, releases: {} };
+  // GitHub refuses now and then (60 requests an hour per address without a
+  // token, shared by everything on Cloudflare's address): show the last good numbers
+  if (!r.ok) return (await env.COUNTS.get("github:last", "json")) || { total: null, releases: {} };
 
   const releases = {};
   let total = 0;
@@ -66,6 +68,7 @@ async function githubStats(env, ctx) {
     total += n;
   }
   const stats = { total, releases };
+  ctx.waitUntil(env.COUNTS.put("github:last", JSON.stringify(stats)));
   ctx.waitUntil(cache.put(key, new Response(JSON.stringify(stats), {
     headers: { "Cache-Control": "max-age=3600" },
   })));
