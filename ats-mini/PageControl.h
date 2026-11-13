@@ -98,7 +98,7 @@ function tune(){const v=parseFloat(document.getElementById('f').value.replace(',
 document.getElementById('go').onclick=tune;
 document.getElementById('f').addEventListener('keydown',e=>{if(e.key==='Enter')tune();});
 // Audio: 8 kHz samples scheduled with a small buffer
-let ac=null,next=0,listening=false,gain=null,gaps=0,gapMs=0,reserve=0.35;
+let ac=null,next=0,listening=false,gain=null,gaps=0,gapMs=0,reserve=0.35,lastS=0;
 // mu-law to 16-bit
 const ulaw=new Int16Array(256);for(let i=0;i<256;i++){const u=~i&255,s=u&128,e=(u>>4)&7,m=u&15;
  let v=((m<<3)+0x84)<<e;v-=0x84;ulaw[i]=s?-v:v;}
@@ -108,8 +108,13 @@ document.getElementById('au').onclick=function(){
  if(ac)ac.resume();send(listening?'!audio1':'!audio0');send(listening&&document.getElementById('sil').checked?'!mute1':'!mute0');next=0;};
 document.getElementById('sil').onchange=function(){if(listening)send(this.checked?'!mute1':'!mute0');};
 function play(s){if(!listening||!ac)return;
- const buf=ac.createBuffer(1,s.length,8000),ch=buf.getChannelData(0);
- let peak=0;for(let i=0;i<s.length;i++){ch[i]=s[i]/32768;peak=Math.max(peak,Math.abs(ch[i]));}
+ // Safari does not accept 8 kHz buffers: resample to the device rate
+ // (linear, carrying the last sample over so packets join smoothly)
+ const r=ac.sampleRate/8000,len=Math.floor(s.length*r),buf=ac.createBuffer(1,len,ac.sampleRate),ch=buf.getChannelData(0);
+ let peak=0;
+ for(let i=0;i<len;i++){const x=i/r,k=Math.floor(x),f=x-k,a=k?s[k-1]:lastS,b=s[Math.min(k,s.length-1)];
+  const v=(a+(b-a)*f)/32768;ch[i]=v;const m=Math.abs(v);if(m>peak)peak=m;}
+ lastS=s[s.length-1];
  if(peak>0.003)gain.gain.value=Math.min(40,Math.max(0.5,gain.gain.value*0.9+0.1*(0.5/peak)));
  const src=ac.createBufferSource();src.buffer=buf;src.connect(gain);
  const t=ac.currentTime;
