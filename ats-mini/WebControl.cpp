@@ -176,6 +176,8 @@ static void webSendAudio()
   ws.binaryAll(msg, 2 + n * 2);
 }
 
+bool webControlActive() { return(ws.count() > 0); }
+
 bool webControlTick()
 {
   static uint32_t lastScreen = 0, lastAudio = 0, lastStatus = 0, lastCleanup = 0;

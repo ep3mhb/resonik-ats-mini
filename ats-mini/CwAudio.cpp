@@ -19,6 +19,7 @@
 #include <esp_adc/adc_oneshot.h>
 #include <esp_timer.h>
 #include <driver/gpio.h>
+#include <driver/gptimer.h>
 #include <freertos/semphr.h>
 
 #define CW_FS         4000      // Sample rate, Hz
@@ -59,6 +60,52 @@ static volatile bool webAudio = false;
 static int16_t *webRing = nullptr;
 static volatile uint32_t webWritten = 0;
 
+// With Wi-Fi on, the sampler must not busy-wait: core 0 also runs Wi-Fi, and
+// its idle task starved until the task watchdog restarted the radio (R4
+// test 1). Then a hardware timer wakes the sampler for each sample instead.
+static TaskHandle_t samplerTask = nullptr;
+static gptimer_handle_t webTimer = nullptr;
+static bool webTimerOn = false;
+static int webTimerFs = 0;
+static volatile bool timedSampling = false;  // Wi-Fi is on: use the timer
+
+static bool IRAM_ATTR webTimerAlarm(gptimer_handle_t, const gptimer_alarm_event_data_t *, void *)
+{
+  BaseType_t woken = pdFALSE;
+  if(samplerTask) vTaskNotifyGiveFromISR(samplerTask, &woken);
+  return(woken == pdTRUE);
+}
+
+static void webTimerRun(bool on, int fs)
+{
+  if(on == webTimerOn && (!on || fs == webTimerFs)) return;
+  if(!webTimer)
+  {
+    gptimer_config_t cfg = {};
+    cfg.clk_src = GPTIMER_CLK_SRC_DEFAULT;
+    cfg.direction = GPTIMER_COUNT_UP;
+    cfg.resolution_hz = 1000000;
+    if(gptimer_new_timer(&cfg, &webTimer) != ESP_OK) { webTimer = nullptr; return; }
+    gptimer_event_callbacks_t cbs = {};
+    cbs.on_alarm = webTimerAlarm;
+    gptimer_register_event_callbacks(webTimer, &cbs, nullptr);
+    gptimer_enable(webTimer);
+  }
+  if(webTimerOn) gptimer_stop(webTimer);
+  webTimerOn = false;
+  if(!on) return;
+  // Whole microseconds: 125 us for 8 kHz, 250 for 4 kHz, 83 for 12 kHz
+  // (slightly fast; the sampler skips a tick now and then to stay exact)
+  gptimer_alarm_config_t alarm = {};
+  alarm.alarm_count = 1000000 / fs;
+  alarm.reload_count = 0;
+  alarm.flags.auto_reload_on_alarm = true;
+  gptimer_set_alarm_action(webTimer, &alarm);
+  gptimer_start(webTimer);
+  webTimerOn = true;
+  webTimerFs = fs;
+}
+
 static void sampler(void *)
 {
   int16_t buf[CW_BLOCK];
@@ -78,11 +125,13 @@ static void sampler(void *)
     if(!want || !adc)
     {
       sampling = false;
+      webTimerRun(false, 0);
       vTaskDelay(pdMS_TO_TICKS(50));
       continue;
     }
     int16_t *ring = ft8Ring;
     bool web = !ring && webAudio && webRing;
+    bool timed = timedSampling;
     int fs = ring ? FT8_FS : web ? WEB_FS : CW_FS;
     if(!sampling || fs != lastFs)
     {
@@ -92,10 +141,17 @@ static void sampler(void *)
       base = next = esp_timer_get_time();
       k = 0;
     }
+    webTimerRun(timed, fs);
 
-    // Busy-wait to the next sample time: steady timing matters more than the
-    // idle core, and this only runs while a decoder is in use
-    while(esp_timer_get_time() < next);
+    // Web audio: sleep until the timer says so. Decoders (Wi-Fi off): busy-wait
+    // to the next sample time, steady timing matters more than the idle core
+    if(timed)
+    {
+      ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(5));
+      // Ahead of the exact rate (12 kHz on an 83 us timer): skip this tick
+      if((int64_t)((k + 1) * 1000000ULL / (uint64_t)fs) > esp_timer_get_time() - base + 40) continue;
+    }
+    else while(esp_timer_get_time() < next);
     k++;
     next = base + (int64_t)(k * 1000000ULL / (uint64_t)fs);
 
@@ -137,7 +193,7 @@ static void sampler(void *)
     }
 
     // Let the idle task run now and then, or the watchdog bites
-    if(++sinceYield >= (uint32_t)fs / 2)
+    if(!timed && ++sinceYield >= (uint32_t)fs / 2)
     {
       sinceYield = 0;
       vTaskDelay(1);
@@ -145,7 +201,7 @@ static void sampler(void *)
       if(!ring && !web) { base = next = esp_timer_get_time(); k = 0; }
     }
     // Fell far behind (interrupts): start the timing again
-    if(esp_timer_get_time() - next > 10000) { base = next = esp_timer_get_time(); k = 0; timingRestarts++; }
+    if(!timed && esp_timer_get_time() - next > 10000) { base = next = esp_timer_get_time(); k = 0; timingRestarts++; }
   }
 }
 
@@ -153,7 +209,7 @@ void cwAudioInit()
 {
   lock = xSemaphoreCreateMutex();
   decoder.begin(CW_FS, cwPitch());
-  xTaskCreatePinnedToCore(sampler, "cwaudio", 4096, nullptr, 2, nullptr, 0);
+  xTaskCreatePinnedToCore(sampler, "cwaudio", 4096, nullptr, 2, &samplerTask, 0);
 }
 
 static bool adcOpen()
@@ -237,7 +293,9 @@ bool cwAudioTick()
 
   // The page owns Wi-Fi while it is open and gives it back afterwards
   // (not while a web request runs: Wi-Fi off under it crashes the radio)
-  if(page && wifiOn() && !wifiPaused && !netJobsBusy())
+  // Not while Web Control is open: then the page runs with Wi-Fi on, so it
+  // can be watched and used from the browser (R4 test)
+  if(page && wifiOn() && !wifiPaused && !netJobsBusy() && !webControlActive())
   {
     netStop();
     wifiPaused = true;
@@ -248,7 +306,8 @@ bool cwAudioTick()
     netInit(wifiModeIdx);
   }
 
-  bool need = ((page || cwStripShown()) && !wifiOn()) || (webAudio && !page);
+  timedSampling = wifiOn();
+  bool need = (page && (!wifiOn() || webControlActive())) || (cwStripShown() && !wifiOn()) || (webAudio && !page);
   if(need && !want)
   {
     // Connect the pad to the ADC again (it is detached while idle)
@@ -379,7 +438,8 @@ static void drawLines(int x, int y, int width, int lineH, int maxLines, uint16_t
 
 static const char *waitReason()
 {
-  if(wifiOn()) return(pageOpen() ? "Pausing Wi-Fi..." : "Wi-Fi on: open CW Decoder");
+  if(wifiOn() && !(pageOpen() && webControlActive()))
+    return(pageOpen() ? "Pausing Wi-Fi..." : "Wi-Fi on: open CW Decoder");
   if(!adc) return("Audio input not available");
   return(nullptr);
 }

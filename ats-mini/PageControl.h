@@ -51,8 +51,8 @@ a{color:var(--accent)}
 <div class="audio"><button id="au" style="width:100%;margin-bottom:8px">&#128266; Listen (experimental)</button>
  <span id="ai">Audio needs a V4B board (speaker line on GPIO11). Wi-Fi and the receiver share the processor's
  ADC, so the sound can drop out; the counter below shows how often.</span></div>
-<p class="hint">Keyboard: &larr; &rarr; tune, Enter click, Space press, + &minus; volume. The FT8 and CW pages
-switch Wi-Fi off while open, so this page reconnects when you leave them. <a href="/">Status</a></p>
+<p class="hint">Keyboard: &larr; &rarr; tune, Enter click, Space press, + &minus; volume. While this page is open, the FT8 and CW pages keep Wi-Fi on, so you can use them from
+here (decoding can be a little weaker with Wi-Fi on). <a href="/">Status</a></p>
 </main>
 <script>
 const cv=document.getElementById('c'),cx=cv.getContext('2d'),img=cx.createImageData(320,170),px=img.data;
