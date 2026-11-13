@@ -4,13 +4,9 @@ RESONIK edition: <https://resonik.mikroutik.com> · Upstream user manual: <https
 
 <!-- towncrier release notes start -->
 
-## 2.45-r3-beta1 (2026-11-12, beta)
+## 2.45-r3 (2026-11-13)
 
-RESONIK edition, Phase 3, **beta for testing**. Not offered by Update FW over Wi-Fi; install it by hand (see below). The final R3 follows after the tests.
-
-**Install:** Menu → System → Wi-Fi → AP Only, join the Wi-Fi network ATS-Mini, open http://10.1.1.1/update and upload `resonik-ats-mini-v2.45-r3-beta1-ospi-ota.bin` (8 MB PSRAM radios; `qspi` for 2 MB). Settings and memories are kept. Back to R2 at any time: Install button on https://resonik.mikroutik.com.
-
-**Known issues in this beta:** Plan Area offers only Region 1, UAE and Iran (Regions 2 and 3 and an "All" choice come in the final R3); the Scanner does not yet work well in FM; turning the knob stops the Scanner instead of reversing its direction. Please report problems on GitHub Issues or in the Telegram group.
+RESONIK edition, Phase 3. From R2: Menu → System → Update FW over Wi-Fi, or the Install button on https://resonik.mikroutik.com. Settings and memories are kept. Thanks to everyone who tested the beta.
 
 ### Added
 
@@ -20,11 +16,15 @@ RESONIK edition, Phase 3, **beta for testing**. Not offered by Update FW over Wi
 - **Wi-Fi Power** (**Menu → System → Wi-Fi Power**): Normal (17 dBm), Low (13 dBm) or Lowest (8.5 dBm). Lower power helps boards that reset when Wi-Fi transmits and saves some battery, at the cost of range.
 - **Performance** (**Menu → System → Performance**): processor speed Battery (80 MHz, as before), Balanced (160 MHz) or Fast (240 MHz). Faster makes the screen, menus and tuning feel quicker and costs some battery time; the battery estimate shows the difference.
 - **CW decoder** (**Menu → Ham & SWL → CW Decoder**): Morse to text on a full-screen page, with speed, tone, level and key indicators; **CW Strip** shows the decoded text on the normal screen in CW mode.
-- **Band scanner** (**Menu → Tuning → Scanner**): steps through the band and holds on a signal, resuming a few seconds after it goes. Turn or click to stop.
-- **Band Plan → Auto**: tuning into a segment of an amateur band sets mode, filter and step for it (CW, digital, beacons, phone). In AM it switches when you tune into an amateur band from outside; AM chosen by hand inside the band stays ([#2](https://github.com/ep3mhb/resonik-ats-mini/issues/2)). **Plan Area** selects Region 1, UAE (160 m only 1810–1850 kHz) or Iran (no 160, 80 or 30 m, after the national frequency table); parts not allowed are marked on the scale.
+- **Band scanner** (**Menu → Tuning → Scanner**): steps through the band and holds on a signal. In SSB and CW it moves on 4 seconds after the signal goes; on broadcast stations (AM, FM), which never go quiet, it stays 5 seconds on each, and in FM it skips the next 200 kHz so a strong station does not stop it twice. **Turning the knob sets the direction** (right up, left down); a click stops it.
+- **Band Plan → Auto**: tuning into a segment of an amateur band sets mode, filter and step for it (CW, digital, beacons, phone). In AM it switches when you tune into an amateur band from outside; AM chosen by hand inside the band stays ([#2](https://github.com/ep3mhb/resonik-ats-mini/issues/2)). **Plan Area** selects **All regions**, **Region 1**, **Region 2**, **Region 3**, **Iran** (no 160, 80 or 30 m, after the national frequency table) or **UAE** (160 m only 1810–1850 kHz); parts not allowed are marked on the scale. All regions shows every region's bands (for example 80 m to 4000 kHz and 40 m to 7300 kHz), with the Region 1 details where Region 1 has the band. The Region 2 and 3 plans are simplified guidance: check your own licence.
 
 ### Fixed
 
+- **No more freezes after Wi-Fi connects.** The time from a web server and the propagation data are fetched in the background; on slow or blocked networks they used to stop the knob, menu and screen for 8 to 36 seconds, again after every return from the FT8 and CW pages. The time is not asked for again once the clock is set.
+- The radio could restart when the FT8 or CW page was opened during such a download (Wi-Fi was switched off under it). The pages now wait for it to finish.
+- FT8 audio is sampled at exactly 12 kHz (it was 12048 Hz, about 2 dB less sensitive).
+- The CW decoder no longer prints rows of "E" on noise: static crashes and clicks, loud beside the pitch too, are ignored, and so are blips shorter than half a dot.
 - Seek stays inside the band (upstream #165, after the mattafaak fork).
 - Encoder acceleration eases off one step at a time; smoother SSB tuning; steadier RDS station names (after the jokubasver fork).
 - The CW decoder input is disconnected from the ADC while idle, so no faint buzz reaches the speaker.
