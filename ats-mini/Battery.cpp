@@ -19,6 +19,9 @@ static uint8_t batteryState = 255;
 // Current battery voltage
 static float batteryVolts = 4.0;
 
+// Last measured voltage, without a new reading (RESONIK R4 Web Control)
+float batteryLastVolts() { return(batteryVolts); }
+
 // Time remaining estimate (RESONIK)
 static BatteryEstimator batteryEstimator = { false, false, 0, BATT_DEFAULT_RATE, 0, 0, 0 };
 

@@ -252,6 +252,8 @@ bool consumeAbortPending();
 
 // Battery.c
 float batteryMonitor();
+float batteryLastVolts();
+bool webConsumeAbortPending();
 bool drawBattery(int x, int y);
 
 // Scan.c (frequencies and steps in Hz)

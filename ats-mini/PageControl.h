@@ -29,14 +29,39 @@ button.acc{background:#0c5a45}
 .audio{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--card);font-size:13px;color:var(--muted)}
 .audio b{color:var(--text)}
 .hint{font-size:12px;color:var(--muted);margin-top:12px}
+.panel{background:var(--card);border-radius:10px;padding:10px 14px;margin-bottom:10px}
+.pf{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#pfq{font:700 40px/1.1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:1px;color:#fff}
+#pfq small{font-size:18px;color:var(--muted);margin-left:6px}
+.tags span{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;margin:2px 0 2px 4px;border-radius:8px;background:#06171e;color:var(--muted)}
+.tags span.m{background:var(--blue);color:#fff}
+.sm{display:flex;align-items:center;gap:10px;margin-top:6px;font-size:13px;color:var(--muted)}
+.sm .bar{flex:1;height:10px;border-radius:5px;background:#06171e;overflow:hidden}
+.sm .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#f5c542 70%,#ff6b6b);transition:width .2s}
+#ps{font-size:22px;font-weight:700;margin-top:6px;color:var(--accent);min-height:0}
+#rt{font-size:14px;color:var(--text);margin-top:2px}
+.scope{margin-top:12px;background:var(--card);border-radius:10px;padding:10px 12px}
+.scope h2{font-size:14px;margin:0 0 8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.scope h2 button{flex:0 0 auto;min-width:0;padding:6px 14px;font-size:13px}
+#sc{width:100%;height:140px;aspect-ratio:auto;image-rendering:auto;background:#06171e;cursor:crosshair}
+#scl{font-size:12px;color:var(--muted);margin-top:6px}
 a{color:var(--accent)}
 </style></head><body><main>
 <h1><span><svg style="vertical-align:-6px;margin-right:8px" viewbox="0 0 53 48" width="26" height="24" aria-hidden="true"><rect x="0" y="40" width="5" height="8" rx="2" fill="#dce6ea"/><rect x="8" y="36" width="5" height="12" rx="2" fill="#dce6ea"/><rect x="16" y="28" width="5" height="20" rx="2" fill="#dce6ea"/><rect x="24" y="0" width="5" height="48" rx="2" fill="#4dabf7"/><rect x="32" y="28" width="5" height="20" rx="2" fill="#dce6ea"/><rect x="40" y="36" width="5" height="12" rx="2" fill="#dce6ea"/><rect x="48" y="40" width="5" height="8" rx="2" fill="#dce6ea"/></svg>RESONIK Web Control</span> <span id="st">offline</span></h1>
+<div class="panel">
+ <div class="pf"><div id="pfq">&mdash;</div><div class="tags" id="tags"></div></div>
+ <div class="sm"><span id="sv" style="min-width:64px">S&ndash;</span><div class="bar"><i id="sb"></i></div><span id="sn"></span></div>
+ <div id="ps"></div><div id="rt"></div>
+</div>
 <div class="screen"><canvas id="c" width="320" height="170"></canvas></div>
 <div class="row">
  <button class="big" data-hold="r" title="Left arrow">&#9664;</button>
  <button class="big acc" data-cmd="e" title="Enter">Click</button>
  <button class="big" data-hold="R" title="Right arrow">&#9654;</button>
+</div>
+<div class="row">
+ <button data-seek="-" title="Seek down">&#9664;&#9664; Seek</button>
+ <button data-seek="+" title="Seek up">Seek &#9654;&#9654;</button>
 </div>
 <div class="row">
  <button data-cmd="E" title="Space">Press</button>
@@ -48,6 +73,10 @@ a{color:var(--accent)}
  <button data-cmd="M">Mode</button><button data-cmd="S">Step</button><button data-cmd="W">Filter</button>
 </div>
 <div class="freq"><input id="f" inputmode="decimal" placeholder="Frequency in kHz, e.g. 7074"><button id="go">Tune</button></div>
+<div class="scope"><h2><span>Band scope</span><button id="scb" class="acc">Sweep</button></h2>
+ <canvas id="sc" width="640" height="140"></canvas>
+ <div id="scl">Sweep measures the signal at 41 points around the frequency (the sound is muted for 2&ndash;3 seconds).
+ Click a peak to tune to it.</div></div>
 <div class="audio"><button id="au" style="width:100%;margin-bottom:8px">&#128266; Listen (experimental)</button>
  <label style="display:block;margin-bottom:6px;color:var(--text)"><input type="checkbox" id="sil" checked> Silence the radio's speaker while listening</label>
  <span id="ai">Audio needs a V4B board (speaker line on GPIO11). Wi-Fi and the receiver share the processor's
@@ -66,7 +95,7 @@ function connect(){
  ws.onopen=()=>{st.textContent='live';st.className='on';if(listening){ws.send('!audio1');if(document.getElementById('sil').checked)ws.send('!mute1');}};
  ws.onclose=()=>{st.textContent='offline';st.className='';setTimeout(connect,2000);};
  ws.onmessage=e=>{
-  if(typeof e.data==='string'){status(JSON.parse(e.data));return;}
+  if(typeof e.data==='string'){const j=JSON.parse(e.data);if(j.p)panel(j);else if(j.scope)scope(j);else status(j);return;}
   const b=new Uint8Array(e.data);
   if(b[0]===1){const y=b[1],n=b[2];let o=3,p=y*320*4;
    for(let i=0;i<n*320;i++,o+=2,p+=4){const v=(b[o]<<8)|b[o+1];
@@ -93,6 +122,41 @@ document.querySelectorAll('[data-hold]').forEach(b=>{let t=null,d=null;const c=b
 document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;
  const k={ArrowLeft:'r',ArrowRight:'R',Enter:'e',' ':'E','+':'V','=':'V','-':'v'}[e.key];
  if(k){e.preventDefault();send(k);}});
+document.querySelectorAll('[data-seek]').forEach(b=>b.addEventListener('click',()=>send('!seek'+b.dataset.seek)));
+// Panel: drawn here from the radio's numbers
+const $=id=>document.getElementById(id);let P=null;
+function fmtF(f,m){if(m===0)return (f/1e6).toFixed(2)+'<small>MHz</small>';
+ if(m===1)return Math.round(f/1000)+'<small>kHz</small>';return (f/1000).toFixed(2)+'<small>kHz</small>';}
+function esc(t){return t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function panel(j){P=j;$('pfq').innerHTML=fmtF(j.f,j.m);
+ $('tags').innerHTML=(j.band!==j.mode?'<span>'+esc(j.band)+'</span>':'')+'<span class="m">'+esc(j.mode)+'</span><span>Step '+esc(j.step)+
+  '</span><span>BW '+esc(j.bw)+'</span><span>Vol '+j.vol+'</span><span>'+j.bat.toFixed(2)+' V</span>';
+ // S-meter: S9 = 34 dBuV (50 ohm), 6 dB per S unit; FM in dBuV
+ let lab;if(j.m===0)lab=j.rssi+' dB&micro;V';else{const s=(j.rssi-34)/6+9;
+  lab=s<=9?'S'+Math.max(0,Math.round(s)):'S9+'+Math.round(j.rssi-34);}
+ $('sv').innerHTML=lab;$('sb').style.width=Math.min(100,j.rssi/80*100)+'%';$('sn').textContent='SNR '+j.snr+' dB';
+ $('ps').textContent=j.ps.trim();$('rt').textContent=j.rt.trim();drawScope();}
+// Band scope
+let S=null;const sc=$('sc'),sx=sc.getContext('2d');
+$('scb').onclick=()=>{$('scb').textContent='Sweeping…';send('!scope');};
+function scope(j){S=j;$('scb').textContent='Sweep';drawScope();
+ const u=j.fm?1e6:1e3,d=j.fm?2:(j.st%1000?1:0);
+ $('scl').textContent=(j.f0/u).toFixed(d)+' – '+((j.f0+j.st*(j.r.length-1))/u).toFixed(d)+(j.fm?' MHz':' kHz')+
+  ', step '+(j.st/1000)+' kHz. Click a peak to tune to it.';}
+function drawScope(){if(!S||!S.r.length)return;const W=sc.width,H=sc.height,n=S.r.length,mx=Math.max(30,...S.r);
+ sx.clearRect(0,0,W,H);sx.strokeStyle='#1d4a5c';sx.lineWidth=1;
+ for(let i=1;i<4;i++){sx.beginPath();sx.moveTo(0,H*i/4);sx.lineTo(W,H*i/4);sx.stroke();}
+ const bw=W/n;
+ for(let i=0;i<n;i++){const h=S.r[i]/mx*(H-14),q=Math.min(1,S.s[i]/20);
+  sx.fillStyle='rgb('+Math.round(16+q*(6-16))+','+Math.round(138+q*(215-138))+','+Math.round(177+q*(160-177))+')';
+  sx.fillRect(i*bw+1,H-h,bw-2,h);}
+ if(P){const k=(P.f-S.f0)/S.st;if(k>=-0.5&&k<=n-0.5){const x=(k+0.5)*bw;sx.strokeStyle='#ff6b6b';sx.lineWidth=2;
+  sx.beginPath();sx.moveTo(x,0);sx.lineTo(x,H);sx.stroke();}}}
+sc.addEventListener('click',e=>{if(!S)return;const r=sc.getBoundingClientRect(),n=S.r.length;
+ let k=Math.floor((e.clientX-r.left)/r.width*n);
+ // Snap to the strongest point within one bar either side
+ let b=k;for(let i=k-1;i<=k+1;i++)if(i>=0&&i<n&&S.r[i]>S.r[b])b=i;
+ if(b>=0&&b<n)send('F'+(S.f0+b*S.st)+'\n');});
 function tune(){const v=parseFloat(document.getElementById('f').value.replace(',','.'));
  if(v>0)send('F'+Math.round(v*1000)+'\n');}
 document.getElementById('go').onclick=tune;
