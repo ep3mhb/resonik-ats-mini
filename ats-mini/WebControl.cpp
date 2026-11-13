@@ -117,9 +117,29 @@ void webControlInit(AsyncWebServer &server, bool (*authenticated)(AsyncWebServer
 // Screen: send the rows that changed, a few kB at a time
 //
 #define ROW_BYTES   (DISPLAY_WIDTH * 2)
-#define CHUNK_ROWS  12
+#define CHUNK_ROWS  24
 static uint8_t *lastFrame = nullptr;                // What the browser has
 static uint8_t chunk[3 + CHUNK_ROWS * ROW_BYTES];
+
+// Run-length coding of a band of rows: (count 1-255, high byte, low byte)
+// triples. Menus and the main screen are mostly flat colour, so this is
+// usually 10 to 30 times smaller than raw; the waterfall is sent raw.
+static size_t rleEncode(const uint8_t *src, size_t bytes, uint8_t *dst, size_t room)
+{
+  size_t o = 0;
+  for(size_t i = 0; i < bytes; )
+  {
+    uint8_t hi = src[i], lo = src[i + 1];
+    size_t run = 1;
+    while(run < 255 && i + run * 2 < bytes && src[i + run * 2] == hi && src[i + run * 2 + 1] == lo) run++;
+    if(o + 3 > room) return(0);
+    dst[o++] = run;
+    dst[o++] = hi;
+    dst[o++] = lo;
+    i += run * 2;
+  }
+  return(o);
+}
 
 static void webSendScreen()
 {
@@ -132,23 +152,24 @@ static void webSendScreen()
     fullFrame = true;
   }
   // A new browser needs the whole screen: forget what was sent, so every row
-  // differs and goes out over the next few ticks
+  // differs and goes out
   if(fullFrame.exchange(false)) memset(lastFrame, 0xA5, DISPLAY_HEIGHT * ROW_BYTES);
-  int sent = 0;
-  for(int y = 0; y < DISPLAY_HEIGHT && sent < 3; )
+  // Everything that changed, as long as the connection keeps up
+  for(int y = 0; y < DISPLAY_HEIGHT; )
   {
     if(!memcmp(fb + y * ROW_BYTES, lastFrame + y * ROW_BYTES, ROW_BYTES)) { y++; continue; }
     int n = 1;
     while(y + n < DISPLAY_HEIGHT && n < CHUNK_ROWS &&
           memcmp(fb + (y + n) * ROW_BYTES, lastFrame + (y + n) * ROW_BYTES, ROW_BYTES)) n++;
     if(!ws.availableForWriteAll()) return;
-    chunk[0] = 0x01;
+    size_t raw = n * ROW_BYTES;
+    size_t packed = rleEncode(fb + y * ROW_BYTES, raw, chunk + 3, raw - 1);
+    chunk[0] = packed ? 0x03 : 0x01;
     chunk[1] = y;
     chunk[2] = n;
-    memcpy(chunk + 3, fb + y * ROW_BYTES, n * ROW_BYTES);
-    ws.binaryAll(chunk, 3 + n * ROW_BYTES);
-    memcpy(lastFrame + y * ROW_BYTES, fb + y * ROW_BYTES, n * ROW_BYTES);
-    sent++;
+    if(!packed) memcpy(chunk + 3, fb + y * ROW_BYTES, raw);
+    ws.binaryAll(chunk, 3 + (packed ? packed : raw));
+    memcpy(lastFrame + y * ROW_BYTES, fb + y * ROW_BYTES, raw);
     y += n;
   }
 }
@@ -232,7 +253,7 @@ bool webControlTick()
   int8_t a = audioWanted.exchange(-1);
   if(a >= 0) audioWebStream(a == 1);
 
-  if(now - lastScreen >= 120)
+  if(now - lastScreen >= 50)
   {
     lastScreen = now;
     webSendScreen();
