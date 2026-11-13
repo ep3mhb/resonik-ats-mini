@@ -43,7 +43,7 @@
   <main>
     <section>
       <div class="wrap doc">
-        <p class="kicker" style="color:var(--muted)">Manual · firmware v2.45-r2</p>
+        <p class="kicker" style="color:var(--muted)">Manual · firmware v2.45-r3</p>
         <h1 style="font-size:2.2rem;margin:.3rem 0 1rem">Using the RESONIK additions</h1>
         <p><a href="resonik-manual-fa.pdf" lang="fa" dir="rtl">راهنمای کاربری فارسی (PDF، A4)</a> · Persian user manual (PDF)</p>
         <p class="lead">This page covers what RESONIK adds. Everything else — bands, modes, memories, seek and scan, EiBi schedules, RDS, Wi-Fi and Bluetooth — works as in the official firmware and is described in the <a href="https://esp32-si4732.github.io/ats-mini/manual.html" rel="noopener">ats-mini user manual</a>.</p>
@@ -62,6 +62,10 @@
           <li><a href="#propagation">Propagation <small>r2</small></a></li>
           <li><a href="#eibi">EiBi schedules <small>r2</small></a></li>
           <li><a href="#cat">CAT control <small>r2</small></a></li>
+          <li><a href="#ft8">FT8 and FT4 decoder <small>r3</small></a></li>
+          <li><a href="#cwdec">CW decoder <small>r3</small></a></li>
+          <li><a href="#scanner">Band scanner <small>r3</small></a></li>
+          <li><a href="#lock">Frequency lock, Wi-Fi power, speed <small>r3</small></a></li>
           <li><a href="#update">Updates</a></li>
         </ul>
 
@@ -89,9 +93,20 @@
         <ul>
           <li><b>Off</b> — no strip.</li>
           <li><b>Scale</b> — the strip and segment name only.</li>
-          <li><b>Scale+SSB</b> (default) — also selects the usual sideband when you tune into a phone segment in LSB or USB: LSB below 10 MHz, USB above. A short message confirms it. If you then change the sideband yourself, your choice stays until you leave the segment.</li>
+          <li><b>Auto</b> (default) — tuning into a segment also sets the mode, filter and step for it: CW with a narrow filter in the CW part, USB for digital and beacons, LSB below 10 MHz and USB above in the phone part. A short message confirms it. If you then change the mode yourself, your choice stays until you leave the segment. In AM it switches only when you tune into an amateur band from outside; AM chosen by hand inside a band stays.</li>
         </ul>
-        <p class="hint">The plan is Region 1 (Europe, Africa, the Middle East). National allocations differ; check your own licence before transmitting with another radio.</p>
+        <p><span class="ui">Menu → Ham &amp; SWL → Plan Area</span> <small>r3</small> chooses which plan is drawn:</p>
+        <table>
+          <tr><th>Plan Area</th><th>What it shows</th></tr>
+          <tr><td>All regions</td><td>Every region's bands: the Region 1 details where Region 1 has the band, the wider Region 2 and 3 parts beyond it (80 m up to 4000 kHz, 40 m up to 7300 kHz)</td></tr>
+          <tr><td>Region 1</td><td>Europe, Africa, the Middle East (the default)</td></tr>
+          <tr><td>Region 2</td><td>The Americas: 160 m from 1800, 80 m to 4000, 40 m to 7300 kHz, US 60 m channels</td></tr>
+          <tr><td>Region 3</td><td>Asia and the Pacific: 160 m from 1800, 80 m to 3900, 40 m to 7300 kHz</td></tr>
+          <tr><td>Iran (EP)</td><td>Region 1 without 160, 80 and 30 m, which the national table does not allocate</td></tr>
+          <tr><td>UAE (A6)</td><td>Region 1 with 160 m limited to 1810–1850 kHz</td></tr>
+        </table>
+        <p>Parts a country does not allow are drawn dark grey and named <b>NOT ALLOWED</b>.</p>
+        <p class="hint">The Region 2 and 3 plans are simplified guidance. National allocations differ; check your own licence before transmitting with another radio.</p>
 
         <h2 id="clock">Time zone and dual clock</h2>
         <p><span class="ui">Menu → System → Time Zone</span> lists UTC first, then every UTC offset with named places beside it — Dubai and Muscat next to UTC+4, London, Berlin/Paris, New York, Sydney and others. Named places change to summer time and back automatically. A previous offset setting is carried over.</p>
@@ -117,12 +132,12 @@
         <p>Listening controls such as Band, Mode, Step or Volume open their list as before; after your choice the menu closes, so the encoder tunes straight away. Settings open full screen as a list of values, or a number with a bar; a click keeps the value and returns to the category.</p>
         <table>
           <tr><th>Category</th><th>Items</th></tr>
-          <tr><td>Tuning</td><td>Band, Mode, Bandwidth, FM Region, RDS, Scan, Seek, Step, VFO A/B</td></tr>
+          <tr><td>Tuning</td><td>Band, Mode, Bandwidth, Freq Lock, FM Region, RDS, Scan, Scanner, Seek, Step, VFO A/B</td></tr>
           <tr><td>Audio</td><td>Volume, AGC/ATTN, Auto Att., AVC, FM Stereo, SoftMute, Squelch</td></tr>
           <tr><td>Memory</td><td>Memory, Logger, Mem Scan</td></tr>
-          <tr><td>Ham &amp; SWL</td><td>Band Plan, Beacons, Calibration, Load EiBi, Propagation</td></tr>
+          <tr><td>Ham &amp; SWL</td><td>Band Plan, Beacons, Calibration, CW Decoder, CW Strip, FT8/FT4, Load EiBi, Plan Area, Propagation</td></tr>
           <tr><td>Display</td><td>Brightness, Menu Style, Scroll Dir., Sleep Mode, Sleep Timer, Theme, UI Layout, Zoom Menu</td></tr>
-          <tr><td>System</td><td>About, Bluetooth, Date/Time, DSP Patches, Knob, Off Timer, TCP Port, Time Zone, Update FW, USB Port, Wi-Fi</td></tr>
+          <tr><td>System</td><td>About, Bluetooth, Date/Time, DSP Patches, Knob, Off Timer, TCP Port, Time Zone, Update FW, USB Port, Wi-Fi, Wi-Fi Power, Performance</td></tr>
         </table>
         <p><span class="ui">Menu → System → Knob</span>: <b>20 clicks</b> or <b>30 clicks</b> per turn, for the two kinds of encoder fitted to these radios. If the knob skips a step, or needs two clicks for one, choose the other value (the web page calls it Half-step Encoder).</p>
         <p><span class="ui">Menu → Display → Menu Style → Classic</span> brings back the official list menu: listening controls under <b>Menu</b>, the rest under <b>Menu → Settings</b>, with the same names. <b>Tiles</b> switches back.</p>
@@ -147,6 +162,35 @@
 
         <h2 id="cat">CAT control <small style="font-size:.7em;color:var(--muted)">v2.45-r2</small></h2>
         <p><span class="ui">Menu → System → USB Port → CAT</span> makes the radio answer Kenwood TS-480 commands on its USB port, so programs can read and set frequency and mode and read the S-meter. In the program choose <b>Kenwood TS-480</b> (Hamlib rig 2028) on the radio's serial port; the speed setting does not matter. Transmit commands are refused: this is a receiver. Switch back to <b>Ad hoc</b> for the ats-mini remote tools and screenshots.</p>
+
+        <h2 id="ft8">FT8 and FT4 decoder <small style="font-size:.7em;color:var(--muted)">v2.45-r3</small></h2>
+        <p><span class="ui">Menu → Ham &amp; SWL → FT8/FT4</span> opens a full-screen page that decodes FT8 from the radio's own audio. It tunes the FT8 frequency of the band you are on (or 40 m) in USB with the 3.0 kHz filter. Under the header a waterfall scrolls; after each 15 second slot the messages appear with signal report (dB), audio frequency (Hz) and text, CQ calls in green.</p>
+        <ul>
+          <li><b>Turn</b> the encoder to change band: 160, 80, 40, 30, 20, 17, 15, 12 and 10 m, then the FT4 frequencies of 80 to 10 m (FT4 in yellow, 7.5 second slots).</li>
+          <li><b>Click</b> clears the list; a <b>short press</b> leaves and puts the radio back exactly as it was.</li>
+          <li>With the clock set (Wi-Fi time sync) it decodes from the first slot. <b>Without a clock it still decodes</b>: the header says <b>No clock: syncing</b> while it finds the slot timing from the stations it hears, usually within a minute or two, then <b>Synced to band</b>.</li>
+          <li>Bottom left, <b>In</b> is the audio level reaching the decoder (10 to 150 is fine), and <b>Last</b> the number of messages in the last slot.</li>
+        </ul>
+        <p>The page pauses Wi-Fi while it is open. It needs the <b>V4B</b> board, which wires the speaker line to the processor (<a href="../hardware/#versions">which board do I have?</a>); on other boards it shows <b>No audio on the decoder input</b>. On boards that take the audio after the speaker amplifier the speaker stays on (<b>Spk</b> next to the level).</p>
+        <p class="hint">FT8 signals are often 15 to 20 dB below the noise. An indoor whip hears few of them: a window, a balcony or a few metres of wire on the antenna make a big difference, and so does keeping chargers and LED lamps away.</p>
+
+        <h2 id="cwdec">CW decoder <small style="font-size:.7em;color:var(--muted)">v2.45-r3</small></h2>
+        <p><span class="ui">Menu → Ham &amp; SWL → CW Decoder</span> turns Morse into text on a full-screen page, with the speed (WPM), tone, a level bar and a key indicator. Tune so the tone sits at the pitch of the CW filter; <b>turn</b> to tune, <b>click</b> to clear the text, <b>short press</b> to leave. The speed follows the sender by itself from about 5 to 40 WPM. Static crashes and clicks are ignored; letters it cannot read are shown as <b>*</b>.</p>
+        <p><span class="ui">Menu → Ham &amp; SWL → CW Strip → On</span> shows the decoded text along the bottom of the normal screen while in CW mode. Like the FT8 page it needs the V4B board, and it works while Wi-Fi is off.</p>
+
+        <h2 id="scanner">Band scanner <small style="font-size:.7em;color:var(--muted)">v2.45-r3</small></h2>
+        <p><span class="ui">Menu → Tuning → Scanner</span> steps through the band from the current frequency and stops on signals (the mode's squelch level if set, otherwise an SNR of 6 dB or more), wrapping at the band edge.</p>
+        <ul>
+          <li><b>Turn</b> the encoder to set the direction: right scans up, left scans down. It moves on at once.</li>
+          <li><b>Click</b> stops the scanner on the frequency.</li>
+          <li>In SSB and CW it holds while the station is heard and moves on four seconds after it goes. On AM and FM broadcasts, which never go quiet, it stays five seconds on each station; in FM it skips the next 200 kHz so a strong station does not stop it twice.</li>
+        </ul>
+        <p>The step is the tuning step, at least 1 kHz in SSB, 500 Hz in CW and 100 kHz in FM. Set a squelch level first if it stops on noise too often.</p>
+
+        <h2 id="lock">Frequency lock, Wi-Fi power, speed <small style="font-size:.7em;color:var(--muted)">v2.45-r3</small></h2>
+        <p><span class="ui">Menu → Tuning → Freq Lock → On</span>: the encoder sets the volume instead of tuning, and press-and-turn digit tuning is off. A padlock after the band shows it; it is kept across restarts.</p>
+        <p><span class="ui">Menu → System → Wi-Fi Power</span>: <b>Normal</b> (17 dBm), <b>Low</b> (13 dBm) or <b>Lowest</b> (8.5 dBm). A lower power helps boards that restart when Wi-Fi transmits and saves some battery, at the cost of range.</p>
+        <p><span class="ui">Menu → System → Performance</span>: <b>Battery 80 MHz</b> (as the official firmware), <b>Balanced 160 MHz</b> or <b>Fast 240 MHz</b>. Faster makes the screen and menus quicker and uses more battery; the battery estimate shows the difference. The FT8 page always runs at 240 MHz while it is open.</p>
 
         <h2 id="update">Updates</h2>
         <p>With Wi-Fi connected, <span class="ui">Menu → System → Update FW → Check</span> looks for a newer RESONIK release on GitHub, and <b>Update</b> installs it. Settings are kept. New versions are also announced on this site and on <a href="https://github.com/ep3mhb/resonik-ats-mini/releases" rel="noopener">GitHub</a>.</p>
