@@ -293,18 +293,22 @@ static void drawBandPlan(uint32_t freq, uint32_t step)
 {
   // 8 pixels per scale step, pointer at x = 160
   const int64_t span = 160LL * step / 8;
-  for(unsigned i = 0 ; i < ITEM_COUNT(bandPlanR1) ; i++)
-  {
-    const BandPlanSegment &seg = bandPlanR1[i];
-    if((int64_t)seg.end < (int64_t)freq - span || (int64_t)seg.start > (int64_t)freq + span) continue;
-    int64_t x1 = 160 + ((int64_t)seg.start - (int64_t)freq) * 8 / (int64_t)step;
-    int64_t x2 = 160 + ((int64_t)seg.end - (int64_t)freq) * 8 / (int64_t)step;
-    if(x1 < 0) x1 = 0;
-    if(x2 > 320) x2 = 320;
-    if(x2 > x1) spr.fillRect(x1, 166, x2 - x1, 4, bandPlanColor(seg.use));
-  }
+  // Lowest priority table first, so the preferred plan is drawn on top
+  BandPlanTable tabs[3];
+  unsigned nt = bandPlanTables(bandPlanArea, tabs);
+  for(int t = (int)nt - 1 ; t >= 0 ; t--)
+    for(unsigned i = 0 ; i < tabs[t].count ; i++)
+    {
+      const BandPlanSegment &seg = tabs[t].seg[i];
+      if((int64_t)seg.end < (int64_t)freq - span || (int64_t)seg.start > (int64_t)freq + span) continue;
+      int64_t x1 = 160 + ((int64_t)seg.start - (int64_t)freq) * 8 / (int64_t)step;
+      int64_t x2 = 160 + ((int64_t)seg.end - (int64_t)freq) * 8 / (int64_t)step;
+      if(x1 < 0) x1 = 0;
+      if(x2 > 320) x2 = 320;
+      if(x2 > x1) spr.fillRect(x1, 166, x2 - x1, 4, bandPlanColor(seg.use));
+    }
 
-  // Parts the chosen country does not allow, over the Region 1 colours
+  // Parts the chosen country does not allow, over the plan colours
   unsigned nb;
   const BandPlanSegment *blocked = bandPlanBlocked(bandPlanArea, &nb);
   for(unsigned i = 0 ; i < nb ; i++)

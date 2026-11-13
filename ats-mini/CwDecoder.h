@@ -7,7 +7,10 @@
 // adaptive threshold between the noise floor and the signal peak turns that
 // into key down / key up, and the mark and space lengths, measured against a
 // running dot length, give dots, dashes, letters and words. The speed adapts
-// by itself from about 5 to 40 WPM. No Arduino dependencies, so it is tested
+// by itself from about 5 to 40 WPM. Two more Goertzel filters, 350 Hz either
+// side of the pitch, watch for broadband noise: static crashes and clicks
+// raise them as much as the pitch and do not key (they printed rows of E).
+// No Arduino dependencies, so it is tested
 // on the host (tests/TestCwDecoder.cpp).
 
 #include <stdint.h>
@@ -32,14 +35,22 @@ public:
   {
     this->tone = tone;
     coeff = 2.0f * cosf(2.0f * (float)M_PI * tone / fs);
+    // Reference frequencies beside the pitch, kept inside 150 Hz .. fs/2-150 Hz
+    float lo = tone - 350.0f, hi = tone + 350.0f;
+    if(lo < 150.0f) lo = tone + 700.0f;
+    if(hi > fs / 2 - 150.0f) hi = tone - 700.0f;
+    coeffRef[0] = 2.0f * cosf(2.0f * (float)M_PI * lo / fs);
+    coeffRef[1] = 2.0f * cosf(2.0f * (float)M_PI * hi / fs);
   }
 
   void reset()
   {
     q1 = q2 = 0;
+    r1[0] = r1[1] = r2[0] = r2[1] = 0;
     n = 0;
     peak = 0;
     noise = 0;
+    noiseRef[0] = noiseRef[1] = 0;
     keyDown = false;
     pending = 0;
     runMs = 0;
@@ -63,12 +74,29 @@ public:
       float q0 = coeff * q1 - q2 + x;
       q2 = q1;
       q1 = q0;
+      for(int k = 0 ; k < 2 ; k++)
+      {
+        float r0 = coeffRef[k] * r1[k] - r2[k] + x;
+        r2[k] = r1[k];
+        r1[k] = r0;
+      }
       if(++n >= blockLen)
       {
         float mag = sqrtf(fmaxf(q1 * q1 + q2 * q2 - coeff * q1 * q2, 0.0f)) / blockLen;
+        float ref = 0;
+        for(int k = 0 ; k < 2 ; k++)
+        {
+          float m = sqrtf(fmaxf(r1[k] * r1[k] + r2[k] * r2[k] - coeffRef[k] * r1[k] * r2[k], 0.0f)) / blockLen;
+          // Reference noise floors follow the key-up blocks
+          if(noiseRef[k] == 0) noiseRef[k] = m;
+          else if(!keyDown) noiseRef[k] += (m - noiseRef[k]) * 0.02f;
+          float rel = m / (noiseRef[k] + 1e-3f);
+          if(rel > ref) ref = rel;
+          r1[k] = r2[k] = 0;
+        }
         q1 = q2 = 0;
         n = 0;
-        block(mag);
+        block(mag, ref);
       }
     }
   }
@@ -86,6 +114,7 @@ public:
 
 private:
   float fs = 8000, tone = 700, coeff = 0;
+  float coeffRef[2] = { 0, 0 }, r1[2] = { 0, 0 }, r2[2] = { 0, 0 }, noiseRef[2] = { 0, 0 };
   int blockLen = 48;
   float blockMs = 6;
   float q1 = 0, q2 = 0, dc = 0;
@@ -104,7 +133,8 @@ private:
   char text[TEXT_MAX + 1];
   int textLen = 0;
 
-  void block(float mag)
+  // mag: tone level; ref: the louder reference beside the pitch, against its own noise
+  void block(float mag, float ref)
   {
     // Peak follows signals up at once and fades over about a second; the
     // noise floor follows quiet blocks and rises only slowly
@@ -119,6 +149,9 @@ private:
     // A tone must stand well clear of the noise (about 10 dB) to key
     float floorOn = noise * 3.2f + 1.0f, floorOff = noise * 2.2f + 1.0f;
     bool on = keyDown ? (mag > lo && mag > floorOff) : (mag > hi && mag > floorOn);
+    // Broadband (a crash or click): the pitch is not well above what is
+    // heard beside it. A real tone leaks only about 0.15 into the references.
+    if(on && !keyDown && ref > 2.0f && ref > (mag / (noise + 1e-3f)) * 0.4f) on = false;
 
     float l = span > 0 ? (mag - noise) * 100.0f / span : 0;
     level = l < 0 ? 0 : l > 100 ? 100 : (uint8_t)l;
@@ -148,7 +181,10 @@ private:
 
   void mark(float ms)
   {
-    if(ms < blockMs * 1.5f) return;                  // A click, not a dot
+    // A click or a burst of noise, not a dot: real dots are close to the
+    // dot length (at least half of it); fast senders pull the dot length
+    // down through their dashes
+    if(ms < blockMs * 1.5f || ms < ditMs * 0.5f) return;
     bool dash = ms > ditMs * 2.0f;
     // Track the speed: a dot is one unit, a dash three
     float unit = dash ? ms / 3.0f : ms;

@@ -228,7 +228,7 @@ void prefsSave(uint32_t items)
     prefs.putUChar("UILayout",    uiLayoutIdx);    // UI Layout
     prefs.putUChar("BandPlan",    bandPlanIdx);    // Band plan (RESONIK)
     prefs.putUChar("AutoAtt",     autoAttIdx);     // Automatic attenuation (RESONIK)
-    prefs.putUChar("BpArea",      bandPlanArea);   // Band plan area (RESONIK R3)
+    prefs.putUChar("BpArea2",     bandPlanArea);   // Band plan area (RESONIK R3: All, R1-R3, Iran, UAE)
     prefs.putUChar("CwStrip",     cwStripIdx);     // CW decoder strip (RESONIK R3)
     prefs.putUChar("FreqLock",    freqLock);       // Frequency lock (RESONIK R3)
     prefs.putUChar("WifiPower",   wifiPowerIdx);   // Wi-Fi transmit power (RESONIK R3)
@@ -333,7 +333,9 @@ bool prefsLoad(uint32_t items)
     uiLayoutIdx    = prefs.getUChar("UILayout", uiLayoutIdx);   // UI Layout
     bandPlanIdx    = prefs.getUChar("BandPlan", bandPlanIdx) % getTotalBandPlanModes();
     autoAttIdx     = prefs.getUChar("AutoAtt", autoAttIdx) ? 1 : 0;
-    bandPlanArea   = prefs.getUChar("BpArea", bandPlanArea) % BP_AREA_COUNT;
+    // Older builds saved "BpArea" as Region 1 / UAE / Iran
+    if(prefs.isKey("BpArea2")) bandPlanArea = prefs.getUChar("BpArea2", bandPlanArea) % BP_AREA_COUNT;
+    else if(prefs.isKey("BpArea")) bandPlanArea = bandPlanAreaFromOld(prefs.getUChar("BpArea", 0));
     cwStripIdx     = prefs.getUChar("CwStrip", cwStripIdx) ? 1 : 0;   // Default Off (R3)
     freqLock       = prefs.getUChar("FreqLock", freqLock) ? 1 : 0;
     wifiPowerIdx   = prefs.getUChar("WifiPower", wifiPowerIdx) % 3;

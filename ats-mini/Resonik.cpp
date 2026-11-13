@@ -254,47 +254,77 @@ bool memScanTick()
 }
 
 //
-// Band scanner (R3): steps up through the band at the tuning step and holds
-// on any signal (the same test as the memory scanner: the mode's squelch, or
-// SNR of 6 dB or more); it moves on 4 seconds after the signal goes and wraps
-// at the band edge. Any encoder action or click stops it on the frequency.
+// Band scanner (R3): steps through the band at the tuning step and holds on
+// any signal (the same test as the memory scanner: the mode's squelch, or SNR
+// of 6 dB or more), wrapping at the band edge. In SSB and CW it moves on 4 s
+// after the signal goes. Broadcast stations (AM, FM) never go quiet, so there
+// it moves on after 5 s, and in FM it skips the next 200 kHz so a strong
+// station does not stop it again on its own sidebands. Turning the knob sets
+// the direction (right up, left down) and moves on at once; a click stops it.
 //
 enum class BandScan : uint8_t { Off, Listen, Hold };
 static BandScan bandScanState = BandScan::Off;
-static uint32_t bandScanTimer, bandScanLastHit;
+static uint32_t bandScanTimer, bandScanLastHit, bandScanHoldStart;
+static int8_t bandScanDir = 1;
+static uint8_t bandScanSkip = 0;          // Steps to pass without stopping
 
 #define BSCAN_SETTLE_FM   150
 #define BSCAN_SETTLE_AM   120
+#define BSCAN_HOLD_BC    5000            // AM and FM: time on each station
+#define BSCAN_SKIP_FM       2            // FM: steps passed after a station
 
 bool bandScanActive() { return(bandScanState != BandScan::Off); }
 
-// Step between frequencies: the tuning step, at least 1 kHz in SSB and
-// 500 Hz in CW so a pass over a ham band takes seconds, not minutes
+// Step between frequencies: the tuning step, at least 1 kHz in SSB, 500 Hz
+// in CW and 100 kHz in FM, so a pass over a band takes seconds, not minutes
 static uint32_t bandScanStep()
 {
   uint32_t step = getCurrentStep()->step;
-  if(currentMode == CW && step < 500) step = 500;
+  if(currentMode == FM && step < 100000) step = 100000;
+  else if(currentMode == CW && step < 500) step = 500;
   else if(isSSB() && currentMode != CW && step < 1000) step = 1000;
   return(step);
 }
 
 static void bandScanShow(const char *what)
 {
-  char line[32];
+  char line[40];
+  const char *dir = bandScanDir > 0 ? "Up" : "Down";
+  if(!what) what = dir;
   if(currentMode == FM) snprintf(line, sizeof(line), "%s %lu.%02lu MHz", what,
                                  (unsigned long)(currentFrequency / 1000000), (unsigned long)(currentFrequency / 10000 % 100));
   else snprintf(line, sizeof(line), "%s %lu.%lu kHz", what,
                 (unsigned long)(currentFrequency / 1000), (unsigned long)(currentFrequency % 1000 / 100));
-  statusShow("Scanner", line, 0);
+  statusShow("Scanner  (turn: up/down, click: stop)", line, 0);
+}
+
+static void bandScanNext(uint32_t now)
+{
+  bandScanState = BandScan::Listen;
+  updateFrequency((int64_t)currentFrequency + bandScanDir * (int64_t)bandScanStep(), true);
+  bandScanTimer = now + (currentMode == FM ? BSCAN_SETTLE_FM : BSCAN_SETTLE_AM);
+  bandScanShow(nullptr);
 }
 
 void bandScanStart()
 {
   memScanStop();
   beaconFollowIdx = -1;
+  bandScanDir = 1;
+  bandScanSkip = 0;
   bandScanState = BandScan::Listen;
   bandScanTimer = millis() + (currentMode == FM ? BSCAN_SETTLE_FM : BSCAN_SETTLE_AM);
-  bandScanShow("Up");
+  bandScanShow(nullptr);
+}
+
+// Knob while scanning: set the direction and go on at once
+void bandScanTurn(int16_t enc)
+{
+  if(bandScanState == BandScan::Off || !enc) return;
+  bandScanDir = enc > 0 ? 1 : -1;
+  // Leaving a station: do not stop on its sidebands in FM
+  bandScanSkip = (bandScanState == BandScan::Hold && currentMode == FM) ? BSCAN_SKIP_FM : 0;
+  bandScanNext(millis());
 }
 
 void bandScanStop(const char *why)
@@ -314,31 +344,31 @@ bool bandScanTick()
   switch(bandScanState)
   {
     case BandScan::Listen:
-      if(memScanHit())
+      if(bandScanSkip) bandScanSkip--;
+      else if(memScanHit())
       {
         bandScanState = BandScan::Hold;
-        bandScanLastHit = now;
+        bandScanLastHit = bandScanHoldStart = now;
         bandScanTimer = now + 500;
         bandScanShow("Hold");
         return(true);
       }
-      // Next frequency up, wrapping at the top of the band
-      updateFrequency((int64_t)currentFrequency + bandScanStep(), true);
-      bandScanTimer = now + (currentMode == FM ? BSCAN_SETTLE_FM : BSCAN_SETTLE_AM);
+      bandScanNext(now);
       return(true);
 
     case BandScan::Hold:
+    {
       bandScanTimer = now + 500;
+      bool broadcast = currentMode == FM || currentMode == AM;
       if(memScanHit()) bandScanLastHit = now;
-      else if(now - bandScanLastHit > MSCAN_RESUME_MS)
+      if(broadcast ? now - bandScanHoldStart >= BSCAN_HOLD_BC : now - bandScanLastHit > MSCAN_RESUME_MS)
       {
-        bandScanState = BandScan::Listen;
-        bandScanShow("Up");
-        updateFrequency((int64_t)currentFrequency + bandScanStep(), true);
-        bandScanTimer = now + (currentMode == FM ? BSCAN_SETTLE_FM : BSCAN_SETTLE_AM);
+        bandScanSkip = currentMode == FM ? BSCAN_SKIP_FM : 0;
+        bandScanNext(now);
         return(true);
       }
       return(false);
+    }
 
     default:
       return(false);

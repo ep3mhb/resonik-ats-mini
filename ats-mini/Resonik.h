@@ -27,6 +27,7 @@ bool memScanTick();
 bool bandScanActive();
 void bandScanStart();
 void bandScanStop(const char *why = nullptr);
+void bandScanTurn(int16_t enc);
 bool bandScanTick();
 
 // Signal logger (CSV in the flash file system)
