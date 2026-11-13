@@ -14,6 +14,7 @@
 //                      text {...}: status once a second
 //
 #include "Common.h"
+#include "Utils.h"
 #include "Menu.h"
 #include "Storage.h"
 #include "Remote.h"
@@ -34,6 +35,7 @@ static std::atomic<bool> sessionReset{false};
 static std::atomic<bool> fullFrame{true};
 static std::atomic<int8_t> audioWanted{-1};      // -1 no change, 0 off, 1 on
 static std::atomic<uint32_t> tuneWanted{0};       // Frequency in Hz from the page
+static std::atomic<int8_t> muteWanted{-1};        // Speaker while listening: 1 silent, 0 normal
 static RemoteState remoteState;
 
 // Remote output (status lines, errors) is not needed here
@@ -78,6 +80,11 @@ static void webOnEvent(AsyncWebSocket *, AsyncWebSocketClient *client, AwsEventT
   {
     AwsFrameInfo *info = (AwsFrameInfo *)arg;
     if(!info->final || info->index || info->len != len || info->opcode != WS_TEXT) return;
+    if(len >= 5 && !memcmp(data, "!mute", 5))
+    {
+      muteWanted = (len > 5 && data[5] == '1') ? 1 : 0;
+      return;
+    }
     if(len >= 6 && !memcmp(data, "!audio", 6))
     {
       audioWanted = (len > 6 && data[6] == '1') ? 1 : 0;
@@ -201,9 +208,13 @@ static void webSendAudio()
 // ADC read, and with Wi-Fi on there is little time to spare at 80 MHz
 static uint32_t cpuSaved = 0;
 
+static bool speakerSilent = false;
+static void speakerRestore();
+
 static void webAudioSet(bool on)
 {
   audioWebStream(on);
+  if(!on) speakerRestore();
   if(on && !cpuSaved)
   {
     cpuSaved = getCpuFrequencyMhz();
@@ -213,6 +224,56 @@ static void webAudioSet(bool on)
   {
     if(cpuSaved < 240) setCpuFrequencyMhz(cpuSaved);
     cpuSaved = 0;
+  }
+}
+
+//
+// Silence the speaker while listening in the browser. Boards that take the
+// decoder audio before the speaker amplifier: the amplifier is switched off.
+// The V4B takes it after the amplifier, so switching it off would also
+// silence the browser: there the radio's volume is lowered 15 steps instead
+// and the page makes up the level.
+//
+enum class Spk : uint8_t { Normal, TryAmpOff, AmpOff, Quiet };
+static Spk spk = Spk::Normal;
+static uint32_t spkSince = 0;
+static const char *spkName[] = { "on", "testing", "off", "quiet" };
+
+static void speakerRestore()
+{
+  if(spk == Spk::Normal) return;
+  if(PIN_AMP_EN >= 0 && !muteOn(MUTE_MAIN, 2)) digitalWrite(PIN_AMP_EN, HIGH);
+  rx.setVolume(volume);
+  spk = Spk::Normal;
+}
+
+static void speakerTick(bool wanted)
+{
+  if(!wanted || !audioWebStreaming()) { speakerRestore(); return; }
+  uint32_t now = millis();
+  switch(spk)
+  {
+    case Spk::Normal:
+      if(PIN_AMP_EN >= 0)
+      {
+        digitalWrite(PIN_AMP_EN, LOW);
+        spk = Spk::TryAmpOff;
+        spkSince = now;
+      }
+      else { rx.setVolume(volume > 25 ? volume - 15 : 10); spk = Spk::Quiet; }
+      break;
+    case Spk::TryAmpOff:
+      if(now - spkSince < 1500) break;
+      if(audioInputLevel() >= 2) spk = Spk::AmpOff;        // Audio still there: done
+      else
+      {
+        digitalWrite(PIN_AMP_EN, HIGH);
+        rx.setVolume(volume > 25 ? volume - 15 : 10);
+        spk = Spk::Quiet;
+      }
+      break;
+    default:
+      break;
   }
 }
 
@@ -271,6 +332,9 @@ bool webControlTick()
 
   int8_t a = audioWanted.exchange(-1);
   if(a >= 0) webAudioSet(a == 1);
+  int8_t m = muteWanted.exchange(-1);
+  if(m >= 0) speakerSilent = m == 1;
+  speakerTick(speakerSilent);
 
   if(now - lastScreen >= 50)
   {
@@ -290,10 +354,10 @@ bool webControlTick()
     audioTimedStats(&avgUs, &maxUs, &late);
     snprintf(json, sizeof(json),
       "{\"audio\":%d,\"adcErrors\":%lu,\"restarts\":%lu,\"level\":%u,\"clients\":%u,\"freq\":%lu,"
-      "\"readUs\":%lu,\"readMax\":%lu,\"late\":%lu,\"cpu\":%lu}",
+      "\"readUs\":%lu,\"readMax\":%lu,\"late\":%lu,\"cpu\":%lu,\"spk\":\"%s\"}",
       audioWebStreaming() ? 1 : 0, (unsigned long)audioAdcErrors(), (unsigned long)audioTimingRestarts(),
       audioInputLevel(), (unsigned)ws.count(), (unsigned long)currentFrequency,
-      (unsigned long)avgUs, (unsigned long)maxUs, (unsigned long)late, (unsigned long)getCpuFrequencyMhz());
+      (unsigned long)avgUs, (unsigned long)maxUs, (unsigned long)late, (unsigned long)getCpuFrequencyMhz(), spkName[(int)spk]);
     ws.textAll(json);
   }
   return(redraw);
