@@ -71,6 +71,11 @@ function connect(){
    for(let i=0;i<n*320;i++,o+=2,p+=4){const v=(b[o]<<8)|b[o+1];
     px[p]=((v>>11)&31)*255/31;px[p+1]=((v>>5)&63)*255/63;px[p+2]=(v&31)*255/31;}
    dirty=true;}
+  else if(b[0]===3){const y=b[1];let o=3,p=y*320*4;
+   while(o+2<b.length){const c=b[o],v=(b[o+1]<<8)|b[o+2];o+=3;
+    const r=((v>>11)&31)*255/31,g=((v>>5)&63)*255/63,bl=(v&31)*255/31;
+    for(let i=0;i<c;i++,p+=4){px[p]=r;px[p+1]=g;px[p+2]=bl;}}
+   dirty=true;}
   else if(b[0]===2)play(new Int16Array(e.data,2,(e.data.byteLength-2)>>1));
  };
 }
