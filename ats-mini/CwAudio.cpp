@@ -55,6 +55,11 @@ static void sampler(void *)
   int16_t buf[CW_BLOCK];
   int n = 0;
   int64_t next = 0;
+  // Sample times as base + k * 1e6 / fs, so 12 kHz is exact: whole
+  // microsecond steps gave 83 us = 12048 Hz, 0.4 % fast (about 2 dB of FT8)
+  int64_t base = 0;
+  uint64_t k = 0;
+  int lastFs = 0;
   uint32_t sinceYield = 0;
   float dc = 2048, dev = 0;
   uint32_t devCount = 0;
@@ -69,17 +74,20 @@ static void sampler(void *)
     }
     int16_t *ring = ft8Ring;
     int fs = ring ? FT8_FS : CW_FS;
-    if(!sampling)
+    if(!sampling || fs != lastFs)
     {
       sampling = true;
       n = 0;
-      next = esp_timer_get_time();
+      lastFs = fs;
+      base = next = esp_timer_get_time();
+      k = 0;
     }
 
     // Busy-wait to the next sample time: steady timing matters more than the
     // idle core, and this only runs while a decoder is in use
     while(esp_timer_get_time() < next);
-    next += 1000000 / fs;
+    k++;
+    next = base + (int64_t)(k * 1000000ULL / (uint64_t)fs);
 
     int v = 0;
     if(adc_oneshot_read(adc, CW_ADC_CH, &v) != ESP_OK)
@@ -119,10 +127,10 @@ static void sampler(void *)
       sinceYield = 0;
       vTaskDelay(1);
       // FT8 counts samples against the clock: catch up rather than skip
-      if(!ring) next = esp_timer_get_time();
+      if(!ring) { base = next = esp_timer_get_time(); k = 0; }
     }
     // Fell far behind (interrupts): start the timing again
-    if(esp_timer_get_time() - next > 10000) { next = esp_timer_get_time(); timingRestarts++; }
+    if(esp_timer_get_time() - next > 10000) { base = next = esp_timer_get_time(); k = 0; timingRestarts++; }
   }
 }
 
