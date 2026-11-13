@@ -106,7 +106,7 @@
             </esp-web-install-button>
           </div>
         </div>
-        <p class="stats" id="stats" hidden>Installed from this page <b id="st-web">0</b> times · downloaded from GitHub <b id="st-gh">0</b> times</p>
+        <p class="stats" id="stats" hidden>Installed from this page <b id="st-web">0</b> times<span id="st-gh-part"> · downloaded from GitHub <b id="st-gh">0</b> times</span></p>
 
         <details class="more">
           <summary>Before you start, and other ways to install</summary>
@@ -193,7 +193,9 @@
       .then(d => {
         const f = n => Number(n).toLocaleString("en");
         document.getElementById("st-web").textContent = f(d.web.total);
-        document.getElementById("st-gh").textContent = f(d.github.total ?? 0);
+        // GitHub numbers unavailable: leave that part out rather than show 0
+        if (d.github.total == null) document.getElementById("st-gh-part").hidden = true;
+        else document.getElementById("st-gh").textContent = f(d.github.total);
         document.getElementById("stats").hidden = false;
       }).catch(() => {});
   </script>
