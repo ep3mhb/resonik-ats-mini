@@ -174,6 +174,7 @@ void autoAttReset();
 bool tuneToMemory(const Memory *memory);
 bool autoAttTick(uint8_t rssiNow);
 bool bandPlanAutoSideband();
+void bandPlanForget();
 extern uint8_t bandPlanArea;
 extern uint8_t freqLock;           // RESONIK R3: 1 = knob tuning locked
 extern uint8_t wifiPowerIdx;       // RESONIK R3: 0 Normal, 1 Low, 2 Lowest

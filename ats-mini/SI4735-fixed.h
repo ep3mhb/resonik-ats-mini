@@ -77,6 +77,17 @@ class SI4735_fixed: public SI4735
       return waitFrequencyConfirmed(freq);
     }
 
+    // RESONIK R4: the chip is already in SSB with the patch loaded: change the
+    // sideband and band limits only. The library's setSSB() sends POWER_UP
+    // again, which is what made every mode and band change slow.
+    void setSsbFast(uint16_t fromFreq, uint16_t toFreq, uint8_t usblsb)
+    {
+      currentMinimumFrequency = fromFreq;
+      currentMaximumFrequency = toFreq;
+      currentStep = 0;
+      currentSsbStatus = usblsb;
+    }
+
     bool waitFrequencyConfirmed(uint16_t freq)
     {
       uint32_t started = millis();

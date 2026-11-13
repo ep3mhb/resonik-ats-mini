@@ -234,6 +234,17 @@ bool patchesTick()
 }
 
 // Only inactive slots can change; selection is blocked during file operations.
+// RESONIK R4: true when the patch loadDSPPatch() would choose for the current
+// mode is already in the chip, so a band change can skip the full setup
+bool dspPatchLoaded()
+{
+  if(currentMode == FM) return(false);
+  uint8_t mode = isSSB()? PATCH_SSB : PATCH_AM;
+  uint8_t slot = dspPatchesIdx;
+  if(slot > PATCH_SET_COUNT || (slot && !LittleFS.exists(patchPath(slot, mode)))) slot = 0;
+  return(mode == loadedMode && slot == loadedSlot);
+}
+
 void loadDSPPatch(uint8_t bandwidth, bool draw)
 {
   if(currentMode == FM)

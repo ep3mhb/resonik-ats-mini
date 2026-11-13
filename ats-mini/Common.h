@@ -240,6 +240,7 @@ static inline uint8_t ssbSideband(uint8_t mode) { return(mode==LSB? LSB : USB); 
 int cwPitch();
 
 void useBand(Band *band);
+bool useBandFast(Band *band);
 void setEncoderHalfStep(bool enabled);
 uint16_t getReceiverFrequency(uint32_t freq);
 int getCurrentBFO();
