@@ -49,6 +49,7 @@ a{color:var(--accent)}
 </div>
 <div class="freq"><input id="f" inputmode="decimal" placeholder="Frequency in kHz, e.g. 7074"><button id="go">Tune</button></div>
 <div class="audio"><button id="au" style="width:100%;margin-bottom:8px">&#128266; Listen (experimental)</button>
+ <label style="display:block;margin-bottom:6px;color:var(--text)"><input type="checkbox" id="sil" checked> Silence the radio's speaker while listening</label>
  <span id="ai">Audio needs a V4B board (speaker line on GPIO11). Wi-Fi and the receiver share the processor's
  ADC, so the sound can drop out; the counter below shows how often.</span></div>
 <p class="hint">Keyboard: &larr; &rarr; tune, Enter click, Space press, + &minus; volume. While this page is open, the FT8 and CW pages keep Wi-Fi on, so you can use them from
@@ -62,7 +63,7 @@ let ws=null,dirty=false;
 function connect(){
  ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws');
  ws.binaryType='arraybuffer';
- ws.onopen=()=>{st.textContent='live';st.className='on';if(listening)ws.send('!audio1');};
+ ws.onopen=()=>{st.textContent='live';st.className='on';if(listening){ws.send('!audio1');if(document.getElementById('sil').checked)ws.send('!mute1');}};
  ws.onclose=()=>{st.textContent='offline';st.className='';setTimeout(connect,2000);};
  ws.onmessage=e=>{
   if(typeof e.data==='string'){status(JSON.parse(e.data));return;}
@@ -100,15 +101,16 @@ let ac=null,next=0,listening=false,gain=null;
 document.getElementById('au').onclick=function(){
  listening=!listening;this.textContent=listening?'\u{1F507} Stop listening':'\u{1F50A} Listen (experimental)';
  if(listening&&!ac){ac=new(window.AudioContext||window.webkitAudioContext)();gain=ac.createGain();gain.gain.value=1;gain.connect(ac.destination);}
- if(ac)ac.resume();send(listening?'!audio1':'!audio0');next=0;};
+ if(ac)ac.resume();send(listening?'!audio1':'!audio0');send(listening&&document.getElementById('sil').checked?'!mute1':'!mute0');next=0;};
+document.getElementById('sil').onchange=function(){if(listening)send(this.checked?'!mute1':'!mute0');};
 function play(s){if(!listening||!ac)return;
  const buf=ac.createBuffer(1,s.length,8000),ch=buf.getChannelData(0);
  let peak=0;for(let i=0;i<s.length;i++){ch[i]=s[i]/32768;peak=Math.max(peak,Math.abs(ch[i]));}
- if(peak>0.01)gain.gain.value=Math.min(8,Math.max(0.5,gain.gain.value*0.9+0.1*(0.5/peak)));
+ if(peak>0.003)gain.gain.value=Math.min(40,Math.max(0.5,gain.gain.value*0.9+0.1*(0.5/peak)));
  const src=ac.createBufferSource();src.buffer=buf;src.connect(gain);
  const t=ac.currentTime;if(next<t+0.05||next>t+1)next=t+0.25;src.start(next);next+=buf.duration;}
 function status(j){ai.innerHTML=(j.audio?'<b>Streaming</b> 8 kHz':'Audio off')+
- ' &middot; level '+j.level+' &middot; ADC dropouts '+j.adcErrors+' &middot; late '+j.late+' &middot; read '+j.readUs+'/'+j.readMax+' &micro;s &middot; '+j.cpu+' MHz'+
+ ' &middot; level '+j.level+' &middot; ADC dropouts '+j.adcErrors+' &middot; late '+j.late+' &middot; read '+j.readUs+'/'+j.readMax+' &micro;s &middot; '+j.cpu+' MHz &middot; speaker '+({on:'on',testing:'testing…',off:'off',quiet:'quieter (V4B: amplifier needed)'}[j.spk]||j.spk)+
  (j.audio&&j.level<2?' &middot; <b>no audio on GPIO11 (V4B board needed)</b>':'');}
 connect();
 </script></body></html>)HTML";
