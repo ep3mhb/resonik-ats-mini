@@ -197,15 +197,25 @@ static void webSendAudio()
   if(!ws.availableForWriteAll()) { audioSendWaits++; return; }
   uint32_t n = audioWebRead(s, 4096, &audioPos);
   if(!n) return;
+  // 8-bit mu-law (as the telephone network): half the data of 16-bit, which
+  // matters when Wi-Fi is busy (test 5: the connection was full 165 times)
+  uint8_t *out = msg + 2;
   for(uint32_t i = 0; i < n; i++)
   {
     audioDc += (s[i] - audioDc) * 0.002f;
     int32_t v = (int32_t)((s[i] - audioDc) * 16.0f);
-    s[i] = v > 32767 ? 32767 : v < -32768 ? -32768 : v;
+    v = v > 32635 ? 32635 : v < -32635 ? -32635 : v;
+    uint8_t sign = v < 0 ? 0x80 : 0;
+    if(v < 0) v = -v;
+    v += 0x84;
+    uint8_t exp = 7;
+    for(int32_t mask = 0x4000; !(v & mask) && exp; mask >>= 1) exp--;
+    uint8_t mant = (v >> (exp + 3)) & 0x0F;
+    out[i] = ~(sign | (exp << 4) | mant);
   }
-  msg[0] = 0x02;
+  msg[0] = 0x04;
   msg[1] = 0x00;
-  ws.binaryAll(msg, 2 + n * 2);
+  ws.binaryAll(msg, 2 + n);
 }
 
 // Audio at full processor speed (as the FT8 page): each sample is a short

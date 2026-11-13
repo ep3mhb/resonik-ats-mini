@@ -78,6 +78,7 @@ function connect(){
     for(let i=0;i<c;i++,p+=4){px[p]=r;px[p+1]=g;px[p+2]=bl;}}
    dirty=true;}
   else if(b[0]===2)play(new Int16Array(e.data,2,(e.data.byteLength-2)>>1));
+  else if(b[0]===4){const m=new Int16Array(b.length-2);for(let i=2;i<b.length;i++)m[i-2]=ulaw[b[i]];play(m);}
  };
 }
 function draw(){if(dirty){cx.putImageData(img,0,0);dirty=false;}requestAnimationFrame(draw);}
@@ -98,6 +99,9 @@ document.getElementById('go').onclick=tune;
 document.getElementById('f').addEventListener('keydown',e=>{if(e.key==='Enter')tune();});
 // Audio: 8 kHz samples scheduled with a small buffer
 let ac=null,next=0,listening=false,gain=null,gaps=0,gapMs=0;
+// mu-law to 16-bit
+const ulaw=new Int16Array(256);for(let i=0;i<256;i++){const u=~i&255,s=u&128,e=(u>>4)&7,m=u&15;
+ let v=((m<<3)+0x84)<<e;v-=0x84;ulaw[i]=s?-v:v;}
 document.getElementById('au').onclick=function(){
  listening=!listening;this.textContent=listening?'\u{1F507} Stop listening':'\u{1F50A} Listen (experimental)';
  if(listening&&!ac){ac=new(window.AudioContext||window.webkitAudioContext)();gain=ac.createGain();gain.gain.value=1;gain.connect(ac.destination);}

@@ -188,7 +188,9 @@ static void sampler(void *)
       readUsAvg = (readUsAvg * 255 + us * 16) / 256;      // x16, smoothed
       // Always leave the idle task a moment, even when behind: without it the
       // task watchdog restarted the radio (R4 tests 1 and 2)
-      if(++sinceYield >= (uint32_t)fs / 100)
+      // Every 100 ms: enough for the watchdog. Every 10 ms (test 3 to 6)
+      // left a 1 ms hole each time, 10 % of the sound filled in.
+      if(++sinceYield >= (uint32_t)fs / 10)
       {
         sinceYield = 0;
         vTaskDelay(1);
