@@ -10,15 +10,22 @@ An improved firmware for the **ATS Mini** pocket receiver (ESP32-S3 + SI4732): L
 It is built on the open-source [ats-mini](https://github.com/esp32-si4732/ats-mini) firmware and keeps everything it does,
 adding features for shortwave listeners and radio amateurs.
 
-> **Latest release: [v2.45-r2](https://github.com/ep3mhb/resonik-ats-mini/releases/latest)** (8 November 2026).
->
-> **Beta for testers: [v2.45-r3-beta1](https://github.com/ep3mhb/resonik-ats-mini/releases/tag/v2.45-r3-beta1)** (12 November 2026): FT8/FT4 and CW decoders, band scanner, automatic band plan, frequency lock and more. Install by hand (see the release notes); R2 stays the stable version.
+> **Latest release: [v2.45-r3](https://github.com/ep3mhb/resonik-ats-mini/releases/latest)** (13 November 2026).
 
 Website, browser installer and manual: **<https://resonik.mikroutik.com>**
 
 What is coming in each release: [roadmap (PDF)](website/resonik-roadmap.pdf) · [نقشه‌ی راه فارسی (PDF)](website/resonik-roadmap-fa.pdf), source in `docs/roadmap/`.
 
-## What v2.45-r2 adds
+## What v2.45-r3 adds
+
+- FT8 and FT4 decoder on a full-screen page with waterfall; it decodes even without a clock, finding the slot timing from the stations heard (needs the V4B board, speaker line on GPIO11)
+- CW (Morse) decoder page, and a CW strip on the normal screen
+- Band scanner: the knob sets the direction; holds on signals, 5 s per station on AM and FM broadcasts
+- Automatic band plan: mode, filter and step follow the segment you tune into; Plan Area All regions, Region 1, 2, 3, Iran or UAE
+- Frequency lock, Wi-Fi power (Normal, Low, Lowest) and processor speed (Battery, Balanced, Fast)
+- Fixes: no freezes on slow networks after Wi-Fi connects, seek stays inside the band, smoother SSB tuning
+
+## Also included (from v2.45-r2)
 
 - A new default menu: six categories of large coloured tiles (Tuning, Audio, Memory, Ham & SWL, Display, System),
   settings shown full screen; the classic menu stays available
@@ -30,7 +37,7 @@ What is coming in each release: [roadmap (PDF)](website/resonik-roadmap.pdf) · 
 - EiBi schedules with days of the week, language and target area
 - System → Knob: 20 or 30 clicks per turn, for the two kinds of encoder
 
-## Also included (from v2.45-r1)
+## And from v2.45-r1
 
 - CW mode: true CW frequency shown, narrow filter, 10 Hz steps
 - IARU Region 1 band plan on the tuning scale, with automatic LSB/USB
