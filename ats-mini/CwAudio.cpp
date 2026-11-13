@@ -68,6 +68,8 @@ static gptimer_handle_t webTimer = nullptr;
 static bool webTimerOn = false;
 static int webTimerFs = 0;
 static volatile bool timedSampling = false;  // Wi-Fi is on: use the timer
+// Timed sampling statistics for the Web Control page (R4 test)
+static volatile uint32_t readUsMax = 0, readUsAvg = 0, samplesLate = 0;
 
 static bool IRAM_ATTR webTimerAlarm(gptimer_handle_t, const gptimer_alarm_event_data_t *, void *)
 {
@@ -147,7 +149,16 @@ static void sampler(void *)
     // to the next sample time, steady timing matters more than the idle core
     if(timed)
     {
-      ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(5));
+      // Timer ticks not yet sampled; a few behind are caught up, more are dropped
+      static uint32_t backlog = 0;
+      if(!backlog)
+      {
+        uint32_t c = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(5));
+        if(!c) continue;
+        if(c > 32) { samplesLate += c - 32; c = 32; }
+        backlog = c;
+      }
+      backlog--;
       // Ahead of the exact rate (12 kHz on an 83 us timer): skip this tick
       if((int64_t)((k + 1) * 1000000ULL / (uint64_t)fs) > esp_timer_get_time() - base + 40) continue;
     }
@@ -156,10 +167,24 @@ static void sampler(void *)
     next = base + (int64_t)(k * 1000000ULL / (uint64_t)fs);
 
     int v = 0;
+    int64_t t0 = timed ? esp_timer_get_time() : 0;
     if(adc_oneshot_read(adc, CW_ADC_CH, &v) != ESP_OK)
     {
       adcErrors++;
       v = (int)dc;
+    }
+    if(timed)
+    {
+      uint32_t us = (uint32_t)(esp_timer_get_time() - t0);
+      if(us > readUsMax) readUsMax = us;
+      readUsAvg = (readUsAvg * 255 + us * 16) / 256;      // x16, smoothed
+      // Always leave the idle task a moment, even when behind: without it the
+      // task watchdog restarted the radio (R4 tests 1 and 2)
+      if(++sinceYield >= (uint32_t)fs / 100)
+      {
+        sinceYield = 0;
+        vTaskDelay(1);
+      }
     }
 
     // Audio level for the input check on the page
@@ -257,6 +282,14 @@ bool audioWebStreaming() { return(webAudio && sampling); }
 
 // Copy the samples written since *pos (at most max); the oldest are skipped
 // when the reader fell more than a ring behind
+void audioTimedStats(uint32_t *avgUs, uint32_t *maxUs, uint32_t *late)
+{
+  *avgUs = readUsAvg / 16;
+  *maxUs = readUsMax;
+  *late = samplesLate;
+  readUsMax = 0;
+}
+
 uint32_t audioWebRead(int16_t *dst, uint32_t max, uint32_t *pos)
 {
   if(!webRing) return(0);

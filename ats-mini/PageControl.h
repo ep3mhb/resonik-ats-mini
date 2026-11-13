@@ -108,7 +108,7 @@ function play(s){if(!listening||!ac)return;
  const src=ac.createBufferSource();src.buffer=buf;src.connect(gain);
  const t=ac.currentTime;if(next<t+0.05||next>t+1)next=t+0.25;src.start(next);next+=buf.duration;}
 function status(j){ai.innerHTML=(j.audio?'<b>Streaming</b> 8 kHz':'Audio off')+
- ' &middot; level '+j.level+' &middot; ADC dropouts '+j.adcErrors+' &middot; timing restarts '+j.restarts+
+ ' &middot; level '+j.level+' &middot; ADC dropouts '+j.adcErrors+' &middot; late '+j.late+' &middot; read '+j.readUs+'/'+j.readMax+' &micro;s &middot; '+j.cpu+' MHz'+
  (j.audio&&j.level<2?' &middot; <b>no audio on GPIO11 (V4B board needed)</b>':'');}
 connect();
 </script></body></html>)HTML";
