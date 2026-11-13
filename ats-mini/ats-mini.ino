@@ -909,6 +909,11 @@ void diagDump(String &out)
 {
   out = "RESONIK test build diagnostics\n";
   out += "Reset reason " + String((int)esp_reset_reason()) + ", up " + String(millis() / 1000) + " s, free heap " + String(ESP.getFreeHeap()) + "\n";
+  {
+    extern bool ft8CaptureGet(const int16_t **data, uint32_t *n, char *info, size_t infoSize);
+    const int16_t *d; uint32_t n; char info[160];
+    if(ft8CaptureGet(&d, &n, info, sizeof(info))) out += String("Last FT8 slot kept: ") + info + " (download /ft8.wav)\n";
+  }
   out += "Logged: main loop passes (loop) or gaps between passes (gap) of " + String(DIAG_SLOW_MS) + " ms or more\n";
   out += "  time_s kind    ms  parts(ms)                  band   mod   freq menu wifi  cpu\n";
   if(!diagLog || !diagHead) { out += "(nothing slow yet)\n"; return; }

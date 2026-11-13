@@ -58,6 +58,80 @@ static volatile bool wantFt4 = false;     // Protocol of the channel; the worker
 // Timing without a clock: our timer plus an offset found from the signals
 static Ft8Sync slotSync;
 
+#ifdef RESONIK_DIAG
+// Test builds: the audio of the last whole slot is kept (PSRAM) for download
+// as /ft8.wav after the page is closed, with the sample rate measured
+// against the CPU timer, so a slot that does not decode can be checked on a
+// computer. Two buffers: one filling, one done.
+#define CAP_MAX (Ft8Rx::FS * 16)
+static int16_t *capBuf[2] = { nullptr, nullptr };
+static uint32_t capN[2] = { 0, 0 };
+static int capFill = 0;
+static volatile bool capHave = false;
+static int64_t capStartMs = 0, capDoneStartMs = 0;
+static uint32_t capDoneRate = 0, capDoneRestarts = 0;
+static int capDoneDecoded = -1;
+static int64_t rateUs = 0;
+static uint32_t rateWritten = 0, rateNow = 0, restartsAtEdge = 0;
+static bool capDoneFt4 = false;
+
+static void capPush(const int16_t *s, uint32_t n)
+{
+  if(!capBuf[0])
+  {
+    capBuf[0] = (int16_t *)heap_caps_malloc(CAP_MAX * 2, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    capBuf[1] = (int16_t *)heap_caps_malloc(CAP_MAX * 2, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    if(!capBuf[0] || !capBuf[1]) return;
+  }
+  uint32_t room = CAP_MAX - capN[capFill];
+  if(n > room) n = room;
+  memcpy(capBuf[capFill] + capN[capFill], s, n * 2);
+  capN[capFill] += n;
+}
+
+// At a slot edge: the slot just collected becomes the one kept
+static void capEdge(int64_t slotStartMs, bool whole)
+{
+  int64_t us = esp_timer_get_time();
+  uint32_t w = audioFt8Written();
+  if(rateUs && us > rateUs) rateNow = (uint32_t)((uint64_t)(w - rateWritten) * 1000000ULL / (uint64_t)(us - rateUs));
+  rateUs = us; rateWritten = w;
+  if(whole && capBuf[0] && capN[capFill])
+  {
+    capDoneStartMs = capStartMs;
+    capDoneRate = rateNow;
+    capDoneRestarts = audioTimingRestarts() - restartsAtEdge;
+    capDoneFt4 = ft8.ft4();
+    capDoneDecoded = -1;
+    capFill ^= 1;
+    capHave = true;
+  }
+  restartsAtEdge = audioTimingRestarts();
+  capN[capFill] = 0;
+  capStartMs = slotStartMs;
+}
+
+// Web: the kept slot as a 16-bit mono WAV, and a line about it
+bool ft8CaptureGet(const int16_t **data, uint32_t *n, char *info, size_t infoSize)
+{
+  if(!capHave || running) return(false);
+  int d = capFill ^ 1;
+  *data = capBuf[d];
+  *n = capN[d];
+  time_t t = (time_t)(capDoneStartMs / 1000);
+  struct tm tm;
+  gmtime_r(&t, &tm);
+  snprintf(info, infoSize, "%s slot %02d%02d%02d UTC%s, %lu samples, measured %lu Hz, %lu restarts, %d decoded",
+    capDoneFt4 ? "FT4" : "FT8", tm.tm_hour, tm.tm_min, tm.tm_sec, clockAvailable() ? "" : " (no clock)",
+    (unsigned long)*n, (unsigned long)capDoneRate, (unsigned long)capDoneRestarts, capDoneDecoded);
+  return(true);
+}
+#else
+static inline void capPush(const int16_t *, uint32_t) {}
+static inline void capEdge(int64_t, bool) {}
+bool ft8CaptureGet(const int16_t **, uint32_t *, char *, size_t) { return(false); }
+#endif
+
 // Milliseconds on the time line the slots are cut from
 static int64_t slotClockMs()
 {
@@ -143,6 +217,7 @@ static void feed(uint32_t *pos, uint32_t end)
     uint32_t n = end - *pos;
     if(n > RING_SAMPLES - idx) n = RING_SAMPLES - idx;
     if(n > 480) n = 480;
+    capPush(ring + idx, n);
     if(ft8.push(ring + idx, n)) addRow();
     *pos += n;
   }
@@ -172,6 +247,9 @@ static void decodeSlot(uint32_t slot)
   logCount = keep + n > LOG_MAX ? LOG_MAX : keep + n;
   lastDecoded = n;
   lastDecodeMs = t;
+#ifdef RESONIK_DIAG
+  capDoneDecoded = n;
+#endif
   changes++;
   xSemaphoreGive(lock);
 }
@@ -213,6 +291,7 @@ static void work(void *)
       slot = now;
       ft8.reset();
       collecting = msInSlot < 500;
+      capEdge(now * slotMs, false);
     }
     else if(now != slot)
     {
@@ -222,6 +301,7 @@ static void work(void *)
       if((int32_t)(edge - pos) < 0) edge = pos;
       feed(&pos, edge);
       bool decode = collecting;
+      capEdge(now * slotMs, decode);
       // Next slot starts at the edge
       uint32_t heard = (uint32_t)slot;
       slot = now;
@@ -549,8 +629,14 @@ void drawFt8Page()
   // "Spk" when the speaker had to stay on for the input to get audio
   if(decoded >= 0) snprintf(buf, sizeof(buf), "In %u%s  Last %d", audioInputLevel(), ampNeeded ? " Spk" : "", decoded);
   else snprintf(buf, sizeof(buf), "In %u%s", audioInputLevel(), ampNeeded ? " Spk" : "");
+#ifdef RESONIK_DIAG
+  // Test builds: measured sample rate and lost-timing count
+  snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "  %lu Hz r%lu", (unsigned long)rateNow, (unsigned long)audioTimingRestarts());
+#endif
   spr.drawString(buf, 6, 169, font);
   spr.setTextDatum(BR_DATUM);
+#ifndef RESONIK_DIAG
   spr.drawString("Turn: band  Press: exit", 314, 169, font);
+#endif
   spr.pushSprite(0, 0);
 }

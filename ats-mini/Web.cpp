@@ -286,6 +286,52 @@ void webInit()
     request->send(response);
   });
 
+  // RESONIK test builds: the audio of the last FT8/FT4 slot as a WAV file
+  server.on("/ft8.wav", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    if(!webIsAuthenticated(request)) return request->requestAuthentication();
+    extern bool ft8CaptureGet(const int16_t **data, uint32_t *n, char *info, size_t infoSize);
+    static const int16_t *data;
+    static uint32_t n;
+    static char info[160];
+    static uint8_t hdr[44];
+    if(!ft8CaptureGet(&data, &n, info, sizeof(info)))
+      return request->send(404, "text/plain", "No slot kept. Test builds only: open FT8, wait for two slots, close the page, then try again.");
+    uint32_t bytes = n * 2;
+    auto le32 = [](uint8_t *p, uint32_t v) { p[0] = v; p[1] = v >> 8; p[2] = v >> 16; p[3] = v >> 24; };
+    memcpy(hdr, "RIFF", 4); le32(hdr + 4, 36 + bytes); memcpy(hdr + 8, "WAVEfmt ", 8);
+    le32(hdr + 16, 16); hdr[20] = 1; hdr[21] = 0; hdr[22] = 1; hdr[23] = 0;
+    le32(hdr + 24, 12000); le32(hdr + 28, 24000); hdr[32] = 2; hdr[33] = 0; hdr[34] = 16; hdr[35] = 0;
+    memcpy(hdr + 36, "data", 4); le32(hdr + 40, bytes);
+    AsyncWebServerResponse *response = request->beginResponse("audio/wav", 44 + bytes,
+      [](uint8_t *buf, size_t maxLen, size_t index) -> size_t {
+        size_t total = 44 + n * 2, done = 0;
+        if(index >= total) return 0;
+        while(done < maxLen && index + done < total)
+        {
+          size_t i = index + done;
+          if(i < 44) buf[done++] = hdr[i];
+          else
+          {
+            // Raw ADC counts around 2048: centred and scaled for listening
+            uint32_t k = (i - 44) / 2;
+            int16_t v = (int16_t)((data[k] - 2048) * 8);
+            buf[done++] = ((i - 44) & 1) ? (uint8_t)(v >> 8) : (uint8_t)v;
+          }
+        }
+        return done;
+      });
+    response->addHeader("Content-Disposition", "attachment; filename=\"resonik-ft8-slot.wav\"");
+    response->addHeader("X-Resonik-Info", info);
+    response->addHeader("Cache-Control", "no-store");
+    request->send(response);
+  });
+  server.on("/ft8.txt", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    extern bool ft8CaptureGet(const int16_t **data, uint32_t *n, char *info, size_t infoSize);
+    const int16_t *d; uint32_t n; char info[160];
+    if(!ft8CaptureGet(&d, &n, info, sizeof(info))) return request->send(404, "text/plain", "No slot kept");
+    request->send(200, "text/plain", String(info) + "\n");
+  });
+
   // RESONIK test builds: slow-loop log
   server.on("/diag.txt", HTTP_GET, [] (AsyncWebServerRequest *request) {
     if(!webIsAuthenticated(request)) return request->requestAuthentication();
