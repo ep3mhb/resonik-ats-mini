@@ -12,6 +12,7 @@
 #include "Menu.h"
 #include "Draw.h"
 #include "CwAudio.h"
+#include <esp_heap_caps.h>
 #include "CwDecoder.h"
 
 #include <WiFi.h>
@@ -50,6 +51,14 @@ static int16_t *volatile ft8Ring = nullptr;
 static uint32_t ft8RingSize = 0;
 static volatile uint32_t ft8Written = 0;   // Samples written since the start
 
+// RESONIK R4 (test): audio for the Web Control page, 8 kHz, with Wi-Fi on.
+// GPIO11 is on ADC2, which Wi-Fi shares, so reads can fail; they are counted.
+#define WEB_FS        8000
+#define WEB_RING      16384                  // About 2 s
+static volatile bool webAudio = false;
+static int16_t *webRing = nullptr;
+static volatile uint32_t webWritten = 0;
+
 static void sampler(void *)
 {
   int16_t buf[CW_BLOCK];
@@ -73,7 +82,8 @@ static void sampler(void *)
       continue;
     }
     int16_t *ring = ft8Ring;
-    int fs = ring ? FT8_FS : CW_FS;
+    bool web = !ring && webAudio && webRing;
+    int fs = ring ? FT8_FS : web ? WEB_FS : CW_FS;
     if(!sampling || fs != lastFs)
     {
       sampling = true;
@@ -111,6 +121,11 @@ static void sampler(void *)
       ring[ft8Written % ft8RingSize] = (int16_t)v;
       ft8Written = ft8Written + 1;
     }
+    else if(web)
+    {
+      webRing[webWritten % WEB_RING] = (int16_t)v;
+      webWritten = webWritten + 1;
+    }
     else buf[n++] = (int16_t)v;
 
     if(n == CW_BLOCK)
@@ -127,7 +142,7 @@ static void sampler(void *)
       sinceYield = 0;
       vTaskDelay(1);
       // FT8 counts samples against the clock: catch up rather than skip
-      if(!ring) { base = next = esp_timer_get_time(); k = 0; }
+      if(!ring && !web) { base = next = esp_timer_get_time(); k = 0; }
     }
     // Fell far behind (interrupts): start the timing again
     if(esp_timer_get_time() - next > 10000) { base = next = esp_timer_get_time(); k = 0; timingRestarts++; }
@@ -174,6 +189,27 @@ void audioFt8Ring(int16_t *ring, uint32_t size)
 }
 
 uint32_t audioFt8Written() { return(ft8Written); }
+
+void audioWebStream(bool on)
+{
+  if(on && !webRing)
+    webRing = (int16_t *)heap_caps_malloc(WEB_RING * sizeof(int16_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+  webAudio = on && webRing;
+}
+
+bool audioWebStreaming() { return(webAudio && sampling); }
+
+// Copy the samples written since *pos (at most max); the oldest are skipped
+// when the reader fell more than a ring behind
+uint32_t audioWebRead(int16_t *dst, uint32_t max, uint32_t *pos)
+{
+  if(!webRing) return(0);
+  uint32_t w = webWritten;
+  if(w - *pos > WEB_RING - 256) *pos = w - 2048;
+  uint32_t n = 0;
+  while(*pos != w && n < max) dst[n++] = webRing[(*pos)++ % WEB_RING];
+  return(n);
+}
 uint16_t audioInputLevel() { return(audioLevel); }
 uint32_t audioTimingRestarts() { return(timingRestarts); }
 uint32_t audioAdcErrors() { return(adcErrors); }
@@ -212,7 +248,7 @@ bool cwAudioTick()
     netInit(wifiModeIdx);
   }
 
-  bool need = (page || cwStripShown()) && !wifiOn();
+  bool need = ((page || cwStripShown()) && !wifiOn()) || (webAudio && !page);
   if(need && !want)
   {
     // Connect the pad to the ADC again (it is detached while idle)

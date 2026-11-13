@@ -1909,14 +1909,47 @@ bool clickHandler(uint16_t cmd, bool shortPress)
 // Band plan segment of the last tuned frequency (for automatic sideband)
 static const BandPlanSegment *bandPlanLastSeg = nullptr;
 
+// RESONIK R4: treat the next band plan check as tuning in from outside
+// (a frequency typed on the Web Control page)
+void bandPlanForget() { bandPlanLastSeg = nullptr; }
+
 void selectBand(uint8_t idx, bool drawLoadingPatch)
 {
+  // RESONIK R4: SSB to SSB (any band, LSB/USB/CW) without the full setup
+  // and without the 2 x 50 ms of the hardware mute; the chip mute is enough
+  uint8_t newIdx = min(idx, LAST_ITEM(bands));
+  uint8_t newMode = bands[newIdx].bandMode;
+  bool ssbNow = currentMode == LSB || currentMode == USB || currentMode == CW;
+  bool ssbNext = newMode == LSB || newMode == USB || newMode == CW;
+  if(ssbNow && ssbNext)
+  {
+    bool audible = !muteOn(MUTE_TEMP, 2);
+    if(audible) rx.setAudioMute(true);
+    uint8_t oldIdx = bandIdx, oldMode = currentMode;
+    bandIdx = newIdx;
+    currentMode = newMode;
+    if(useBandFast(&bands[bandIdx]))
+    {
+      setBandwidth();
+      clearStationInfo();
+      identifyFrequency(currentFrequency);
+      resetFreqInputPos();
+      if(audible) rx.setAudioMute(false);
+      bandPlanLastSeg = bandPlanFindArea(currentFrequency, bandPlanArea);
+      return;
+    }
+    // Not possible: back to the full setup below
+    bandIdx = oldIdx;
+    currentMode = oldMode;
+    if(audible) rx.setAudioMute(false);
+  }
+
   // Silence clicks during reconfiguration using the configured hardware mute method.
   // https://github.com/esp32-si4732/ats-mini/discussions/103
   muteOn(MUTE_TEMP, true, !audioClamp);
 
   // Set band and mode
-  bandIdx = min(idx, LAST_ITEM(bands));
+  bandIdx = newIdx;
   currentMode = bands[bandIdx].bandMode;
 
   // Load the selected DSP patch as needed

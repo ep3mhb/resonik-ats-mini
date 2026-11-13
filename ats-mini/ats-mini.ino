@@ -23,6 +23,7 @@
 #include "CwAudio.h"
 #include "Ft8.h"
 #include "Web.h"
+#include "WebControl.h"
 #include <stdlib.h>
 #include <time.h>
 
@@ -408,10 +409,46 @@ static void applyBFO()
 }
 
 //
+// RESONIK R4: switch between SSB bands and modes (LSB, USB, CW) without the
+// full setup. The chip stays in SSB with its patch; only the sideband, the
+// frequency, BFO, filter and step change. Saves about 0.2 s per change (band
+// plan Auto at segment edges, the FT8 page's band knob, Mode and Band menus).
+// Returns false when the full setup is needed.
+//
+static bool ssbChipReady = false;
+
+bool useBandFast(Band *band)
+{
+  if(!ssbChipReady || !isSSB() || !dspPatchLoaded()) return(false);
+  bool automatic = autoAntennaCapacitor &&
+    (band->bandType == MW_BAND_TYPE || band->bandType == LW_BAND_TYPE);
+  if(automatic) return(false);
+
+  uint16_t receiverFreq = getReceiverFrequency(band->currentFreq);
+  currentFrequency = band->currentFreq;
+  ssbAvcHold = false;
+
+  rx.setSsbFast(freqFromHz(band->minimumFreq, currentMode), freqFromHz(band->maximumFreq, currentMode),
+                ssbSideband(currentMode));
+  if(!rx.setFrequencyConfirmed(receiverFreq)) return(false);
+  applyBFO();
+  rx.setSeekAmLimits(freqFromHz(band->minimumFreq, currentMode), freqFromHz(band->maximumFreq, currentMode));
+
+  doStep(0);
+  doSoftMute(0);
+  doAgc(0);
+  doAvc(0);
+  rssi = 0;
+  snr  = 0;
+  return(true);
+}
+
+//
 // Switch radio to given band
 //
 void useBand(Band *band)
 {
+  ssbChipReady = false;
   // Convert the saved Hz frequency to receiver units and restore SSB fine tuning.
   currentMode = band->bandMode;
   uint16_t receiverFreq = getReceiverFrequency(band->currentFreq);
@@ -470,6 +507,7 @@ void useBand(Band *band)
                          : rx.waitFrequencyConfirmed(receiverFreq);
     if(!tuned) return;
     if(isSSB()) applyBFO();
+    ssbChipReady = isSSB();
 
     // G8PTN: Enable GPIO1 as output
     rx.setGpioCtl(1, 0, 0);
@@ -487,8 +525,8 @@ void useBand(Band *band)
   doAgc(0);
   // Set currentAVC values based on mode (AM, SSB)
   doAvc(0);
-  // Wait a bit for things to calm down
-  delay(100);
+  // Wait a bit for things to calm down (RESONIK R4: 30 ms, was 100)
+  delay(30);
   // Clear signal strength readings
   rssi = 0;
   snr  = 0;
@@ -1043,6 +1081,7 @@ void loop()
 
   // Apply queued web operations, then advance WiFi and time synchronization.
   { DIAG_T0; needRedraw |= webTick(); DIAG_T1("web"); }
+  { DIAG_T0; needRedraw |= webControlTick(); DIAG_T1("wctl"); }
   { DIAG_T0; needRedraw |= netTickTime(); DIAG_T1("wifi"); }
 
   // Update clock display

@@ -17,6 +17,7 @@ uint8_t patchesModes(uint8_t slot);
 // Apply and save a selection on the main task.
 bool patchesSelect(uint8_t slot);
 void loadDSPPatch(uint8_t bandwidth, bool draw = true);
+bool dspPatchLoaded();
 bool patchesDelete(uint8_t slot, const char *&error);
 bool patchesRequestSelection(uint8_t slot, const char *&error);
 

@@ -1,3 +1,4 @@
+#include "WebControl.h"
 #include "Web.h"
 #include "Common.h"
 #include "Storage.h"
@@ -237,6 +238,9 @@ void webInit()
   static bool initialized = false;
   if(initialized) return;
   initialized = true;
+
+  // RESONIK R4 (test): live screen, controls and audio at /control
+  webControlInit(server, webIsAuthenticated);
 
   server.on("/", HTTP_ANY, [] (AsyncWebServerRequest *request) {
     request->send(200, "text/html", webRadioPage());

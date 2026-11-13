@@ -19,7 +19,10 @@ void drawCwPage();
 
 // Sampler shared with the FT8 page (Ft8.cpp)
 void audioFt8Ring(int16_t *ring, uint32_t size);   // nullptr gives it back to CW
-uint32_t audioFt8Written();                          // Samples written into the ring so far
+uint32_t audioFt8Written();
+void audioWebStream(bool on);                          // Web Control audio (8 kHz) on or off
+bool audioWebStreaming();
+uint32_t audioWebRead(int16_t *dst, uint32_t max, uint32_t *pos);                          // Samples written into the ring so far
 uint16_t audioInputLevel();
 uint32_t audioTimingRestarts();                      // Times the sampler fell behind (samples lost)
 uint32_t audioAdcErrors();                           // Failed ADC reads                          // Mean deviation on GPIO11, ADC counts
