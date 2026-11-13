@@ -7,11 +7,14 @@
 //   browser -> radio   text: ad hoc remote commands, the same as over USB
 //                      ("R", "r", "e", "E", "V", "v", "B", "b", "M", ...,
 //                      "F7074000\n"), run by remoteLoop() on the main task;
-//                      "!audio1" / "!audio0" switch the audio stream
+//                      "!audio1" / "!audio0" switch the audio stream,
+//                      "!seek+" / "!seek-" seek, "!scope" sweeps the band
 //   radio -> browser   binary 0x01 y n + n rows of RGB565 (high byte first):
 //                      the rows of the screen that changed since last sent;
 //                      binary 0x02 0x00 + 16-bit samples at 8 kHz: audio;
-//                      text {...}: status once a second
+//                      text {...}: status once a second, {"p":..} the
+//                      panel (frequency, mode, S-meter, RDS) when it changes,
+//                      {"scope":..} the result of a band sweep
 //
 #include "Common.h"
 #include "Utils.h"
@@ -36,7 +39,14 @@ static std::atomic<bool> fullFrame{true};
 static std::atomic<int8_t> audioWanted{-1};      // -1 no change, 0 off, 1 on
 static std::atomic<uint32_t> tuneWanted{0};       // Frequency in Hz from the page
 static std::atomic<int8_t> muteWanted{-1};        // Speaker while listening: 1 silent, 0 normal
+static std::atomic<int8_t> seekWanted{0};        // +1 up, -1 down
+static std::atomic<bool> scopeWanted{false};
+static std::atomic<bool> webBusy{false};          // A seek or sweep is running
+static std::atomic<bool> webAbort{false};         // ...and the page sent something
 static RemoteState remoteState;
+
+// Any button on the page stops a running seek or sweep, as the knob does
+bool webConsumeAbortPending() { return(webAbort.exchange(false)); }
 
 // Remote output (status lines, errors) is not needed here
 class NullStream : public Stream
@@ -50,6 +60,8 @@ public:
   void flush() override {}
 };
 static NullStream nullStream;
+
+bool doSeek(int16_t enc, int16_t enca);    // ats-mini.ino
 
 static InputEvent webReadInput(uint8_t &byte)
 {
@@ -80,6 +92,22 @@ static void webOnEvent(AsyncWebSocket *, AsyncWebSocketClient *client, AwsEventT
   {
     AwsFrameInfo *info = (AwsFrameInfo *)arg;
     if(!info->final || info->index || info->len != len || info->opcode != WS_TEXT) return;
+    bool busy = webBusy;
+    if(busy && !(len >= 6 && !memcmp(data, "!audio", 6)) && !(len >= 5 && !memcmp(data, "!mute", 5)))
+    {
+      webAbort = true;
+      return;                                      // Only stops it
+    }
+    if(len >= 5 && !memcmp(data, "!seek", 5))
+    {
+      seekWanted = (len > 5 && data[5] == '-') ? -1 : 1;
+      return;
+    }
+    if(len >= 6 && !memcmp(data, "!scope", 6))
+    {
+      scopeWanted = true;
+      return;
+    }
     if(len >= 5 && !memcmp(data, "!mute", 5))
     {
       muteWanted = (len > 5 && data[5] == '1') ? 1 : 0;
@@ -289,7 +317,8 @@ static void speakerTick(bool wanted)
       if(now - spkSince < 2000) break;
       spkSince = now;
       if(audioInputLevel() >= 3) { spk = Spk::AmpOff; break; }   // Audio still there
-      // fall through: no audio with the amplifier off (V4B)
+      // no audio with the amplifier off (V4B)
+      [[fallthrough]];
     case Spk::AmpOff:
       // Keep checking: if the input goes silent, the amplifier is needed
       if(spk == Spk::AmpOff)
@@ -306,11 +335,109 @@ static void speakerTick(bool wanted)
   }
 }
 
+//
+// Band scope: signal strength at 41 points around the frequency, swept
+// with the audio muted (about 2 to 3 seconds), then back to where it was.
+// Same method as the radio's own Scan, but short, and the numbers go to
+// the page, which draws the graph; a click there tunes.
+//
+#define SCOPE_POINTS 41
+
+static void webScope()
+{
+  static uint8_t r[SCOPE_POINTS], q[SCOPE_POINTS];
+  const Band *band = getCurrentBand();
+  uint32_t step = currentMode == FM ? 100000 : isSSB() ? 1000 : 5000;
+  if(currentMode == AM && band->bandType == MW_BAND_TYPE && getCurrentStep()->step == 9000) step = 9000;
+  uint32_t cur = currentFrequency;
+  int64_t start = ((int64_t)(cur / step) - SCOPE_POINTS / 2) * step;
+  int64_t span = (int64_t)step * (SCOPE_POINTS - 1);
+  if(start + span > band->maximumFreq) start = (int64_t)band->maximumFreq - span;
+  if(start < band->minimumFreq) start = band->minimumFreq;
+
+  webBusy = true;
+  webAbort = false;
+  seekStop = false;
+  muteOn(MUTE_TEMP, true);
+  if(isSSB()) rx.setSSBBfo(0);
+  int n = 0;
+  for(; n < SCOPE_POINTS; n++)
+  {
+    uint32_t f = start + (uint32_t)n * step;
+    if(f > band->maximumFreq || consumeAbortPending()) break;
+    rx.setFrequencyConfirmed(freqFromHz(f, currentMode));
+    rx.getCurrentReceivedSignalQuality();
+    r[n] = rx.getCurrentRSSI();
+    q[n] = rx.getCurrentSNR();
+  }
+  if(isSSB()) rx.setFrequencyConfirmed(getReceiverFrequency(cur));
+  updateFrequency(cur, false);
+  clearStationInfo();
+  identifyFrequency(currentFrequency);
+  muteOn(MUTE_TEMP, false);
+  webBusy = false;
+  webAbort = false;
+
+  String j;
+  j.reserve(60 + n * 8);
+  j += "{\"scope\":1,\"f0\":"; j += (unsigned long)start;
+  j += ",\"st\":"; j += step;
+  j += ",\"fm\":"; j += currentMode == FM ? 1 : 0;
+  j += ",\"r\":[";
+  for(int i = 0; i < n; i++) { if(i) j += ','; j += r[i]; }
+  j += "],\"s\":[";
+  for(int i = 0; i < n; i++) { if(i) j += ','; j += q[i]; }
+  j += "]}";
+  ws.textAll(j);
+}
+
+// Text for JSON: quotes, backslashes and control characters escaped,
+// bytes outside ASCII dropped (RDS uses its own character set)
+static void jsonText(String &j, const char *key, const char *v)
+{
+  j += ",\""; j += key; j += "\":\"";
+  for(; v && *v; v++)
+  {
+    uint8_t c = *v;
+    if(c == '"' || c == '\\') { j += '\\'; j += (char)c; }
+    else if(c >= 0x20 && c < 0x7F) j += (char)c;
+    else if(c != 0xFF) j += ' ';
+  }
+  j += '"';
+}
+
+// The panel the page draws itself: sent when something on it changes,
+// at most four times a second
+static void webSendPanel(bool force)
+{
+  static String last;
+  const Band *band = getCurrentBand();
+  String j;
+  j.reserve(200);
+  j += "{\"p\":1,\"f\":"; j += (unsigned long)currentFrequency;
+  j += ",\"m\":"; j += currentMode;
+  jsonText(j, "band", band->bandName);
+  jsonText(j, "mode", bandModeDesc[currentMode]);
+  jsonText(j, "step", getCurrentStep()->desc);
+  jsonText(j, "bw", getCurrentBandwidth()->desc);
+  j += ",\"rssi\":"; j += rssi;
+  j += ",\"snr\":"; j += snr;
+  j += ",\"vol\":"; j += volume;
+  j += ",\"bat\":"; j += String(batteryLastVolts(), 2);
+  jsonText(j, "ps", getStationName());
+  jsonText(j, "rt", getRadioText());
+  j += '}';
+  if(!force && j == last) return;
+  last = j;
+  ws.textAll(j);
+}
+
 bool webControlActive() { return(ws.count() > 0); }
 
 bool webControlTick()
 {
-  static uint32_t lastScreen = 0, lastAudio = 0, lastStatus = 0, lastCleanup = 0;
+  static uint32_t lastScreen = 0, lastAudio = 0, lastStatus = 0, lastCleanup = 0, lastPanel = 0;
+  static uint8_t lastCount = 0;
   uint32_t now = millis();
 
   if(now - lastCleanup > 1000)
@@ -359,6 +486,24 @@ bool webControlTick()
     redraw = true;
   }
 
+  // Seek, as with the knob in Seek mode (SSB and CW: one step)
+  int8_t sk = seekWanted.exchange(0);
+  if(sk)
+  {
+    webBusy = true;
+    webAbort = false;
+    doSeek(sk, sk);
+    webBusy = false;
+    webAbort = false;
+    prefsRequestSave(SAVE_CUR_BAND);
+    redraw = true;
+  }
+  if(scopeWanted.exchange(false))
+  {
+    webScope();
+    redraw = true;
+  }
+
   int8_t a = audioWanted.exchange(-1);
   if(a >= 0) webAudioSet(a == 1);
   int8_t m = muteWanted.exchange(-1);
@@ -381,6 +526,14 @@ bool webControlTick()
     lastScreen = now;
     if(!audioOn) webSendScreen(SIZE_MAX);
     else if(audioWebBacklog(audioPos) < WEB_SCREEN_AUDIO_SLACK) webSendScreen(3000);
+  }
+  if(now - lastPanel >= 250)
+  {
+    lastPanel = now;
+    // A new browser gets the panel at once
+    bool force = ws.count() != lastCount;
+    lastCount = ws.count();
+    if(ws.availableForWriteAll()) webSendPanel(force);
   }
   if(now - lastStatus >= 1000)
   {

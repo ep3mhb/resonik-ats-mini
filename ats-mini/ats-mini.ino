@@ -575,6 +575,7 @@ bool consumeAbortPending()
   if(bleConsumeAbortPending(bleModeIdx)) return true;
   if(serialConsumeAbortPending(usbModeIdx)) return true;
   if(tcpConsumeAbortPending(tcpModeIdx)) return true;
+  if(webConsumeAbortPending()) return true;
 
   // Checking isPressed without debouncing because this helper is used from
   // blocking operations that do not run the normal event loop often enough.
