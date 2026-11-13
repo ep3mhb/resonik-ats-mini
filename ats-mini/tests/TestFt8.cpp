@@ -9,6 +9,10 @@
 
 struct Tx { const char *text; float freq; float snr; float start; };
 
+// Real ADC sample rate: the decoder assumes Ft8Rx::FS. The radio's sampler
+// used to run at 12048 Hz (83 us steps), so this checks what that costs.
+static double adcRate = 12000.0;
+
 static double gauss()
 {
   static bool have = false;
@@ -41,15 +45,17 @@ static std::vector<int16_t> slot(const std::vector<Tx> &txs, double noiseCounts,
     double n2500 = noiseCounts * noiseCounts * 2500.0 / (fs / 2.0);
     double amp = sqrt(2.0 * n2500 * pow(10.0, t.snr / 10.0));
     double phase = 0;
-    int sps = ft4 ? 576 : 1920;
-    int first = (int)(t.start * fs);
-    for(int s = 0 ; s < nn ; s++)
-      for(int k = 0 ; k < sps ; k++)
-      {
-        int i = first + s * sps + k;
-        phase += 2 * M_PI * (t.freq + tones[s] * spacing) / fs;
-        if(i >= 0 && i < n) a[i] += amp * sin(phase);
-      }
+    // Symbol s spans real time [start + s*T, start + (s+1)*T); sample i is
+    // taken at real time i / adcRate
+    double symT = ft4 ? 0.048 : 0.16;
+    for(int i = 0 ; i < n ; i++)
+    {
+      double tt = i / adcRate - t.start;
+      int s = (int)floor(tt / symT);
+      if(s < 0 || s >= nn) continue;
+      phase += 2 * M_PI * (t.freq + tones[s] * spacing) / adcRate;
+      a[i] += amp * sin(phase);
+    }
   }
   std::vector<int16_t> out(n);
   for(int i = 0 ; i < n ; i++)
@@ -230,6 +236,23 @@ int main()
   assert(!rx.ft4() && rx.maxBlocks() == 93);
   n = run(rx, { { "CQ EP2MHB LL58", 1000, -5, 0.5f } }, 40, m);
   assert(find(m, n, "CQ EP2MHB LL58"));
+
+  // Sample rate error: the decoder must still work at the rate the radio delivers
+  printf("FT8 at a wrong ADC sample rate (-15/-18/-20 dB):\n");
+  for(double rate : { 12000.0, 12048.0 })
+  {
+    adcRate = rate;
+    int got = 0;
+    for(int snr : { -15, -18, -20 })
+      for(int k = 0 ; k < 4 ; k++)
+      {
+        n = run(rx, { { "CQ DX EP2MHB LL58", 900.0f + 300 * k, (float)snr, 0.5f } }, 40, m);
+        if(find(m, n, "CQ DX EP2MHB LL58")) got++;
+      }
+    printf("  %5.0f Hz: %2d of 12 decoded\n", rate, got);
+    if(rate == 12000.0) assert(got >= 9);
+  }
+  adcRate = 12000.0;
 
   rx.end();
   printf("TestFt8: all tests passed\n");
