@@ -22,6 +22,7 @@ void audioFt8Ring(int16_t *ring, uint32_t size);   // nullptr gives it back to C
 uint32_t audioFt8Written();
 void audioWebStream(bool on);                          // Web Control audio (8 kHz) on or off
 bool audioWebStreaming();
+void audioTimedStats(uint32_t *avgUs, uint32_t *maxUs, uint32_t *late);   // ADC read time, samples dropped
 uint32_t audioWebRead(int16_t *dst, uint32_t max, uint32_t *pos);                          // Samples written into the ring so far
 uint16_t audioInputLevel();
 uint32_t audioTimingRestarts();                      // Times the sampler fell behind (samples lost)

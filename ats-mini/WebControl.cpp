@@ -197,6 +197,25 @@ static void webSendAudio()
   ws.binaryAll(msg, 2 + n * 2);
 }
 
+// Audio at full processor speed (as the FT8 page): each sample is a short
+// ADC read, and with Wi-Fi on there is little time to spare at 80 MHz
+static uint32_t cpuSaved = 0;
+
+static void webAudioSet(bool on)
+{
+  audioWebStream(on);
+  if(on && !cpuSaved)
+  {
+    cpuSaved = getCpuFrequencyMhz();
+    if(cpuSaved < 240) setCpuFrequencyMhz(240);
+  }
+  else if(!on && cpuSaved)
+  {
+    if(cpuSaved < 240) setCpuFrequencyMhz(cpuSaved);
+    cpuSaved = 0;
+  }
+}
+
 bool webControlActive() { return(ws.count() > 0); }
 
 bool webControlTick()
@@ -211,7 +230,7 @@ bool webControlTick()
   }
   if(!ws.count())
   {
-    if(audioWebStreaming() || audioWanted == 1) audioWebStream(false);
+    webAudioSet(false);
     audioWanted = -1;
     return(false);
   }
@@ -251,7 +270,7 @@ bool webControlTick()
   }
 
   int8_t a = audioWanted.exchange(-1);
-  if(a >= 0) audioWebStream(a == 1);
+  if(a >= 0) webAudioSet(a == 1);
 
   if(now - lastScreen >= 50)
   {
@@ -266,11 +285,15 @@ bool webControlTick()
   if(now - lastStatus >= 1000)
   {
     lastStatus = now;
-    char json[160];
+    char json[220];
+    uint32_t avgUs, maxUs, late;
+    audioTimedStats(&avgUs, &maxUs, &late);
     snprintf(json, sizeof(json),
-      "{\"audio\":%d,\"adcErrors\":%lu,\"restarts\":%lu,\"level\":%u,\"clients\":%u,\"freq\":%lu}",
+      "{\"audio\":%d,\"adcErrors\":%lu,\"restarts\":%lu,\"level\":%u,\"clients\":%u,\"freq\":%lu,"
+      "\"readUs\":%lu,\"readMax\":%lu,\"late\":%lu,\"cpu\":%lu}",
       audioWebStreaming() ? 1 : 0, (unsigned long)audioAdcErrors(), (unsigned long)audioTimingRestarts(),
-      audioInputLevel(), (unsigned)ws.count(), (unsigned long)currentFrequency);
+      audioInputLevel(), (unsigned)ws.count(), (unsigned long)currentFrequency,
+      (unsigned long)avgUs, (unsigned long)maxUs, (unsigned long)late, (unsigned long)getCpuFrequencyMhz());
     ws.textAll(json);
   }
   return(redraw);
