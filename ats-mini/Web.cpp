@@ -672,7 +672,8 @@ static String webPage(const char *body, const char *title, std::initializer_list
 {
   String page;
   pageReserve(page, sizeof(pageStart) + strlen(title) + strlen(body) + sizeof(pageEnd) + 64);
-  pageAppend(page, pageStart, {{"title", title}});
+  static const String version = String("v") + (VER_APP / 100) + "." + (VER_APP % 100) + "-r" + VER_RESONIK;
+  pageAppend(page, pageStart, {{"title", title}, {"version", version}});
   pageAppend(page, body, values, fragments);
   pageReserve(page, sizeof(pageEnd) + 64);
   // Snapshot after allocating the page, before the HTTP response copies it.
