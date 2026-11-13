@@ -200,7 +200,8 @@ bool cwAudioTick()
   bool page = pageOpen() && !sleepOn();
 
   // The page owns Wi-Fi while it is open and gives it back afterwards
-  if(page && wifiOn() && !wifiPaused)
+  // (not while a web request runs: Wi-Fi off under it crashes the radio)
+  if(page && wifiOn() && !wifiPaused && !netJobsBusy())
   {
     netStop();
     wifiPaused = true;

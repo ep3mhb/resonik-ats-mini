@@ -908,7 +908,10 @@ static void diagAdd(const char *kind, uint32_t ms)
 void diagDump(String &out)
 {
   out = "RESONIK test build diagnostics\n";
-  out += "Reset reason " + String((int)esp_reset_reason()) + ", up " + String(millis() / 1000) + " s, free heap " + String(ESP.getFreeHeap()) + "\n";
+  static const char *rr[] = { "unknown", "power on", "external", "software/update", "CRASH (panic)",
+    "CRASH (interrupt watchdog)", "CRASH (task watchdog)", "CRASH (watchdog)", "deep sleep", "BROWNOUT (low battery)", "SDIO" };
+  int r = (int)esp_reset_reason();
+  out += String("Reset reason ") + r + " " + (r >= 0 && r <= 10 ? rr[r] : "") + ", up " + String(millis() / 1000) + " s, free heap " + String(ESP.getFreeHeap()) + "\n";
   {
     extern bool ft8CaptureGet(const int16_t **data, uint32_t *n, char *info, size_t infoSize);
     const int16_t *d; uint32_t n; char info[160];

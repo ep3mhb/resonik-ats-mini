@@ -58,10 +58,12 @@ static void netJobWork(void *)
   for(;;)
   {
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-    uint8_t jobs;
-    while((jobs = netJobs.exchange(0)) != 0)
+    for(;;)
     {
+      // Busy first, then take the jobs: netStop() sees one or the other
       netJobBusy = true;
+      uint8_t jobs = netJobs.exchange(0);
+      if(!jobs) { netJobBusy = false; break; }
       if(jobs & NET_JOB_TIME)
       {
         uint32_t epoch = 0;
@@ -74,6 +76,10 @@ static void netJobWork(void *)
     }
   }
 }
+
+// A web request is running or waiting. Wi-Fi must not be switched off under
+// it: that crashes the network stack (test build 11 rebooted on the FT8 page).
+bool netJobsBusy() { return(netJobBusy || netJobs != 0); }
 
 static void netJobStart(uint8_t jobs)
 {
@@ -162,8 +168,9 @@ bool netTickTime()
     ntpHasTime = true;
     clockTimeSynchronized();
     changed = true;
-    // RESONIK: while online, also fetch propagation data (in the background)
-    if(netState == NetState::Online) netJobStart(NET_JOB_PROP);
+    // RESONIK: while online, also fetch propagation data (in the background;
+    // not in Sync mode, which switches Wi-Fi off right away)
+    if(netState == NetState::Online && activeNetMode != NET_SYNC) netJobStart(NET_JOB_PROP);
     if(netState == NetState::Online && activeNetMode == NET_SYNC)
     {
       netStop();
@@ -254,7 +261,7 @@ bool netTickTime()
       {
         httpTimeTried = HTTP_TIME_TRIES;   // Done for this connection
         changed = true;
-        netJobStart(NET_JOB_PROP);
+        if(activeNetMode != NET_SYNC) netJobStart(NET_JOB_PROP);
         if(activeNetMode == NET_SYNC)
         {
           netStop();
@@ -317,6 +324,12 @@ char *getWiFiIPAddress()
 //
 void netStop()
 {
+  // Let a running web request finish first (its own timeouts end it); one
+  // still waiting is dropped. Pages that pause Wi-Fi wait for netJobsBusy()
+  // to clear instead, so this only waits when the user switches Wi-Fi off.
+  netJobs = 0;
+  for(uint32_t t = millis(); netJobBusy && millis() - t < 15000; ) delay(20);
+
   // Online owns the SNTP client, including while waiting for the first reply.
   if(netState == NetState::Online) esp_sntp_stop();
   netState = NetState::Idle;

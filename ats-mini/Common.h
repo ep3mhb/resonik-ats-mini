@@ -270,6 +270,7 @@ bool identifyFrequency(uint32_t freq, bool periodic = false);
 
 // Network.cpp
 int8_t getWiFiStatus();
+bool netJobsBusy();
 char *getWiFiIPAddress();
 void netInit(uint8_t netMode);
 void netStop();
