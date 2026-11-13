@@ -125,6 +125,7 @@ void webControlInit(AsyncWebServer &server, bool (*authenticated)(AsyncWebServer
 //
 #define ROW_BYTES   (DISPLAY_WIDTH * 2)
 #define CHUNK_ROWS  24
+#define WEB_SCREEN_AUDIO_SLACK 1600        // 0.2 s of audio waiting: screen holds back
 static uint8_t *lastFrame = nullptr;                // What the browser has
 static uint8_t chunk[3 + CHUNK_ROWS * ROW_BYTES];
 
@@ -148,8 +149,11 @@ static size_t rleEncode(const uint8_t *src, size_t bytes, uint8_t *dst, size_t r
   return(o);
 }
 
-static void webSendScreen()
+static void webSendScreen(size_t budget)
 {
+  // Small bands while listening, so the audio never waits behind a big one
+  int maxRows = budget == SIZE_MAX ? CHUNK_ROWS : 6;
+  bool first = true;
   const uint8_t *fb = (const uint8_t *)spr.getBuffer();
   if(!fb) return;
   if(!lastFrame)
@@ -166,7 +170,7 @@ static void webSendScreen()
   {
     if(!memcmp(fb + y * ROW_BYTES, lastFrame + y * ROW_BYTES, ROW_BYTES)) { y++; continue; }
     int n = 1;
-    while(y + n < DISPLAY_HEIGHT && n < CHUNK_ROWS &&
+    while(y + n < DISPLAY_HEIGHT && n < maxRows &&
           memcmp(fb + (y + n) * ROW_BYTES, lastFrame + (y + n) * ROW_BYTES, ROW_BYTES)) n++;
     if(!ws.availableForWriteAll()) return;
     size_t raw = n * ROW_BYTES;
@@ -175,7 +179,11 @@ static void webSendScreen()
     chunk[1] = y;
     chunk[2] = n;
     if(!packed) memcpy(chunk + 3, fb + y * ROW_BYTES, raw);
-    ws.binaryAll(chunk, 3 + (packed ? packed : raw));
+    size_t bytes = 3 + (packed ? packed : raw);
+    if(bytes > budget && !first) return;     // The rest next time
+    budget = bytes > budget ? 0 : budget - bytes;
+    first = false;
+    ws.binaryAll(chunk, bytes);
     memcpy(lastFrame + y * ROW_BYTES, fb + y * ROW_BYTES, raw);
     y += n;
   }
@@ -245,7 +253,7 @@ static void webAudioSet(bool on)
 // Silence the speaker while listening in the browser. Boards that take the
 // decoder audio before the speaker amplifier: the amplifier is switched off.
 // The V4B takes it after the amplifier, so switching it off would also
-// silence the browser: there the radio's volume is lowered 15 steps instead
+// silence the browser: there the radio's volume is lowered 8 steps instead
 // and the page makes up the level.
 //
 enum class Spk : uint8_t { Normal, TryAmpOff, AmpOff, Quiet };
@@ -274,7 +282,7 @@ static void speakerTick(bool wanted)
         spk = Spk::TryAmpOff;
         spkSince = now;
       }
-      else { rx.setVolume(volume > 25 ? volume - 15 : 10); spk = Spk::Quiet; }
+      else { rx.setVolume(volume > 18 ? volume - 8 : 10); spk = Spk::Quiet; }
       break;
     case Spk::TryAmpOff:
       // The level is measured over 0.5 s: give it 2 s after the switch
@@ -290,7 +298,7 @@ static void speakerTick(bool wanted)
         if(now - spkSince < 1500) break;
       }
       digitalWrite(PIN_AMP_EN, HIGH);
-      rx.setVolume(volume > 25 ? volume - 15 : 10);
+      rx.setVolume(volume > 18 ? volume - 8 : 10);
       spk = Spk::Quiet;
       break;
     default:
@@ -365,11 +373,14 @@ bool webControlTick()
     lastAudio = now;
     webSendAudio();
   }
-  // While listening, the screen every 150 ms and only when the queue is empty
+  // While listening the screen gets what is left: at most about 20 kB/s,
+  // and nothing while the audio is behind. Tuning redraws much of the
+  // screen, and in test 7 that crowded out the sound (gaps of seconds).
   if(now - lastScreen >= (audioOn ? 150u : 50u))
   {
     lastScreen = now;
-    webSendScreen();
+    if(!audioOn) webSendScreen(SIZE_MAX);
+    else if(audioWebBacklog(audioPos) < WEB_SCREEN_AUDIO_SLACK) webSendScreen(3000);
   }
   if(now - lastStatus >= 1000)
   {

@@ -309,6 +309,8 @@ void audioTimedStats(uint32_t *avgUs, uint32_t *maxUs, uint32_t *late, uint32_t 
   readUsMax = 0;
 }
 
+uint32_t audioWebBacklog(uint32_t pos) { return(webRing ? webWritten - pos : 0); }
+
 uint32_t audioWebRead(int16_t *dst, uint32_t max, uint32_t *pos)
 {
   if(!webRing) return(0);
