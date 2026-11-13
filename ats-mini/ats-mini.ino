@@ -733,11 +733,17 @@ bool processRssiSnr()
 bool handleRotation(int16_t enc, int16_t accelerated, bool pressed)
 {
   if(!enc || (sleepOn() && sleepModeIdx == SLEEP_LOCKED)) return false;
+  // Band scanner: the knob sets the direction (right up, left down)
+  if(bandScanActive())
+  {
+    bandScanTurn(enc);
+    elapsedSleep = elapsedCommand = millis();
+    return true;
+  }
   // Any encoder action stops the memory scanner and stays on that memory
-  if(memScanActive() || bandScanActive())
+  if(memScanActive())
   {
     memScanStop();
-    bandScanStop();
     elapsedSleep = elapsedCommand = millis();
     return true;
   }

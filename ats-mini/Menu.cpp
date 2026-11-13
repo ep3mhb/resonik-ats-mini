@@ -339,7 +339,7 @@ void tileReturnCancel()
 uint8_t bandPlanIdx = BANDPLAN_AUTO_SSB;
 const char *const bandPlanDesc[] = { "Off", "Scale", "Auto" };
 uint8_t bandPlanArea = BP_AREA_R1;
-const char *const bandPlanAreaDesc[] = { "Region 1", "UAE (A6)", "Iran (EP)" };
+const char *const bandPlanAreaDesc[] = { "All regions", "Region 1", "Region 2", "Region 3", "Iran (EP)", "UAE (A6)" };
 int getTotalBandPlanModes() { return(ITEM_COUNT(bandPlanDesc)); }
 
 uint8_t autoAttIdx = 1;

@@ -4,11 +4,17 @@
 
 int main()
 {
-  // Table is sorted and non-overlapping
-  for(unsigned i = 0 ; i < sizeof(bandPlanR1) / sizeof(bandPlanR1[0]) ; i++)
+  // Tables are sorted and non-overlapping
+  for(uint8_t area = 0 ; area < BP_AREA_COUNT ; area++)
   {
-    assert(bandPlanR1[i].start < bandPlanR1[i].end);
-    if(i) assert(bandPlanR1[i - 1].end <= bandPlanR1[i].start);
+    BandPlanTable t[3];
+    unsigned nt = bandPlanTables(area, t);
+    for(unsigned k = 0 ; k < nt ; k++)
+      for(unsigned i = 0 ; i < t[k].count ; i++)
+      {
+        assert(t[k].seg[i].start < t[k].seg[i].end);
+        if(i) assert(t[k].seg[i - 1].end <= t[k].seg[i].start);
+      }
   }
 
   assert(!bandPlanFind(1809999));
@@ -40,6 +46,27 @@ int main()
   assert(bandPlanFindArea(28074000, BP_AREA_IRAN)->use == BP_NARROW);
   assert(bandPlanFindArea(7010000, BP_AREA_UAE)->use == BP_CW);
   assert(!bandPlanFindArea(9650000, BP_AREA_UAE));
+
+  // Regions: 80 m phone to 4000 in Region 2, 3900 in Region 3, 3800 in Region 1
+  assert(bandPlanFindArea(3950000, BP_AREA_R2)->use == BP_ALL);
+  assert(!bandPlanFindArea(3950000, BP_AREA_R3));
+  assert(bandPlanFindArea(3850000, BP_AREA_R3)->use == BP_ALL);
+  assert(!bandPlanFindArea(3850000, BP_AREA_R1));
+  assert(bandPlanFindArea(7250000, BP_AREA_R2)->use == BP_ALL);
+  assert(!bandPlanFindArea(7250000, BP_AREA_R1));
+  assert(bandPlanFindArea(1805000, BP_AREA_R3)->use == BP_CW);
+  assert(bandPlanFindArea(5340000, BP_AREA_R2)->use == BP_ALL);
+  // All: Region 1 details where it has the band, the others beyond
+  assert(bandPlanFindArea(7045000, BP_AREA_ALL)->use == BP_NARROW);   // Region 1 7040-7053
+  assert(bandPlanFindArea(7055000, BP_AREA_ALL)->use == BP_ALL);      // Region 1, not R2/R3 narrow
+  assert(bandPlanFindArea(7250000, BP_AREA_ALL)->use == BP_ALL);      // Region 2/3 only
+  assert(bandPlanFindArea(3950000, BP_AREA_ALL)->use == BP_ALL);      // Region 2 only
+  assert(bandPlanFindArea(1805000, BP_AREA_ALL)->use == BP_NARROW);   // Region 2 before Region 3
+  assert(!bandPlanFindArea(9650000, BP_AREA_ALL));
+  // Saved values from before the region choice
+  assert(bandPlanAreaFromOld(0) == BP_AREA_R1);
+  assert(bandPlanAreaFromOld(1) == BP_AREA_UAE);
+  assert(bandPlanAreaFromOld(2) == BP_AREA_IRAN);
 
   assert(bandPlanPhoneIsLSB(3700000));
   assert(bandPlanPhoneIsLSB(7100000));

@@ -56,10 +56,10 @@ static void key(std::vector<int16_t> &out, const char *text, float wpm, float to
   emit(false, 20);
 }
 
-static std::string decode(const std::vector<int16_t> &s, float tone = 700)
+static std::string decode(const std::vector<int16_t> &s, float tone = 700, float fs = 8000)
 {
   CwDecoder d;
-  d.begin(8000, tone);
+  d.begin(fs, tone);
   // Feed in chunks like the ADC task would
   for(size_t i = 0 ; i < s.size() ; i += 64)
     d.push(&s[i], (int)(s.size() - i < 64 ? s.size() - i : 64));
@@ -114,6 +114,45 @@ int main()
     std::string got = decode(s);
     printf("  %-28s           -> \"%s\"\n", "noise only", got.c_str());
     assert(got.size() <= 2);
+  }
+
+  // The radio samples at 4 kHz; fast senders too
+  {
+    std::vector<int16_t> s;
+    key(s, msg, 20, 700, 1200, 60, 4000);
+    std::string got = decode(s, 700, 4000);
+    printf("  %-28s  20 WPM   -> \"%s\"\n", "4 kHz sampling", got.c_str());
+    assert(endsWith(got, "DE EP2MHB K"));
+    s.clear();
+    key(s, "VVV VVV CQ DE EP2MHB K", 40, 700, 1200, 40, 4000);
+    got = decode(s, 700, 4000);
+    printf("  %-28s  40 WPM   -> \"%s\"\n", "4 kHz, fast", got.c_str());
+    assert(endsWith(got, "DE EP2MHB K"));
+  }
+
+  // Receiver noise with static crashes (through a 2.5 kHz filter): before
+  // the fix this printed a row of E's, about one every two seconds
+  {
+    std::vector<int16_t> s;
+    float r = expf(-(float)M_PI * 2500 / 4000), c = 2 * r * cosf(2 * (float)M_PI * 700 / 4000), y1 = 0, y2 = 0;
+    int crash = 0;
+    float camp = 0;
+    srand(3);
+    for(int i = 0 ; i < 4000 * 60 ; i++)
+    {
+      float x = noise();
+      if(crash > 0) { x += camp * noise(); crash--; }
+      else if(rand() % 2000 == 0) { crash = 20 + rand() % 120; camp = 8 + rand() % 20; }
+      float y = x + c * y1 - r * r * y2;
+      y2 = y1;
+      y1 = y;
+      s.push_back((int16_t)(2048 + 60 * y * (1 - r)));
+    }
+    std::string got = decode(s, 700, 4000);
+    int n = 0;
+    for(char ch : got) if(ch != ' ') n++;
+    printf("  %-28s  60 s     -> %d characters\n", "noise with static crashes", n);
+    assert(n <= 3);
   }
 
   printf("TestCwDecoder: all tests passed\n");
