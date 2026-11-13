@@ -98,7 +98,7 @@ function tune(){const v=parseFloat(document.getElementById('f').value.replace(',
 document.getElementById('go').onclick=tune;
 document.getElementById('f').addEventListener('keydown',e=>{if(e.key==='Enter')tune();});
 // Audio: 8 kHz samples scheduled with a small buffer
-let ac=null,next=0,listening=false,gain=null,gaps=0,gapMs=0;
+let ac=null,next=0,listening=false,gain=null,gaps=0,gapMs=0,reserve=0.35;
 // mu-law to 16-bit
 const ulaw=new Int16Array(256);for(let i=0;i<256;i++){const u=~i&255,s=u&128,e=(u>>4)&7,m=u&15;
  let v=((m<<3)+0x84)<<e;v-=0x84;ulaw[i]=s?-v:v;}
@@ -114,8 +114,9 @@ function play(s){if(!listening||!ac)return;
  const src=ac.createBufferSource();src.buffer=buf;src.connect(gain);
  const t=ac.currentTime;
  // Ran dry: the sound stopped until this packet (a gap you hear)
- if(next<t+0.02){if(next>0){gaps++;gapMs+=Math.round((t+0.35-next)*1000);}next=t+0.35;}
- else if(next>t+1.5)next=t+0.35;
+ // After a gap keep a bigger reserve (up to 1 s)
+ if(next<t+0.02){if(next>0){gaps++;gapMs+=Math.round((t+reserve-next)*1000);reserve=Math.min(1,reserve+0.15);}next=t+reserve;}
+ else if(next>t+2)next=t+reserve;
  src.start(next);next+=buf.duration;}
 function status(j){
  if(!j.audio){ai.innerHTML='Audio off'+(j.level<2?' &middot; <b>no audio on GPIO11 (V4B board needed)</b>':'');return;}

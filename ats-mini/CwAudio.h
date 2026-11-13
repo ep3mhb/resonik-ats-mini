@@ -23,7 +23,8 @@ uint32_t audioFt8Written();
 void audioWebStream(bool on);                          // Web Control audio (8 kHz) on or off
 bool audioWebStreaming();
 void audioTimedStats(uint32_t *avgUs, uint32_t *maxUs, uint32_t *late, uint32_t *caughtUp, uint32_t *overrun);   // ADC read time, samples dropped
-uint32_t audioWebRead(int16_t *dst, uint32_t max, uint32_t *pos);                          // Samples written into the ring so far
+uint32_t audioWebRead(int16_t *dst, uint32_t max, uint32_t *pos);
+uint32_t audioWebBacklog(uint32_t pos);                 // Samples written but not yet read                          // Samples written into the ring so far
 uint16_t audioInputLevel();
 uint32_t audioTimingRestarts();                      // Times the sampler fell behind (samples lost)
 uint32_t audioAdcErrors();                           // Failed ADC reads                          // Mean deviation on GPIO11, ADC counts
