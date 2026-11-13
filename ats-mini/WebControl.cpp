@@ -190,12 +190,12 @@ static float audioDc = 2048;
 
 static void webSendAudio()
 {
-  static uint8_t msg[2 + 2 * 1024];
+  static uint8_t msg[2 + 2 * 4096];
   int16_t *s = (int16_t *)(msg + 2);
   // Connection busy: leave the samples in the ring for the next try (they
   // used to be read and thrown away here, without being counted)
   if(!ws.availableForWriteAll()) { audioSendWaits++; return; }
-  uint32_t n = audioWebRead(s, 1024, &audioPos);
+  uint32_t n = audioWebRead(s, 4096, &audioPos);
   if(!n) return;
   for(uint32_t i = 0; i < n; i++)
   {
@@ -267,14 +267,21 @@ static void speakerTick(bool wanted)
       else { rx.setVolume(volume > 25 ? volume - 15 : 10); spk = Spk::Quiet; }
       break;
     case Spk::TryAmpOff:
-      if(now - spkSince < 1500) break;
-      if(audioInputLevel() >= 2) spk = Spk::AmpOff;        // Audio still there: done
-      else
+      // The level is measured over 0.5 s: give it 2 s after the switch
+      if(now - spkSince < 2000) break;
+      spkSince = now;
+      if(audioInputLevel() >= 3) { spk = Spk::AmpOff; break; }   // Audio still there
+      // fall through: no audio with the amplifier off (V4B)
+    case Spk::AmpOff:
+      // Keep checking: if the input goes silent, the amplifier is needed
+      if(spk == Spk::AmpOff)
       {
-        digitalWrite(PIN_AMP_EN, HIGH);
-        rx.setVolume(volume > 25 ? volume - 15 : 10);
-        spk = Spk::Quiet;
+        if(audioInputLevel() >= 3) { spkSince = now; break; }
+        if(now - spkSince < 1500) break;
       }
+      digitalWrite(PIN_AMP_EN, HIGH);
+      rx.setVolume(volume > 25 ? volume - 15 : 10);
+      spk = Spk::Quiet;
       break;
     default:
       break;
@@ -340,15 +347,19 @@ bool webControlTick()
   if(m >= 0) speakerSilent = m == 1;
   speakerTick(speakerSilent);
 
-  if(now - lastScreen >= 50)
-  {
-    lastScreen = now;
-    webSendScreen();
-  }
-  if(audioWebStreaming() && now - lastAudio >= 100)
+  // Audio first: it cannot wait, the screen can. Up to 0.5 s per message,
+  // so a busy moment is caught up at once instead of overrunning the ring.
+  bool audioOn = audioWebStreaming();
+  if(audioOn && now - lastAudio >= 60)
   {
     lastAudio = now;
     webSendAudio();
+  }
+  // While listening, the screen every 150 ms and only when the queue is empty
+  if(now - lastScreen >= (audioOn ? 150u : 50u))
+  {
+    lastScreen = now;
+    webSendScreen();
   }
   if(now - lastStatus >= 1000)
   {
