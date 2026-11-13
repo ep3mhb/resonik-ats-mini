@@ -36,8 +36,56 @@ static std::atomic<bool> timeSynchronized{false};
 static bool ntpHasTime = false;
 // HTTP Date fallback attempts on this connection, for networks that block or delay NTP.
 static uint8_t httpTimeTried = 0;
-static bool httpTimeSync();
+static bool httpTimeSync(uint32_t *epoch);
 static char timeSyncDiag[48] = "";
+
+//
+// RESONIK: web requests (time from a web server, propagation data) run in a
+// background task. They can take many seconds when the network is slow or
+// blocks them, and in the main loop that froze the knob, the menu and the
+// screen (test build 9b log: 8 s, 24 s and 36 s stalls after reconnects).
+//
+#define NET_JOB_TIME 1
+#define NET_JOB_PROP 2
+static TaskHandle_t netJobTask = nullptr;
+static std::atomic<uint8_t> netJobs{0};
+static std::atomic<bool> netJobBusy{false};
+static std::atomic<int8_t> httpTimeResult{-1};   // -1 none yet, 0 failed, 1 epoch ready
+static std::atomic<uint32_t> httpTimeEpoch{0};
+
+static void netJobWork(void *)
+{
+  for(;;)
+  {
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    uint8_t jobs;
+    while((jobs = netJobs.exchange(0)) != 0)
+    {
+      netJobBusy = true;
+      if(jobs & NET_JOB_TIME)
+      {
+        uint32_t epoch = 0;
+        bool ok = getWiFiStatus() >= 2 && httpTimeSync(&epoch);
+        httpTimeEpoch = epoch;
+        httpTimeResult = ok ? 1 : 0;
+      }
+      if(jobs & NET_JOB_PROP) propagationFetch();
+      netJobBusy = false;
+    }
+  }
+}
+
+static void netJobStart(uint8_t jobs)
+{
+  // Core 0, beside the Wi-Fi stack; TLS needs the large stack
+  if(!netJobTask && xTaskCreatePinnedToCore(netJobWork, "netjob", 12288, nullptr, 1, &netJobTask, 0) != pdPASS)
+  {
+    netJobTask = nullptr;
+    return;
+  }
+  netJobs |= jobs;
+  xTaskNotifyGive(netJobTask);
+}
 
 // Keep the strongest identified AP for each of the three saved networks.
 struct WiFiNetwork
@@ -114,8 +162,8 @@ bool netTickTime()
     ntpHasTime = true;
     clockTimeSynchronized();
     changed = true;
-    // RESONIK: while online, also fetch propagation data (a second or two)
-    if(netState == NetState::Online) propagationFetch();
+    // RESONIK: while online, also fetch propagation data (in the background)
+    if(netState == NetState::Online) netJobStart(NET_JOB_PROP);
     if(netState == NetState::Online && activeNetMode == NET_SYNC)
     {
       netStop();
@@ -199,22 +247,30 @@ bool netTickTime()
       break;
 
     case NetState::Online:
-      // Retry: right after joining Wi-Fi, DNS and routing are sometimes not ready yet
-      if(!ntpHasTime && httpTimeTried < HTTP_TIME_TRIES &&
+    {
+      // Result of a web time request made in the background
+      int8_t result = httpTimeResult.exchange(-1);
+      if(result == 1 && clockSetEpoch(httpTimeEpoch.load()))
+      {
+        httpTimeTried = HTTP_TIME_TRIES;   // Done for this connection
+        changed = true;
+        netJobStart(NET_JOB_PROP);
+        if(activeNetMode == NET_SYNC)
+        {
+          netStop();
+          statusShow("Time set from web");
+        }
+        break;
+      }
+      // Retry: right after joining Wi-Fi, DNS and routing are sometimes not ready yet.
+      // Not again on every reconnect (FT8 and CW pages pause Wi-Fi) once the clock
+      // is set, unless the user asked for a time sync.
+      if(!ntpHasTime && httpTimeTried < HTTP_TIME_TRIES && !netJobBusy &&
+         (activeNetMode == NET_SYNC || !clockAvailable()) &&
          now - attemptStarted >= HTTP_TIME_AFTER + httpTimeTried * 10000u)
       {
         httpTimeTried++;
-        if(httpTimeSync())
-        {
-          changed = true;
-          propagationFetch();
-          if(activeNetMode == NET_SYNC)
-          {
-            netStop();
-            statusShow("Time set from web");
-          }
-          break;
-        }
+        netJobStart(NET_JOB_TIME);
       }
       if(activeNetMode == NET_SYNC && now - attemptStarted >= NTP_TIMEOUT)
       {
@@ -222,6 +278,7 @@ bool netTickTime()
         statusShow("Time sync failed", timeSyncDiag[0] ? timeSyncDiag : nullptr, 20000);
       }
       break;
+    }
   }
   return changed;
 }
@@ -466,6 +523,7 @@ static void wifiConnected(uint32_t now)
   // The last one is Cloudflare by IP address, so time still works if DNS does not
   configTime(0, 0, "atsmini.pool.ntp.org", "time.cloudflare.com", "162.159.200.123");
   httpTimeTried = 0;
+  httpTimeResult = -1;
   timeSyncDiag[0] = 0;
   attemptStarted = now;
   netState = NetState::Online;
@@ -497,7 +555,7 @@ static void wifiConnectionFailed()
 // Fallback clock source: the Date header of a plain HTTP reply.
 // Accurate to about a second, enough for the display clock and EiBi schedules.
 //
-static bool httpTimeSync()
+static bool httpTimeSync(uint32_t *epochOut)
 {
   // The second address is an IP literal: it works even when DNS is broken
   static const char *urls[] = {
@@ -523,7 +581,8 @@ static bool httpTimeSync()
     uint32_t epoch;
     if(codes[i] > 0 && httpDateToEpoch(date.c_str(), &epoch))
     {
-      clockSetEpoch(epoch);
+      // Set by the main loop: this runs in the background task
+      *epochOut = epoch;
       return(true);
     }
   }

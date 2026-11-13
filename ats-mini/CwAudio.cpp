@@ -36,6 +36,7 @@ static bool padDetachPending = false;
 static volatile bool sampling = false;    // The task is sampling
 static volatile uint16_t audioLevel = 0;  // Mean deviation of the raw samples, ADC counts
 static volatile uint32_t adcErrors = 0;
+static volatile uint32_t timingRestarts = 0;  // Sampler fell behind and lost samples
 
 static bool wifiPaused = false;           // The page switched Wi-Fi off and owes it back
 static uint32_t lastPoll = 0;
@@ -121,7 +122,7 @@ static void sampler(void *)
       if(!ring) next = esp_timer_get_time();
     }
     // Fell far behind (interrupts): start the timing again
-    if(esp_timer_get_time() - next > 10000) next = esp_timer_get_time();
+    if(esp_timer_get_time() - next > 10000) { next = esp_timer_get_time(); timingRestarts++; }
   }
 }
 
@@ -166,6 +167,8 @@ void audioFt8Ring(int16_t *ring, uint32_t size)
 
 uint32_t audioFt8Written() { return(ft8Written); }
 uint16_t audioInputLevel() { return(audioLevel); }
+uint32_t audioTimingRestarts() { return(timingRestarts); }
+uint32_t audioAdcErrors() { return(adcErrors); }
 
 bool cwStripShown()
 {
