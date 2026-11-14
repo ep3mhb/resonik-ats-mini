@@ -201,13 +201,16 @@ function play(s){if(!listening||!ac)return;
  if(next<t+0.02){if(next>0){gaps++;gapMs+=Math.round((t+reserve-next)*1000);reserve=Math.min(1,reserve+0.15);}next=t+reserve;}
  else if(next>t+2)next=t+reserve;
  src.start(next);next+=buf.duration;}
-let quiet=false;
+let quiet=false,emptyS=0;
 function status(j){
  // No input on GPIO11 (V4B with headphones plugged in: the speaker line is
- // cut): play silence instead of the ADC noise turned up 40 times
- quiet=!!(j.audio&&j.level<3);
+ // cut): play silence instead of the ADC noise turned up 40 times. Not
+ // while the radio tests switching its amplifier off (silent for 2 s on
+ // purpose, test 10c mistook that for headphones), and only after 3 s
+ emptyS=(j.audio&&j.level<2&&j.spk!=='testing')?emptyS+1:0;
+ quiet=emptyS>=3;
  if(quiet&&gain)gain.gain.value=0;
- if(quiet){ai.innerHTML='<b>No audio on GPIO11</b> &middot; headphones plugged into the radio? On the V4B they cut the line the web audio comes from. '+
+ if(quiet){ai.innerHTML='<b>No audio on GPIO11</b> (level '+j.level+') &middot; headphones plugged into the radio? On the V4B they cut the line the web audio comes from. '+
   'Unplug them and use &ldquo;Silence the radio&rsquo;s speaker&rdquo; instead.';return;}
  if(!j.audio){ai.innerHTML='Audio off'+(j.level<2?' &middot; <b>no audio on GPIO11 (V4B board needed)</b>':'');return;}
  ai.innerHTML='<b>Streaming</b> 8 kHz &middot; level '+j.level+' &middot; '+j.cpu+' MHz &middot; speaker '+
