@@ -58,6 +58,8 @@ select,.num input{width:100%;padding:9px 8px;border-radius:8px;border:1px solid 
 .seg{display:flex;gap:6px;flex-wrap:wrap}
 .seg button{padding:9px 6px;font-size:14px;min-width:54px}
 .seg button.on{background:var(--blue);color:#fff}
+.seg .st{display:inline-block;margin-left:10px;padding:1px 9px;border-radius:8px;font-size:12px;font-weight:700;letter-spacing:.04em;background:rgba(0,0,0,.25);color:#cfe3ea;vertical-align:1px}
+.seg .st.on{background:var(--accent);color:#06171e}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chips button{flex:0 0 auto;min-width:0;padding:7px 10px;font-size:13px;background:#06171e}
 .chips button.on{background:var(--blue)}
@@ -209,9 +211,11 @@ const $=id=>document.getElementById(id);let P=null;
 function fmtF(f,m){if(m===0)return (f/1e6).toFixed(2)+'<small>MHz</small>';
  if(m===3)return Math.round(f/1000)+'<small>kHz</small>';return (f/1000).toFixed(2)+'<small>kHz</small>';}
 function esc(t){return t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
-function panel(j){P=j;$('pfq').innerHTML=fmtF(j.f,j.m);
+// FM: stereo shown in the FM button (mono when the pilot is not received)
+function stereo(){const b=$('stb');if(!b||!P)return;b.className=P.st?'st on':'st';b.textContent=P.st?'Stereo':'Mono';}
+function panel(j){P=j;stereo();$('pfq').innerHTML=fmtF(j.f,j.m);
  $('tags').innerHTML=(j.band!==j.mode?'<span>'+esc(j.band)+'</span>':'')+'<span class="m">'+esc(j.mode)+'</span><span>Step '+esc(j.step)+
-  '</span><span>BW '+esc(j.bw)+'</span><span>Vol '+j.vol+'</span>'+(j.mem?'<span class="m">M'+j.mem+'</span>':'')+(j.st?'<span class="m">Stereo</span>':'')+
+  '</span><span>BW '+esc(j.bw)+'</span>'+(j.mem?'<span class="m" title="Tuned to a saved memory">Memory '+j.mem+'</span>':'')+
   '<span title="'+(j.bmin>0?'About '+Math.floor(j.bmin/60)+' h '+(j.bmin%60)+' min left':'')+'">'+(j.chg?'USB power':j.bat.toFixed(2)+' V &middot; '+j.batp+'%')+'</span>';
  if(j.lo!==undefined){const fm=j.m===0,u=fm?1e6:1e3,d=fm?1:0;$('f').placeholder=(fm?'MHz':'kHz')+' '+(j.lo/u).toFixed(d)+'\u2013'+(j.hi/u).toFixed(d);}
  // S-meter: S9 = 34 dBuV (50 ohm), 6 dB per S unit; FM in dBuV
@@ -284,7 +288,7 @@ function vals(j){V=j;const v=j.v,x=j.x||[];
  // Quick
  opt($('q4096'),$('q4096').dataset.k?$('q4096').dataset.k.split('|'):[],v[4096]);
  $('bands').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.b===v[4096]));
- const ml=j.d[5376]||[];$('modes').innerHTML=ml.map((m,i)=>'<button data-m="'+i+'"'+(i===v[5376]?' class="on"':'')+'>'+esc(m)+'</button>').join('');
+ const ml=j.d[5376]||[];$('modes').innerHTML=ml.map((m,i)=>'<button data-m="'+i+'"'+(i===v[5376]?' class="on"':'')+'>'+esc(m)+(m==='FM'?'<span id="stb"></span>':'')+'</button>').join('');stereo();
  $('modes').querySelectorAll('button').forEach(b=>b.onclick=()=>setv(5376,b.dataset.m));
  opt($('q5120'),(j.d[5120]||[]).map(stepLbl),v[5120]);opt($('q4864'),j.d[4864]||[],v[4864]);opt($('q4608'),agcList(j.amax),v[4608]);
  const r=$('q4352');if(document.activeElement!==r){r.value=v[4352];$('q4352v').textContent=v[4352];}
