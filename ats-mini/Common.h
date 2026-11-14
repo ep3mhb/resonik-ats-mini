@@ -253,6 +253,7 @@ bool consumeAbortPending();
 // Battery.c
 float batteryMonitor();
 float batteryLastVolts();
+int batteryMinutesLeft();
 bool webConsumeAbortPending();
 bool drawBattery(int x, int y);
 

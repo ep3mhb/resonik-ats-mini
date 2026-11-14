@@ -24,6 +24,9 @@
 #include "CwAudio.h"
 #include "WebControl.h"
 #include "PageControl.h"
+#include "Memories.h"
+#include "Beacons.h"
+#include "BatteryTime.h"
 #include <ESPAsyncWebServer.h>
 #include <mutex>
 #include <atomic>
@@ -526,12 +529,63 @@ static void webSendPanel(bool force)
   j += ",\"snr\":"; j += snr;
   j += ",\"vol\":"; j += volume;
   j += ",\"bat\":"; j += String(batteryLastVolts(), 2);
+  // R4 test 12: battery %, time left, memory slot, FM stereo, band limits, clock
+  float bv = batteryLastVolts();
+  j += ",\"batp\":"; j += (int)(batterySocFromVolts(bv) + 0.5f);
+  j += ",\"chg\":"; j += bv > 4.3 ? 1 : 0;
+  j += ",\"bmin\":"; j += batteryMinutesLeft();
+  int slot = 0;
+  for(int i = 0; i < getTotalMemories(); i++)
+  {
+    Memory m = getMemory(i);
+    if(m.freq && m.freq == currentFrequency && m.mode == currentMode) { slot = i + 1; break; }
+  }
+  j += ",\"mem\":"; j += slot;
+  j += ",\"st\":"; j += (currentMode == FM && fmStereoIdx != FM_STEREO_MONO && rx.getCurrentPilot()) ? 1 : 0;
+  j += ",\"lo\":"; j += (unsigned long)band->minimumFreq;
+  j += ",\"hi\":"; j += (unsigned long)band->maximumFreq;
   jsonText(j, "ps", getStationName());
   jsonText(j, "rt", getRadioText());
   j += '}';
   if(!force && j == last) return;
   last = j;
   ws.textAll(j);
+}
+
+//
+// Beacons: while the radio sits on one of the five NCDXF/IARU frequencies,
+// the strongest signal of each 10 second slot is reported to the page, which
+// colours that beacon on its map (heard strongly, weakly, or not at all)
+//
+static void webBeaconTick()
+{
+  static int curBand = -1;
+  static uint32_t curSlot = 0;
+  static bool whole = false;              // On this frequency since the slot began
+  static uint8_t maxR = 0, maxQ = 0;
+  int band = (clockAvailable() && currentMode != FM) ? ibpBandAt(currentFrequency) : -1;
+  uint32_t utc = band >= 0 ? (uint32_t)time(NULL) : 0;
+  uint32_t slot = utc / 10;
+  if(band != curBand || slot != curSlot)
+  {
+    bool next = band >= 0 && band == curBand && slot == curSlot + 1;
+    if(next && whole)
+    {
+      char j[96];
+      snprintf(j, sizeof(j), "{\"bcn\":1,\"b\":%d,\"i\":%d,\"r\":%u,\"q\":%u,\"t\":%lu}",
+               curBand, ibpBeaconOn(curBand, curSlot * 10), maxR, maxQ, (unsigned long)(curSlot * 10));
+      ws.textAll(j);
+    }
+    whole = next;                          // A slot joined part way is not reported
+    curBand = band;
+    curSlot = slot;
+    maxR = maxQ = 0;
+    return;
+  }
+  // Skip the first second of the slot (the previous beacon may still be on)
+  if(band < 0 || utc % 10 == 0) return;
+  if(rssi > maxR) maxR = rssi;
+  if(snr > maxQ) maxQ = snr;
 }
 
 bool webControlActive() { return(ws.count() > 0); }
@@ -680,6 +734,7 @@ bool webControlTick()
       if(force || j != last) { last = j; ws.textAll(j); }
     }
   }
+  webBeaconTick();
   if(now - lastPanel >= 250)
   {
     lastPanel = now;

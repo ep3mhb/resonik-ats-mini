@@ -22,8 +22,12 @@ static float batteryVolts = 4.0;
 // Last measured voltage, without a new reading (RESONIK R4 Web Control)
 float batteryLastVolts() { return(batteryVolts); }
 
+
 // Time remaining estimate (RESONIK)
 static BatteryEstimator batteryEstimator = { false, false, 0, BATT_DEFAULT_RATE, 0, 0, 0 };
+
+// Estimated minutes left, or -1 while charging (RESONIK R4 Web Control)
+int batteryMinutesLeft() { return(batteryVolts > 4.3 ? -1 : (int)batteryEstimatorMinutes(&batteryEstimator)); }
 
 //
 // Measure and return battery voltage
