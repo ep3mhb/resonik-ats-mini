@@ -345,6 +345,14 @@ bool cwAudioTick()
 {
   bool page = pageOpen() && !sleepOn();
 
+  // CW page: a steady receiver level for the decoder, whatever the volume
+  // setting (the knob tunes on this page). The speaker stays on, so the
+  // signal can still be heard; the user's volume comes back on leaving.
+  static bool cwLevel = false;
+  bool cwPage = currentCmd == CMD_CWDEC;
+  if(cwPage && !cwLevel) { rx.setVolume(AUDIO_LINE_VOLUME); cwLevel = true; }
+  else if(!cwPage && cwLevel) { rx.setVolume(volume); cwLevel = false; }
+
   // The page owns Wi-Fi while it is open and gives it back afterwards
   // (not while a web request runs: Wi-Fi off under it crashes the radio)
   // Not while Web Control is open: then the page runs with Wi-Fi on, so it

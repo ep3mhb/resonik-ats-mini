@@ -44,4 +44,12 @@ static inline bool otaParseReleaseTag(const char *tag, uint32_t *version)
   return(true);
 }
 
+// Is the latest release newer than the running firmware? A beta or rc build
+// (prerelease) counts as older than the release with the same number, so a
+// radio on v2.45-r3-beta1 is offered v2.45-r3 (GitHub #3)
+static inline bool otaIsNewer(uint32_t latest, uint32_t running, bool prerelease)
+{
+  return(latest > running || (prerelease && latest == running));
+}
+
 #endif // OTA_VERSION_H

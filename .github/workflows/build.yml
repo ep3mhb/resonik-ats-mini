@@ -115,6 +115,15 @@ jobs:
           echo "slug=$(git describe --tags --match 'v[0-9]*' --always --dirty || echo v0.00)" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
+      # RESONIK: beta and rc builds know they are prereleases, so over-the-air
+      # update offers them the final release with the same number (GitHub #3)
+      - name: Mark prerelease builds
+        run: |
+          case "${{ steps.slug.outputs.slug }}" in
+            *beta*|*rc*) sed -i 's/^#define VER_PRERELEASE   0/#define VER_PRERELEASE   1/' ats-mini/Common.h
+                         grep -q '^#define VER_PRERELEASE   1' ats-mini/Common.h ;;
+          esac
+
       - name: Compile firmware
         uses: arduino/compile-sketches@v1
         with:

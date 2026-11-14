@@ -263,7 +263,8 @@ static bool otaDownloadLatest(bool install)
   if(!otaParseReleaseTag(tag.c_str(), &version))
     return otaFail("Unexpected release version.");
   ota.latestVersion = version;
-  const bool newer = version > VER_FULL;
+  // A beta of this release is older than the release itself (GitHub #3)
+  const bool newer = otaIsNewer(version, VER_FULL, VER_PRERELEASE);
   if(!newer || !install)
   {
     ota.phase = newer? OTA_AVAILABLE : OTA_CURRENT;
