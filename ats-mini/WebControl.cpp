@@ -287,6 +287,7 @@ static void webAudioSet(bool on)
 enum class Spk : uint8_t { Normal, TryAmpOff, AmpOff, Quiet };
 static Spk spk = Spk::Normal;
 static uint32_t spkSince = 0;
+static bool ampOffSilences = false;   // Learned: this board (V4B) loses the audio with the amplifier off
 static const char *spkName[] = { "on", "testing", "off", "quiet" };
 
 static void speakerRestore()
@@ -304,7 +305,7 @@ static void speakerTick(bool wanted)
   switch(spk)
   {
     case Spk::Normal:
-      if(PIN_AMP_EN >= 0)
+      if(PIN_AMP_EN >= 0 && !ampOffSilences)
       {
         digitalWrite(PIN_AMP_EN, LOW);
         spk = Spk::TryAmpOff;
@@ -328,6 +329,8 @@ static void speakerTick(bool wanted)
       }
       digitalWrite(PIN_AMP_EN, HIGH);
       rx.setVolume(volume > 18 ? volume - 8 : 10);
+      // Straight to Quiet next time (no 2 s of silence at every start)
+      ampOffSilences = true;
       spk = Spk::Quiet;
       break;
     default:
