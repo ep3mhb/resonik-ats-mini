@@ -38,8 +38,9 @@ button.acc{background:#0c5a45}
 .sm{display:flex;align-items:center;gap:10px;margin-top:6px;font-size:13px;color:var(--muted)}
 .sm .bar{flex:1;height:10px;border-radius:5px;background:#06171e;overflow:hidden}
 .sm .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#f5c542 70%,#ff6b6b);transition:width .2s}
-#ps{font-size:22px;font-weight:700;margin-top:6px;color:var(--accent);min-height:0}
-#rt{font-size:14px;color:var(--text);margin-top:2px}
+#ps,#rt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ps{font-size:22px;line-height:30px;height:30px;font-weight:700;margin-top:6px;color:var(--accent)}
+#rt{font-size:14px;line-height:20px;height:20px;color:var(--text);margin-top:2px}
 .scope{margin-top:12px;background:var(--card);border-radius:10px;padding:10px 12px}
 .scope h2{font-size:14px;margin:0 0 8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .scope h2 button{flex:0 0 auto;min-width:0;padding:6px 14px;font-size:13px}
@@ -125,8 +126,9 @@ document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;
 document.querySelectorAll('[data-seek]').forEach(b=>b.addEventListener('click',()=>send('!seek'+b.dataset.seek)));
 // Panel: drawn here from the radio's numbers
 const $=id=>document.getElementById(id);let P=null;
+// Modes as in Common.h: 0 FM, 1 LSB, 2 USB, 3 AM, 4 CW
 function fmtF(f,m){if(m===0)return (f/1e6).toFixed(2)+'<small>MHz</small>';
- if(m===1)return Math.round(f/1000)+'<small>kHz</small>';return (f/1000).toFixed(2)+'<small>kHz</small>';}
+ if(m===3)return Math.round(f/1000)+'<small>kHz</small>';return (f/1000).toFixed(2)+'<small>kHz</small>';}
 function esc(t){return t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
 function panel(j){P=j;$('pfq').innerHTML=fmtF(j.f,j.m);
  $('tags').innerHTML=(j.band!==j.mode?'<span>'+esc(j.band)+'</span>':'')+'<span class="m">'+esc(j.mode)+'</span><span>Step '+esc(j.step)+
