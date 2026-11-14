@@ -150,13 +150,23 @@ function drawScope(){if(!S||!S.r.length)return;const W=sc.width,H=sc.height,n=S.
  for(let i=0;i<n;i++){const h=S.r[i]/mx*(H-14),q=Math.min(1,S.s[i]/20);
   sx.fillStyle='rgb('+Math.round(16+q*(6-16))+','+Math.round(138+q*(215-138))+','+Math.round(177+q*(160-177))+')';
   sx.fillRect(i*bw+1,H-h,bw-2,h);}
+ if(hov>=0&&hov<n){sx.fillStyle='rgba(255,255,255,.15)';sx.fillRect(hov*bw,0,bw,H);
+  const u=S.fm?1e6:1e3,d=S.fm?2:(S.st%1000?1:0),t=((S.f0+hov*S.st)/u).toFixed(d)+(S.fm?' MHz':' kHz');
+  sx.font='bold 22px system-ui,sans-serif';const tw=sx.measureText(t).width+16;let x=hov*bw+bw/2-tw/2;
+  x=Math.max(2,Math.min(W-tw-2,x));sx.fillStyle='rgba(6,23,30,.9)';sx.fillRect(x,4,tw,30);
+  sx.fillStyle='#fff';sx.fillText(t,x+8,27);}
  if(P){const k=(P.f-S.f0)/S.st;if(k>=-0.5&&k<=n-0.5){const x=(k+0.5)*bw;sx.strokeStyle='#ff6b6b';sx.lineWidth=2;
   sx.beginPath();sx.moveTo(x,0);sx.lineTo(x,H);sx.stroke();}}}
 sc.addEventListener('click',e=>{if(!S)return;const r=sc.getBoundingClientRect(),n=S.r.length;
- let k=Math.floor((e.clientX-r.left)/r.width*n);
- // Snap to the strongest point within one bar either side
- let b=k;for(let i=k-1;i<=k+1;i++)if(i>=0&&i<n&&S.r[i]>S.r[b])b=i;
+ // Exactly the bar under the pointer (test 10 snapped to a stronger
+ // neighbour, which picked the wrong bar)
+ const b=Math.floor((e.clientX-r.left)/r.width*n);
  if(b>=0&&b<n)send('F'+(S.f0+b*S.st)+'\n');});
+// Hover: highlight the bar and show its frequency
+let hov=-1;
+sc.addEventListener('mousemove',e=>{if(!S)return;const r=sc.getBoundingClientRect(),n=S.r.length;
+ const b=Math.floor((e.clientX-r.left)/r.width*n);if(b!==hov){hov=b;drawScope();}});
+sc.addEventListener('mouseleave',()=>{hov=-1;drawScope();});
 function tune(){const v=parseFloat(document.getElementById('f').value.replace(',','.'));
  if(v>0)send('F'+Math.round(v*1000)+'\n');}
 document.getElementById('go').onclick=tune;
@@ -179,7 +189,9 @@ function play(s){if(!listening||!ac)return;
  for(let i=0;i<len;i++){const x=i/r,k=Math.floor(x),f=x-k,a=k?s[k-1]:lastS,b=s[Math.min(k,s.length-1)];
   const v=(a+(b-a)*f)/32768;ch[i]=v;const m=Math.abs(v);if(m>peak)peak=m;}
  lastS=s[s.length-1];
- if(peak>0.003)gain.gain.value=Math.min(40,Math.max(0.5,gain.gain.value*0.9+0.1*(0.5/peak)));
+ if(quiet)gain.gain.value=0;
+ else if(gain.gain.value===0)gain.gain.value=1;
+ if(!quiet&&peak>0.003)gain.gain.value=Math.min(40,Math.max(0.5,gain.gain.value*0.9+0.1*(0.5/peak)));
  const src=ac.createBufferSource();src.buffer=buf;src.connect(gain);
  const t=ac.currentTime;
  // Ran dry: the sound stopped until this packet (a gap you hear)
@@ -187,7 +199,14 @@ function play(s){if(!listening||!ac)return;
  if(next<t+0.02){if(next>0){gaps++;gapMs+=Math.round((t+reserve-next)*1000);reserve=Math.min(1,reserve+0.15);}next=t+reserve;}
  else if(next>t+2)next=t+reserve;
  src.start(next);next+=buf.duration;}
+let quiet=false;
 function status(j){
+ // No input on GPIO11 (V4B with headphones plugged in: the speaker line is
+ // cut): play silence instead of the ADC noise turned up 40 times
+ quiet=!!(j.audio&&j.level<3);
+ if(quiet&&gain)gain.gain.value=0;
+ if(quiet){ai.innerHTML='<b>No audio on GPIO11</b> &middot; headphones plugged into the radio? On the V4B they cut the line the web audio comes from. '+
+  'Unplug them and use &ldquo;Silence the radio&rsquo;s speaker&rdquo; instead.';return;}
  if(!j.audio){ai.innerHTML='Audio off'+(j.level<2?' &middot; <b>no audio on GPIO11 (V4B board needed)</b>':'');return;}
  ai.innerHTML='<b>Streaming</b> 8 kHz &middot; level '+j.level+' &middot; '+j.cpu+' MHz &middot; speaker '+
   ({on:'on',testing:'testing\u2026',off:'off',quiet:'quieter'}[j.spk]||j.spk)+'<br>'+
