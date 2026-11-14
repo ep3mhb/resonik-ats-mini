@@ -398,6 +398,46 @@ static void speakerTick(bool wanted)
 }
 
 //
+// Seek in SSB and CW: the chip only seeks in AM and FM (the radio's own
+// Seek moves one step there). Steps 1 kHz at a time with the sound muted
+// and stops at the first point clearly above the noise measured at the
+// start, or at the band edge. Any button on the page or the knob stops it.
+//
+static void webSeekSsb(int dir)
+{
+  const Band *band = getCurrentBand();
+  uint32_t cur = currentFrequency;
+  webBusy = true;
+  webAbort = false;
+  seekStop = false;
+  muteOn(MUTE_TEMP, true);
+  rx.setSSBBfo(0);
+  // Noise floor: the lowest of a few readings near the start
+  uint8_t floorRssi = 255;
+  uint32_t f = (cur / 1000) * 1000;
+  uint32_t found = 0;
+  for(int i = 1; i <= 2000; i++)
+  {
+    int64_t next = (int64_t)f + dir * 1000LL * i;
+    if(next < band->minimumFreq || next > band->maximumFreq || consumeAbortPending()) break;
+    rx.setFrequencyConfirmed(freqFromHz((uint32_t)next, currentMode));
+    rx.getCurrentReceivedSignalQuality();
+    uint8_t r = rx.getCurrentRSSI(), q = rx.getCurrentSNR();
+    if(i <= 4) { if(r < floorRssi) floorRssi = r; continue; }
+    if(r < floorRssi) floorRssi = r;
+    if(q >= 6 || r >= floorRssi + 8) { found = next; break; }
+  }
+  rx.setFrequencyConfirmed(getReceiverFrequency(cur));
+  updateFrequency(found ? found : cur, false);
+  if(isSSB()) bandPlanAutoSideband();
+  clearStationInfo();
+  identifyFrequency(currentFrequency);
+  muteOn(MUTE_TEMP, false);
+  webBusy = false;
+  webAbort = false;
+}
+
+//
 // Band scope: signal strength at 41 points around the frequency, swept
 // with the audio muted (about 2 to 3 seconds), then back to where it was.
 // Same method as the radio's own Scan, but short, and the numbers go to
@@ -555,7 +595,8 @@ bool webControlTick()
   {
     webBusy = true;
     webAbort = false;
-    doSeek(sk, sk);
+    if(isSSB() && seekMode() == SEEK_DEFAULT) webSeekSsb(sk);
+    else doSeek(sk, sk);
     webBusy = false;
     webAbort = false;
     prefsRequestSave(SAVE_CUR_BAND);
