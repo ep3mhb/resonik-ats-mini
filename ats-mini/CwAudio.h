@@ -6,6 +6,10 @@
 
 #include <stdint.h>
 
+// R4: receiver volume while the CW page or web Listen uses the audio, so the
+// level at GPIO11 does not depend on the user's volume (FT8 uses its own 50)
+#define AUDIO_LINE_VOLUME 45
+
 extern uint8_t cwStripIdx;                 // Decoder strip in CW mode: 0 Off, 1 On
 extern const char *const cwStripDesc[2];
 

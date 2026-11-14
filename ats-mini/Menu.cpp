@@ -292,6 +292,38 @@ static_assert(ITEM_COUNT(tileTuning) + ITEM_COUNT(tileAudio) + ITEM_COUNT(tileMe
               ITEM_COUNT(tileHam) + ITEM_COUNT(tileDisplay) + ITEM_COUNT(tileSystem) ==
               ITEM_COUNT(menu) - 1 + ITEM_COUNT(settings), "a tile for every menu item");
 
+//
+// RESONIK R4: the classic menu in the order of the tile groups (GitHub #4).
+// Built from the tile table, so both menus always agree: the main menu
+// lists the tiles that are menu items, then Settings; the Settings list the
+// tiles that are settings. Each list remembers which group an item is in.
+//
+static uint8_t classicMenuOrder[ITEM_COUNT(menu)], classicMenuCat[ITEM_COUNT(menu)];
+static uint8_t classicSetOrder[ITEM_COUNT(settings)], classicSetCat[ITEM_COUNT(settings)];
+
+static void classicOrderInit()
+{
+  static bool done = false;
+  if(done) return;
+  done = true;
+  int m = 0, st = 0;
+  for(int c = 0; c < (int)ITEM_COUNT(tileCategories); c++)
+    for(int i = 0; i < tileCategories[c].count; i++)
+    {
+      uint8_t id = tileCategories[c].items[i].id;
+      if(id & TILE_SET) { classicSetCat[st] = c; classicSetOrder[st++] = id & ~TILE_SET; }
+      else { classicMenuCat[m] = c; classicMenuOrder[m++] = id; }
+    }
+  classicMenuCat[m] = 0xFF;                 // Settings closes the main menu
+  classicMenuOrder[m] = MENU_SETTINGS;
+}
+
+static int classicPos(const uint8_t *order, int count, int idx)
+{
+  for(int i = 0; i < count; i++) if(order[i] == idx) return(i);
+  return(0);
+}
+
 // Where the tile menu is: tileCat -1 is the top level. Inside a category,
 // tileSlot counts the tiles on screen: each page holds Back and five items.
 static int8_t tileCat = -1;
@@ -1541,7 +1573,11 @@ static void doMenu(int16_t enc)
   if(menuStyleIdx == MENU_STYLE_TILES)
     tileSlot = wrap_range(tileSlot, enc, 0, tileSlotCount(tileCat) - 1);
   else
-    menuIdx = wrap_range(menuIdx, enc, 0, LAST_ITEM(menu));
+  {
+    classicOrderInit();
+    int pos = classicPos(classicMenuOrder, ITEM_COUNT(menu), menuIdx);
+    menuIdx = classicMenuOrder[wrap_range(pos, enc, 0, LAST_ITEM(menu))];
+  }
 }
 
 static void clickMenuItem(int cmd, bool shortPress);
@@ -1663,7 +1699,9 @@ static void clickMenuItem(int cmd, bool shortPress)
 
 static void doSettings(int16_t enc)
 {
-  settingsIdx = wrap_range(settingsIdx, enc, 0, LAST_ITEM(settings));
+  classicOrderInit();
+  int pos = classicPos(classicSetOrder, ITEM_COUNT(settings), settingsIdx);
+  settingsIdx = classicSetOrder[wrap_range(pos, enc, 0, LAST_ITEM(settings))];
 }
 
 static void clickSettings(int cmd, bool shortPress)
@@ -2008,24 +2046,29 @@ static void drawMenu(int x, int y, int sx)
   spr.drawRoundRect(1+x, 1+y, 76+sx, 110, 4, TH.menu_border);
   spr.setTextColor(TH.menu_hdr);
 
-  spr.drawString("Menu", 40+x+(sx/2), 12+y, FONT_SMALL);
+  // The title names the group of the highlighted item, as in the tiles
+  classicOrderInit();
+  int count = ITEM_COUNT(menu);
+  int pos = classicPos(classicMenuOrder, count, menuIdx);
+  uint8_t cat = classicMenuCat[pos];
+  spr.drawString(cat < ITEM_COUNT(tileCategories) ? tileCategories[cat].label : "Menu", 40+x+(sx/2), 12+y, FONT_SMALL);
   spr.drawLine(1+x, 23+y, 76+sx, 23+y, TH.menu_border);
 
   spr.setFont(FONT_DEFAULT);
   spr.setTextColor(TH.menu_item);
   spr.fillRoundRect(6+x, 24+y+(2*16), 66+sx, 16, 2, TH.menu_hl_bg);
 
-  int count = ITEM_COUNT(menu);
   for(int i=-2 ; i<3 ; i++)
   {
+    const char *label = menu[classicMenuOrder[(pos+count+i)%count]];
     if(i==0) {
-      drawZoomedMenu(menu[abs((menuIdx+count+i)%count)]);
+      drawZoomedMenu(label);
       spr.setTextColor(TH.menu_hl_text, TH.menu_hl_bg);
     } else {
       spr.setTextColor(TH.menu_item);
     }
     spr.setTextDatum(MC_DATUM);
-    spr.drawString(menu[abs((menuIdx+count+i)%count)], 40+x+(sx/2), 64+y+(i*16), FONT_SMALL);
+    spr.drawString(label, 40+x+(sx/2), 64+y+(i*16), FONT_SMALL);
   }
 }
 
@@ -2036,25 +2079,28 @@ static void drawSettings(int x, int y, int sx)
   spr.fillRoundRect(1+x, 1+y, 76+sx, 110, 4, TH.menu_bg);
   spr.drawRoundRect(1+x, 1+y, 76+sx, 110, 4, TH.menu_border);
   spr.setTextColor(TH.menu_hdr);
-  spr.drawString("Settings", 40+x+(sx/2), 12+y, FONT_SMALL);
+  classicOrderInit();
+  int count = ITEM_COUNT(settings);
+  int pos = classicPos(classicSetOrder, count, settingsIdx);
+  spr.drawString(tileCategories[classicSetCat[pos]].label, 40+x+(sx/2), 12+y, FONT_SMALL);
   spr.drawLine(1+x, 23+y, 76+sx, 23+y, TH.menu_border);
 
   spr.setFont(FONT_DEFAULT);
   spr.setTextColor(TH.menu_item);
   spr.fillRoundRect(6+x, 24+y+(2*16), 66+sx, 16, 2, TH.menu_hl_bg);
 
-  int count = ITEM_COUNT(settings);
   for(int i=-2 ; i<3 ; i++)
   {
+    const char *label = settings[classicSetOrder[(pos+count+i)%count]];
     if(i==0) {
-      drawZoomedMenu(settings[abs((settingsIdx+count+i)%count)]);
+      drawZoomedMenu(label);
       spr.setTextColor(TH.menu_hl_text, TH.menu_hl_bg);
     } else {
       spr.setTextColor(TH.menu_item);
     }
 
     spr.setTextDatum(MC_DATUM);
-    spr.drawString(settings[abs((settingsIdx+count+i)%count)], 40+x+(sx/2), 64+y+(i*16), FONT_SMALL);
+    spr.drawString(label, 40+x+(sx/2), 64+y+(i*16), FONT_SMALL);
   }
 }
 

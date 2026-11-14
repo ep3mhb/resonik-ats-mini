@@ -305,15 +305,14 @@ static void webSendAudio()
 static uint32_t cpuSaved = 0;
 
 static uint8_t speakerSteps = 0;      // How much quieter the radio plays while listening
-static uint8_t quietApplied = 0, quietBase = 0;   // Steps and radio volume last applied
 
-// V4B: the web audio is the speaker line, so every step quieter is also
-// weaker on the web (and the hiss stays): the page lets the user choose
+// R4 test 14: while listening the receiver plays at a steady line level
+// (AUDIO_LINE_VOLUME), not the user's volume, so the web sound does not
+// depend on it. "Quieter" and "Quietest" go 4 or 8 steps below it.
 static uint8_t quietVolume()
 {
-  int v = (int)volume - speakerSteps;
-  int floor = volume < 10 ? volume : 10;
-  return(v < floor ? floor : v);
+  int v = (int)AUDIO_LINE_VOLUME - speakerSteps;
+  return(v < 10 ? 10 : v);
 }
 static void speakerRestore();
 
@@ -346,17 +345,43 @@ static uint32_t spkSince = 0;
 static bool ampOffSilences = false;   // Learned: this board (V4B) loses the audio with the amplifier off
 static const char *spkName[] = { "on", "testing", "off", "quiet" };
 
+static bool lineOn = false;           // The receiver is at the listening level
+static uint8_t lineApplied = 0, lineUserVol = 0;
+
 static void speakerRestore()
 {
-  if(spk == Spk::Normal) return;
-  if(PIN_AMP_EN >= 0 && !muteOn(MUTE_MAIN, 2)) digitalWrite(PIN_AMP_EN, HIGH);
-  rx.setVolume(volume);
-  spk = Spk::Normal;
+  if(spk != Spk::Normal)
+  {
+    if(PIN_AMP_EN >= 0 && !muteOn(MUTE_MAIN, 2)) digitalWrite(PIN_AMP_EN, HIGH);
+    spk = Spk::Normal;
+  }
+  if(lineOn) { rx.setVolume(volume); lineOn = false; }
+}
+
+// Set the receiver level; again after Vol +/- (which sets the user's volume)
+static void applyLevel(uint8_t v)
+{
+  if(lineOn && v == lineApplied && volume == lineUserVol) return;
+  rx.setVolume(v);
+  lineApplied = v;
+  lineUserVol = volume;
+  lineOn = true;
 }
 
 static void speakerTick(bool wanted)
 {
-  if(!wanted || !audioWebStreaming()) { speakerRestore(); return; }
+  if(!audioWebStreaming()) { speakerRestore(); return; }
+  if(!wanted)
+  {
+    // Normal: speaker on, receiver at the listening level
+    if(spk != Spk::Normal)
+    {
+      if(PIN_AMP_EN >= 0 && !muteOn(MUTE_MAIN, 2)) digitalWrite(PIN_AMP_EN, HIGH);
+      spk = Spk::Normal;
+    }
+    applyLevel(AUDIO_LINE_VOLUME);
+    return;
+  }
   uint32_t now = millis();
   switch(spk)
   {
@@ -366,10 +391,12 @@ static void speakerTick(bool wanted)
         digitalWrite(PIN_AMP_EN, LOW);
         spk = Spk::TryAmpOff;
         spkSince = now;
+        applyLevel(AUDIO_LINE_VOLUME);
       }
-      else { rx.setVolume(quietVolume()); quietApplied = speakerSteps; quietBase = volume; spk = Spk::Quiet; }
+      else spk = Spk::Quiet;
       break;
     case Spk::TryAmpOff:
+      applyLevel(AUDIO_LINE_VOLUME);
       // The level is measured over 0.5 s: give it 2 s after the switch
       if(now - spkSince < 2000) break;
       spkSince = now;
@@ -377,23 +404,21 @@ static void speakerTick(bool wanted)
       // no audio with the amplifier off (V4B)
       [[fallthrough]];
     case Spk::AmpOff:
+      // Speaker off and the input still has audio: full listening level.
       // Keep checking: if the input goes silent, the amplifier is needed
       if(spk == Spk::AmpOff)
       {
+        applyLevel(AUDIO_LINE_VOLUME);
         if(audioInputLevel() >= 3) { spkSince = now; break; }
         if(now - spkSince < 1500) break;
       }
       digitalWrite(PIN_AMP_EN, HIGH);
-      rx.setVolume(quietVolume());
-      quietApplied = speakerSteps;
-      quietBase = volume;
       // Straight to Quiet next time (no 2 s of silence at every start)
       ampOffSilences = true;
       spk = Spk::Quiet;
       break;
     case Spk::Quiet:
-      // Also after Vol +/- (the radio sets its full volume again)
-      if(quietApplied != speakerSteps || quietBase != volume) { rx.setVolume(quietVolume()); quietApplied = speakerSteps; quietBase = volume; }
+      applyLevel(quietVolume());
       break;
     default:
       break;

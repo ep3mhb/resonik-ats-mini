@@ -36,6 +36,12 @@ int main()
   assert(parse("v2.45-r100") == 0);
   assert(parse("v0.99") == 0);
 
+  // Betas (GitHub #3): a beta of r3 is offered r3; the release is not offered itself
+  assert(otaIsNewer(parse("v2.45-r3"), 24503, true));
+  assert(!otaIsNewer(parse("v2.45-r3"), 24503, false));
+  assert(otaIsNewer(parse("v2.45-r4"), 24503, false));
+  assert(!otaIsNewer(parse("v2.45-r2"), 24503, true));
+
   printf("TestOtaVersion: all tests passed\n");
   return 0;
 }
