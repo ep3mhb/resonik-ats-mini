@@ -3327,3 +3327,291 @@ bool drawTileMenu()
   tileDrawStatus();
   return(true);
 }
+
+//
+// RESONIK R4: every setting for the Web Control page. The page gets the
+// list once (webMenuDef: names, groups, option lists), then the current
+// values whenever they change (webMenuVals), and sets a value with
+// webMenuSet(), which goes through the same functions as the knob, so the
+// radio applies and saves it exactly as from its own menu.
+// Not offered on the web: USB, TCP, Bluetooth and Wi-Fi modes and the
+// firmware update (they could cut the connection), date and time (set
+// from the internet), DSP patches and EiBi loading.
+//
+static void wjText(String &j, const char *v)
+{
+  j += '"';
+  for(; v && *v; v++)
+  {
+    uint8_t c = *v;
+    if(c == '"' || c == '\\') { j += '\\'; j += (char)c; }
+    else if(c >= 0x20 && c < 0x7F) j += (char)c;
+  }
+  j += '"';
+}
+
+static void wjList(String &j, const char *const *labels, int count)
+{
+  j += '[';
+  for(int i = 0; i < count; i++) { if(i) j += ','; wjText(j, labels[i]); }
+  j += ']';
+}
+
+// One item: {"c":cmd,"g":group,"n":name,"t":type,...}
+//   t "l" list (o = options), "n" number (min, max, step, unit), "b" on/off
+static void wjItem(String &j, uint16_t cmd, const char *group, const char *name, const char *type)
+{
+  if(j.length() > 1) j += ',';
+  j += "{\"c\":"; j += cmd;
+  j += ",\"g\":"; wjText(j, group);
+  j += ",\"n\":"; wjText(j, name);
+  j += ",\"t\":\""; j += type; j += '"';
+}
+
+static void wjNum(String &j, int lo, int hi, int step, const char *unit)
+{
+  j += ",\"min\":"; j += lo; j += ",\"max\":"; j += hi; j += ",\"s\":"; j += step;
+  if(unit) { j += ",\"u\":"; wjText(j, unit); }
+  j += '}';
+}
+
+void webMenuDef(String &j)
+{
+  const char *labels[128];
+  int n;
+  j = "[";
+  // Tuning
+  wjItem(j, CMD_BAND, "Tuning", "Band", "l");
+  n = 0; for(int i = 0; i < getTotalBands() && n < 128; i++) labels[n++] = bands[i].bandName;
+  j += ",\"o\":"; wjList(j, labels, n); j += '}';
+  wjItem(j, CMD_MODE, "Tuning", "Mode", "d"); j += '}';         // Options change with the band
+  wjItem(j, CMD_STEP, "Tuning", "Step", "d"); j += '}';
+  wjItem(j, CMD_BANDWIDTH, "Tuning", "Filter", "d"); j += '}';
+  wjItem(j, CMD_FREQLOCK, "Tuning", "Frequency lock", "b"); j += '}';
+  wjItem(j, CMD_CAL, "Tuning", "SSB calibration", "n"); wjNum(j, -MAX_CAL, MAX_CAL, 10, "Hz");
+  // Audio
+  wjItem(j, CMD_VOLUME, "Audio", "Volume", "n"); wjNum(j, 0, 63, 1, nullptr);
+  wjItem(j, CMD_SQUELCH, "Audio", "Squelch", "n"); wjNum(j, 0, 127, 1, nullptr);
+  wjItem(j, CMD_SOFTMUTE, "Audio", "Soft mute", "n"); wjNum(j, 0, 32, 1, "dB");
+  wjItem(j, CMD_AVC, "Audio", "AVC max gain", "n"); wjNum(j, 12, 90, 2, "dB");
+  wjItem(j, CMD_FM_STEREO, "Audio", "FM stereo", "l"); j += ",\"o\":"; wjList(j, fmStereoDesc, ITEM_COUNT(fmStereoDesc)); j += '}';
+  wjItem(j, CMD_FM_REGION, "Audio", "FM de-emphasis", "l");
+  n = 0; for(int i = 0; i < (int)ITEM_COUNT(fmRegions); i++) labels[n++] = fmRegions[i].desc;
+  j += ",\"o\":"; wjList(j, labels, n); j += '}';
+  // Receiver
+  wjItem(j, CMD_AGC, "Receiver", "AGC / attenuator", "a"); j += '}';   // Range changes with the mode
+  wjItem(j, CMD_AUTOATT, "Receiver", "Auto attenuation", "l"); j += ",\"o\":"; wjList(j, autoAttDesc, ITEM_COUNT(autoAttDesc)); j += '}';
+  wjItem(j, CMD_RDS, "Receiver", "RDS", "l");
+  n = 0; for(int i = 0; i < (int)ITEM_COUNT(rdsMode); i++) labels[n++] = rdsMode[i].desc;
+  j += ",\"o\":"; wjList(j, labels, n); j += '}';
+  wjItem(j, CMD_BANDPLAN, "Receiver", "Band plan", "l"); j += ",\"o\":"; wjList(j, bandPlanDesc, ITEM_COUNT(bandPlanDesc)); j += '}';
+  wjItem(j, CMD_BPAREA, "Receiver", "Plan area", "l"); j += ",\"o\":"; wjList(j, bandPlanAreaDesc, BP_AREA_COUNT); j += '}';
+  wjItem(j, CMD_CWSTRIP, "Receiver", "CW decoder strip", "b"); j += '}';
+  wjItem(j, CMD_LOGGER, "Receiver", "Signal logger", "l"); j += ",\"o\":"; wjList(j, loggerDesc, LOG_CLEAR); j += '}';
+  // Display
+  wjItem(j, CMD_BRT, "Display", "Brightness", "n"); wjNum(j, 10, 255, 5, nullptr);
+  wjItem(j, CMD_THEME, "Display", "Theme", "l");
+  n = 0; for(int i = 0; i < getTotalThemes() && n < 128; i++) labels[n++] = theme[i].name;
+  j += ",\"o\":"; wjList(j, labels, n); j += '}';
+  wjItem(j, CMD_UI, "Display", "Layout", "l"); j += ",\"o\":"; wjList(j, uiLayoutDesc, ITEM_COUNT(uiLayoutDesc)); j += '}';
+  wjItem(j, CMD_MENUSTYLE, "Display", "Menu style", "l"); j += ",\"o\":"; wjList(j, menuStyleDesc, ITEM_COUNT(menuStyleDesc)); j += '}';
+  wjItem(j, CMD_ZOOM, "Display", "Zoom menu", "b"); j += '}';
+  wjItem(j, CMD_SCROLL, "Display", "Reverse scrolling", "b"); j += '}';
+  // Power and time
+  wjItem(j, CMD_SLEEP, "Power and time", "Screen sleep", "n"); wjNum(j, 0, 255, 5, "s");
+  wjItem(j, CMD_SLEEPMODE, "Power and time", "Sleep mode", "l"); j += ",\"o\":"; wjList(j, sleepModeDesc, ITEM_COUNT(sleepModeDesc)); j += '}';
+  wjItem(j, CMD_OFFTIMER, "Power and time", "Off timer", "n"); wjNum(j, 0, 240, 5, "min");
+  wjItem(j, CMD_PERF, "Power and time", "Performance", "l"); j += ",\"o\":"; wjList(j, perfDesc, ITEM_COUNT(perfDesc)); j += '}';
+  wjItem(j, CMD_WIFIPOWER, "Power and time", "Wi-Fi power", "l"); j += ",\"o\":"; wjList(j, wifiPowerDesc, ITEM_COUNT(wifiPowerDesc)); j += '}';
+  wjItem(j, CMD_UTCOFFSET, "Power and time", "Time zone", "l");
+  n = 0; for(int i = 0; i < (int)ITEM_COUNT(timeZones) && n < 128; i++) labels[n++] = timeZones[i].desc;
+  j += ",\"o\":"; wjList(j, labels, n); j += '}';
+  wjItem(j, CMD_KNOB, "Power and time", "Knob", "l"); j += ",\"o\":"; wjList(j, knobDesc, ITEM_COUNT(knobDesc)); j += '}';
+  j += ']';
+}
+
+static int webAgcMax() { return(currentMode == FM ? 27 : isSSB() ? 1 : 37); }
+
+void webMenuVals(String &j)
+{
+  static const uint8_t amModes[] = { LSB, USB, AM, CW };
+  j = "{\"v\":{";
+  auto kv = [&j](uint16_t cmd, int v) { if(j[j.length() - 1] != '{') j += ','; j += '"'; j += cmd; j += "\":"; j += v; };
+  kv(CMD_BAND, bandIdx);
+  int pos = 0;
+  if(currentMode != FM) for(int i = 0; i < (int)ITEM_COUNT(amModes); i++) if(amModes[i] == currentMode) pos = i;
+  kv(CMD_MODE, pos);
+  kv(CMD_STEP, bands[bandIdx].currentStepIdx > getLastStep(currentMode) ? defaultStepIdx[currentMode] : bands[bandIdx].currentStepIdx);
+  kv(CMD_BANDWIDTH, getCurrentBandwidthIdx());
+  kv(CMD_FREQLOCK, freqLock);
+  kv(CMD_CAL, currentMode == LSB ? bands[bandIdx].lsbCal : bands[bandIdx].usbCal);
+  kv(CMD_VOLUME, volume);
+  kv(CMD_SQUELCH, currentSquelch[currentMode] & 0x7f);
+  kv(CMD_SOFTMUTE, isSSB() ? SsbSoftMuteIdx : AmSoftMuteIdx);
+  kv(CMD_AVC, isSSB() ? SsbAvcIdx : AmAvcIdx);
+  kv(CMD_FM_STEREO, fmStereoIdx);
+  kv(CMD_FM_REGION, FmRegionIdx);
+  kv(CMD_AGC, agcIdx);
+  kv(CMD_AUTOATT, autoAttIdx);
+  kv(CMD_RDS, rdsModeIdx);
+  kv(CMD_BANDPLAN, bandPlanIdx);
+  kv(CMD_BPAREA, bandPlanArea);
+  kv(CMD_CWSTRIP, cwStripIdx);
+  kv(CMD_LOGGER, loggerIdx < LOG_CLEAR ? loggerIdx : 0);
+  kv(CMD_BRT, currentBrt);
+  kv(CMD_THEME, themeIdx);
+  kv(CMD_UI, uiLayoutIdx);
+  kv(CMD_MENUSTYLE, menuStyleIdx);
+  kv(CMD_ZOOM, zoomMenu ? 1 : 0);
+  kv(CMD_SCROLL, scrollDirection < 0 ? 1 : 0);
+  kv(CMD_SLEEP, currentSleep);
+  kv(CMD_SLEEPMODE, sleepModeIdx);
+  kv(CMD_OFFTIMER, offTimerMinutes);
+  kv(CMD_PERF, perfIdx);
+  kv(CMD_WIFIPOWER, wifiPowerIdx);
+  kv(CMD_UTCOFFSET, utcOffsetIdx);
+  kv(CMD_KNOB, encoderHalfStep ? 1 : 0);
+  // Options and limits that depend on the band and mode; "x" lists the
+  // items that do nothing in this mode (the page greys them out)
+  j += "},\"d\":{\""; j += CMD_MODE; j += "\":";
+  if(currentMode == FM) { const char *fm[] = { bandModeDesc[FM] }; wjList(j, fm, 1); }
+  else { const char *m[4]; for(int i = 0; i < 4; i++) m[i] = bandModeDesc[amModes[i]]; wjList(j, m, 4); }
+  const char *labels[24];
+  int n = getLastStep(currentMode) + 1;
+  for(int i = 0; i < n && i < 24; i++) labels[i] = steps[currentMode][i].desc;
+  j += ",\""; j += CMD_STEP; j += "\":"; wjList(j, labels, n < 24 ? n : 24);
+  n = getLastBandwidth(currentMode) + 1;
+  for(int i = 0; i < n && i < 24; i++) labels[i] = bandwidths[currentMode][i].desc;
+  j += ",\""; j += CMD_BANDWIDTH; j += "\":"; wjList(j, labels, n < 24 ? n : 24);
+  j += "},\"amax\":"; j += webAgcMax();
+  j += ",\"x\":[";
+  bool first = true;
+  auto x = [&j, &first](uint16_t cmd) { if(!first) j += ','; first = false; j += cmd; };
+  if(!isSSB()) x(CMD_CAL);
+  if(currentMode == FM) { x(CMD_SOFTMUTE); x(CMD_AVC); }
+  else { x(CMD_FM_STEREO); x(CMD_FM_REGION); x(CMD_RDS); }
+  if(currentMode != CW) x(CMD_CWSTRIP);
+  j += "]}";
+}
+
+// Set an item to a value; true when the radio needs a redraw
+bool webMenuSet(uint16_t cmd, int32_t v)
+{
+  static const uint8_t amModes[] = { LSB, USB, AM, CW };
+  switch(cmd)
+  {
+    case CMD_BAND:
+      if(v < 0 || v >= getTotalBands() || v == bandIdx) return(false);
+      doBand(v - bandIdx);
+      break;
+    case CMD_MODE:
+      // From LSB, USB, AM or CW straight to another (never through FM)
+      if(currentMode == FM || v < 0 || v >= (int)ITEM_COUNT(amModes) || amModes[v] == currentMode) return(false);
+      doMode((int)amModes[v] - (int)currentMode);
+      break;
+    case CMD_STEP:
+    {
+      int cur = bands[bandIdx].currentStepIdx > getLastStep(currentMode) ? defaultStepIdx[currentMode] : bands[bandIdx].currentStepIdx;
+      if(v < 0 || v > getLastStep(currentMode)) return(false);
+      bands[bandIdx].currentStepIdx = cur;
+      doStep(v - cur);
+      break;
+    }
+    case CMD_BANDWIDTH:
+    {
+      int cur = getCurrentBandwidthIdx();
+      if(v < 0 || v > getLastBandwidth(currentMode)) return(false);
+      bands[bandIdx].bandwidthIdx = cur;
+      doBandwidth(v - cur);
+      break;
+    }
+    case CMD_FREQLOCK:   freqLock = v ? 1 : 0; prefsRequestSave(SAVE_SETTINGS); break;
+    case CMD_CAL:
+      if(!isSSB()) return(false);
+      doCal((v - (currentMode == LSB ? bands[bandIdx].lsbCal : bands[bandIdx].usbCal)) / 10);
+      break;
+    case CMD_VOLUME:     doVolume(v - volume); break;
+    case CMD_SQUELCH:    doSquelch(v - (currentSquelch[currentMode] & 0x7f)); break;
+    case CMD_SOFTMUTE:   if(currentMode == FM) return(false); doSoftMute(constrain(v, 0, 32) - (isSSB() ? SsbSoftMuteIdx : AmSoftMuteIdx)); break;
+    case CMD_AVC:        if(currentMode == FM) return(false); doAvc((constrain(v, 12, 90) - (isSSB() ? SsbAvcIdx : AmAvcIdx)) / 2); break;
+    case CMD_FM_STEREO:  if(v < 0 || v >= (int)ITEM_COUNT(fmStereoDesc)) return(false); doFmStereo(v - fmStereoIdx); break;
+    case CMD_FM_REGION:  if(v < 0 || v >= (int)ITEM_COUNT(fmRegions)) return(false); doFmRegion(v - FmRegionIdx); break;
+    case CMD_AGC:        doAgc(constrain(v, 0, webAgcMax()) - agcIdx); break;
+    case CMD_AUTOATT:    if(v < 0 || v >= (int)ITEM_COUNT(autoAttDesc)) return(false); doAutoAtt(v - autoAttIdx); break;
+    case CMD_RDS:        if(v < 0 || v >= (int)ITEM_COUNT(rdsMode)) return(false); doRDSMode(v - rdsModeIdx); break;
+    case CMD_BANDPLAN:   if(v < 0 || v >= (int)ITEM_COUNT(bandPlanDesc)) return(false); doBandPlan(v - bandPlanIdx); break;
+    case CMD_BPAREA:     if(v < 0 || v >= BP_AREA_COUNT) return(false); bandPlanArea = v; prefsRequestSave(SAVE_SETTINGS); break;
+    case CMD_CWSTRIP:    cwStripIdx = v ? 1 : 0; prefsRequestSave(SAVE_SETTINGS); break;
+    case CMD_LOGGER:     if(v < 0 || v >= LOG_CLEAR) return(false); loggerIdx = v; prefsRequestSave(SAVE_SETTINGS); break;
+    case CMD_BRT:        doBrt((constrain(v, 10, 255) - (int)currentBrt) / 5); break;
+    case CMD_THEME:      if(v < 0 || v >= getTotalThemes()) return(false); doTheme(v - themeIdx); break;
+    case CMD_UI:         if(v < 0 || v >= (int)ITEM_COUNT(uiLayoutDesc)) return(false); doUILayout(v - uiLayoutIdx); break;
+    case CMD_MENUSTYLE:  if(v < 0 || v >= (int)ITEM_COUNT(menuStyleDesc)) return(false); doMenuStyle(v - menuStyleIdx); break;
+    case CMD_ZOOM:       if((v != 0) != zoomMenu) doZoom(1); break;
+    case CMD_SCROLL:     if((v != 0) != (scrollDirection < 0)) doScrollDir(1); break;
+    case CMD_SLEEP:      doSleep((constrain(v, 0, 255) - (int)currentSleep) / 5); break;
+    case CMD_SLEEPMODE:  if(v < 0 || v >= (int)ITEM_COUNT(sleepModeDesc)) return(false); doSleepMode(v - sleepModeIdx); break;
+    case CMD_OFFTIMER:   if((constrain(v, 0, 240) - (int)offTimerMinutes) / 5) doOffTimer((constrain(v, 0, 240) - (int)offTimerMinutes) / 5); break;
+    case CMD_PERF:       if(v < 0 || v > 2) return(false); perfIdx = v; perfApply(); prefsRequestSave(SAVE_SETTINGS); break;
+    case CMD_WIFIPOWER:  if(v < 0 || v > 2) return(false); wifiPowerIdx = v; wifiApplyTxPower(); prefsRequestSave(SAVE_SETTINGS); break;
+    case CMD_UTCOFFSET:  if(v < 0 || v >= (int)ITEM_COUNT(timeZones)) return(false); doUTCOffset(v - utcOffsetIdx); break;
+    case CMD_KNOB:       setEncoderHalfStep(v != 0); prefsRequestSave(SAVE_SETTINGS); break;
+    default:             return(false);
+  }
+  return(true);
+}
+
+// Memories: the slots in use, for the page's list
+void webMemoriesJson(String &j)
+{
+  j = "{\"mem\":[";
+  bool first = true;
+  for(int i = 0; i < getTotalMemories(); i++)
+  {
+    Memory m = getMemory(i);
+    if(!m.freq) continue;
+    if(!first) j += ',';
+    first = false;
+    j += "{\"i\":"; j += i; j += ",\"f\":"; j += (unsigned long)m.freq;
+    j += ",\"m\":"; wjText(j, m.mode < ITEM_COUNT(bandModeDesc) ? bandModeDesc[m.mode] : "?");
+    j += ",\"b\":"; wjText(j, m.band < getTotalBands() ? bands[m.band].bandName : "?");
+    char name[11]; memcpy(name, m.name, 10); name[10] = 0;
+    j += ",\"n\":"; wjText(j, name);
+    j += '}';
+  }
+  j += "]}";
+}
+
+// 't' tune to a slot, 'd' clear it, 's' store the current station in the
+// first free slot. True when the radio needs a redraw.
+bool webMemoryAction(char action, int slot)
+{
+  if(action == 's')
+  {
+    for(int i = 0; i < getTotalMemories(); i++)
+    {
+      Memory m = getMemory(i);
+      if(m.freq) continue;
+      m.freq = currentFrequency;
+      m.band = bandIdx;
+      m.mode = currentMode;
+      memset(m.name, 0, sizeof(m.name));
+      setMemory(i, m);
+      prefsRequestSave(SAVE_MEMORIES);
+      return(false);
+    }
+    return(false);
+  }
+  if(slot < 0 || slot >= getTotalMemories()) return(false);
+  Memory m = getMemory(slot);
+  if(!m.freq) return(false);
+  if(action == 'd')
+  {
+    m.freq = 0;
+    setMemory(slot, m);
+    prefsRequestSave(SAVE_MEMORIES);
+    return(false);
+  }
+  memoryIdx = slot;
+  return(tuneToMemory(&m));
+}
