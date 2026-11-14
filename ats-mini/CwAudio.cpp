@@ -570,7 +570,7 @@ void drawCwPage()
     spr.setTextColor(CW_YELLOW);
     spr.drawString("No audio on the decoder input", 160, 100, uiFont(false));
     spr.setTextColor(CW_MUTED);
-    spr.drawString("Turn the volume up", 160, 122, uiFont(true));
+    spr.drawString("Volume up, unplug headphones", 160, 122, uiFont(true));
   }
   else drawLines(10, 64, 300, 22, 4, CW_TEXT, 0xFFFF);
 
