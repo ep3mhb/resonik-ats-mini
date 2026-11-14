@@ -611,7 +611,7 @@ void drawFt8Page()
   {
     const char *l1, *l2 = nullptr;
     snprintf(buf, sizeof(buf), "First slot in %d s", (slotMs - msIn + 999) / 1000);
-    if(audioInputLevel() < 2) { l1 = "No audio on the decoder input"; l2 = "Needs the V4B board (speaker line on GPIO11)"; }
+    if(audioInputLevel() < 2) { l1 = "No audio on the decoder input"; l2 = "V4B board needed; unplug headphones"; }
     else if(!clockAvailable() && slotSync.state != Ft8Sync::LOCKED) { l1 = "Finding the slot timing"; l2 = "No clock: lining up with the stations heard"; }
     else if(decoded < 0) { l1 = "Listening"; l2 = collecting ? "Decoding at the end of this slot" : buf; }
     else { l1 = "Nothing decoded yet"; l2 = "Check the antenna, or try another band"; }
