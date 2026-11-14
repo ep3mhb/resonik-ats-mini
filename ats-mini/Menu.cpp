@@ -324,6 +324,28 @@ static int classicPos(const uint8_t *order, int count, int idx)
   return(0);
 }
 
+//
+// RESONIK R4: the classic menu has the same six groups as the tiles
+// (GitHub #4): the top level lists the groups, a group lists its items after
+// a Back row, and a setting goes back to its group when done
+//
+static int8_t classicCat = -1;
+static int8_t classicSel = 0;
+
+static int classicCount()
+{
+  return(classicCat < 0 ? (int)ITEM_COUNT(tileCategories) : tileCategories[classicCat].count + 1);
+}
+
+static const char *classicLabel(int i)
+{
+  if(classicCat < 0) return(tileCategories[i].label);
+  if(!i) return("< Back");
+  uint8_t id = tileCategories[classicCat].items[i - 1].id;
+  return(id & TILE_SET ? settings[id & ~TILE_SET] : menu[id]);
+}
+
+
 // Where the tile menu is: tileCat -1 is the top level. Inside a category,
 // tileSlot counts the tiles on screen: each page holds Back and five items.
 static int8_t tileCat = -1;
@@ -356,7 +378,7 @@ void tileAfterClick(uint16_t prevCmd, bool shortPress)
 {
   if(!tileReturnCmd) return;
   if(currentCmd == tileReturnCmd) return;           // Still open
-  if(prevCmd == tileReturnCmd && currentCmd == CMD_NONE && (!shortPress || prevCmd == CMD_DATETIME || prevCmd == CMD_UPDATEFW) && menuStyleIdx == MENU_STYLE_TILES)
+  if(prevCmd == tileReturnCmd && currentCmd == CMD_NONE && (!shortPress || prevCmd == CMD_DATETIME || prevCmd == CMD_UPDATEFW))
     currentCmd = CMD_MENU;
   tileReturnCmd = 0;
 }
@@ -1573,50 +1595,16 @@ static void doMenu(int16_t enc)
   if(menuStyleIdx == MENU_STYLE_TILES)
     tileSlot = wrap_range(tileSlot, enc, 0, tileSlotCount(tileCat) - 1);
   else
-  {
-    classicOrderInit();
-    int pos = classicPos(classicMenuOrder, ITEM_COUNT(menu), menuIdx);
-    menuIdx = classicMenuOrder[wrap_range(pos, enc, 0, LAST_ITEM(menu))];
-  }
+    classicSel = wrap_range(classicSel, enc, 0, classicCount() - 1);
 }
 
 static void clickMenuItem(int cmd, bool shortPress);
 static void clickSettings(int cmd, bool shortPress);
 
-static void clickMenu(int cmd, bool shortPress)
+// Open item `item` of group `cat`, for the tiles and the classic menu alike
+static void openGroupItem(int cat, int item)
 {
-  if(menuStyleIdx != MENU_STYLE_TILES)
-  {
-    clickMenuItem(cmd, shortPress);
-    return;
-  }
-
-  // Tile menu: a short press closes it from any page
-  if(shortPress)
-  {
-    currentCmd = CMD_NONE;
-    return;
-  }
-
-  // Top level: open the category, on its first item
-  if(tileCat < 0)
-  {
-    tileCat = tileSlot;
-    tileSlot = 1;
-    return;
-  }
-
-  // Back: return to the top level on this category
-  if(tileSlot % 6 == 0)
-  {
-    tileSlot = tileCat;
-    tileCat = -1;
-    return;
-  }
-
-  // An item: run it as the classic menu would
-  int item = tileSlot / 6 * 5 + tileSlot % 6 - 1;
-  uint8_t id = tileCategories[tileCat].items[item].id;
+  uint8_t id = tileCategories[cat].items[item].id;
   tileValueItem = item;
   if(id & TILE_SET)
   {
@@ -1647,6 +1635,44 @@ static void clickMenu(int cmd, bool shortPress)
   // controls (Band, Mode, Step, Volume...) are used on the normal screen
   // with its frequency and scale, and close the menu like the classic one.
   tileReturnCmd = !(id & TILE_SET) || currentCmd == CMD_MENU || currentCmd == CMD_NONE ? 0 : currentCmd;
+}
+
+static void clickMenu(int cmd, bool shortPress)
+{
+  if(menuStyleIdx != MENU_STYLE_TILES)
+  {
+    if(shortPress) { currentCmd = CMD_NONE; return; }
+    if(classicCat < 0) { classicCat = classicSel; classicSel = 1; return; }
+    if(!classicSel) { classicSel = classicCat; classicCat = -1; return; }
+    openGroupItem(classicCat, classicSel - 1);
+    return;
+  }
+
+  // Tile menu: a short press closes it from any page
+  if(shortPress)
+  {
+    currentCmd = CMD_NONE;
+    return;
+  }
+
+  // Top level: open the category, on its first item
+  if(tileCat < 0)
+  {
+    tileCat = tileSlot;
+    tileSlot = 1;
+    return;
+  }
+
+  // Back: return to the top level on this category
+  if(tileSlot % 6 == 0)
+  {
+    tileSlot = tileCat;
+    tileCat = -1;
+    return;
+  }
+
+  // An item: run it as the classic menu would
+  openGroupItem(tileCat, tileSlot / 6 * 5 + tileSlot % 6 - 1);
 }
 
 static void clickMenuItem(int cmd, bool shortPress)
@@ -2046,12 +2072,10 @@ static void drawMenu(int x, int y, int sx)
   spr.drawRoundRect(1+x, 1+y, 76+sx, 110, 4, TH.menu_border);
   spr.setTextColor(TH.menu_hdr);
 
-  // The title names the group of the highlighted item, as in the tiles
-  classicOrderInit();
-  int count = ITEM_COUNT(menu);
-  int pos = classicPos(classicMenuOrder, count, menuIdx);
-  uint8_t cat = classicMenuCat[pos];
-  spr.drawString(cat < ITEM_COUNT(tileCategories) ? tileCategories[cat].label : "Menu", 40+x+(sx/2), 12+y, FONT_SMALL);
+  // Top level: the six groups; inside a group: its items (title = group)
+  int count = classicCount();
+  int pos = classicSel < count ? classicSel : 0;
+  spr.drawString(classicCat < 0 ? "Menu" : tileCategories[classicCat].label, 40+x+(sx/2), 12+y, FONT_SMALL);
   spr.drawLine(1+x, 23+y, 76+sx, 23+y, TH.menu_border);
 
   spr.setFont(FONT_DEFAULT);
@@ -2060,7 +2084,9 @@ static void drawMenu(int x, int y, int sx)
 
   for(int i=-2 ; i<3 ; i++)
   {
-    const char *label = menu[classicMenuOrder[(pos+count+i)%count]];
+    // Short lists (a group of three) do not repeat
+    if(count < 5 && (pos+i < 0 || pos+i >= count)) continue;
+    const char *label = classicLabel((pos+count+i)%count);
     if(i==0) {
       drawZoomedMenu(label);
       spr.setTextColor(TH.menu_hl_text, TH.menu_hl_bg);
