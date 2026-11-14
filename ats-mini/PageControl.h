@@ -47,6 +47,9 @@ button.acc{background:#0c5a45}
 #sc{width:100%;height:140px;aspect-ratio:auto;image-rendering:auto;background:#06171e;cursor:crosshair}
 #scl{font-size:12px;color:var(--muted);margin-top:6px}
 a{color:var(--accent)}
+.pnav{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.pnav a,.pnav span{padding:5px 11px;border-radius:9px;background:var(--card);color:var(--muted);text-decoration:none;font-size:13px;font-weight:600}
+.pnav span{background:var(--blue);color:#fff}
 .card{margin-top:12px;background:var(--card);border-radius:10px;padding:10px 12px}
 .card h2{font-size:14px;margin:0 0 8px;color:var(--text)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -97,6 +100,7 @@ section[data-tab]>:first-child{margin-top:0}
 .lg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
 </style></head><body><main>
 <h1><span><svg style="vertical-align:-6px;margin-right:8px" viewbox="0 0 53 48" width="26" height="24" aria-hidden="true"><rect x="0" y="40" width="5" height="8" rx="2" fill="#dce6ea"/><rect x="8" y="36" width="5" height="12" rx="2" fill="#dce6ea"/><rect x="16" y="28" width="5" height="20" rx="2" fill="#dce6ea"/><rect x="24" y="0" width="5" height="48" rx="2" fill="#4dabf7"/><rect x="32" y="28" width="5" height="20" rx="2" fill="#dce6ea"/><rect x="40" y="36" width="5" height="12" rx="2" fill="#dce6ea"/><rect x="48" y="40" width="5" height="8" rx="2" fill="#dce6ea"/></svg>RESONIK Web Control</span> <span id="st">offline</span></h1>
+<nav class="pnav"><a href="/">Status</a><span>Control</span><a href="/memory">Memory</a><a href="/config">Config</a><a href="/wifi">Wi-Fi</a><a href="/update">Update</a></nav>
 <div class="panel">
  <div class="pf"><div id="pfq">&mdash;</div><div class="tags" id="tags"></div></div>
  <div class="sm"><span id="sv" style="min-width:64px">S&ndash;</span><div class="bar"><i id="sb"></i></div><span id="sn"></span></div>

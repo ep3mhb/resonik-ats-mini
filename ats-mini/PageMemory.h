@@ -8,12 +8,13 @@ static const char pageMemoryTitle[] PROGMEM = "ATS-Mini Memory";
 static const char pageMemory[] PROGMEM = R"HTML(<STYLE>
   TABLE.MEMORY { border-collapse: collapse; margin-bottom: 1em; }
   .MEMORY TH, .MEMORY TD { padding: 0.5em 0.125em; }
-  .MEMORY THEAD TH { background-color: #80A0FF; text-align: left; font-size: 0.75em; }
-  .MEMORY TBODY TR:nth-child(even) { background-color: #EDF2FF; }
+  .MEMORY THEAD TH { background-color: var(--card); color: var(--muted); text-align: left; font-size: 0.75em; }
+  .MEMORY TBODY TR:nth-child(even) { background-color: #0C2834; }
   .MEMORY INPUT, .MEMORY SELECT { box-sizing: border-box; min-width: 0; width: auto; padding: 0.4em 0.1em; font: inherit; }
   .MEMORY INPUT { width: 100%; }
   .MEMORY INPUT[data-field=freq] { max-width: 12ch; text-align: right; font-variant-numeric: tabular-nums; }
   .MEMORY .MOVE { white-space: nowrap; }
+  .MEMORY BUTTON, .MEMORY-NAV BUTTON { width: auto; }
   .MEMORY .MOVE BUTTON { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; width: 26px; min-width: 0; min-height: 32px; padding: 0; font-size: 1em; }
   .MEMORY-NAV, #memory-status, .MEMORY-HELP { max-width: 768px; margin: 1em auto; padding: 0 0.5em; box-sizing: border-box; }
   .MEMORY-NAV { display: flex; gap: 1em; align-items: center; }
