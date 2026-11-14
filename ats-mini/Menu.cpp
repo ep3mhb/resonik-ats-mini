@@ -208,7 +208,7 @@ static const char *settings[] =
   "Plan Area",
   "FT8/FT4",
   "Freq Lock",
-  "Performance",
+  "CPU",
   "About",
 };
 
@@ -412,7 +412,7 @@ const char *const wifiPowerDesc[] = { "Normal", "Low", "Lowest" };
 // battery; faster makes the screen, menus and tuning feel quicker at the cost
 // of battery time. The FT8 page still runs at 240 MHz while it is open.
 uint8_t perfIdx = 0;
-static const char *const perfDesc[] = { "Battery 80 MHz", "Balanced 160 MHz", "Fast 240 MHz" };
+static const char *const perfDesc[] = { "80 MHz", "160 MHz", "240 MHz" };   // R4: short, fits the classic box
 static const uint16_t perfMhz[] = { 80, 160, 240 };
 
 void perfApply()
@@ -472,10 +472,10 @@ const RDSMode rdsMode[] =
   { RDS_PS | RDS_CT, "PS+CT" },
   { RDS_PS | RDS_PI, "PS+PI" },
   { RDS_PS | RDS_PI | RDS_CT, "PS+PI+CT" },
-  { RDS_PS | RDS_PI | RDS_RT | RDS_PT, "ALL-CT (EU)" },
-  { RDS_PS | RDS_PI | RDS_RT | RDS_PT | RDS_RBDS, "ALL-CT (US)" },
-  { RDS_PS | RDS_PI | RDS_RT | RDS_PT | RDS_CT, "ALL (EU)" },
-  { RDS_PS | RDS_PI | RDS_RT | RDS_PT | RDS_CT | RDS_RBDS, "ALL (US)" },
+  { RDS_PS | RDS_PI | RDS_RT | RDS_PT, "ALL-CT EU" },    // R4: shorter, fits the classic box
+  { RDS_PS | RDS_PI | RDS_RT | RDS_PT | RDS_RBDS, "ALL-CT US" },
+  { RDS_PS | RDS_PI | RDS_RT | RDS_PT | RDS_CT, "ALL EU" },
+  { RDS_PS | RDS_PI | RDS_RT | RDS_PT | RDS_CT | RDS_RBDS, "ALL US" },
   { RDS_OFF, "OFF"},
 };
 
@@ -2267,6 +2267,9 @@ static void drawSleepMode(int x, int y, int sx)
       spr.setTextColor(TH.menu_item);
     }
 
+    // Short list: do not repeat (R4)
+    if(count < 5 && (sleepModeIdx+i < 0 || sleepModeIdx+i >= count)) continue;
+
     spr.setTextDatum(MC_DATUM);
     spr.drawString(sleepModeDesc[abs((sleepModeIdx+count+i)%count)], 40+x+(sx/2), 64+y+(i*16), FONT_SMALL);
   }
@@ -3499,7 +3502,7 @@ void webMenuDef(String &j)
   wjItem(j, CMD_SLEEP, "Power and time", "Screen sleep", "n"); wjNum(j, 0, 255, 5, "s");
   wjItem(j, CMD_SLEEPMODE, "Power and time", "Sleep mode", "l"); j += ",\"o\":"; wjList(j, sleepModeDesc, ITEM_COUNT(sleepModeDesc)); j += '}';
   wjItem(j, CMD_OFFTIMER, "Power and time", "Off timer", "n"); wjNum(j, 0, 240, 5, "min");
-  wjItem(j, CMD_PERF, "Power and time", "Performance", "l"); j += ",\"o\":"; wjList(j, perfDesc, ITEM_COUNT(perfDesc)); j += '}';
+  wjItem(j, CMD_PERF, "Power and time", "CPU speed (80 saves battery)", "l"); j += ",\"o\":"; wjList(j, perfDesc, ITEM_COUNT(perfDesc)); j += '}';
   wjItem(j, CMD_WIFIPOWER, "Power and time", "Wi-Fi power", "l"); j += ",\"o\":"; wjList(j, wifiPowerDesc, ITEM_COUNT(wifiPowerDesc)); j += '}';
   wjItem(j, CMD_UTCOFFSET, "Power and time", "Time zone", "l");
   n = 0; for(int i = 0; i < (int)ITEM_COUNT(timeZones) && n < 128; i++) labels[n++] = timeZones[i].desc;
