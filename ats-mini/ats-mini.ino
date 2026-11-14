@@ -23,6 +23,7 @@
 #include "CwAudio.h"
 #include "Ft8.h"
 #include "Web.h"
+#include "WifiSetup.h"
 #include "WebControl.h"
 #include <stdlib.h>
 #include <time.h>
@@ -834,6 +835,10 @@ bool handleRotation(int16_t enc, int16_t accelerated, bool pressed)
         changed = doTune(accelerated);
         prefsRequestSave(SAVE_CUR_BAND);
         break;
+      case CMD_WIFISETUP:
+        wifiSetupTurn(enc);
+        changed = true;
+        break;
       case CMD_FT8:
         // FT8 page: the knob steps through the FT8 bands
         ft8Turn(enc);
@@ -1038,7 +1043,7 @@ void loop()
   // Disable commands control
   if((currentTime - elapsedCommand) > ELAPSED_COMMAND)
   {
-    if(currentCmd != CMD_NONE && currentCmd != CMD_SEEK && currentCmd != CMD_SCAN && currentCmd != CMD_MEMORY && currentCmd != CMD_CWDEC && currentCmd != CMD_FT8)
+    if(currentCmd != CMD_NONE && currentCmd != CMD_SEEK && currentCmd != CMD_SCAN && currentCmd != CMD_MEMORY && currentCmd != CMD_CWDEC && currentCmd != CMD_FT8 && currentCmd != CMD_WIFISETUP)
     {
       tileReturnCancel();
       currentCmd = CMD_NONE;
@@ -1091,7 +1096,7 @@ void loop()
   // RESONIK: beacon tracker, memory scanner and signal logger
   { DIAG_T0; needRedraw |= beaconTick(); needRedraw |= memScanTick(); needRedraw |= bandScanTick(); DIAG_T1("scan"); }
   { DIAG_T0; needRedraw |= loggerTick(); DIAG_T1("log"); }
-  { DIAG_T0; needRedraw |= cwAudioTick(); needRedraw |= ft8Tick(); DIAG_T1("decod"); }
+  { DIAG_T0; needRedraw |= cwAudioTick(); needRedraw |= ft8Tick(); needRedraw |= wifiSetupTick(); DIAG_T1("decod"); }
 
   // Periodically refresh the main screen
   // This covers the case where there is nothing else triggering a refresh

@@ -62,6 +62,7 @@
 #define CMD_FREQLOCK   0x4200 // RESONIK R3: frequency lock
 #define CMD_WIFIPOWER  0x4300 // RESONIK R3: Wi-Fi transmit power
 #define CMD_PERF       0x4400 // RESONIK R3: processor speed
+#define CMD_WIFISETUP  0x4500 // RESONIK R4: Wi-Fi Setup page (network list and keyboard)
 
 // Band plan settings (RESONIK)
 #define BANDPLAN_OFF       0

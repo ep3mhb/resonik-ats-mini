@@ -15,6 +15,7 @@
 #include "Ft8.h"
 #include "Patches.h"
 #include "Storage.h"
+#include "WifiSetup.h"
 
 #include <time.h>
 
@@ -164,7 +165,8 @@ static const char *menu[] =
 #define MENU_FREQLOCK     31  // RESONIK R3
 #define MENU_WIFIPOWER    32  // RESONIK R3
 #define MENU_PERF         33  // RESONIK R3
-#define MENU_ABOUT        34
+#define MENU_WIFISETUP    34  // RESONIK R4
+#define MENU_ABOUT        35
 
 
 static uint8_t updateFwIdx = 0;
@@ -208,6 +210,7 @@ static const char *settings[] =
   "Freq Lock",
   "Wi-Fi Power",
   "Performance",
+  "Wi-Fi Setup",
   "About",
 };
 
@@ -267,6 +270,7 @@ static const TileEntry tileDisplay[] =
 };
 static const TileEntry tileSystem[] =
 {
+  { TI_WIFI, TILE_SET | MENU_WIFISETUP },
   { TI_INFO, TILE_SET | MENU_ABOUT }, { TI_BT, TILE_SET | MENU_BLEMODE },
   { TI_CLOCK, TILE_SET | MENU_DATETIME }, { TI_CHIP, TILE_SET | MENU_DSP_PATCHES },
   { TI_KNOB, TILE_SET | MENU_KNOB },
@@ -1703,6 +1707,7 @@ static void clickSettings(int cmd, bool shortPress)
     case MENU_FM_STEREO:  currentCmd = CMD_FM_STEREO; break;
     case MENU_DSP_PATCHES: currentCmd = CMD_DSP_PATCHES; break;
     case MENU_ABOUT:      currentCmd = CMD_ABOUT;     break;
+    case MENU_WIFISETUP:  wifiSetupOpen();            break;
     case MENU_KNOB:       currentCmd = CMD_KNOB;      break;
     case MENU_FREQLOCK:   currentCmd = CMD_FREQLOCK;  break;
     case MENU_WIFIPOWER:  currentCmd = CMD_WIFIPOWER; break;
@@ -1853,6 +1858,9 @@ bool clickHandler(uint16_t cmd, bool shortPress)
       // CW decoder page: click clears the text, a short press leaves
       if(shortPress) currentCmd = CMD_NONE;
       else cwPageClear();
+      break;
+    case CMD_WIFISETUP:
+      wifiSetupClick(shortPress);
       break;
     case CMD_FT8:
       // FT8 page: click clears the list, a short press leaves
@@ -3281,7 +3289,9 @@ static void tileDrawValue(uint16_t cmd, const TileValue &v)
 
   spr.setTextDatum(BC_DATUM);
   spr.setTextColor(muted);
-  spr.drawString(v.list ? "Turn: choose   Click: done" : "Turn: adjust   Click: done", 160, 168, tileFont(true));
+  // Wi-Fi: where to find the radio's web pages (R4)
+  if(cmd == CMD_WIFIMODE) { spr.setTextColor(0xFFFF); spr.drawString(wifiInfoLine(), 160, 168, tileFont(true)); }
+  else spr.drawString(v.list ? "Turn: choose   Click: done" : "Turn: adjust   Click: done", 160, 168, tileFont(true));
 }
 
 bool drawTileMenu()

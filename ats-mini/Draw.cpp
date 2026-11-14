@@ -1,4 +1,5 @@
 #include "Common.h"
+#include "WifiSetup.h"
 #include "BandPlan.h"
 #include "Resonik.h"
 #include "Themes.h"
@@ -533,6 +534,13 @@ void drawScreen()
   if(currentCmd==CMD_CWDEC)
   {
     drawCwPage();
+    return;
+  }
+
+  // Wi-Fi Setup page (RESONIK R4)
+  if(currentCmd==CMD_WIFISETUP)
+  {
+    drawWifiSetup();
     return;
   }
 
