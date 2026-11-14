@@ -231,6 +231,7 @@ void prefsSave(uint32_t items)
     prefs.putUChar("BpArea2",     bandPlanArea);   // Band plan area (RESONIK R3: All, R1-R3, Iran, UAE)
     prefs.putUChar("CwStrip",     cwStripIdx);     // CW decoder strip (RESONIK R3)
     prefs.putUChar("FreqLock",    freqLock);       // Frequency lock (RESONIK R3)
+    prefs.putUChar("BcnNames",    beaconNames);    // Beacon names on beacon frequencies (RESONIK R4)
     prefs.putUChar("WifiPower",   wifiPowerIdx);   // Wi-Fi transmit power (RESONIK R3)
     prefs.putUChar("Perf",        perfIdx);        // Processor speed (RESONIK R3)
     prefs.putUChar("MenuStyle2",  menuStyleIdx);   // Menu style (RESONIK); new key so the tile default reaches radios updated from r1
@@ -338,6 +339,7 @@ bool prefsLoad(uint32_t items)
     else if(prefs.isKey("BpArea")) bandPlanArea = bandPlanAreaFromOld(prefs.getUChar("BpArea", 0));
     cwStripIdx     = prefs.getUChar("CwStrip", cwStripIdx) ? 1 : 0;   // Default Off (R3)
     freqLock       = prefs.getUChar("FreqLock", freqLock) ? 1 : 0;
+    beaconNames    = prefs.getUChar("BcnNames", beaconNames) ? 1 : 0;
     wifiPowerIdx   = prefs.getUChar("WifiPower", wifiPowerIdx) % 3;
     perfIdx        = prefs.getUChar("Perf", perfIdx) % 3;
     menuStyleIdx   = prefs.getUChar("MenuStyle2", menuStyleIdx) ? MENU_STYLE_TILES : MENU_STYLE_CLASSIC;

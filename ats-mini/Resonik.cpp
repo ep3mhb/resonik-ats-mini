@@ -62,9 +62,13 @@ int8_t beaconFollowIdx = -1;
 static uint32_t beaconFollowFreq = 0;
 static int beaconLastSlot = -1;
 
-const char *const beaconMenuLabels[19] =
+uint8_t beaconNames = 1;
+
+// R4: "Off" now also hides the beacon names (GitHub: Off did not stop them);
+// "Names only" shows the beacon due in each slot without following one
+const char *const beaconMenuLabels[BEACON_MENU_COUNT] =
 {
-  "Off", "4U1UN", "VE8AT", "W6WX", "KH6RS", "ZL6B", "VK6RBP", "JA2IGY", "RR9O", "VR2B",
+  "Off", "Names only", "4U1UN", "VE8AT", "W6WX", "KH6RS", "ZL6B", "VK6RBP", "JA2IGY", "RR9O", "VR2B",
   "4S7B", "ZS6DN", "5Z4B", "4X6TU", "OH2B", "CS3B", "LU4AA", "OA4B", "YV5B",
 };
 
@@ -72,12 +76,28 @@ const char *beaconLabel(uint32_t freq)
 {
   static char label[40];
   int band = ibpBandAt(freq);
-  if(band < 0 || !clockAvailable()) return(nullptr);
+  if(band < 0 || !clockAvailable() || (!beaconNames && beaconFollowIdx < 0)) return(nullptr);
 
   uint32_t utc = (uint32_t)time(NULL);
   const IbpBeacon &b = ibpBeacons[ibpBeaconOn(band, utc)];
   snprintf(label, sizeof(label), "Beacon %s %s %ds", b.call, b.place, ibpSecondsLeft(utc));
   return(label);
+}
+
+int beaconMenuIdx() { return(beaconFollowIdx >= 0 ? beaconFollowIdx + 2 : beaconNames ? 1 : 0); }
+
+void beaconMenuSet(int idx)
+{
+  if(idx <= 1)
+  {
+    beaconNames = idx == 1;
+    beaconFollow(-1);
+    prefsRequestSave(SAVE_SETTINGS);
+  }
+  else beaconFollow(idx - 2);
+  // Take the name off (or put it on) at once
+  clearStationInfo();
+  identifyFrequency(currentFrequency);
 }
 
 void beaconFollow(int8_t idx)
@@ -95,7 +115,7 @@ void beaconFollow(int8_t idx)
 // Called from the main loop. Returns true when the screen should be redrawn.
 bool beaconTick()
 {
-  bool onBeacon = ibpBandAt(currentFrequency) >= 0 && currentMode != FM;
+  bool onBeacon = ibpBandAt(currentFrequency) >= 0 && currentMode != FM && (beaconNames || beaconFollowIdx >= 0);
   if(beaconFollowIdx < 0 && !onBeacon) return(false);
   if(!clockAvailable()) return(false);
 
