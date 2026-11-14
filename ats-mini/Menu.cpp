@@ -163,10 +163,10 @@ static const char *menu[] =
 #define MENU_BPAREA       29  // RESONIK R3
 #define MENU_FT8          30  // RESONIK R3
 #define MENU_FREQLOCK     31  // RESONIK R3
-#define MENU_WIFIPOWER    32  // RESONIK R3
-#define MENU_PERF         33  // RESONIK R3
-#define MENU_WIFISETUP    34  // RESONIK R4
-#define MENU_ABOUT        35
+#define MENU_PERF         32  // RESONIK R3
+#define MENU_ABOUT        33
+// RESONIK R4: Wi-Fi mode, Wi-Fi Power and joining a network are one item,
+// "Wi-Fi" (MENU_WIFIMODE), which opens the Wi-Fi page (WifiSetup.cpp)
 
 
 static uint8_t updateFwIdx = 0;
@@ -208,9 +208,7 @@ static const char *settings[] =
   "Plan Area",
   "FT8/FT4",
   "Freq Lock",
-  "Wi-Fi Power",
   "Performance",
-  "Wi-Fi Setup",
   "About",
 };
 
@@ -270,14 +268,13 @@ static const TileEntry tileDisplay[] =
 };
 static const TileEntry tileSystem[] =
 {
-  { TI_WIFI, TILE_SET | MENU_WIFISETUP },
   { TI_INFO, TILE_SET | MENU_ABOUT }, { TI_BT, TILE_SET | MENU_BLEMODE },
   { TI_CLOCK, TILE_SET | MENU_DATETIME }, { TI_CHIP, TILE_SET | MENU_DSP_PATCHES },
   { TI_KNOB, TILE_SET | MENU_KNOB },
   { TI_POWER, TILE_SET | MENU_OFFTIMER }, { TI_NETWORK, TILE_SET | MENU_TCPMODE },
   { TI_GLOBE, TILE_SET | MENU_UTCOFFSET }, { TI_FIRMWARE, TILE_SET | MENU_UPDATEFW },
   { TI_USB, TILE_SET | MENU_USBMODE }, { TI_WIFI, TILE_SET | MENU_WIFIMODE },
-  { TI_WIFIPOWER, TILE_SET | MENU_WIFIPOWER }, { TI_PERF, TILE_SET | MENU_PERF },
+  { TI_PERF, TILE_SET | MENU_PERF },
 };
 
 static const TileCategory tileCategories[] =
@@ -1702,15 +1699,13 @@ static void clickSettings(int cmd, bool shortPress)
       bleModeMenuIdx = bleModeIdx;
       currentCmd = CMD_BLEMODE;
       break;
-    case MENU_WIFIMODE:   currentCmd = CMD_WIFIMODE;   break;
+    case MENU_WIFIMODE:   wifiSetupOpen();             break;
     case MENU_FM_REGION:  currentCmd = CMD_FM_REGION; break;
     case MENU_FM_STEREO:  currentCmd = CMD_FM_STEREO; break;
     case MENU_DSP_PATCHES: currentCmd = CMD_DSP_PATCHES; break;
     case MENU_ABOUT:      currentCmd = CMD_ABOUT;     break;
-    case MENU_WIFISETUP:  wifiSetupOpen();            break;
     case MENU_KNOB:       currentCmd = CMD_KNOB;      break;
     case MENU_FREQLOCK:   currentCmd = CMD_FREQLOCK;  break;
-    case MENU_WIFIPOWER:  currentCmd = CMD_WIFIPOWER; break;
     case MENU_PERF:       currentCmd = CMD_PERF;      break;
     case MENU_BANDPLAN:   currentCmd = CMD_BANDPLAN;  break;
     case MENU_BPAREA:     currentCmd = CMD_BPAREA;    break;
@@ -2903,7 +2898,7 @@ void drawSideBar(uint16_t cmd, int x, int y, int sx)
     case CMD_BPAREA:     drawOptionList(settings[MENU_BPAREA], bandPlanAreaDesc, BP_AREA_COUNT, bandPlanArea, x, y, sx); break;
     case CMD_KNOB:       drawOptionList(settings[MENU_KNOB], knobDesc, 2, encoderHalfStep ? 1 : 0, x, y, sx); break;
     case CMD_FREQLOCK:   drawOptionList(settings[MENU_FREQLOCK], freqLockDesc, 2, freqLock, x, y, sx); break;
-    case CMD_WIFIPOWER:  drawOptionList(settings[MENU_WIFIPOWER], wifiPowerDesc, 3, wifiPowerIdx, x, y, sx); break;
+    case CMD_WIFIPOWER:  drawOptionList("Wi-Fi Power", wifiPowerDesc, 3, wifiPowerIdx, x, y, sx); break;
     case CMD_PERF:       drawOptionList(settings[MENU_PERF], perfDesc, 3, perfIdx, x, y, sx); break;
     case CMD_BEACON:     drawOptionList(menu[MENU_BEACONS], beaconMenuLabels, BEACON_MENU_COUNT, beaconMenuIdx(), x, y, sx); break;
     case CMD_VOLUME:     drawVolume(x, y, sx);     break;
