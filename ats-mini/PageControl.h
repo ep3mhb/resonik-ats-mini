@@ -80,6 +80,9 @@ a{color:var(--accent)}
  Click a peak to tune to it.</div></div>
 <div class="audio"><button id="au" style="width:100%;margin-bottom:8px">&#128266; Listen (experimental)</button>
  <label style="display:block;margin-bottom:6px;color:var(--text)"><input type="checkbox" id="sil" checked> Silence the radio's speaker while listening</label>
+ <label style="display:block;margin-bottom:6px;color:var(--text)">Hiss filter
+  <select id="hf" style="margin-left:6px;padding:4px 6px;border-radius:6px;background:#06171e;color:var(--text);border:1px solid var(--line)">
+   <option value="0">Off</option><option value="3400">Light (3.4 kHz)</option><option value="2800" selected>Medium (2.8 kHz)</option><option value="2200">Strong (2.2 kHz)</option></select></label>
  <span id="ai">Audio needs a V4B board (speaker line on GPIO11). Wi-Fi and the receiver share the processor's
  ADC, so the sound can drop out; the counter below shows how often.</span></div>
 <p class="hint">Keyboard: &larr; &rarr; tune, Enter click, Space press, + &minus; volume. While this page is open, the FT8 and CW pages keep Wi-Fi on, so you can use them from
@@ -180,7 +183,12 @@ const ulaw=new Int16Array(256);for(let i=0;i<256;i++){const u=~i&255,s=u&128,e=(
  let v=((m<<3)+0x84)<<e;v-=0x84;ulaw[i]=s?-v:v;}
 document.getElementById('au').onclick=function(){
  listening=!listening;this.textContent=listening?'\u{1F507} Stop listening':'\u{1F50A} Listen (experimental)';
- if(listening&&!ac){ac=new(window.AudioContext||window.webkitAudioContext)();gain=ac.createGain();gain.gain.value=1;gain.connect(ac.destination);}
+ if(listening&&!ac){ac=new(window.AudioContext||window.webkitAudioContext)();gain=ac.createGain();gain.gain.value=1;
+  // Filters before the level: a low cut for hum and rumble, and a steep
+  // high cut (two stages) for the ADC hiss above the voice band
+  hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=180;
+  lp1=ac.createBiquadFilter();lp1.type='lowpass';lp2=ac.createBiquadFilter();lp2.type='lowpass';
+  hp.connect(lp1);lp1.connect(lp2);lp2.connect(gain);gain.connect(ac.destination);setHiss();}
  if(ac)ac.resume();send(listening?'!audio1':'!audio0');send(listening&&document.getElementById('sil').checked?'!mute1':'!mute0');next=0;};
 document.getElementById('sil').onchange=function(){if(listening)send(this.checked?'!mute1':'!mute0');};
 function play(s){if(!listening||!ac)return;
@@ -193,14 +201,19 @@ function play(s){if(!listening||!ac)return;
  lastS=s[s.length-1];
  if(quiet)gain.gain.value=0;
  else if(gain.gain.value===0)gain.gain.value=1;
- if(!quiet&&peak>0.003)gain.gain.value=Math.min(40,Math.max(0.5,gain.gain.value*0.9+0.1*(0.5/peak)));
- const src=ac.createBufferSource();src.buffer=buf;src.connect(gain);
+ // Boost at most 10 times: more only made the hiss louder
+ if(!quiet&&peak>0.003)gain.gain.value=Math.min(10,Math.max(0.5,gain.gain.value*0.9+0.1*(0.5/peak)));
+ const src=ac.createBufferSource();src.buffer=buf;src.connect(hp);
  const t=ac.currentTime;
  // Ran dry: the sound stopped until this packet (a gap you hear)
  // After a gap keep a bigger reserve (up to 1 s)
  if(next<t+0.02){if(next>0){gaps++;gapMs+=Math.round((t+reserve-next)*1000);reserve=Math.min(1,reserve+0.15);}next=t+reserve;}
  else if(next>t+2)next=t+reserve;
  src.start(next);next+=buf.duration;}
+let hp=null,lp1=null,lp2=null;
+function setHiss(){if(!lp1)return;const f=+document.getElementById('hf').value||3990;
+ lp1.frequency.value=f;lp2.frequency.value=f;}
+document.getElementById('hf').onchange=setHiss;
 let quiet=false,emptyS=0;
 function status(j){
  // No input on GPIO11 (V4B with headphones plugged in: the speaker line is
