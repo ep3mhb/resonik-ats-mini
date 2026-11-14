@@ -76,6 +76,25 @@ details.card[open]>summary{margin-bottom:10px}
 .mem button.t{flex:1;text-align:left;padding:8px 10px;background:#06171e;font-size:13px}
 .mem button.x{flex:0 0 36px;min-width:0;padding:8px 0;background:#3a2020}
 @media (max-width:520px){.set,.grid{grid-template-columns:1fr}}
+.tabs{display:flex;gap:4px;margin:0 0 2px;overflow-x:auto;scrollbar-width:none}
+.tabs button{flex:1;min-width:0;padding:10px 4px;font-size:13px;border-radius:9px 9px 0 0;background:#0b2631;color:var(--muted)}
+.tabs button.on{background:var(--card);color:var(--text)}
+section[data-tab]{display:none}section[data-tab].on{display:block}
+section[data-tab]>:first-child{margin-top:0}
+#map{width:100%;display:block;background:#06171e;border-radius:8px}
+#map .land{fill:#1d4a5c}
+#map .grid{stroke:#123744;stroke-width:.6;fill:none}
+#map .stn{cursor:pointer}
+#map .dot{stroke:#06171e;stroke-width:1.5}
+#map .lbl{font:600 10px system-ui,sans-serif;fill:#8fb0bd}
+#map .pulse{fill:none;stroke-width:2.5;transform-box:fill-box;transform-origin:center;animation:hb 1s ease-out infinite}
+@keyframes hb{0%{transform:scale(.6);opacity:1}100%{transform:scale(2.6);opacity:0}}
+.bnds{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.bnds button{flex:1;min-width:92px;padding:7px 6px;font-size:12px;background:#06171e;border:2px solid transparent;text-align:left;line-height:1.3}
+.bnds button.on{border-color:currentColor}
+.bnds b{display:block;font-size:13px;color:var(--text)}
+.lg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
+.lg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
 </style></head><body><main>
 <h1><span><svg style="vertical-align:-6px;margin-right:8px" viewbox="0 0 53 48" width="26" height="24" aria-hidden="true"><rect x="0" y="40" width="5" height="8" rx="2" fill="#dce6ea"/><rect x="8" y="36" width="5" height="12" rx="2" fill="#dce6ea"/><rect x="16" y="28" width="5" height="20" rx="2" fill="#dce6ea"/><rect x="24" y="0" width="5" height="48" rx="2" fill="#4dabf7"/><rect x="32" y="28" width="5" height="20" rx="2" fill="#dce6ea"/><rect x="40" y="36" width="5" height="12" rx="2" fill="#dce6ea"/><rect x="48" y="40" width="5" height="8" rx="2" fill="#dce6ea"/></svg>RESONIK Web Control</span> <span id="st">offline</span></h1>
 <div class="panel">
@@ -83,7 +102,9 @@ details.card[open]>summary{margin-bottom:10px}
  <div class="sm"><span id="sv" style="min-width:64px">S&ndash;</span><div class="bar"><i id="sb"></i></div><span id="sn"></span></div>
  <div id="ps"></div><div id="rt"></div>
 </div>
-<div class="row">
+<nav class="tabs" id="tabs"><button data-t="rx" class="on">Receiver</button><button data-t="mem">Memory</button><button data-t="bcn">Beacons</button><button data-t="set">Settings</button><button data-t="more">More</button></nav>
+<section data-tab="rx" class="on">
+<div class="row" style="margin-top:0">
  <button class="big" data-hold="r" title="Left arrow: one step down">&#9664;</button>
  <button data-seek="-" title="Seek down">&#9664;&#9664; Seek</button>
  <button data-seek="+" title="Seek up">Seek &#9654;&#9654;</button>
@@ -105,10 +126,18 @@ details.card[open]>summary{margin-bottom:10px}
  <canvas id="sc" width="640" height="140"></canvas>
  <div id="scl">Sweep measures the signal at 41 points around the frequency (the sound is muted for 2&ndash;3 seconds).
  Click a peak to tune to it.</div></div>
-<details class="card" id="memc"><summary>Memories</summary>
+</section>
+<section data-tab="mem"><div class="card"><h2>Memories</h2>
  <div id="mems"></div>
- <div class="row"><button id="msave">Save this station</button><a href="/memory" style="flex:1;text-align:center;padding:12px 0">Edit names</a></div></details>
-<div id="sets"></div>
+ <div class="row"><button id="msave">Save this station</button><a href="/memory" style="flex:1;text-align:center;padding:12px 0">Edit names</a></div></div></section>
+<section data-tab="bcn"><div class="card"><h2>NCDXF/IARU beacons <span id="bclk" style="float:right;color:var(--muted);font-weight:600"></span></h2>
+ <div class="bnds" id="bnds"></div>
+ <svg id="map" viewBox="0 0 720 300" role="img" aria-label="World map of the 18 beacons">
+  <g class="grid" id="mgrid"></g><path class="land" d="M224 288l3 1l3 0l-3 1l-2 1l-3 0l-2-1l-2 0l-3-1l-2-1l-2-2l4 1l3 1l1-2l2-1l2 0l1 3zM243 282l2 1l-4 1l-2 1l1-2l2 0zM501 279l-4 1l0-2l2 0l2 0zM651 262l2 0l2 0l2 0l0 2l-1 2l-2 1l-2 0l-1-2l-2-3l2 0zM706 262l2 0l0 2l-2 2l0 2l-3 0l-1 2l-1 2l-2 1l-2 0l-4-1l1-2l3-2l2-1l2-1l2-2l1-2l2-1zM709 252l2 2l3 2l2-1l1 2l-3 1l0 2l-2 3l-2 0l0-2l-2-2l1-3l0-3l-3-3l3 1zM694 224l-2 0l-2-2l-2-1l2 0l2 1l2 2zM717 215l-1 2l-1-2l2 0zM460 207l0 3l0 2l0 2l-1 2l-1 2l-1 3l-1 4l-1 3l-1 2l-3 1l-3-1l-1-3l0-3l1-2l1-2l-1-2l0-3l1-3l2 0l2 0l1-2l2-2l2-2l0-2l2 2zM647 208l2 0l2 2l0 3l1 3l1 2l2 1l3 2l1 2l0 2l2 0l1 2l2 2l2 2l0 2l0 2l1 3l-1 3l0 2l-1 2l-2 1l0 2l-2 2l-1 3l0 2l-3 1l-2 0l-2 2l-2-1l-2-1l-2 2l-2-1l-2 0l-2-1l-1-3l-2-2l-2 0l0-2l-2 2l1-2l1-2l-2 1l-2 2l-2-1l-1-3l-3-2l-3-1l-4 0l-3 1l-2 1l-2-1l-2 1l-2 1l-1 2l-3 0l-3 0l-2 1l-2 0l-2 1l-2 0l-2-1l-1-2l2-3l-2-3l0-2l-1-2l-1-2l-1-2l0-2l1 2l-1-3l0-2l1-2l0-2l3-1l2-2l2 0l3 0l2-1l2-1l1-2l2-1l1-3l1 2l0-2l2 0l0-2l1-2l2 0l2-1l2 1l2 1l2-3l1-2l2 0l2-1l0-2l2 2l2 0l2 0l2 0l0 2l-1 2l-1 2l2 1l2 1l2 2l2 1l3 0l1-2l0-3l0-3l1-2l0-2l1-2l1 3l1 2l0 2zM601 200l-3-1l2 0l2 1zM682 200l-2 0l-1-2l2 1zM609 200l-2 1l1-2l2-1l2-1l2 0l-2 1l-2 1zM596 196l2 1l-2 1l-3 0l2-1zM606 196l-3 2l-3 0l1-2l2 1l3-1zM680 197l-2-1l-2-1l2 0l2 2zM577 194l4 0l4 0l4 2l2 1l-2 1l-2-1l-2 0l-2 0l-2-1l-2-1l-2 0l-4 0l-2-1l1-2l3 0l2 1zM672 194l-2-1l-1-3l2 2l1 2zM664 191l-2 1l-2 1l-2-1l2-1l2 0l1-3l2 1l-1 2zM621 186l1 2l-2-1l-2 0l-2 0l3-1l2 0zM666 189l-2-2l-3-2l2 1l2 1l1 2zM628 182l1 4l2 1l2-2l2-2l2 0l3 2l2 0l3 2l4 1l2 1l1 2l3 1l-1 3l2 1l1 2l2 0l0 2l3 1l-2 0l-2 0l-2-1l-2-1l-2-3l-3-1l-2 1l0 2l-2 1l-3-1l-2-1l-2-1l-3 1l1-2l1-3l-5-3l-2 0l-3-2l-3-1l2-1l2 0l-4-1l-2-1l2-2l4 1zM610 177l-1 2l-2 1l-2-1l-3 0l-2 1l2 3l5-2l-2 2l-2 1l2 2l1 3l0 2l-2 0l1-2l-2 1l0-2l-1-3l-1 3l0 3l-2 0l0-2l0-2l-1-3l2-4l2-3l4 1l2 0l2-1zM617 178l-1 3l-1-3l0-2l2 1zM572 192l-3 0l-1-2l-3-2l-2-2l-1-2l-2-3l-2-3l-1-2l-2-1l-1-2l-3-3l4 0l2 1l1 2l3 3l2 0l2 1l1 2l2 1l0 2l1 2l2 1l1 4l0 3zM596 176l2 2l-2 0l-1 2l0 2l-2 1l0 2l-1 3l-2 0l-2-1l-4 0l-2-1l-2 0l0-3l-2-2l0-2l0-2l3 0l2-2l3-1l1-2l2-2l2-1l2-3l2 1l2 2l0 2l-2 3l1 2zM613 163l0 3l-2 0l0 2l-3 0l0-2l-1-2l-3 2l1-2l2-1l2 0l2-1l0-2l2 2zM522 168l-2-2l-1-2l1-4l2 1l1 2l1 2l-1 2zM238 160l-2 0l1-2l1 2zM608 159l-1 2l-2 0l1-2l2-1zM597 161l-3 2l3-2l1-2l1-2l0 2l-2 2zM604 156l2 1l-1 2l-1-2zM611 156l1 2l-2-1l1 2l-2-1l1-2zM603 154l0 2l-2-3l2 1zM603 143l2 1l0 2l-2 2l0 2l2 2l3 0l0 2l-2-1l-2-1l-2 1l-1-2l-1-2l0-2l1-2l0-2l2 0zM206 144l-2 0l2-1l2 1l-2 0zM215 140l2 1l3 0l2 0l1 2l-2 0l-2 1l-2 1l-2-1l-2 0l-2-1l2 0l2 0l-1-2zM581 143l-2 1l-2-1l0-2l3-1l2 0l-1 3zM49 142l-1-2l2 0l0 2zM201 134l2 1l3 2l2 1l2 1l2 0l-2 1l-3 0l-3 0l2-1l-2 0l-1-2l-2 0l-2-1l-3 0l-2-1l-2 1l-2 0l2-1l3-1l2 0l2 0l2 0zM602 134l-1 2l-1-2l1-3l2-2l1 2l-2 3zM629 112l-1 2l-2 1l-1-2l2-1l2 0zM429 109l-3 2l0-2l3 0zM407 109l3 0l2 0l-3 1l-2-1zM391 104l0 2l-2 0l-4-1l2-1l3 0zM378 98l2 1l-1 3l-2 0l0-3zM642 106l0 2l-1 2l-3 1l-4 0l-2 2l-2-1l-3-1l-3 1l-2 0l2 2l-1 3l-2 1l0-3l-2-2l2 0l3-3l5-1l2 0l2-4l2 1l3-2l2-3l0-2l3-2l1 3l0 2l-2 2l0 2zM379 96l-2-1l2-1l0 2zM648 92l3-1l0 2l-3 1l-2 2l-3-1l-1 2l-2 0l0-2l1-2l2 0l0-3l3 1l2 1zM233 87l3 0l-2 1l-2-1zM236 82l-3-1l-2-1l3 1l2 0zM113 83l-4-1l-3-1l-2-1l-1-2l2 1l2 0l2 1l3 2zM248 79l-2 1l2 0l2 1l3 1l1 2l0 3l-2-1l0-2l-3 2l-2-1l-2 0l-4 0l1-2l3-4l2-2l2 0l-1 2zM95 72l2 0l-1 2l2 2l-2-1l-2-2zM647 79l2 3l-3-1l-1 3l2 2l0 2l-2-1l-1-3l0-2l0-4l-1-2l0-3l2-1l2 3l0 4zM346 75l-3 2l-3-1l2-2l-1-2l2-1l2-1l2 0l2 1l-1 3l-2 1zM54 66l-2 1l-1-2l3-1l2 1l-2 1zM354 63l-2 2l2 0l2 0l-2 3l2 0l2 3l2 2l3 2l0 2l-2 1l-3 0l-3 1l-2 1l-2-1l-3 1l3-2l2-1l-3 0l2-2l-2-1l4-1l-1-2l-3-1l0-2l-2-2l0-2l2-1l2 0l2 0zM196 55l-2 1l-2 0l2-2l2 0zM17 52l2 1l2 0l2 0l-2 1l-2 0l-2-1zM190 49l2 1l2 0l3 1l3 2l-2 0l-3 0l-3 0l-3 1l-3-1l2-3l2-1zM331 47l2 3l-3 1l-6 2l-4 0l-6-1l2-1l-4-1l4 0l-5-1l2-2l3 0l3 2l3-2l2 1l4-1l3 0zM208 46l-2 0l0-2l2-1l2 1l-2 2zM0 42l5 2l5 2l6 0l4 2l-2 1l-3 0l0 2l-3 0l-4-1l-2-1l-3 0l-3-1l0 2zM720 50l-3 1l-2 0l2 1l2 2l-4 1l-6 1l-2 1l-3 1l-3 1l-3 0l-5 1l-3 1l-3-1l-1 2l-2 2l2 1l0 3l-2 0l0 2l-3 1l-1 3l-3 0l-1 2l-2 2l-2-4l-1-5l1-3l2-1l3-1l3-3l4-2l3-1l2-3l-2 0l-2 2l-5 2l-1-3l-6 1l-5 3l2 2l-4 0l-3 0l-3-1l-3 1l-6-1l-7 1l-6 4l-8 5l3 0l3 1l2-1l2 1l3 2l0 2l-2 2l0 2l-1 3l-3 3l-3 4l-3 2l-4 2l-2-1l-3 2l-2 1l-1 2l-2 2l-2 0l0 2l2 1l1 2l1 4l-3 1l-3 1l0-2l-1-2l2-1l-2-1l-2-1l0-2l-1-2l-3 1l-2 1l-2 0l1-2l0-2l-4 2l-3 2l0 2l2 0l1 2l3-2l3 1l-3 2l-3 2l1 2l1 2l1 2l2 2l-1 2l1 3l-1 2l-2 2l-2 3l-2 2l-2 2l-3 1l-2 1l-2 1l-2 0l-2 1l-2 0l-1 2l-2-1l-2-1l-4 2l-2 3l2 2l2 3l2 1l2 5l-1 4l-4 2l-1 2l-3 2l0-3l-3-1l-2-3l-2-1l-1-2l-2 0l0 2l-1 3l-1 2l0 2l2 0l1 3l2 2l2 1l2 2l0 2l0 2l1 3l-3-1l-2-2l-2-2l0-2l0-2l-2-2l-1-2l-2-1l1-3l1-3l-1-3l-1-4l-1-2l-1-2l-3 3l-3-1l1-3l-2-4l-2-2l-1-2l-1-3l-2 0l0 2l-2 0l-3 1l-2 0l0 2l-4 2l-2 2l-2 2l-2 1l-2 2l-2 2l0 2l1 2l-1 2l0 3l-2 2l-2 2l-3-1l-1-3l-1-2l-1-2l-1-3l-2-4l-1-4l0-2l0-3l-1-2l-3 1l-4-2l1-2l-3-1l-2-2l-1-2l-4 1l-3 0l-3 0l-4-1l-2 0l-2 0l-1-3l-3 0l-2 1l-2-1l-2-1l-2-1l-1-2l-2-2l-2-1l-2 1l1 3l1 2l2 2l0 2l2 1l0-2l1 2l0 2l2 0l2 0l2-2l2-1l2-2l0 2l1 3l2 1l2 1l2 1l-1 2l-2 2l-2 2l-2 2l-2 1l0 2l-3 0l-2 1l-2 1l-2 2l-3 1l-2 1l-2 1l-2 0l-2 0l-1 2l-2 0l-2-1l1-2l-1-2l0-2l-1-2l-1-2l-2-1l0-2l-2-1l-2-3l0-2l-1-2l-2-2l-1-2l-1-2l-2-2l-2-1l1-2l-2 2l-2-1l-1-3l0 3l2 2l1 3l2 2l1 2l0 2l2 2l1 2l0 2l1 3l2 1l1 2l1 2l3 3l3 2l1 2l-1 2l2 0l1 2l3 0l2-1l2 0l2-1l2 0l2 0l1 2l-1 3l-1 2l-1 2l-2 3l-2 3l-2 2l-2 2l-3 2l-2 1l-2 3l-2 2l-2 3l-1 2l-2 3l2 2l0 2l0 2l1 2l1 2l0 2l0 4l0 3l-2 2l-2 1l-2 1l-2 2l-3 2l-1 2l1 2l1 3l0 2l-3 2l-2 1l0 2l-1 2l0 2l-2 2l-2 2l-3 3l-2 2l-3 1l-3 1l-3 0l-2 0l-2 1l-2 0l-2 1l-2-2l-1-3l0-2l-1-2l-2-4l-2-1l-1-2l0-2l-1-4l0-3l-1-2l-2-4l-2-3l-1-3l1-3l1-3l2-2l0-2l0-2l-1-3l0-3l-2-2l0-3l-2-2l-2-2l-1-2l-1-2l1-3l0-4l0-2l-2-2l-2 0l-2 1l-2-2l-2-3l-2 0l-2 0l-3 1l-3 1l-3 2l-2-1l-2 0l-4 0l-3 1l-3-1l-2-1l-2-1l-1-2l-2-1l-1-3l-2-2l-2-2l-2-1l-1-2l0-2l-1-2l1-2l0-2l1-3l-1-2l0-2l-1-2l0-2l1-2l2-3l1-2l1-2l3-2l3-1l1-2l3-2l-1-2l1-2l2-2l2-1l3-3l0-2l2 0l3 1l2 1l3-1l2-1l3-1l3-1l4 0l3 0l2 0l2 0l2-1l1 2l2-1l-1 2l1 2l-2 1l2 1l1 2l2 0l3 1l2 0l1 2l2 1l3 0l2 1l2-1l0-2l2-1l4 0l2 1l2 0l3 1l2 0l2 1l2 0l3-1l2 1l2 0l2 0l2-2l0-2l1-2l1-3l0-2l-3-1l-1 2l-3 0l-2-1l-2 0l-2 1l-2-1l-2 0l-1-2l0-3l-2-1l3-2l3 0l4-1l3-1l2-1l3 0l4 1l3 1l2 0l2 0l2-1l0-2l-2-1l-4-3l-2 0l-2-1l2-1l0-2l3-1l-2 0l-2 1l-2 0l-2 0l0 2l3 0l-3 1l-2 1l-3-2l2-1l-4-1l-2 0l-2 2l-2 4l-2 2l1 2l2 0l-3 1l-2 2l-1-2l-2 0l-3 1l2 1l-2 0l-2-1l1 2l1 2l1 2l-2-1l0 3l-3-1l-1-3l-2-2l-1-2l0-2l-1-2l-3-1l-3-1l-2-1l0-2l-2 0l-2-1l-1 2l2 2l3 3l2 0l2 2l3 1l-2 0l-2 1l1 2l-2 2l0-2l-1-2l-2-1l-2-1l-3-1l-2-2l-2-3l-2-1l-2 1l-3 2l-4-1l-3 1l0 2l-2 2l-2 0l-2 2l0 3l-1 2l-2 0l-1 2l-3 0l-2 0l-2 1l-2-2l-2 0l-2 0l-1-3l-1-2l1-3l0-2l-1-2l3-1l2 0l3 0l2 0l2 0l3 0l2-5l-2-2l-2-1l-3-1l2-2l4 1l-1-3l2 1l5-1l0-2l2 0l2-1l2-3l3-1l2 0l2 0l2-1l-1-2l-1-3l3-1l2-1l0 2l-2 2l1 2l2 0l2 1l3 0l3 0l3-1l2-1l2 1l2 0l4-1l-1-2l0-2l3-2l2 2l2-2l-2-1l2-2l3 0l2 0l2 0l2-1l-2-1l-3 0l-4 1l-3 0l-3-1l0-2l-1-2l3-3l4-2l2 0l-3-2l-4 1l-2 1l-2 3l-4 2l-2 2l2 2l2 1l-2 2l-2 1l-1 3l-1 2l-3 0l-3 1l-1-2l-1-2l-2-3l-5 1l-3 1l-3-1l0-2l-1-5l2-1l5-2l4-2l4-3l5-4l3-1l5-3l5-1l3 1l3-2l4 0l3 0l7 1l-3 1l2 1l2-1l4 1l5 1l8 2l1 2l-2 1l-3 1l-9-2l-2 1l4 1l0 3l2 1l2 0l-1-2l6 1l2-1l3-3l2 0l2 1l1-2l-2-1l0-2l6 1l-2 1l2 2l3-1l4-2l7-2l2 0l-2 2l2 0l2-1l4 0l3-1l2 1l2-1l-2-1l7 0l3 1l7 2l-1-2l-2-1l-1-2l4-3l1-2l2 0l5 0l1 2l-2 1l2 2l-1 3l2 1l-1 2l-3 2l2 1l3-2l2-2l0-2l-2 0l1-3l-3-2l4-1l-1-2l2 1l0 2l2 1l-1-2l3-1l4 0l4 2l-2-2l0-2l4-1l4 0l5 0l-2-1l2-1l3 0l4-1l5-1l6 0l6-1l4 0l2-2l5 0l3 0l-3 1l5 0l2 1l6 0l5 1l-1 2l-6 1l4 1l2 0l2 1l3-1l7 1l8 1l5-1l3 0l3 1l0 2l2 2l4 0l2-2l3 1l3 0l4 0l5 0l-2-2l3-1l18 2l2 1l5 1l8 0l4 0l2 1l-1 2l3 0l3 0l3 0l4 0l4 0l3 2l3-1l-2-1l7-1l4 0l6 1zM458 97l1 2l2 0l-2 1l-1 2l0 3l2 0l2 1l3 1l3-1l-1-2l1-2l-2-1l0-3l2 1l0-2l-2-1l0 2l-1-2l0-2l-2 0l-1-2l1-2l3-1l0-3l-2 0l-2 0l-2 1l-2 0l-3 2l-2 2l2 2l2 3zM169 42l-2 0l-2 0l-2 0l-3-1l2 0l2-1l2 0l3 2zM0 37l2 0l3 0l-2 1l-3 0zM179 41l0 2l3-2l2 2l1 3l2-2l2-2l0-2l3 0l3 1l2 1l-1 2l1 2l-4 1l-2 0l-3 0l-2 3l-3 2l-3 0l-2 2l-2 0l-2 2l-2 2l-1 2l0 2l3 0l0 2l1 2l3-1l4 1l2 1l4 2l2 0l3 1l2 0l1 3l1 3l3 2l2-1l1-2l-1-3l-2-1l4-1l2-2l1-2l-2-2l-2-2l2-2l-1-2l0-3l5 0l2 1l3 0l3 1l4 1l0 2l0 2l2 0l2 2l3-2l2-2l2 1l3 3l2 2l2 2l2 2l3 0l2 2l2 1l1 3l-2 0l-5 2l-2 2l-3 0l-5-1l-3 0l-2 1l-4 2l-3 3l-2 1l5-3l4-1l3 0l2 1l-2 1l0 2l1 2l3 1l3-1l2-2l1 2l-2 1l-5 2l-4 2l-1-2l3-2l-3 0l-2 1l-2 1l-2 1l-2 1l-2 1l1 2l-3 1l-2 1l2 0l-3 1l-2 0l1 2l-2 1l-1 2l-1 2l1-2l-2-2l0 2l0 2l2 3l-2 1l-2 1l-2 1l-1 2l-3 1l-2 2l0 2l1 3l1 2l1 2l0 2l-1 2l-2-1l-1-2l-1-2l0-2l-2-3l-3 1l-2-1l-3-1l-2 0l-2 1l0 2l-3 0l-3-1l-3 0l-3 2l-2 0l-2 2l0 2l0 3l-1 4l1 2l1 3l1 2l3 2l3 0l3 0l2-2l1-2l2-2l2 0l2 0l0 2l0 2l-1 2l-1 2l0 2l0 2l2-1l2 0l2 0l2 0l2 1l0 2l0 2l0 2l0 2l0 2l2 2l2 1l2 0l2-1l2 0l2 1l3-1l1-2l2-1l2 0l2-1l1-2l2 1l-2 1l1 2l0 3l1-2l-1-2l3-1l2 0l2 1l4 1l2 1l4-1l2 0l2 2l1 2l3 1l1 2l2 1l3 1l2 0l2 0l2 1l2 2l2 2l1 3l1 2l-1 2l4 0l0 2l4 0l3 1l1 2l2 0l4 1l3 0l3 1l3 3l3 0l1 3l1 2l-1 3l-4 4l-1 2l-2 2l-1 2l0 3l0 3l-1 2l-1 3l-2 3l0 2l-2 1l-2 1l-3 1l-2 1l-2 0l-2 2l-2 2l0 2l0 2l-2 2l-2 4l-2 2l-2 0l0 2l-2 2l-3 2l-2 0l-2-1l-2 0l2 2l1 2l-2 3l-3 1l-4 1l-3 0l0 2l0 2l-3 0l-2 0l0 2l2 0l-1 2l-2 3l-2 1l-2 1l0 2l2 1l2 0l-1 2l-2 1l-2 3l-2 1l0 3l2 1l-3 0l-3 1l0 2l-3-1l-2-1l-3-1l-1-2l0-2l0-4l1-2l2-1l-3-1l2-1l0-4l3 1l1-4l-2-1l0 3l-2-1l1-2l1-4l0-3l0-3l2-3l1-3l1-3l0-3l0-2l0-2l1-3l1-4l0-4l1-4l0-3l-1-3l-2-1l-4-3l-3-2l-2-2l-1-2l-1-3l-2-3l-2-4l-2-3l-3-2l0-3l2-2l1-2l-2-1l0-2l2-3l2-2l1-2l2-2l0-2l0-2l0-2l-1-2l0-2l-2-1l-2 1l0 2l-2 1l0-2l-2 0l-2-1l-2-2l-2-1l-2 0l1-2l-2-2l-2-2l-2 0l-2-1l-2-1l-2 0l-4-3l-2-1l-2 0l-2 1l-2-1l-3-1l-4-1l-2-2l-3-1l-3-2l-1-2l0-2l0-2l-3-3l-2-1l-3-2l0-2l-2-1l0-2l-3-1l-1-2l-1-3l-2-1l-2-1l0 2l1 2l2 2l1 2l2 2l1 3l2 1l1 2l1 2l-2-1l-2-2l-1-2l-2-2l-2-1l-2-1l2-1l-2-3l-2-1l-1-2l-1-3l-2-2l-2-1l-3-1l-2-3l-2-3l-2-3l-1-2l0-2l0-2l-1-2l1-5l0-3l-1-2l3 0l1 2l0-2l-1-2l-4-2l-5-2l-1-3l-2-1l-3-3l-3-2l0-2l-3-1l-1-2l-2 0l-3 0l-3-1l-4-2l-2 0l-3-1l-3 0l-4-1l-2-1l-2 1l-3 2l-2 0l-2 1l0-3l2-1l-3 1l-4 2l0 3l-3 1l-2 0l-3 2l-3 2l-2 0l-3 1l-2 1l-4 0l2-1l2-1l2-1l3 0l4-2l2-1l0-2l-2-1l-2 0l-2 0l-2 1l-1-2l-4-1l-3-1l-1-2l2-2l2-1l2 0l3-1l0-2l-2 0l-2 0l-3 0l-3 0l-3-2l3-1l4-1l2 0l4 1l-2-1l-2-1l-2-1l-2-1l-3-1l2-1l3 0l3-1l2-2l2 0l4-1l2 0l3-1l3 1l2 0l4 0l3 1l2 0l4 1l4 0l4 0l3 0l2 1l4 0l3 1l2 0l2-1l2 0l3 0l3-1l3 0l2 0l2-1l4 2l3-1l3 1l3-1l3 1l5 1l3 0l2 0l2 1l-3 1l4 1l5-1l2 0l2 1l2-1l-2-1l2 0l2 0l2-1l3 2l3 0l3 1l3-1l3 0l2-1l3 1l3 0l1-2l-3-1l-2-1l0-2l3-2l2 0l2 1l3 3l-2 1l4 0zM132 34l3 0l3 1l2-1l2 1l2 2l-1-3l2 0l2 0l2 1l1 2l4 2l4 1l-3 1l-3 1l-4 0l-2 0l-4 0l-6 1l-3 0l-3-2l-2 1l-3-2l2 0l3 0l3 0l2-1l-4 0l-4 0l-3 0l4-2l-3 0l-4 0l2-2l7-2l2 1zM151 33l-2 1l-3-1l3 0l2 0zM207 34l-2 0l-2 0l-2 1l-3-2l6 0l3 1zM187 34l3-1l5-1l4 3l3 0l2-1l5 2l3 0l4 1l2 1l4 1l2 1l2 2l-4 1l5 1l3 0l3 2l3 0l0 2l-4 2l-2-1l-3-2l-3 0l0 2l2 1l3 1l2 2l-1 2l-3-1l-5-1l3 1l2 1l-5 0l-4-1l-2-1l-3-1l-3-1l-5 1l-2-1l1-2l4 0l4 0l0-2l3-2l-2-1l-3-1l-4-1l2 0l-3-2l-3 0l-5 1l-7-1l-4-1l-3 0l-2-1l2 0l-3 0l0-2l1-2l2-1l5-1l-1 2zM159 32l3 1l3-1l-1 2l3 1l0 2l-4 0l-2 0l-6-2l4 0l-2-2l2-1zM647 34l-3 0l-4-1l2-1l2 0l3 1zM174 34l-3 2l-2 0l-1-2l1-2l2 0l4 0l4 0l-3 2l-2 0zM119 37l-5 1l-6-2l2-2l2-1l-2-2l7 0l3 1l5 0l2 0l2 1l-3 1l-4 1l-3 1zM661 30l-2 1l-3-1l-4 0l4-1l5 1zM173 30l-4 1l-3-1l4-1l2 0zM650 29l-9 1l-3 1l-4-2l4-1l5 0l7 1zM163 27l2 0l0 2l-5 1l-2 0l-3-1l0-2l2 0l3 0l3 0zM144 28l2 0l2 0l-1 2l-6 0l-5 1l-3 0l3-1l-9 0l-2 0l2-2l2-1l6 1l3 1l4 0l-3-2l2-1l2 1zM475 39l-8-1l-4-1l2-1l0-2l4-1l-2-1l5-1l4-2l6-2l7 0l3-1l4 0l2 1l-2 1l-7 1l-6 0l-6 2l-3 2l-3 2l0 2l4 2zM171 26l2 0l4 0l2 1l3 2l2 0l3 0l3 0l4-1l4 1l2 0l-1 2l-3 0l-2 0l-6 0l-4 0l-4 0l-5-1l-1-2l-2-1l-4 0l-2-1l5 0zM128 25l-2 2l-2 0l-4 1l-3 0l-3 0l4-2l4-1l3 0l3 0zM172 25l-4 0l3-1l2 1zM140 25l-4 0l-3 0l2-1l2 0l3 0zM409 24l-4 1l-4 0l2-1l3-1l3 1zM141 23l-3 0l-3 0l2-1l4 1zM168 24l-3 0l-2-1l2-1l4 1zM160 23l-3 1l-3-1l-4 0l2 0l-3-1l4 0l5 0l2 1zM570 23l-11 1l4-2l3-1l5 2zM397 21l6 1l-5 1l-3 2l-3 1l-4-1l-2-1l-4-2l4-2l4 1l4-1l3 1zM411 19l4 1l-3 1l-6 0l-6 0l-3-1l-2-1l6 0l3 0l2 0l5 0zM462 19l-2 0l-2 0l-3 1l-2 0l-3-1l4-1l3 0l3 0l3 1zM560 22l-4 0l-6 0l-3-1l-2-1l-3-1l6-1l4-1l4 2l4 1l0 2zM186 21l2 0l-2 1l-4 1l-4 1l-4-1l-2-1l2-1l-4 0l-2 0l0-2l3-1l4-1l3 2l3 0l3 0l2 2zM223 14l5 0l5 0l3 1l-5 1l-5 1l3 0l-5 1l-3 1l-3 1l-4 1l-2 0l-6 0l3 1l-2 2l-3 0l-4 2l4 0l-5 2l-5-1l-6 0l-3 0l-4 0l3-1l-1-2l2 0l5 1l-3-1l-3-1l2-1l3 0l-2-1l-1-2l6 1l4-1l-4 0l-7 0l-4-1l-4-1l3-1l2 0l4-1l3 0l2 0l3 0l4-1l3 0l6 0l2 0l5 0l5 0l4 0zM306 13l12 2l-3 0l-8 0l-11 1l8 0l6 0l4 0l2 1l-2 1l5-1l9-1l6 1l2 0l-9 2l-7 1l5 0l-3 1l-1 4l2 1l-3 0l-3 1l3 1l1 2l-2 0l2 1l-4 1l2 0l-3 1l-3 0l2 2l-4 0l2 1l3 1l0 2l-3 0l-2-1l-2-1l-2 3l6 0l2 0l-5 1l-5 2l-6 1l-3 0l-2 1l-2 2l-5 1l-4 1l-3 0l-1 3l-5 3l0 3l-1 2l-3 0l-3-2l-4 0l-3-3l-3-2l-1-2l-3-3l0-2l1-3l3 0l1-3l-2 1l-3 0l-2 0l-1-2l3-1l4 1l-3-1l-2-1l-2 0l-2 0l3-2l-2-1l-4-3l-2-1l-6-2l-4 0l-5 0l-5 0l-2-1l-4-1l5-1l4 0l-8 0l-5-1l8-2l8-1l-5-1l2-1l7-1l3-1l3-1l7 0l6 0l2 0l5-1l5 1l3 0l4 1l-5-1l7-2l7 0l3-1l7 0l16 0z"/><g id="mstn"></g></svg>
+ <div class="lg"><span><i style="background:#06D7A0"></i>Heard well</span><span><i style="background:#f5c542"></i>Heard weakly</span><span><i style="background:#5b6b72"></i>Not heard</span><span><i style="background:transparent;border:1.5px solid #dce6ea"></i>Not checked yet</span></div>
+ <p class="hint" id="bhint">Pulsing rings show the five beacons on the air now, one per frequency, each for 10 seconds. Tap a frequency to tune there in CW: the radio then checks every beacon slot and colours what it hears. Tap a station to follow it across the bands.</p></div></section>
+<section data-tab="set"><div id="sets"></div></section>
+<section data-tab="more">
 <details class="card" id="scr"><summary>Radio screen</summary>
  <p class="hint" style="margin-top:0">The radio's own screen, for its menus and the FT8 and CW pages. Only sent while this is open.</p>
  <div class="screen"><canvas id="c" width="320" height="170"></canvas></div>
@@ -126,6 +155,7 @@ details.card[open]>summary{margin-bottom:10px}
    <option value="0">Off</option><option value="3400">Light (3.4 kHz)</option><option value="2800" selected>Medium (2.8 kHz)</option><option value="2200">Strong (2.2 kHz)</option></select></label>
  <span id="ai">Audio needs a V4B board (speaker line on GPIO11). Wi-Fi and the receiver share the processor's
  ADC, so the sound is phone quality and can drop out. Headphones in the radio cut it.</span></details>
+</section>
 <p class="hint">Keyboard: &larr; &rarr; tune, + &minus; volume. Settings change on the radio at once and are saved as from its own menu.
 Bluetooth, USB and Wi-Fi modes and firmware updates stay on the radio. <a href="/">Status</a></p>
 </main>
@@ -141,7 +171,7 @@ function connect(){
  ws.onclose=()=>{st.textContent='offline';st.className='';setTimeout(connect,2000);};
  ws.onmessage=e=>{
   if(typeof e.data==='string'){const j=JSON.parse(e.data);
-   if(j.p)panel(j);else if(j.scope)scope(j);else if(j.def)buildSets(j.def);else if(j.v)vals(j);else if(j.mem)mems(j.mem);else status(j);return;}
+   if(j.p)panel(j);else if(j.bcn)beaconReport(j);else if(j.scope)scope(j);else if(j.def)buildSets(j.def);else if(j.v)vals(j);else if(j.mem)mems(j.mem);else status(j);return;}
   const b=new Uint8Array(e.data);
   if(b[0]===1){const y=b[1],n=b[2];let o=3,p=y*320*4;
    for(let i=0;i<n*320;i++,o+=2,p+=4){const v=(b[o]<<8)|b[o+1];
@@ -177,7 +207,9 @@ function fmtF(f,m){if(m===0)return (f/1e6).toFixed(2)+'<small>MHz</small>';
 function esc(t){return t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
 function panel(j){P=j;$('pfq').innerHTML=fmtF(j.f,j.m);
  $('tags').innerHTML=(j.band!==j.mode?'<span>'+esc(j.band)+'</span>':'')+'<span class="m">'+esc(j.mode)+'</span><span>Step '+esc(j.step)+
-  '</span><span>BW '+esc(j.bw)+'</span><span>Vol '+j.vol+'</span><span>'+j.bat.toFixed(2)+' V</span>';
+  '</span><span>BW '+esc(j.bw)+'</span><span>Vol '+j.vol+'</span>'+(j.mem?'<span class="m">M'+j.mem+'</span>':'')+(j.st?'<span class="m">Stereo</span>':'')+
+  '<span title="'+(j.bmin>0?'About '+Math.floor(j.bmin/60)+' h '+(j.bmin%60)+' min left':'')+'">'+(j.chg?'USB power':j.bat.toFixed(2)+' V &middot; '+j.batp+'%')+'</span>';
+ if(j.lo!==undefined){const fm=j.m===0,u=fm?1e6:1e3,d=fm?1:0;$('f').placeholder=(fm?'MHz':'kHz')+' '+(j.lo/u).toFixed(d)+'\u2013'+(j.hi/u).toFixed(d);}
  // S-meter: S9 = 34 dBuV (50 ohm), 6 dB per S unit; FM in dBuV
  let lab;if(j.m===0)lab=j.rssi+' dB&micro;V';else{const s=(j.rssi-34)/6+9;
   lab=s<=9?'S'+Math.max(0,Math.round(s)):'S9+'+Math.round(j.rssi-34);}
@@ -266,8 +298,44 @@ function mems(list){$('mems').innerHTML=list.length?list.map(m=>'<div class="mem
  $('mems').querySelectorAll('.x').forEach(b=>b.onclick=()=>{if(confirm('Delete memory '+(+b.dataset.i+1)+'?'))send('!mem d '+b.dataset.i);});}
 $('msave').onclick=()=>send('!mem s');
 $('scr').addEventListener('toggle',e=>{scrOpen=$('scr').open;send(scrOpen?'!screen1':'!screen0');});
+// Tabs (remembered in this browser)
+function showTab(t){document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+ document.querySelectorAll('section[data-tab]').forEach(x=>x.classList.toggle('on',x.dataset.tab===t));
+ try{localStorage.setItem('rtab',t);}catch(e){}if(t==='bcn')drawBeacons();}
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>showTab(b.dataset.t));
+try{const t=localStorage.getItem('rtab');if(t&&document.querySelector('section[data-tab="'+t+'"]'))showTab(t);}catch(e){}
+// Beacons: schedule from the clock, as on the radio
+const BC=[['4U1UN','New York',40.75,-73.97],['VE8AT','Eureka, Canada',79.99,-85.9],['W6WX','California',37.16,-121.9],['KH6RS','Hawaii',20.75,-156.4],
+ ['ZL6B','New Zealand',-41.06,175.6],['VK6RBP','Australia',-32.1,116.0],['JA2IGY','Japan',34.46,136.78],['RR9O','Siberia',54.98,82.9],['VR2B','Hong Kong',22.27,114.15],
+ ['4S7B','Sri Lanka',6.9,79.87],['ZS6DN','South Africa',-25.9,28.3],['5Z4B','Kenya',-1.25,36.67],['4X6TU','Israel',32.06,34.77],['OH2B','Finland',60.32,24.83],
+ ['CS3B','Madeira',32.83,-16.9],['LU4AA','Argentina',-34.6,-58.4],['OA4B','Peru',-12.07,-77.0],['YV5B','Venezuela',10.4,-66.9]];
+const BF=[14100,18110,21150,24930,28200],BCOL=['#4dabf7','#06D7A0','#f5c542','#ff8c42','#ff6b6b'];
+let bSel=0;const heard=[{},{},{},{},{}];   // band -> beacon -> {q,r,t}
+function bOn(b,utc){return((Math.floor((utc%180)/10)-b+18)%18);}
+(function(){let g='';for(let x=0;x<=720;x+=60)g+='<line x1="'+x+'" y1="0" x2="'+x+'" y2="300"/>';for(let y=0;y<=300;y+=60)g+='<line x1="0" y1="'+y+'" x2="720" y2="'+y+'"/>';$('mgrid').innerHTML=g;
+ $('mstn').innerHTML=BC.map((c,i)=>{const x=(c[3]+180)*2,y=(90-c[2])*2,ly=y<20?y+16:y-8;
+  return '<g class="stn" data-i="'+i+'"><title></title><circle class="pulse" cx="'+x+'" cy="'+y+'" r="7" style="display:none"/><circle cx="'+x+'" cy="'+y+'" r="13" fill="transparent"/><circle class="dot" cx="'+x+'" cy="'+y+'" r="5"/><text class="lbl" x="'+(x+7)+'" y="'+ly+'">'+c[0]+'</text></g>';}).join('');
+ $('mstn').querySelectorAll('.stn').forEach(g=>g.onclick=()=>{const i=+g.dataset.i;if(confirm('Follow '+BC[i][0]+' ('+BC[i][1]+') across the bands?'))setv(15360,i+2);});
+ $('bnds').innerHTML=BF.map((f,b)=>'<button data-b="'+b+'" style="color:'+BCOL[b]+'"><b></b><span></span></button>').join('');
+ $('bnds').querySelectorAll('button').forEach(x=>x.onclick=()=>{bSel=+x.dataset.b;send('F'+BF[bSel]*1000+'\n');setTimeout(()=>{const m=V&&V.d&&V.d[5376];if(m&&m.indexOf('CW')>=0)setv(5376,m.indexOf('CW'));},600);drawBeacons();});})();
+function drawBeacons(){if(!document.querySelector('section[data-tab="bcn"].on'))return;
+ const utc=Math.floor(Date.now()/1000),left=10-utc%10;
+ $('bclk').textContent=new Date(utc*1000).toISOString().substr(11,8)+' UTC';
+ // Which band is the radio on? Its heard colours are shown
+ if(P){const k=BF.findIndex(f=>Math.abs(P.f-f*1000)<=1000);if(k>=0)bSel=k;}
+ const onAir={};BF.forEach((f,b)=>onAir[bOn(b,utc)]=b);
+ $('bnds').querySelectorAll('button').forEach(x=>{const b=+x.dataset.b,i=bOn(b,utc);x.classList.toggle('on',b===bSel);
+  x.querySelector('b').textContent=(BF[b]/1000).toFixed(2)+' MHz';x.querySelector('span').textContent=BC[i][0]+' \u00b7 '+left+' s';});
+ $('mstn').querySelectorAll('.stn').forEach(g=>{const i=+g.dataset.i,dot=g.querySelector('.dot'),pl=g.querySelector('.pulse'),h=heard[bSel][i];
+  const b=onAir[i];if(b!==undefined){pl.style.display='';pl.style.stroke=BCOL[b];}else pl.style.display='none';
+  dot.style.fill=!h?'transparent':h.q>=10?'#06D7A0':h.q>=3?'#f5c542':'#5b6b72';dot.style.stroke=h?'#06171e':'#dce6ea';
+  g.querySelector('title').textContent=BC[i][0]+' '+BC[i][1]+(b!==undefined?' \u2014 on air now, '+(BF[b]/1000).toFixed(2)+' MHz':'')+
+   (h?'\nLast slot on '+(BF[bSel]/1000).toFixed(2)+' MHz: SNR '+h.q+' dB, '+h.r+' dB\u00b5V, '+new Date(h.t*1000).toISOString().substr(11,5)+' UTC':'');});}
+setInterval(drawBeacons,1000);
+function beaconReport(j){heard[j.b][j.i]={q:j.q,r:j.r,t:j.t};drawBeacons();}
+// kHz; on FM a value under 200 is MHz (102.6), as the hint says
 function tune(){const v=parseFloat(document.getElementById('f').value.replace(',','.'));
- if(v>0)send('F'+Math.round(v*1000)+'\n');}
+ if(v>0)send('F'+Math.round(P&&P.m===0&&v<200?v*1e6:v*1000)+'\n');}
 document.getElementById('go').onclick=tune;
 document.getElementById('f').addEventListener('keydown',e=>{if(e.key==='Enter')tune();});
 // Audio: 8 kHz samples scheduled with a small buffer
