@@ -20,15 +20,32 @@
 #include <WiFi.h>
 
 #define WS_RGB(c)  ((uint16_t)((((c) >> 8) & 0xF800) | (((c) >> 5) & 0x07E0) | (((c) >> 3) & 0x001F)))
-#define WS_BG      WS_RGB(0x041F29)
-#define WS_NAVY    WS_RGB(0x073A4B)
-#define WS_LINE    WS_RGB(0x0E4A5E)
-#define WS_GREEN   WS_RGB(0x06D7A0)
-#define WS_BLUE    WS_RGB(0x108AB1)
-#define WS_YELLOW  WS_RGB(0xFFD167)
-#define WS_RED     WS_RGB(0xFF6B6B)
-#define WS_MUTED   WS_RGB(0x8FB3C0)
-#define WS_TEXT    WS_RGB(0xEEF5F7)
+// Colours: the tile look with the tile menu; the radio's theme (as the
+// classic side box) with the classic menu
+struct WsPalette { uint16_t bg, navy, line, green, blue, yellow, red, muted, text, hlText, edit, ok; };
+static WsPalette pal;
+#define WS_BG      pal.bg
+#define WS_NAVY    pal.navy
+#define WS_LINE    pal.line
+#define WS_GREEN   pal.green
+#define WS_BLUE    pal.blue
+#define WS_YELLOW  pal.yellow
+#define WS_RED     pal.red
+#define WS_MUTED   pal.muted
+#define WS_TEXT    pal.text
+#define WS_HLTEXT  pal.hlText
+#define WS_EDIT    pal.edit
+#define WS_OK      pal.ok
+
+static void paletteSet()
+{
+  if(menuStyleIdx == MENU_STYLE_TILES)
+    pal = { WS_RGB(0x041F29), WS_RGB(0x073A4B), WS_RGB(0x0E4A5E), WS_RGB(0x06D7A0), WS_RGB(0x108AB1),
+            WS_RGB(0xFFD167), WS_RGB(0xFF6B6B), WS_RGB(0x8FB3C0), WS_RGB(0xEEF5F7), WS_RGB(0x041F29), WS_RGB(0x06D7A0), WS_RGB(0x108AB1) };
+  else
+    pal = { TH.bg, TH.menu_bg, TH.menu_border, TH.menu_hl_bg, TH.menu_hl_bg,
+            WS_RGB(0xFFD167), WS_RGB(0xFF6B6B), TH.menu_hdr, TH.menu_item, TH.menu_hl_text, TH.menu_hl_bg, TH.menu_border };
+}
 
 enum class Ws : uint8_t { Hub, Scan, List, Keys, Connect, Done, Failed };
 static Ws ws = Ws::Hub;
@@ -351,7 +368,7 @@ static void bars(int x, int y, int8_t rssi)
 {
   int n = rssi > -55 ? 4 : rssi > -67 ? 3 : rssi > -77 ? 2 : 1;
   for(int i = 0; i < 4; i++)
-    spr.fillRect(x + i * 5, y - 3 * (i + 1), 3, 3 * (i + 1), i < n ? WS_GREEN : WS_LINE);
+    spr.fillRect(x + i * 5, y - 3 * (i + 1), 3, 3 * (i + 1), i < n ? WS_RGB(0x06D7A0) : WS_RGB(0x3A4A50));
 }
 
 static void drawList()
@@ -371,20 +388,20 @@ static void drawList()
     spr.setTextDatum(ML_DATUM);
     if(i == 0)
     {
-      spr.setTextColor(WS_TEXT);
+      spr.setTextColor(hl ? WS_HLTEXT : WS_TEXT);
       spr.drawString(netCount ? "Scan again" : "No networks found: scan again", 12, y + rh / 2, uiFont(true));
       continue;
     }
     const WsNet &w = nets[i - 1];
     bars(12, y + 17, w.rssi);
-    spr.setTextColor(WS_TEXT);
+    spr.setTextColor(hl ? WS_HLTEXT : WS_TEXT);
     char name[24];
     strlcpy(name, w.ssid, sizeof(name));
     spr.drawString(name, 38, y + rh / 2, uiFont(true));
     char info[24];
     snprintf(info, sizeof(info), "%s  ch%u  %d", authName(w.auth), w.ch, w.rssi);
     spr.setTextDatum(MR_DATUM);
-    spr.setTextColor(hl ? WS_TEXT : (w.auth == WIFI_AUTH_OPEN ? WS_YELLOW : WS_MUTED));
+    spr.setTextColor(hl ? WS_HLTEXT : (w.auth == WIFI_AUTH_OPEN ? WS_YELLOW : WS_MUTED));
     spr.drawString(info, 308, y + rh / 2, uiFont(true));
   }
   footer("Turn: choose   Click: select   Press: back");
@@ -428,7 +445,7 @@ static void drawKeys()
     spr.fillRoundRect(x, y, kw - 2, kh, 4, hl ? WS_GREEN : WS_NAVY);
     char t[2] = { keyRows[keyPage][r][c], 0 };
     spr.setTextDatum(MC_DATUM);
-    spr.setTextColor(hl ? WS_BG : WS_TEXT);
+    spr.setTextColor(hl ? WS_HLTEXT : WS_TEXT);
     spr.drawString(t, x + (kw - 2) / 2, y + kh / 2 + 1, uiFont(false));
   }
   // Action keys
@@ -439,10 +456,10 @@ static void drawKeys()
     bool hl = k == keySel;
     bool on = (a == 0 && keyPage == 1) || (a == 1 && keyPage == 2) || (a == 4 && showPass);
     bool okOff = a == 5 && passLen < 8;
-    uint16_t bg = hl ? WS_GREEN : a == 5 ? (okOff ? WS_NAVY : WS_BLUE) : on ? WS_LINE : WS_NAVY;
+    uint16_t bg = hl ? WS_GREEN : a == 5 ? (okOff ? WS_NAVY : WS_OK) : on ? WS_LINE : WS_NAVY;
     spr.fillRoundRect(x, ay, aw - 2, kh, 4, bg);
     spr.setTextDatum(MC_DATUM);
-    spr.setTextColor(hl ? WS_BG : okOff ? WS_MUTED : WS_TEXT);
+    spr.setTextColor(hl ? WS_HLTEXT : okOff ? WS_MUTED : WS_TEXT);
     spr.drawString(a == 4 && showPass ? "Hide" : actionLabel[a], x + (aw - 2) / 2, ay + kh / 2 + 1, uiFont(true));
   }
 }
@@ -484,16 +501,16 @@ static void drawHub()
   {
     int y = top + i * (rh + 3);
     bool hl = i == hubSel;
-    spr.fillRoundRect(4, y, 312, rh, 6, hl ? (hubEdit ? WS_GREEN : WS_BLUE) : WS_NAVY);
+    spr.fillRoundRect(4, y, 312, rh, 6, hl ? (hubEdit ? WS_EDIT : WS_BLUE) : WS_NAVY);
     spr.setTextDatum(ML_DATUM);
-    spr.setTextColor(hl && hubEdit ? WS_BG : WS_TEXT);
+    spr.setTextColor(hl ? WS_HLTEXT : WS_TEXT);
     spr.drawString(labels[i], 12, y + rh / 2, uiFont(false));
     const char *v = nullptr;
     if(i == H_MODE)  v = wifiModeDesc[hl && hubEdit ? hubValue : wifiModeIdx];
     if(i == H_POWER) v = wifiPowerDesc[hl && hubEdit ? hubValue : wifiPowerIdx];
     if(i == H_JOIN)  v = ">";
     spr.setTextDatum(MR_DATUM);
-    spr.setTextColor(hl && hubEdit ? WS_BG : WS_MUTED);
+    spr.setTextColor(hl ? WS_HLTEXT : WS_MUTED);
     if(hl && hubEdit) { char t[32]; snprintf(t, sizeof(t), "< %s >", v); spr.drawString(t, 308, y + rh / 2, uiFont(false)); }
     else spr.drawString(v, 308, y + rh / 2, uiFont(false));
   }
@@ -502,6 +519,7 @@ static void drawHub()
 
 void drawWifiSetup()
 {
+  paletteSet();
   char line[48];
   switch(ws)
   {
