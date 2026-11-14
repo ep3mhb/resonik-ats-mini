@@ -38,7 +38,7 @@ static std::atomic<bool> sessionReset{false};
 static std::atomic<bool> fullFrame{true};
 static std::atomic<int8_t> audioWanted{-1};      // -1 no change, 0 off, 1 on
 static std::atomic<uint32_t> tuneWanted{0};       // Frequency in Hz from the page
-static std::atomic<int8_t> muteWanted{-1};        // Speaker while listening: 1 silent, 0 normal
+static std::atomic<int8_t> muteWanted{-1};        // Speaker while listening: steps quieter (0 normal)
 static std::atomic<int8_t> seekWanted{0};        // +1 up, -1 down
 static std::atomic<bool> scopeWanted{false};
 static std::atomic<bool> webBusy{false};          // A seek or sweep is running
@@ -110,7 +110,9 @@ static void webOnEvent(AsyncWebSocket *, AsyncWebSocketClient *client, AwsEventT
     }
     if(len >= 5 && !memcmp(data, "!mute", 5))
     {
-      muteWanted = (len > 5 && data[5] == '1') ? 1 : 0;
+      // "!mute0" normal, "!mute4" 4 steps quieter, "!mute8" ... ("!mute1" = 8, as before)
+      int8_t v = (len > 5 && data[5] >= '0' && data[5] <= '9') ? data[5] - '0' : 0;
+      muteWanted = v == 1 ? 8 : v;
       return;
     }
     if(len >= 6 && !memcmp(data, "!audio", 6))
@@ -258,7 +260,17 @@ static void webSendAudio()
 // ADC read, and with Wi-Fi on there is little time to spare at 80 MHz
 static uint32_t cpuSaved = 0;
 
-static bool speakerSilent = false;
+static uint8_t speakerSteps = 0;      // How much quieter the radio plays while listening
+static uint8_t quietApplied = 0, quietBase = 0;   // Steps and radio volume last applied
+
+// V4B: the web audio is the speaker line, so every step quieter is also
+// weaker on the web (and the hiss stays): the page lets the user choose
+static uint8_t quietVolume()
+{
+  int v = (int)volume - speakerSteps;
+  int floor = volume < 10 ? volume : 10;
+  return(v < floor ? floor : v);
+}
 static void speakerRestore();
 
 static void webAudioSet(bool on)
@@ -311,7 +323,7 @@ static void speakerTick(bool wanted)
         spk = Spk::TryAmpOff;
         spkSince = now;
       }
-      else { rx.setVolume(volume > 18 ? volume - 8 : 10); spk = Spk::Quiet; }
+      else { rx.setVolume(quietVolume()); quietApplied = speakerSteps; quietBase = volume; spk = Spk::Quiet; }
       break;
     case Spk::TryAmpOff:
       // The level is measured over 0.5 s: give it 2 s after the switch
@@ -328,10 +340,16 @@ static void speakerTick(bool wanted)
         if(now - spkSince < 1500) break;
       }
       digitalWrite(PIN_AMP_EN, HIGH);
-      rx.setVolume(volume > 18 ? volume - 8 : 10);
+      rx.setVolume(quietVolume());
+      quietApplied = speakerSteps;
+      quietBase = volume;
       // Straight to Quiet next time (no 2 s of silence at every start)
       ampOffSilences = true;
       spk = Spk::Quiet;
+      break;
+    case Spk::Quiet:
+      // Also after Vol +/- (the radio sets its full volume again)
+      if(quietApplied != speakerSteps || quietBase != volume) { rx.setVolume(quietVolume()); quietApplied = speakerSteps; quietBase = volume; }
       break;
     default:
       break;
@@ -510,8 +528,8 @@ bool webControlTick()
   int8_t a = audioWanted.exchange(-1);
   if(a >= 0) webAudioSet(a == 1);
   int8_t m = muteWanted.exchange(-1);
-  if(m >= 0) speakerSilent = m == 1;
-  speakerTick(speakerSilent);
+  if(m >= 0) speakerSteps = m;
+  speakerTick(speakerSteps > 0);
 
   // Audio first: it cannot wait, the screen can. Up to 0.5 s per message,
   // so a busy moment is caught up at once instead of overrunning the ring.

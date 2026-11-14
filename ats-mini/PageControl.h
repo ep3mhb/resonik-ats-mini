@@ -79,7 +79,9 @@ a{color:var(--accent)}
  <div id="scl">Sweep measures the signal at 41 points around the frequency (the sound is muted for 2&ndash;3 seconds).
  Click a peak to tune to it.</div></div>
 <div class="audio"><button id="au" style="width:100%;margin-bottom:8px">&#128266; Listen (experimental)</button>
- <label style="display:block;margin-bottom:6px;color:var(--text)"><input type="checkbox" id="sil" checked> Silence the radio's speaker while listening</label>
+ <label style="display:block;margin-bottom:6px;color:var(--text)">Radio speaker while listening
+  <select id="sil" style="margin-left:6px;padding:4px 6px;border-radius:6px;background:#06171e;color:var(--text);border:1px solid var(--line)">
+   <option value="0" selected>Normal (best web sound)</option><option value="4">Quieter</option><option value="8">Quietest</option></select></label>
  <label style="display:block;margin-bottom:6px;color:var(--text)">Hiss filter
   <select id="hf" style="margin-left:6px;padding:4px 6px;border-radius:6px;background:#06171e;color:var(--text);border:1px solid var(--line)">
    <option value="0">Off</option><option value="3400">Light (3.4 kHz)</option><option value="2800" selected>Medium (2.8 kHz)</option><option value="2200">Strong (2.2 kHz)</option></select></label>
@@ -96,7 +98,7 @@ let ws=null,dirty=false;
 function connect(){
  ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws');
  ws.binaryType='arraybuffer';
- ws.onopen=()=>{st.textContent='live';st.className='on';if(listening){ws.send('!audio1');if(document.getElementById('sil').checked)ws.send('!mute1');}};
+ ws.onopen=()=>{st.textContent='live';st.className='on';if(listening){ws.send('!audio1');ws.send('!mute'+document.getElementById('sil').value);}};
  ws.onclose=()=>{st.textContent='offline';st.className='';setTimeout(connect,2000);};
  ws.onmessage=e=>{
   if(typeof e.data==='string'){const j=JSON.parse(e.data);if(j.p)panel(j);else if(j.scope)scope(j);else status(j);return;}
@@ -189,8 +191,8 @@ document.getElementById('au').onclick=function(){
   hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=180;
   lp1=ac.createBiquadFilter();lp1.type='lowpass';lp2=ac.createBiquadFilter();lp2.type='lowpass';
   hp.connect(lp1);lp1.connect(lp2);lp2.connect(gain);gain.connect(ac.destination);setHiss();}
- if(ac)ac.resume();send(listening?'!audio1':'!audio0');send(listening&&document.getElementById('sil').checked?'!mute1':'!mute0');next=0;};
-document.getElementById('sil').onchange=function(){if(listening)send(this.checked?'!mute1':'!mute0');};
+ if(ac)ac.resume();send(listening?'!audio1':'!audio0');send('!mute'+(listening?document.getElementById('sil').value:'0'));next=0;};
+document.getElementById('sil').onchange=function(){if(listening)send('!mute'+this.value);};
 function play(s){if(!listening||!ac)return;
  // Safari does not accept 8 kHz buffers: resample to the device rate
  // (linear, carrying the last sample over so packets join smoothly)
@@ -224,7 +226,7 @@ function status(j){
  quiet=emptyS>=3;
  if(quiet&&gain)gain.gain.value=0;
  if(quiet){ai.innerHTML='<b>No audio on GPIO11</b> (level '+j.level+') &middot; headphones plugged into the radio? On the V4B they cut the line the web audio comes from. '+
-  'Unplug them and use &ldquo;Silence the radio&rsquo;s speaker&rdquo; instead.';return;}
+  'Unplug them; to keep the radio quieter use &ldquo;Radio speaker while listening&rdquo;.';return;}
  if(!j.audio){ai.innerHTML='Audio off'+(j.level<2?' &middot; <b>no audio on GPIO11 (V4B board needed)</b>':'');return;}
  ai.innerHTML='<b>Streaming</b> 8 kHz &middot; level '+j.level+' &middot; '+j.cpu+' MHz &middot; speaker '+
   ({on:'on',testing:'testing\u2026',off:'off',quiet:'quieter'}[j.spk]||j.spk)+'<br>'+
