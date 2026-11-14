@@ -247,6 +247,7 @@ uint16_t getReceiverFrequency(uint32_t freq);
 int getCurrentBFO();
 bool updateFrequency(int64_t newFreq, bool wrap = true);
 bool doSeek(int16_t enc);
+uint32_t ssbSeek(int dir, void (*progress)(uint32_t hz), uint8_t *seen, int *count, uint8_t *threshold, uint8_t *why);
 bool clickFreq(bool shortPress);
 uint8_t doAbout(int16_t enc);
 bool consumeAbortPending();

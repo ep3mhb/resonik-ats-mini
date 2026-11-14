@@ -431,38 +431,50 @@ static void speakerTick(bool wanted)
 // and stops at the first point clearly above the noise measured at the
 // start, or at the band edge. Any button on the page or the knob stops it.
 //
+static void webSeekProgress(uint32_t hz)
+{
+  char j[40];
+  snprintf(j, sizeof(j), "{\"seekf\":%lu}", (unsigned long)hz);
+  ws.textAll(j);
+}
+
 static void webSeekSsb(int dir)
 {
-  const Band *band = getCurrentBand();
-  uint32_t cur = currentFrequency;
+  static uint8_t seen[200];
+  int n = 0;
+  uint8_t thr = 0, why = 0;
+  uint32_t start = (currentFrequency / 1000) * 1000;
   webBusy = true;
   webAbort = false;
-  seekStop = false;
-  muteOn(MUTE_TEMP, true);
-  rx.setSSBBfo(0);
-  // Noise floor: the lowest of a few readings near the start
-  uint8_t floorRssi = 255;
-  uint32_t f = (cur / 1000) * 1000;
-  uint32_t found = 0;
-  for(int i = 1; i <= 2000; i++)
-  {
-    int64_t next = (int64_t)f + dir * 1000LL * i;
-    if(next < band->minimumFreq || next > band->maximumFreq || consumeAbortPending()) break;
-    rx.setFrequencyConfirmed(freqFromHz((uint32_t)next, currentMode));
-    rx.getCurrentReceivedSignalQuality();
-    uint8_t r = rx.getCurrentRSSI(), q = rx.getCurrentSNR();
-    if(i <= 4) { if(r < floorRssi) floorRssi = r; continue; }
-    if(r < floorRssi) floorRssi = r;
-    if(q >= 6 || r >= floorRssi + 8) { found = next; break; }
-  }
-  rx.setFrequencyConfirmed(getReceiverFrequency(cur));
-  updateFrequency(found ? found : cur, false);
-  if(isSSB()) bandPlanAutoSideband();
+  uint32_t found = ssbSeek(dir, webSeekProgress, seen, &n, &thr, &why);
   clearStationInfo();
   identifyFrequency(currentFrequency);
-  muteOn(MUTE_TEMP, false);
   webBusy = false;
   webAbort = false;
+
+  char j[120];
+  if(found) snprintf(j, sizeof(j), "{\"note\":\"Seek: signal at %.2f kHz\"}", found / 1000.0);
+  else if(why == 1) snprintf(j, sizeof(j), "{\"note\":\"Seek stopped\"}");
+  else snprintf(j, sizeof(j), "{\"note\":\"Seek: nothing above the noise %s, back to the start\"}",
+                why == 3 ? "up to the band edge" : "in 200 kHz");
+  ws.textAll(j);
+
+  // What it measured, lowest frequency first, with the threshold
+  if(n > 200) n = 200;
+  if(n)
+  {
+    String sc;
+    sc.reserve(60 + n * 6);
+    uint32_t f0 = dir > 0 ? start + 1000 : start - 1000UL * n;
+    sc += "{\"scope\":1,\"seek\":1,\"f0\":"; sc += (unsigned long)f0;
+    sc += ",\"st\":1000,\"fm\":0,\"thr\":"; sc += thr;
+    sc += ",\"r\":[";
+    for(int i = 0; i < n; i++) { if(i) sc += ','; sc += seen[dir > 0 ? i : n - 1 - i]; }
+    sc += "],\"s\":[";
+    for(int i = 0; i < n; i++) { if(i) sc += ','; sc += '0'; }
+    sc += "]}";
+    ws.textAll(sc);
+  }
 }
 
 //
@@ -674,7 +686,7 @@ bool webControlTick()
   {
     webBusy = true;
     webAbort = false;
-    if(isSSB() && seekMode() == SEEK_DEFAULT) webSeekSsb(sk);
+    if(isSSB()) webSeekSsb(sk);
     else doSeek(sk, sk);
     webBusy = false;
     webAbort = false;

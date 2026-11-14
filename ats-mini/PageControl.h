@@ -29,7 +29,7 @@ button.acc{background:#0c5a45}
 .audio{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--card);font-size:13px;color:var(--muted)}
 .audio b{color:var(--text)}
 .hint{font-size:12px;color:var(--muted);margin-top:12px}
-.panel{background:var(--card);border-radius:10px;padding:10px 14px;margin-bottom:10px}
+.panel{position:relative;background:var(--card);border-radius:10px;padding:10px 14px;margin-bottom:10px}
 .pf{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
 #pfq{font:700 40px/1.1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:1px;color:#fff}
 #pfq small{font-size:18px;color:var(--muted);margin-left:6px}
@@ -107,6 +107,7 @@ section[data-tab]>:first-child{margin-top:0}
  <div class="pf"><div id="pfq">&mdash;</div><div class="tags" id="tags"></div></div>
  <div class="sm"><span id="sv" style="min-width:64px">S&ndash;</span><div class="bar"><i id="sb"></i></div><span id="sn"></span></div>
  <div id="ps"></div><div id="rt"></div>
+ <div id="note" style="display:none;position:absolute;right:12px;bottom:10px;max-width:75%;padding:6px 10px;border-radius:8px;background:#06171e;color:var(--accent);font-size:13px;box-shadow:0 0 0 1px var(--line)"></div>
 </div>
 <nav class="tabs" id="tabs"><button data-t="rx" class="on">Receiver</button><button data-t="mem">Memory</button><button data-t="bcn">Beacons</button><button data-t="set">Settings</button><button data-t="more">More</button></nav>
 <section data-tab="rx" class="on">
@@ -177,7 +178,7 @@ function connect(){
  ws.onclose=()=>{st.textContent='offline';st.className='';setTimeout(connect,2000);};
  ws.onmessage=e=>{
   if(typeof e.data==='string'){const j=JSON.parse(e.data);
-   if(j.p)panel(j);else if(j.bcn)beaconReport(j);else if(j.scope)scope(j);else if(j.def)buildSets(j.def);else if(j.v)vals(j);else if(j.mem)mems(j.mem);else status(j);return;}
+   if(j.p)panel(j);else if(j.bcn)beaconReport(j);else if(j.seekf)seekShow(j.seekf);else if(j.note)note(j.note);else if(j.scope)scope(j);else if(j.def)buildSets(j.def);else if(j.v)vals(j);else if(j.mem)mems(j.mem);else status(j);return;}
   const b=new Uint8Array(e.data);
   if(b[0]===1){const y=b[1],n=b[2];let o=3,p=y*320*4;
    for(let i=0;i<n*320;i++,o+=2,p+=4){const v=(b[o]<<8)|b[o+1];
@@ -227,10 +228,12 @@ function panel(j){P=j;stereo();$('pfq').innerHTML=fmtF(j.f,j.m);
 let S=null;const sc=$('sc'),sx=sc.getContext('2d');
 $('scb').onclick=()=>{$('scb').textContent='Sweeping…';send('!scope');};
 function scope(j){S=j;$('scb').textContent='Sweep';drawScope();
+ if(j.seek){$('scl').textContent='Last Seek: signal strength at each kHz it checked ('+(j.f0/1e3).toFixed(0)+'\u2013'+((j.f0+j.st*(j.r.length-1))/1e3).toFixed(0)+
+  ' kHz). It stops at the first bar above the yellow line. Click a bar to tune there.';return;}
  const u=j.fm?1e6:1e3,d=j.fm?2:(j.st%1000?1:0);
  $('scl').textContent=(j.f0/u).toFixed(d)+' – '+((j.f0+j.st*(j.r.length-1))/u).toFixed(d)+(j.fm?' MHz':' kHz')+
   ', step '+(j.st/1000)+' kHz. Click a peak to tune to it.';}
-function drawScope(){if(!S||!S.r.length)return;const W=sc.width,H=sc.height,n=S.r.length,mx=Math.max(30,...S.r);
+function drawScope(){if(!S||!S.r.length)return;const W=sc.width,H=sc.height,n=S.r.length,mx=Math.max(30,...S.r,S.thr||0);
  sx.clearRect(0,0,W,H);sx.strokeStyle='#1d4a5c';sx.lineWidth=1;
  for(let i=1;i<4;i++){sx.beginPath();sx.moveTo(0,H*i/4);sx.lineTo(W,H*i/4);sx.stroke();}
  const bw=W/n;
@@ -242,6 +245,8 @@ function drawScope(){if(!S||!S.r.length)return;const W=sc.width,H=sc.height,n=S.
   sx.font='bold 22px system-ui,sans-serif';const tw=sx.measureText(t).width+16;let x=hov*bw+bw/2-tw/2;
   x=Math.max(2,Math.min(W-tw-2,x));sx.fillStyle='rgba(6,23,30,.9)';sx.fillRect(x,4,tw,30);
   sx.fillStyle='#fff';sx.fillText(t,x+8,27);}
+ if(S.thr){const ty=H-S.thr/mx*(H-14);sx.strokeStyle='#f5c542';sx.setLineDash([6,4]);sx.lineWidth=1.5;
+  sx.beginPath();sx.moveTo(0,ty);sx.lineTo(W,ty);sx.stroke();sx.setLineDash([]);}
  if(P){const k=(P.f-S.f0)/S.st;if(k>=-0.5&&k<=n-0.5){const x=(k+0.5)*bw;sx.strokeStyle='#ff6b6b';sx.lineWidth=2;
   sx.beginPath();sx.moveTo(x,0);sx.lineTo(x,H);sx.stroke();}}}
 sc.addEventListener('click',e=>{if(!S)return;const r=sc.getBoundingClientRect(),n=S.r.length;
@@ -342,6 +347,10 @@ function drawBeacons(){if(!document.querySelector('section[data-tab="bcn"].on'))
 setInterval(drawBeacons,1000);
 function beaconReport(j){heard[j.b][j.i]={q:j.q,r:j.r,t:j.t};drawBeacons();}
 // kHz; on FM a value under 200 is MHz (102.6), as the hint says
+// Seek in SSB/CW: the frequency moves on the panel while it searches
+function seekShow(f){$('pfq').innerHTML=fmtF(f,P?P.m:1);$('pfq').style.opacity=.6;note('Seeking\u2026');}
+let noteT=0;function note(t){const n=$('note');n.textContent=t;n.style.display='block';clearTimeout(noteT);
+ if(!/Seeking/.test(t)){$('pfq').style.opacity='';noteT=setTimeout(()=>n.style.display='none',5000);}}
 function tune(){const v=parseFloat(document.getElementById('f').value.replace(',','.'));
  if(v>0)send('F'+Math.round(P&&P.m===0&&v<200?v*1e6:v*1000)+'\n');}
 document.getElementById('go').onclick=tune;

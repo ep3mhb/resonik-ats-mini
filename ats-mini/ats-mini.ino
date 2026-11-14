@@ -599,6 +599,59 @@ void showFrequencySeek(uint16_t freq)
 }
 
 //
+// RESONIK R4: Seek in SSB and CW. The SI4732 only seeks in AM and FM; the
+// original firmware moved one tuning step here. This steps the band 1 kHz
+// at a time with the sound muted, from the quietest reading so far, and stops
+// at the first point 4 dB above it (the chip's SNR is 0 in SSB, so it is not
+// used), at the band edge, after 200 kHz, or when a button is pressed.
+// Returns the frequency found (tuned there) or 0 (back at the start).
+// progress() is called every 5 kHz; seen[] (200) gets the readings.
+//
+uint32_t ssbSeek(int dir, void (*progress)(uint32_t hz), uint8_t *seen, int *count, uint8_t *threshold, uint8_t *why)
+{
+  const Band *band = getCurrentBand();
+  uint32_t cur = currentFrequency;
+  seekStop = false;
+  muteOn(MUTE_TEMP, true, !audioClamp);
+  rx.setSSBBfo(0);
+  uint8_t floorRssi = 255;
+  uint32_t f = (cur / 1000) * 1000, found = 0;
+  int n = 0;
+  *why = 2;                                  // 0 found, 1 stopped, 2 nothing in 200 kHz, 3 band edge
+  for(int i = 1; i <= 200; i++)
+  {
+    int64_t next = (int64_t)f + dir * 1000LL * i;
+    if(next < band->minimumFreq || next > band->maximumFreq) { *why = 3; break; }
+    if(consumeAbortPending()) { *why = 1; break; }
+    rx.setFrequencyConfirmed(freqFromHz((uint32_t)next, currentMode));
+    rx.getCurrentReceivedSignalQuality();
+    uint8_t r = rx.getCurrentRSSI();
+    if(seen && n < 200) seen[n] = r;
+    n++;
+    if(progress && !(i % 5)) progress((uint32_t)next);
+    if(r < floorRssi) floorRssi = r;
+    if(i <= 4) continue;                     // The first readings only set the floor
+    if(r >= floorRssi + 4) { found = next; *why = 0; break; }
+  }
+  if(count) *count = n;
+  if(threshold) *threshold = floorRssi + 4;
+  rx.setFrequencyConfirmed(getReceiverFrequency(cur));
+  currentFrequency = cur;
+  updateFrequency(found ? found : cur, false);
+  bandPlanAutoSideband();
+  muteOn(MUTE_TEMP, false, !audioClamp);
+  return(found);
+}
+
+static void seekShowProgress(uint32_t hz)
+{
+  uint32_t keep = currentFrequency;
+  currentFrequency = hz;
+  drawScreen();
+  currentFrequency = keep;
+}
+
+//
 // Handle encoder rotation in seek mode
 //
 bool doSeek(int16_t enc, int16_t enca)
@@ -609,8 +662,10 @@ bool doSeek(int16_t enc, int16_t enca)
   {
     if(isSSB())
     {
-      updateFrequency(currentFrequency + (int64_t)enca * getCurrentStep()->step, true);
-      bandPlanAutoSideband();
+      // R4: a real search (it was one tuning step, often 10 Hz)
+      int count; uint8_t thr, why;
+      if(!ssbSeek(enc > 0 ? 1 : -1, seekShowProgress, nullptr, &count, &thr, &why) && why != 1)
+        statusShow("Seek", why == 3 ? "Nothing above the noise, band edge" : "Nothing above the noise in 200 kHz");
     }
     else
     {
