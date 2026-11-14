@@ -1,6 +1,7 @@
 //
-// RESONIK R4: Wi-Fi Setup on the radio itself (Settings -> Wi-Fi Setup).
-// Lists the networks in range (name, signal, security, channel), and types
+// RESONIK R4: the Wi-Fi page on the radio (Settings -> Wi-Fi, one item for
+// everything Wi-Fi): status and IP address, Mode, Join a network, Power.
+// Join a network lists the networks in range (name, signal, security, channel), and types
 // the password with the knob on an on-screen keyboard: turn to move, click
 // to type, press to go back. The network is saved in the first Wi-Fi slot
 // (the others move down) and the radio connects at once, keeping its own
@@ -29,8 +30,14 @@
 #define WS_MUTED   WS_RGB(0x8FB3C0)
 #define WS_TEXT    WS_RGB(0xEEF5F7)
 
-enum class Ws : uint8_t { Scan, List, Keys, Connect, Done, Failed };
-static Ws ws = Ws::Scan;
+enum class Ws : uint8_t { Hub, Scan, List, Keys, Connect, Done, Failed };
+static Ws ws = Ws::Hub;
+
+// The Wi-Fi page: three rows; a click on Mode or Power edits it in place
+enum { H_MODE, H_JOIN, H_POWER, H_COUNT };
+static int hubSel = H_MODE;
+static bool hubEdit = false;
+static int hubValue = 0;
 
 struct WsNet { char ssid[33]; int8_t rssi; uint8_t ch; uint8_t auth; };
 #define WS_MAX_NETS 16
@@ -155,12 +162,23 @@ void wifiSetupOpen()
 {
   currentCmd = CMD_WIFISETUP;
   startedRadio = false;
-  startScan();
+  ws = Ws::Hub;
+  hubEdit = false;
+}
+
+// Back to the Wi-Fi page (from the list, keyboard or result)
+static void toHub()
+{
+  WiFi.scanDelete();
+  if(startedRadio) WiFi.mode(WIFI_MODE_NULL);
+  startedRadio = false;
+  ws = Ws::Hub;
+  hubEdit = false;
 }
 
 static void leave()
 {
-  if(ws == Ws::Scan || ws == Ws::List || ws == Ws::Keys)
+  if(ws == Ws::Hub || ws == Ws::Scan || ws == Ws::List || ws == Ws::Keys)
   {
     WiFi.scanDelete();
     if(startedRadio) WiFi.mode(WIFI_MODE_NULL);
@@ -193,6 +211,13 @@ static void typeKey(int k)
 void wifiSetupTurn(int16_t enc)
 {
   if(!enc) return;
+  if(ws == Ws::Hub)
+  {
+    if(!hubEdit) hubSel = (hubSel + enc + H_COUNT) % H_COUNT;
+    else if(hubSel == H_MODE) hubValue = (hubValue + enc + getTotalWiFiModes()) % getTotalWiFiModes();
+    else hubValue = (hubValue + enc + 3) % 3;
+    return;
+  }
   if(ws == Ws::List)
     listSel = (listSel + enc + netCount + 1) % (netCount + 1);
   else if(ws == Ws::Keys)
@@ -203,11 +228,35 @@ void wifiSetupClick(bool shortPress)
 {
   switch(ws)
   {
+    case Ws::Hub:
+      if(shortPress) { if(hubEdit) hubEdit = false; else leave(); break; }
+      if(!hubEdit)
+      {
+        if(hubSel == H_JOIN) { startScan(); break; }
+        hubEdit = true;
+        hubValue = hubSel == H_MODE ? wifiModeIdx : wifiPowerIdx;
+        break;
+      }
+      // Apply the new mode or power
+      hubEdit = false;
+      if(hubSel == H_MODE && hubValue != wifiModeIdx)
+      {
+        wifiModeIdx = hubValue;
+        prefsRequestSave(SAVE_SETTINGS);
+        netInit(wifiModeIdx);
+      }
+      else if(hubSel == H_POWER && hubValue != wifiPowerIdx)
+      {
+        wifiPowerIdx = hubValue;
+        wifiApplyTxPower();
+        prefsRequestSave(SAVE_SETTINGS);
+      }
+      break;
     case Ws::Scan:
-      if(shortPress) leave();
+      if(shortPress) toHub();
       break;
     case Ws::List:
-      if(shortPress) { leave(); break; }
+      if(shortPress) { toHub(); break; }
       if(listSel == 0) { startScan(); break; }
       strlcpy(ssid, nets[listSel - 1].ssid, sizeof(ssid));
       pass[0] = 0; passLen = 0; showPass = false; keyPage = 0; keySel = 11;
@@ -219,13 +268,13 @@ void wifiSetupClick(bool shortPress)
       typeKey(keySel);
       break;
     case Ws::Connect:
-      if(shortPress) currentCmd = CMD_NONE;
+      if(shortPress) toHub();
       break;
     case Ws::Done:
-      currentCmd = CMD_NONE;
+      toHub();
       break;
     case Ws::Failed:
-      if(shortPress) currentCmd = CMD_NONE;
+      if(shortPress) toHub();
       else { ws = Ws::Keys; keySel = K_OK; }          // Try the password again
       break;
   }
@@ -235,6 +284,12 @@ bool wifiSetupTick()
 {
   if(currentCmd != CMD_WIFISETUP) return(false);
   uint32_t now = millis();
+  if(ws == Ws::Hub)
+  {
+    static uint32_t last = 0;
+    if(now - last > 1000) { last = now; return(true); }
+    return(false);
+  }
   if(ws == Ws::Scan)
   {
     int n = WiFi.scanComplete();
@@ -260,8 +315,8 @@ const char *wifiInfoLine()
   static char line[64];
   int8_t st = getWiFiStatus();
   wifi_mode_t m = WiFi.getMode();
-  if(st == 2) snprintf(line, sizeof(line), "IP %s  \xC2\xB7  atsmini.local", getWiFiIPAddress());
-  else if(m == WIFI_AP || m == WIFI_AP_STA) snprintf(line, sizeof(line), "Access point %s  \xC2\xB7  10.1.1.1", RECEIVER_NAME);
+  if(st == 2) snprintf(line, sizeof(line), "IP %s  or atsmini.local", getWiFiIPAddress());
+  else if(m == WIFI_AP || m == WIFI_AP_STA) snprintf(line, sizeof(line), "Access point %s: 10.1.1.1", RECEIVER_NAME);
   else if(m == WIFI_MODE_NULL) strlcpy(line, "Wi-Fi off", sizeof(line));
   else strlcpy(line, "Not connected", sizeof(line));
   return(line);
@@ -303,7 +358,7 @@ static void drawList()
 {
   char right[24];
   snprintf(right, sizeof(right), "%d found  2.4 GHz", netCount);
-  header("Wi-Fi Setup", right);
+  header("Join a network", right);
   const int top = 31, rh = 22, vis = 5;
   int first = listSel - 2;
   if(first > netCount + 1 - vis) first = netCount + 1 - vis;
@@ -392,14 +447,70 @@ static void drawKeys()
   }
 }
 
+static void drawHub()
+{
+  int8_t st = getWiFiStatus();
+  wifi_mode_t m = WiFi.getMode();
+  header("Wi-Fi", st == 2 ? "Connected" : m == WIFI_MODE_NULL ? "Off" : (m == WIFI_AP || m == WIFI_AP_STA) ? "Access point" : "Not connected");
+  // Where to find the radio's web pages
+  spr.fillRoundRect(4, 30, 312, 40, 6, WS_NAVY);
+  spr.setTextDatum(MC_DATUM);
+  // Line 1: the address to open in a browser; line 2: how to get there
+  char l2[64];
+  if(st == 2)
+  {
+    spr.setTextColor(WS_GREEN);
+    spr.drawString(getWiFiIPAddress(), 160, 42, uiFont(false));
+    snprintf(l2, sizeof(l2), "on %s, or atsmini.local", WiFi.SSID().c_str());
+  }
+  else if(m == WIFI_AP || m == WIFI_AP_STA)
+  {
+    spr.setTextColor(WS_TEXT);
+    spr.drawString("10.1.1.1", 160, 42, uiFont(false));
+    snprintf(l2, sizeof(l2), "after joining Wi-Fi %s", RECEIVER_NAME);
+  }
+  else
+  {
+    spr.setTextColor(WS_TEXT);
+    spr.drawString(m == WIFI_MODE_NULL ? "Wi-Fi off" : "Not connected", 160, 42, uiFont(false));
+    strlcpy(l2, m == WIFI_MODE_NULL ? "Set Mode to use the web pages" : "Join a network below", sizeof(l2));
+  }
+  spr.setTextColor(WS_MUTED);
+  spr.drawString(l2, 160, 60, uiFont(true));
+
+  static const char *const labels[H_COUNT] = { "Mode", "Join a network", "Power" };
+  const int top = 74, rh = 22;
+  for(int i = 0; i < H_COUNT; i++)
+  {
+    int y = top + i * (rh + 3);
+    bool hl = i == hubSel;
+    spr.fillRoundRect(4, y, 312, rh, 6, hl ? (hubEdit ? WS_GREEN : WS_BLUE) : WS_NAVY);
+    spr.setTextDatum(ML_DATUM);
+    spr.setTextColor(hl && hubEdit ? WS_BG : WS_TEXT);
+    spr.drawString(labels[i], 12, y + rh / 2, uiFont(false));
+    const char *v = nullptr;
+    if(i == H_MODE)  v = wifiModeDesc[hl && hubEdit ? hubValue : wifiModeIdx];
+    if(i == H_POWER) v = wifiPowerDesc[hl && hubEdit ? hubValue : wifiPowerIdx];
+    if(i == H_JOIN)  v = ">";
+    spr.setTextDatum(MR_DATUM);
+    spr.setTextColor(hl && hubEdit ? WS_BG : WS_MUTED);
+    if(hl && hubEdit) { char t[32]; snprintf(t, sizeof(t), "< %s >", v); spr.drawString(t, 308, y + rh / 2, uiFont(false)); }
+    else spr.drawString(v, 308, y + rh / 2, uiFont(false));
+  }
+  footer(hubEdit ? "Turn: change   Click: apply   Press: cancel" : "Turn: choose   Click: open   Press: back");
+}
+
 void drawWifiSetup()
 {
   char line[48];
   switch(ws)
   {
+    case Ws::Hub:
+      drawHub();
+      break;
     case Ws::Scan:
     {
-      header("Wi-Fi Setup", "2.4 GHz");
+      header("Join a network", "2.4 GHz");
       static const char *const d[4] = { "", ".", "..", "..." };
       snprintf(line, sizeof(line), "Looking for networks%s", d[(millis() / 300) % 4]);
       spr.setTextDatum(MC_DATUM);
@@ -418,7 +529,7 @@ void drawWifiSetup()
       break;
     case Ws::Connect:
     {
-      header("Wi-Fi Setup", nullptr);
+      header("Join a network", nullptr);
       static const char *const d[4] = { "", ".", "..", "..." };
       snprintf(line, sizeof(line), "Connecting%s", d[(millis() / 300) % 4]);
       spr.setTextDatum(MC_DATUM);
@@ -441,7 +552,7 @@ void drawWifiSetup()
       snprintf(line, sizeof(line), "http://%s/control", getWiFiIPAddress());
       spr.drawString(line, 160, 118, uiFont(true));
       spr.drawString("or http://atsmini.local", 160, 136, uiFont(true));
-      footer("Click: done");
+      footer("Click: back to Wi-Fi");
       break;
     }
     case Ws::Failed:
