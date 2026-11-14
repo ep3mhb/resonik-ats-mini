@@ -13,8 +13,12 @@ bool tuneToFrequency(uint32_t hz, uint8_t mode);
 // NCDXF/IARU beacons
 const char *beaconLabel(uint32_t freq);      // Station line text on a beacon frequency, or nullptr
 extern int8_t beaconFollowIdx;               // Beacon being followed across bands, -1 = off
-extern const char *const beaconMenuLabels[19];
+extern uint8_t beaconNames;                  // R4: 1 = name the scheduled beacon on beacon frequencies
+#define BEACON_MENU_COUNT 20
+extern const char *const beaconMenuLabels[BEACON_MENU_COUNT];  // Off, Names only, then the 18 beacons
 void beaconFollow(int8_t idx);
+int beaconMenuIdx();                         // R4: menu position (0 Off, 1 Names only, 2.. following)
+void beaconMenuSet(int idx);
 bool beaconTick();
 
 // Memory scanner

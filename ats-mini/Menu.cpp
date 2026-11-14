@@ -1818,7 +1818,7 @@ bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
       if(loggerIdx != LOG_CLEAR) prefsRequestSave(SAVE_SETTINGS);
       break;
     case CMD_BEACON:
-      beaconFollow(wrap_range(beaconFollowIdx + 1, scrollDirection * enc, 0, 18) - 1);
+      beaconMenuSet(wrap_range(beaconMenuIdx(), scrollDirection * enc, 0, BEACON_MENU_COUNT - 1));
       break;
     case CMD_PROPAG:     break;
     case CMD_RDS:        doRDSMode(scrollDirection * enc);break;
@@ -2897,7 +2897,7 @@ void drawSideBar(uint16_t cmd, int x, int y, int sx)
     case CMD_FREQLOCK:   drawOptionList(settings[MENU_FREQLOCK], freqLockDesc, 2, freqLock, x, y, sx); break;
     case CMD_WIFIPOWER:  drawOptionList(settings[MENU_WIFIPOWER], wifiPowerDesc, 3, wifiPowerIdx, x, y, sx); break;
     case CMD_PERF:       drawOptionList(settings[MENU_PERF], perfDesc, 3, perfIdx, x, y, sx); break;
-    case CMD_BEACON:     drawOptionList(menu[MENU_BEACONS], beaconMenuLabels, 19, beaconFollowIdx + 1, x, y, sx); break;
+    case CMD_BEACON:     drawOptionList(menu[MENU_BEACONS], beaconMenuLabels, BEACON_MENU_COUNT, beaconMenuIdx(), x, y, sx); break;
     case CMD_VOLUME:     drawVolume(x, y, sx);     break;
     case CMD_AGC:        drawAgc(x, y, sx);        break;
     case CMD_SOFTMUTE:   drawSoftMuteMaxAtt(x, y, sx);break;
@@ -3142,7 +3142,7 @@ static bool tileValueGet(uint16_t cmd, TileValue &v)
     case CMD_AUTOATT:   v.count = ITEM_COUNT(autoAttDesc); v.idx = autoAttIdx; return(true);
     case CMD_MENUSTYLE: v.count = ITEM_COUNT(menuStyleDesc); v.idx = menuStyleIdx; return(true);
     case CMD_LOGGER:    v.count = 5; v.idx = loggerIdx; return(true);
-    case CMD_BEACON:    v.count = 19; v.idx = beaconFollowIdx + 1; return(true);
+    case CMD_BEACON:    v.count = BEACON_MENU_COUNT; v.idx = beaconMenuIdx(); return(true);
     case CMD_SLEEPMODE: v.count = ITEM_COUNT(sleepModeDesc); v.idx = sleepModeIdx; return(true);
     case CMD_USBMODE:   v.count = ITEM_COUNT(usbModeDesc); v.idx = usbModeIdx; return(true);
     case CMD_TCPMODE:   v.count = ITEM_COUNT(tcpModeDesc); v.idx = tcpModeIdx; return(true);
@@ -3404,6 +3404,7 @@ void webMenuDef(String &j)
   wjItem(j, CMD_RDS, "Receiver", "RDS", "l");
   n = 0; for(int i = 0; i < (int)ITEM_COUNT(rdsMode); i++) labels[n++] = rdsMode[i].desc;
   j += ",\"o\":"; wjList(j, labels, n); j += '}';
+  wjItem(j, CMD_BEACON, "Receiver", "Beacons", "l"); j += ",\"o\":"; wjList(j, beaconMenuLabels, BEACON_MENU_COUNT); j += '}';
   wjItem(j, CMD_BANDPLAN, "Receiver", "Band plan", "l"); j += ",\"o\":"; wjList(j, bandPlanDesc, ITEM_COUNT(bandPlanDesc)); j += '}';
   wjItem(j, CMD_BPAREA, "Receiver", "Plan area", "l"); j += ",\"o\":"; wjList(j, bandPlanAreaDesc, BP_AREA_COUNT); j += '}';
   wjItem(j, CMD_CWSTRIP, "Receiver", "CW decoder strip", "b"); j += '}';
@@ -3454,6 +3455,7 @@ void webMenuVals(String &j)
   kv(CMD_AGC, agcIdx);
   kv(CMD_AUTOATT, autoAttIdx);
   kv(CMD_RDS, rdsModeIdx);
+  kv(CMD_BEACON, beaconMenuIdx());
   kv(CMD_BANDPLAN, bandPlanIdx);
   kv(CMD_BPAREA, bandPlanArea);
   kv(CMD_CWSTRIP, cwStripIdx);
@@ -3540,6 +3542,7 @@ bool webMenuSet(uint16_t cmd, int32_t v)
     case CMD_AUTOATT:    if(v < 0 || v >= (int)ITEM_COUNT(autoAttDesc)) return(false); doAutoAtt(v - autoAttIdx); break;
     case CMD_RDS:        if(v < 0 || v >= (int)ITEM_COUNT(rdsMode)) return(false); doRDSMode(v - rdsModeIdx); break;
     case CMD_BANDPLAN:   if(v < 0 || v >= (int)ITEM_COUNT(bandPlanDesc)) return(false); doBandPlan(v - bandPlanIdx); break;
+    case CMD_BEACON:     if(v < 0 || v >= BEACON_MENU_COUNT) return(false); beaconMenuSet(v); break;
     case CMD_BPAREA:     if(v < 0 || v >= BP_AREA_COUNT) return(false); bandPlanArea = v; prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_CWSTRIP:    cwStripIdx = v ? 1 : 0; prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_LOGGER:     if(v < 0 || v >= LOG_CLEAR) return(false); loggerIdx = v; prefsRequestSave(SAVE_SETTINGS); break;
