@@ -206,4 +206,11 @@ void doStep(int16_t enc);
 void doMode(int16_t enc);
 void doBand(int16_t enc);
 
+// RESONIK R4: Web Control settings (Menu.cpp)
+void webMenuDef(String &json);
+void webMenuVals(String &json);
+bool webMenuSet(uint16_t cmd, int32_t value);
+void webMemoriesJson(String &json);
+bool webMemoryAction(char action, int slot);
+
 #endif // MENU_H

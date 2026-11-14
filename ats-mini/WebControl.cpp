@@ -41,6 +41,14 @@ static std::atomic<uint32_t> tuneWanted{0};       // Frequency in Hz from the pa
 static std::atomic<int8_t> muteWanted{-1};        // Speaker while listening: steps quieter (0 normal)
 static std::atomic<int8_t> seekWanted{0};        // +1 up, -1 down
 static std::atomic<bool> scopeWanted{false};
+static std::atomic<bool> screenWanted{false};     // The radio's screen: only when the page shows it
+static std::atomic<bool> defWanted{true};         // Settings list (on connect and on request)
+static std::atomic<bool> memWanted{true};         // Memory list
+
+// Settings and memory actions from the page, run on the main task
+struct WebSet { uint16_t cmd; int32_t value; };
+static WebSet setQueue[16];
+static uint8_t setHead = 0, setTail = 0;            // Under inMutex
 static std::atomic<bool> webBusy{false};          // A seek or sweep is running
 static std::atomic<bool> webAbort{false};         // ...and the page sent something
 static RemoteState remoteState;
@@ -86,6 +94,8 @@ static void webOnEvent(AsyncWebSocket *, AsyncWebSocketClient *client, AwsEventT
   {
     sessionReset = true;
     fullFrame = true;
+    defWanted = true;
+    memWanted = true;
     client->setCloseClientOnQueueFull(false);
   }
   else if(type == WS_EVT_DATA)
@@ -108,6 +118,37 @@ static void webOnEvent(AsyncWebSocket *, AsyncWebSocketClient *client, AwsEventT
       scopeWanted = true;
       return;
     }
+    if(len >= 7 && !memcmp(data, "!screen", 7))
+    {
+      screenWanted = len > 7 && data[7] == '1';
+      if(screenWanted) fullFrame = true;
+      return;
+    }
+    // "!set <cmd> <value>", "!mem t|d <slot>", "!mem s"
+    if(len >= 5 && (!memcmp(data, "!set ", 5) || !memcmp(data, "!mem ", 5)))
+    {
+      char text[40];
+      size_t n = len < sizeof(text) - 1 ? len : sizeof(text) - 1;
+      memcpy(text, data, n);
+      text[n] = 0;
+      WebSet w;
+      if(text[1] == 's')
+      {
+        char *end;
+        w.cmd = strtoul(text + 5, &end, 10);
+        w.value = strtol(end, nullptr, 10);
+      }
+      else
+      {
+        w.cmd = 0xFF00 | (uint8_t)text[5];          // Memory action letter
+        w.value = len > 7 ? strtol(text + 7, nullptr, 10) : -1;
+      }
+      std::lock_guard<std::mutex> lock(inMutex);
+      uint8_t next = (setHead + 1) % 16;
+      if(next != setTail) { setQueue[setHead] = w; setHead = next; }
+      return;
+    }
+    if(len >= 4 && !memcmp(data, "!def", 4)) { defWanted = true; memWanted = true; return; }
     if(len >= 5 && !memcmp(data, "!mute", 5))
     {
       // "!mute0" normal, "!mute4" 4 steps quieter, "!mute8" ... ("!mute1" = 8, as before)
@@ -458,6 +499,7 @@ bool webControlActive() { return(ws.count() > 0); }
 bool webControlTick()
 {
   static uint32_t lastScreen = 0, lastAudio = 0, lastStatus = 0, lastCleanup = 0, lastPanel = 0;
+  static uint32_t lastVals = 0;
   static uint8_t lastCount = 0;
   uint32_t now = millis();
 
@@ -525,6 +567,25 @@ bool webControlTick()
     redraw = true;
   }
 
+  // Settings and memories from the page
+  for(int i = 0; i < 4; i++)
+  {
+    WebSet w;
+    {
+      std::lock_guard<std::mutex> lock(inMutex);
+      if(setHead == setTail) break;
+      w = setQueue[setTail];
+      setTail = (setTail + 1) % 16;
+    }
+    if((w.cmd & 0xFF00) == 0xFF00)
+    {
+      redraw |= webMemoryAction((char)(w.cmd & 0xFF), w.value);
+      memWanted = true;
+    }
+    else redraw |= webMenuSet(w.cmd, w.value);
+    lastVals = 0;                                  // Show the result at once
+  }
+
   int8_t a = audioWanted.exchange(-1);
   if(a >= 0) webAudioSet(a == 1);
   int8_t m = muteWanted.exchange(-1);
@@ -542,11 +603,41 @@ bool webControlTick()
   // While listening the screen gets what is left: at most about 20 kB/s,
   // and nothing while the audio is behind. Tuning redraws much of the
   // screen, and in test 7 that crowded out the sound (gaps of seconds).
-  if(now - lastScreen >= (audioOn ? 150u : 50u))
+  if(screenWanted && now - lastScreen >= (audioOn ? 150u : 50u))
   {
     lastScreen = now;
     if(!audioOn) webSendScreen(SIZE_MAX);
     else if(audioWebBacklog(audioPos) < WEB_SCREEN_AUDIO_SLACK) webSendScreen(3000);
+  }
+  // Settings: the list once, then the values when they change. Not while
+  // listening and the audio is behind (the list is a few kB).
+  if(ws.availableForWriteAll() && (!audioOn || audioWebBacklog(audioPos) < WEB_SCREEN_AUDIO_SLACK))
+  {
+    if(defWanted.exchange(false))
+    {
+      String j;
+      j.reserve(6000);
+      webMenuDef(j);
+      ws.textAll(String("{\"def\":") + j + "}");
+      lastVals = 0;
+    }
+    else if(memWanted.exchange(false))
+    {
+      String j;
+      j.reserve(2000);
+      webMemoriesJson(j);
+      ws.textAll(j);
+    }
+    else if(!lastVals || now - lastVals >= 300)
+    {
+      static String last;
+      bool force = !lastVals;
+      lastVals = now;
+      String j;
+      j.reserve(900);
+      webMenuVals(j);
+      if(force || j != last) { last = j; ws.textAll(j); }
+    }
   }
   if(now - lastPanel >= 250)
   {
