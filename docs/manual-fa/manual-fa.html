@@ -17,6 +17,8 @@ h1, h2, h3 { color: var(--navy); line-height: 1.4; }
 h2 { font-size: 17pt; font-weight: 800; margin: 0 0 4mm; padding-bottom: 2mm; border-bottom: 2.5px solid var(--navy); break-after: avoid; }
 h2 .num { color: var(--blue); margin-left: 2mm; }
 h2 .tag.r3, .toc small.r3 { background: #108AB1; }
+h2 .tag.r4, h3 .tag.r4, .toc small.r4 { background: #C77700; }
+figure img.phone { width: 58mm; border-radius: 3mm; border: 1.5mm solid #111; box-shadow: 0 0 0 0.4mm #555; }
 h2 .tag { font-size: 9pt; font-weight: 600; color: #fff; background: var(--pink); border-radius: 3px; padding: 0 2mm; margin-right: 2mm; vertical-align: middle; }
 h3 { font-size: 12pt; font-weight: 700; margin: 5mm 0 1.5mm; break-after: avoid; }
 p { margin: 0 0 2.6mm; text-align: justify; }
@@ -109,13 +111,14 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
     <li><span class="n">۱۶</span>دیکودر <bdi>FT8</bdi> و <bdi>FT4</bdi><small>R3</small></li>
     <li><span class="n">۱۷</span>دیکودر <bdi>CW</bdi><small>R3</small></li>
     <li><span class="n">۱۸</span>اسکنر باند<small>R3</small></li>
-    <li><span class="n">۱۹</span>قفل فرکانس، توان <bdi>Wi-Fi</bdi> و سرعت پردازنده<small>R3</small></li>
-    <li><span class="n">۲۰</span>صفحه‌ی وب رادیو و <bdi>Wi-Fi</bdi></li>
-    <li><span class="n">۲۱</span>ارسال بازخورد و رفع اشکال</li>
-    <li><span class="n">۲۲</span>سازندگان و مجوز</li>
+    <li><span class="n">۱۹</span>قفل فرکانس و سرعت پردازنده<small>R3</small></li>
+    <li><span class="n">۲۰</span><bdi>Wi-Fi</bdi> و صفحه‌ی وب رادیو<small class="r4">R4</small></li>
+    <li><span class="n">۲۱</span>کنترل از مرورگر (<bdi>Web Control</bdi>)<small class="r4">R4</small></li>
+    <li><span class="n">۲۲</span>ارسال بازخورد و رفع اشکال</li>
+    <li><span class="n">۲۳</span>سازندگان و مجوز</li>
   </ol>
   <div class="note">این راهنما برای فریم‌ور <bdi>{{VERSION}}</bdi> نوشته شده و با هر نسخه‌ی جدید به‌روز می‌شود. نسخه‌ی تازه همیشه در <bdi>resonik.mikroutik.com</bdi> است. نسخه‌ی فریم‌ور رادیو را در <span class="ui"><bdi>Menu → System → About</bdi></span> ببینید.</div>
-  <p class="small">بخش‌هایی که با <b style="color:var(--pink)">R2</b> مشخص شده‌اند از نسخه‌ی <bdi>2.45-r2</bdi> و بخش‌های <b style="color:#108AB1">R3</b> از نسخه‌ی <bdi>2.45-r3</bdi> به بعد در دسترس‌اند. نام گزینه‌های منو به همان شکل انگلیسی که روی صفحه‌ی رادیو دیده می‌شود آمده است.</p>
+  <p class="small">بخش‌هایی که با <b style="color:var(--pink)">R2</b> مشخص شده‌اند از نسخه‌ی <bdi>2.45-r2</bdi> ، بخش‌های <b style="color:#108AB1">R3</b> از نسخه‌ی <bdi>2.45-r3</bdi> و بخش‌های <b style="color:#C77700">R4</b> از نسخه‌ی <bdi>2.45-r4</bdi> به بعد در دسترس‌اند. نام گزینه‌های منو به همان شکل انگلیسی که روی صفحه‌ی رادیو دیده می‌شود آمده است.</p>
 </section>
 
 <!-- 1 -->
@@ -190,7 +193,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
     <tr><td><bdi>Memory</bdi><br><span class="small">حافظه</span></td><td><bdi>Memory, Logger, Mem Scan</bdi></td></tr>
     <tr><td><bdi>Ham &amp; SWL</bdi><br><span class="small">آماتوری و موج کوتاه</span></td><td><bdi>Band Plan, Beacons, Calibration, CW Decoder, CW Strip, FT8/FT4, Load EiBi, Plan Area, Propagation</bdi></td></tr>
     <tr><td><bdi>Display</bdi><br><span class="small">نمایش</span></td><td><bdi>Brightness, Menu Style, Scroll Dir., Sleep Mode, Sleep Timer, Theme, UI Layout, Zoom Menu</bdi></td></tr>
-    <tr><td><bdi>System</bdi><br><span class="small">سیستم</span></td><td><bdi>About, Bluetooth, Date/Time, DSP Patches, Knob, Off Timer, TCP Port, Time Zone, Update FW, USB Port, Wi-Fi, Wi-Fi Power, Performance</bdi></td></tr>
+    <tr><td><bdi>System</bdi><br><span class="small">سیستم</span></td><td><bdi>About, Bluetooth, Date/Time, DSP Patches, Knob, Off Timer, TCP Port, Time Zone, Update FW, USB Port, Wi-Fi, CPU</bdi></td></tr>
   </table>
   <h3>کنترل‌های شنیداری و برگه‌های تنظیمات</h3>
   <p>کنترل‌هایی مانند <bdi>Band</bdi>، <bdi>Mode</bdi>، <bdi>Step</bdi> یا <bdi>Volume</bdi> فهرست خود را مثل قبل باز می‌کنند؛ پس از انتخاب، منو بسته می‌شود تا ولوم بلافاصله فرکانس را تنظیم کند. تنظیمات به صورت برگه‌ی تمام‌صفحه باز می‌شوند: یا فهرستی از مقدارها، یا یک عدد با نوار. با چرخاندن مقدار را عوض کنید؛ کلیک مقدار را نگه می‌دارد و به همان دسته برمی‌گردد.</p>
@@ -201,9 +204,9 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
   <h3>تنظیم ولوم: <bdi>System → Knob</bdi></h3>
   <p>دو نوع ولوم روی این رادیوها نصب می‌شود: <b><bdi>20 clicks</bdi></b> یا <b><bdi>30 clicks</bdi></b> در هر دور. اگر ولوم یک گام را جا می‌اندازد، یا برای یک گام دو بار باید چرخاند، مقدار دیگر را انتخاب کنید. (در صفحه‌ی وب رادیو همین گزینه <bdi>Half-step Encoder</bdi> نام دارد.)</p>
   <figure><img class="screen" src="img/screen-knob.png" alt=""><figcaption>برگه‌ی <bdi>Knob</bdi></figcaption></figure>
-  <h3>منوی کلاسیک</h3>
-  <p><span class="ui"><bdi>Menu → Display → Menu Style → Classic</bdi></span> منوی فهرستی فریم‌ور رسمی را برمی‌گرداند: کنترل‌های شنیداری در <bdi>Menu</bdi> و بقیه در <bdi>Menu → Settings</bdi>، با همین نام‌ها. گزینه‌ی <bdi>Tiles</bdi> منوی جدید را برمی‌گرداند.</p>
-  <div class="tip">گزینه‌ی <bdi>Scan</bdi> در <bdi>Tuning</bdi> نمودار قدرت سیگنال در طول باند را رسم می‌کند (تصویری لحظه‌ای از باند)؛ رادیو روی ایستگاه‌ها توقف نمی‌کند. <bdi>Seek</bdi> به ایستگاه بعدی می‌رود. برای ایستادن روی ایستگاه‌ها از <bdi>Scanner</bdi> استفاده کنید (بخش ۱۸).</div>
+  <h3>منوی کلاسیک<span class="tag r4" style="font-size:8pt;margin-right:2mm">R4</span></h3>
+  <p><span class="ui"><bdi>Menu → Display → Menu Style → Classic</bdi></span> منوی فهرستی و کوچک فریم‌ور رسمی را در گوشه‌ی صفحه برمی‌گرداند. از نسخه‌ی <bdi>R4</bdi> این منو همان شش دسته‌ی جدول بالا را دارد: ابتدا دسته را انتخاب کنید و با کلیک باز کنید؛ اولین ردیف هر دسته <bdi>&lt; Back</bdi> است و عنوان کادر نام دسته را نشان می‌دهد. پس از تغییر یک تنظیم، منو به همان دسته برمی‌گردد. گزینه‌ی <bdi>Tiles</bdi> منوی کاشی‌ای را برمی‌گرداند.</p>
+  <div class="tip">گزینه‌ی <bdi>Scan</bdi> در <bdi>Tuning</bdi> نمودار قدرت سیگنال در طول باند را رسم می‌کند (تصویری لحظه‌ای از باند)؛ رادیو روی ایستگاه‌ها توقف نمی‌کند. <bdi>Seek</bdi> به ایستگاه بعدی می‌رود؛ از نسخه‌ی <bdi>R4</bdi> در <bdi>SSB</bdi> و <bdi>CW</bdi> هم کار می‌کند: باند را کیلوهرتز به کیلوهرتز با صدای بسته می‌گردد و روی اولین سیگنال می‌ایستد (هر بار حداکثر <bdi>200 kHz</bdi>؛ اگر چیزی پیدا نکند پیام می‌دهد و به نقطه‌ی شروع برمی‌گردد). برای ایستادن روی ایستگاه‌ها از <bdi>Scanner</bdi> استفاده کنید (بخش ۱۸).</div>
 </section>
 
 <!-- 5 -->
@@ -291,7 +294,8 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
   <p>هجده بیکن پروژه‌ی بین‌المللی <bdi>NCDXF/IARU</bdi> به نوبت روی فرکانس‌های <bdi>14100</bdi>، <bdi>18110</bdi>، <bdi>21150</bdi>، <bdi>24930</bdi> و <bdi>28200</bdi> کیلوهرتز، هر کدام ده ثانیه، ارسال می‌کنند و هر سه دقیقه تکرار می‌شوند. هر بیکن نشانه‌ی خود را با <bdi>CW</bdi> می‌فرستد و سپس چهار خط تیره با توان‌های <bdi>100 W</bdi>، <bdi>10 W</bdi>، <bdi>1 W</bdi> و <bdi>0.1 W</bdi>؛ تعداد خط‌هایی که می‌شنوید کیفیت مسیر را نشان می‌دهد.</p>
   <figure><img class="screen" src="img/screen-beacon.png" alt=""><figcaption>روی <bdi>14100</bdi>: نام بیکن در حال ارسال و ثانیه‌های باقی‌مانده</figcaption></figure>
   <p>روی یکی از این پنج فرکانس (<bdi>CW</bdi> یا <bdi>USB</bdi>)، خط ایستگاه بیکن در حال ارسال و ثانیه‌های باقی‌مانده را نشان می‌دهد، مثلاً <bdi>Beacon 4S7B Sri Lanka 6s</bdi>. ساعت رادیو باید تنظیم باشد.</p>
-  <p><span class="ui"><bdi>Menu → Ham &amp; SWL → Beacons</bdi></span> و انتخاب یک نشانه، رادیو را <b>دنبال‌کننده</b>ی آن بیکن می‌کند: هر ده ثانیه همراه بیکن از ۲۰ متر تا ۱۰ متر باند عوض می‌کند و در زمان سکوت آن منتظر می‌ماند. تنظیم دستی فرکانس یا انتخاب <bdi>Off</bdi> آن را پایان می‌دهد.</p>
+  <p><span class="ui"><bdi>Menu → Ham &amp; SWL → Beacons</bdi></span> و انتخاب یک نشانه، رادیو را <b>دنبال‌کننده</b>ی آن بیکن می‌کند: هر ده ثانیه همراه بیکن از ۲۰ متر تا ۱۰ متر باند عوض می‌کند و در زمان سکوت آن منتظر می‌ماند. تنظیم دستی فرکانس آن را پایان می‌دهد.</p>
+  <p><span class="tag r4" style="font-size:8pt;margin-left:2mm">R4</span>دو گزینه‌ی اول این فهرست: <b><bdi>Off</bdi></b> نام بیکن‌ها را هم خاموش می‌کند، و <b><bdi>Names only</bdi></b> فقط نام بیکن در حال ارسال را روی این پنج فرکانس نشان می‌دهد، بدون دنبال کردن. این انتخاب پس از خاموش و روشن کردن رادیو می‌ماند. نقشه‌ی جهانی بیکن‌ها در صفحه‌ی کنترل از مرورگر است (بخش ۲۱).</p>
 </section>
 
 <!-- 11, 12 -->
@@ -354,36 +358,62 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
 
 <!-- 19 -->
 <section class="chapter">
-  <h2><span class="num">۱۹</span>قفل فرکانس، توان <bdi>Wi-Fi</bdi> و سرعت پردازنده<span class="tag r3">R3</span></h2>
+  <h2><span class="num">۱۹</span>قفل فرکانس و سرعت پردازنده<span class="tag r3">R3</span></h2>
   <p><span class="ui"><bdi>Menu → Tuning → Freq Lock → On</bdi></span>: ولوم به جای تنظیم فرکانس، بلندی صدا را تنظیم می‌کند و تنظیم رقم‌به‌رقم (فشار و چرخاندن) غیرفعال می‌شود. علامت قفل کنار مد نشان می‌دهد قفل روشن است؛ پس از خاموش و روشن کردن هم می‌ماند.</p>
   <div class="pair">
     <figure><img class="screen" src="img/screen-lock.png" alt=""><figcaption>علامت قفل کنار مد</figcaption></figure>
-    <figure><img class="screen" src="img/screen-perf.png" alt=""><figcaption>برگه‌ی <bdi>Performance</bdi></figcaption></figure>
+    <figure><img class="screen" src="img/screen-cpu.png" alt=""><figcaption>برگه‌ی <bdi>CPU</bdi></figcaption></figure>
   </div>
-  <p><span class="ui"><bdi>Menu → System → Wi-Fi Power</bdi></span>: <bdi>Normal</bdi> (<bdi>17 dBm</bdi>)، <bdi>Low</bdi> (<bdi>13 dBm</bdi>) یا <bdi>Lowest</bdi> (<bdi>8.5 dBm</bdi>). توان کمتر به بردهایی که هنگام ارسال <bdi>Wi-Fi</bdi> ری‌استارت می‌شوند کمک می‌کند و کمی باتری صرفه‌جویی می‌کند، ولی برد <bdi>Wi-Fi</bdi> کمتر می‌شود.</p>
-  <p><span class="ui"><bdi>Menu → System → Performance</bdi></span>: <bdi>Battery 80 MHz</bdi> (مانند فریم‌ور رسمی)، <bdi>Balanced 160 MHz</bdi> یا <bdi>Fast 240 MHz</bdi>. سرعت بیشتر صفحه و منوها را سریع‌تر می‌کند و باتری بیشتری مصرف می‌کند؛ تخمین زمان باتری تفاوت را نشان می‌دهد. صفحه‌ی <bdi>FT8</bdi> هنگام باز بودن همیشه با <bdi>240 MHz</bdi> کار می‌کند.</p>
+  <p><span class="ui"><bdi>Menu → System → CPU</bdi></span> (تا <bdi>R3</bdi> با نام <bdi>Performance</bdi>): <bdi>80 MHz</bdi> (مانند فریم‌ور رسمی، کم‌مصرف‌ترین)، <bdi>160 MHz</bdi> یا <bdi>240 MHz</bdi>. سرعت بیشتر صفحه و منوها را سریع‌تر می‌کند و باتری بیشتری مصرف می‌کند؛ تخمین زمان باتری تفاوت را نشان می‌دهد. صفحه‌ی <bdi>FT8</bdi> هنگام باز بودن همیشه با <bdi>240 MHz</bdi> کار می‌کند.</p>
 
 </section>
 
 <!-- 20 -->
 <section class="chapter">
-  <h2><span class="num">۲۰</span>صفحه‌ی وب رادیو و <bdi>Wi-Fi</bdi></h2>
-  <p>رادیو یک صفحه‌ی وب برای تنظیمات، حافظه‌ها و دانلود فایل ثبت سیگنال دارد. حالت‌های <span class="ui"><bdi>Menu → System → Wi-Fi</bdi></span>:</p>
+  <h2><span class="num">۲۰</span><bdi>Wi-Fi</bdi> و صفحه‌ی وب رادیو<span class="tag r4">R4</span></h2>
+  <p>همه‌ی تنظیمات <bdi>Wi-Fi</bdi> در یک صفحه است: <span class="ui"><bdi>Menu → System → Wi-Fi</bdi></span>. بالای صفحه نشان می‌دهد صفحه‌ی وب رادیو را با چه نشانی باز کنید: نشانی <bdi>IP</bdi> رادیو در شبکه‌ی خانه (یا <bdi>atsmini.local</bdi>)، یا <bdi>10.1.1.1</bdi> پس از اتصال به شبکه‌ی خود رادیو. زیر آن سه ردیف هست: <bdi>Mode</bdi>، <bdi>Join a network</bdi> و <bdi>Power</bdi>. با کلیک روی <bdi>Mode</bdi> یا <bdi>Power</bdi>، با چرخاندن مقدار را عوض کنید و با کلیک اعمال کنید؛ فشار کوتاه لغو می‌کند.</p>
+  <div class="pair">
+    <figure><img class="screen" src="img/screen-wifi.png" alt=""><figcaption>صفحه‌ی <bdi>Wi-Fi</bdi>: نشانی، <bdi>Mode</bdi>، <bdi>Join a network</bdi>، <bdi>Power</bdi></figcaption></figure>
+    <figure><img class="screen" src="img/screen-wifi-list.png" alt=""><figcaption>فهرست شبکه‌ها با قدرت سیگنال، نوع امنیت و کانال</figcaption></figure>
+  </div>
   <table>
-    <tr><th style="width:24%">حالت</th><th>کار</th></tr>
+    <tr><th style="width:24%"><bdi>Mode</bdi></th><th>کار</th></tr>
     <tr><td><bdi>Off</bdi></td><td><bdi>Wi-Fi</bdi> خاموش (کمترین مصرف باتری)</td></tr>
     <tr><td><bdi>AP Only</bdi></td><td>رادیو شبکه‌ی خودش را می‌سازد: به شبکه‌ی <bdi>ATS-Mini</bdi> وصل شوید و <bdi>http://10.1.1.1</bdi> را باز کنید</td></tr>
     <tr><td><bdi>AP+Connect</bdi></td><td>شبکه‌ی خودش و هم‌زمان اتصال به شبکه‌ی خانه</td></tr>
-    <tr><td><bdi>Connect</bdi></td><td>اتصال به شبکه‌ی خانه؛ نشانی <bdi>IP</bdi> رادیو در صفحه‌ی سوم <bdi>About</bdi> یا با <bdi>atsmini.local</bdi></td></tr>
+    <tr><td><bdi>Connect</bdi></td><td>فقط اتصال به شبکه‌ی خانه</td></tr>
     <tr><td><bdi>Sync Only</bdi></td><td>هنگام روشن شدن وصل می‌شود، ساعت را تنظیم می‌کند و خاموش می‌شود</td></tr>
   </table>
-  <p><b>افزودن شبکه‌ی خانه:</b> <bdi>AP Only</bdi> را انتخاب کنید، با گوشی یا کامپیوتر به شبکه‌ی <bdi>ATS-Mini</bdi> وصل شوید، <bdi>http://10.1.1.1</bdi> را باز کنید، در صفحه‌ی <bdi>Wi-Fi</bdi> نام و رمز شبکه را وارد و ذخیره کنید، سپس <bdi>Connect</bdi> یا <bdi>Sync Only</bdi> را انتخاب کنید.</p>
-  <p class="small">در صفحه‌ی <bdi>http://10.1.1.1/update</bdi> می‌توان فایل <bdi>…-ota.bin</bdi> یک نسخه را مستقیم نصب کرد.</p>
+  <h3>اتصال به شبکه‌ی خانه روی خود رادیو</h3>
+  <p><bdi>Join a network</bdi> شبکه‌های اطراف را از قوی به ضعیف نشان می‌دهد. شبکه را انتخاب کنید و رمز را با صفحه‌کلید روی صفحه وارد کنید: با چرخاندن ولوم روی کلیدها حرکت کنید و با کلیک هر حرف را بنویسید. <bdi>aA</bdi> حروف بزرگ (برای یک حرف)، <bdi>#+=</bdi> نشانه‌ها، <bdi>Del</bdi> پاک کردن، و <bdi>Show</bdi> نمایش رمز است. رمز به صورت ستاره نشان داده می‌شود و فقط آخرین حرف دیده می‌شود تا اشتباه تایپی را ببینید. <bdi>OK</bdi> پس از هشت حرف فعال می‌شود. شبکه ذخیره می‌شود و رادیو بلافاصله وصل می‌شود (حالت <bdi>AP+Connect</bdi>) و نشانی <bdi>IP</bdi> را بزرگ نشان می‌دهد.</p>
+  <figure><img class="screen" src="img/screen-wifi-keys.png" alt=""><figcaption>صفحه‌کلید روی صفحه برای رمز شبکه</figcaption></figure>
+  <div class="note">رادیو فقط <bdi>Wi-Fi</bdi> باند <bdi>2.4 GHz</bdi> دارد؛ شبکه‌های <bdi>5 GHz</bdi> در فهرست دیده نمی‌شوند. اگر مودم شما هر دو باند را با یک نام دارد، رادیو به بخش <bdi>2.4 GHz</bdi> وصل می‌شود.</div>
+  <p><b>صفحه‌ی وب رادیو</b> (با رنگ تیره) تنظیمات، حافظه‌ها، به‌روزرسانی و فایل ثبت سیگنال را دارد. همچنان می‌توان شبکه را از صفحه‌ی <bdi>Wi-Fi</bdi> آن هم ذخیره کرد. در صفحه‌ی <bdi>http://&lt;IP&gt;/update</bdi> می‌توان فایل <bdi>…-ota.bin</bdi> یک نسخه را مستقیم نصب کرد.</p>
 </section>
 
-<!-- 21, 22 -->
 <section class="chapter">
-  <h2><span class="num">۲۱</span>ارسال بازخورد و رفع اشکال</h2>
+  <h2><span class="num">۲۱</span>کنترل از مرورگر (<bdi>Web Control</bdi>)<span class="tag r4">R4</span></h2>
+  <p>وقتی رادیو و گوشی یا کامپیوتر در یک شبکه هستند، <bdi>http://&lt;IP&gt;/control</bdi> را باز کنید (یا روی <bdi>Control</bdi> در صفحه‌ی وب رادیو بزنید). همه‌ی رادیو در مرورگر است و هر تغییری بلافاصله روی رادیو اعمال و ذخیره می‌شود. بالای صفحه همیشه فرکانس، باند، مد، گام، فیلتر، <bdi>S-meter</bdi>، باتری (ولتاژ و درصد)، شماره‌ی حافظه و نام و متن <bdi>RDS</bdi> دیده می‌شود.</p>
+  <div class="pair">
+    <figure><img class="phone" src="img/web-receiver.jpg" alt=""><figcaption>زبانه‌ی <bdi>Receiver</bdi> روی گوشی</figcaption></figure>
+    <figure><img class="phone" src="img/web-beacons.jpg" alt=""><figcaption>زبانه‌ی <bdi>Beacons</bdi>: نقشه‌ی جهانی بیکن‌ها</figcaption></figure>
+  </div>
+  <table>
+    <tr><th style="width:20%">زبانه</th><th>کار</th></tr>
+    <tr><td><bdi>Receiver</bdi></td><td>تنظیم گام‌به‌گام، <bdi>Seek</bdi>، وارد کردن فرکانس (کیلوهرتز؛ در <bdi>FM</bdi> مگاهرتز)، دکمه‌های مد (در <bdi>FM</bdi> با نشان <bdi>Stereo</bdi>/<bdi>Mono</bdi>)، فهرست <bdi>Band</bdi>، <bdi>Step</bdi>، <bdi>Filter</bdi> و <bdi>AGC</bdi>، ولوم، یک دکمه برای هر باند، و <b>نمای باند</b>: <bdi>Sweep</bdi> قدرت سیگنال را در ۴۱ نقطه‌ی اطراف فرکانس می‌سنجد؛ روی هر ستون بزنید تا رادیو روی آن برود</td></tr>
+    <tr><td><bdi>Memory</bdi></td><td>رفتن به یک حافظه، ذخیره‌ی ایستگاه فعلی و پاک کردن</td></tr>
+    <tr><td><bdi>Beacons</bdi></td><td>نقشه‌ی هجده بیکن <bdi>NCDXF/IARU</bdi>. پنج بیکنی که در حال ارسال‌اند به رنگ باند خود می‌تپند. روی یک فرکانس بزنید تا رادیو با <bdi>CW</bdi> روی آن برود؛ رادیو در هر نوبت ده‌ثانیه‌ای سیگنال را می‌سنجد و هر بیکن را رنگ می‌کند: سبز (خوب شنیده شد)، زرد (ضعیف)، خاکستری (شنیده نشد). پس از یک دور سه‌دقیقه‌ای معلوم است این باند به کدام نقاط جهان باز است. با زدن روی یک بیکن، رادیو آن را در باندها دنبال می‌کند</td></tr>
+    <tr><td><bdi>Settings</bdi></td><td>همه‌ی تنظیمات منوهای رادیو در پنج دسته. حالت‌های <bdi>Bluetooth</bdi>، <bdi>USB</bdi> و <bdi>Wi-Fi</bdi> و به‌روزرسانی فریم‌ور فقط روی خود رادیو هستند تا ارتباط قطع نشود</td></tr>
+    <tr><td><bdi>More</bdi></td><td>صفحه‌ی خود رادیو با ولوم و دکمه‌ها (برای منوها و صفحه‌های <bdi>FT8</bdi> و <bdi>CW</bdi>؛ فقط وقتی باز است ارسال می‌شود)، و <b><bdi>Listen</bdi></b></td></tr>
+  </table>
+  <h3>شنیدن صدای رادیو در مرورگر (آزمایشی)</h3>
+  <p><bdi>Listen</bdi> صدای رادیو را در مرورگر پخش می‌کند. فقط روی برد <bdi>V4B</bdi> کار می‌کند و کیفیت آن در حد تلفن است، چون صدا از خط بلندگو با ۸ کیلوهرتز نمونه‌برداری می‌شود و <bdi>Wi-Fi</bdi> و گیرنده از یک مبدل مشترک استفاده می‌کنند. <bdi>Hiss filter</bdi> خش را کم می‌کند. با <bdi>Radio speaker while listening</bdi> بلندگوی رادیو را آرام‌تر کنید؛ ولی روی <bdi>V4B</bdi> صدای مرورگر هم ضعیف‌تر می‌شود، پس <bdi>Normal</bdi> بهترین صدا را می‌دهد. در <bdi>Chrome</bdi> بهتر کار می‌کند.</p>
+  <div class="note">روی برد <bdi>V4B</bdi> صدای دیکودرها و <bdi>Listen</bdi> از خط بلندگو گرفته می‌شود. با وصل بودن هدفون به رادیو این خط قطع می‌شود: دیکودرهای <bdi>FT8</bdi>، <bdi>FT4</bdi> و <bdi>CW</bdi> و صدای مرورگر کار نمی‌کنند. برای دیکود کردن هدفون را جدا کنید.</div>
+</section>
+
+<!-- 22, 23 -->
+<section class="chapter">
+  <h2><span class="num">۲۲</span>ارسال بازخورد و رفع اشکال</h2>
   <p>هر گزارش، چه یک ایراد کوچک و چه یک پیشنهاد، به بهتر شدن نسخه‌ی بعدی کمک می‌کند. در گروه تلگرام پیام بدهید یا در <bdi>GitHub</bdi> یک <bdi>Issue</bdi> باز کنید: <bdi>github.com/ep3mhb/resonik-ats-mini/issues</bdi>. لطفاً بنویسید:</p>
   <ol class="steps">
     <li>مدل رادیو (<bdi>V3</bdi>، <bdi>V4</bdi> یا <bdi>V4B</bdi>)</li>
@@ -404,7 +434,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
     <tr><td><bdi>FT8</bdi> چیزی دیکود نمی‌کند</td><td>باند دیگری را امتحان کنید (۲۰ یا ۱۰ متر در روز، ۴۰ متر در شب)؛ رادیو را کنار پنجره ببرید و شارژر را جدا کنید</td></tr>
   </table>
 
-  <h2 style="margin-top:9mm"><span class="num">۲۲</span>سازندگان و مجوز</h2>
+  <h2 style="margin-top:9mm"><span class="num">۲۳</span>سازندگان و مجوز</h2>
   <p>نسخه‌ی RESONIK: <bdi>EP2MHB</bdi> (محمد بحرالعلوم). بر پایه‌ی <bdi>ats-mini</bdi> اثر <bdi>PU2CLR (Ricardo Caratti)</bdi>، <bdi>Volos Projects</bdi>، <bdi>Ralph Xavier</bdi>، <bdi>Sunnygold</bdi>، <bdi>Goshante</bdi>، <bdi>G8PTN (Dave)</bdi>، <bdi>R9UCL (Max Arnold)</bdi>، <bdi>Marat Fayzullin</bdi> و همه‌ی مشارکت‌کنندگان. دیکودر <bdi>FT8</bdi> از <bdi>ft8_lib</bdi> اثر <bdi>Karlis Goba</bdi> استفاده می‌کند، به پیروی از فورک <bdi>epiHATR</bdi>؛ چند اصلاح از فورک‌های <bdi>jokubasver</bdi> و <bdi>mattafaak</bdi> آمده است. کد منبع با مجوز <bdi>MIT</bdi> در <bdi>GitHub</bdi> است.</p>
   <p class="small">RESONIK وابسته به سازندگان رادیوهای <bdi>ATS Mini</bdi> نیست. نصب فریم‌ور غیررسمی با مسئولیت خود شماست؛ نسخه‌ی پشتیبان امکان بازگشت را می‌دهد.</p>
   <p class="small" style="text-align:center">73 · <bdi>resonik.mikroutik.com</bdi></p>
