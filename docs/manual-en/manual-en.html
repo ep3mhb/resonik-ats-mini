@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RESONIK user manual {{VERSION}}</title>
+<style>
+@font-face { font-family: "Sora"; src: url("../../website/fonts/sora.woff2") format("woff2"); font-weight: 100 800; }
+:root { --navy:#073A4B; --blue:#108AB1; --pink:#F04770; --coral:#F78C6A; --yellow:#FFD167; --green:#06D7A0; --ink:#1b1f23; --muted:#5b6670; --line:#d9dee2; --soft:#f3f6f7; }
+@page { size: A4; margin: 18mm 17mm 20mm 17mm; }
+@page :first { margin: 0; }
+* { box-sizing: border-box; }
+html { font-family: "Sora", sans-serif; color: var(--ink); font-size: 9.8pt; line-height: 1.6; }
+body { margin: 0; }
+
+.ui { font-weight: 700; color: var(--navy); white-space: nowrap; }
+h1, h2, h3 { color: var(--navy); line-height: 1.4; }
+h2 { font-size: 17pt; font-weight: 800; margin: 0 0 4mm; padding-bottom: 2mm; border-bottom: 2.5px solid var(--navy); break-after: avoid; }
+h2 .num { color: var(--blue); margin-right: 3mm; }
+h2 .tag.r3, .toc small.r3 { background: #108AB1; }
+h2 .tag.r4, h3 .tag.r4, .toc small.r4 { background: #C77700; }
+figure img.phone { width: 58mm; border-radius: 3mm; border: 1.5mm solid #111; box-shadow: 0 0 0 0.4mm #555; }
+h2 .tag { font-size: 9pt; font-weight: 600; color: #fff; background: var(--pink); border-radius: 3px; padding: 0 2mm; margin-left: 3mm; vertical-align: middle; }
+h3 { font-size: 12pt; font-weight: 700; margin: 5mm 0 1.5mm; break-after: avoid; }
+p { margin: 0 0 2.6mm; }
+section.chapter { break-before: page; }
+section.chapter.cont { break-before: auto; margin-top: 9mm; }
+ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+li { margin-bottom: 1mm; }
+table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 9.8pt; break-inside: avoid; }
+th { background: var(--navy); color: #fff; font-weight: 700; text-align: left; padding: 1.6mm 2.5mm; }
+td { border-bottom: 1px solid var(--line); padding: 1.6mm 2.5mm; vertical-align: top; }
+tr:nth-child(even) td { background: var(--soft); }
+.sw { display: inline-block; width: 10mm; height: 3mm; border-radius: 1mm; vertical-align: middle; margin-right: 2mm; }
+figure { margin: 3mm 0 4mm; text-align: center; break-inside: avoid; }
+figure img.screen { width: 92mm; border-radius: 2.5mm; border: 2.5mm solid #111; box-shadow: 0 0 0 0.4mm #555; }
+figure img.photo { width: 100%; border-radius: 3mm; }
+figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
+.pair { display: flex; gap: 6mm; justify-content: center; break-inside: avoid; }
+.pair figure { flex: 1; margin: 2mm 0 3mm; }
+.pair img.screen { width: 100%; }
+.note { background: #fff7e0; border-left: 4px solid var(--yellow); padding: 2.5mm 4mm; border-radius: 2mm; margin: 3mm 0 4mm; break-inside: avoid; }
+.tip { background: #e6faf4; border-left: 4px solid var(--green); padding: 2.5mm 4mm; border-radius: 2mm; margin: 3mm 0 4mm; break-inside: avoid; }
+.steps { counter-reset: s; list-style: none; padding: 0; }
+.steps > li { counter-increment: s; position: relative; padding-left: 10mm; margin-bottom: 2.5mm; }
+.steps > li::before { content: counter(s); position: absolute; left: 0; top: 0.3mm; width: 7mm; height: 7mm; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 700; text-align: center; line-height: 7mm; font-size: 9.5pt; }
+.keys { display: grid; grid-template-columns: 34mm 1fr; gap: 1.5mm 4mm; margin: 2mm 0 4mm; }
+.keys b { color: var(--navy); }
+/* Cover */
+.cover { height: 297mm; padding: 0; position: relative; overflow: hidden; background: var(--navy); color: #fff; }
+.cover .top { padding: 26mm 20mm 0; }
+.cover .brand { display: flex; align-items: center; gap: 5mm; }
+.cover .brand img { width: 18mm; filter: brightness(0) invert(1); }
+.cover .brand span { font-size: 26pt; font-weight: 800; letter-spacing: 2.5mm; }
+.cover h1 { color: #fff; font-size: 28pt; font-weight: 800; margin: 22mm 0 4mm; line-height: 1.35; }
+.cover .sub { font-size: 14pt; color: #cfe6ee; margin: 0 0 10mm; }
+.cover .ver { display: inline-block; background: var(--yellow); color: var(--navy); font-weight: 800; border-radius: 2mm; padding: 1mm 4mm; font-size: 12pt; }
+.cover .date { color: #cfe6ee; margin-left: 4mm; font-size: 11pt; }
+.cover .photo { position: absolute; left: 0; right: 0; bottom: 52mm; padding: 0 20mm; }
+.cover .photo img { width: 100%; border-radius: 4mm; box-shadow: 0 4mm 10mm rgba(0,0,0,.35); }
+.cover .bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 40mm; background: #fff; color: var(--navy); display: flex; align-items: center; justify-content: space-between; padding: 0 20mm; }
+.cover .bottom img { width: 26mm; height: 26mm; }
+.cover .bottom .site { font-size: 14pt; font-weight: 800; }
+.cover .bottom small { display: block; color: var(--muted); font-weight: 400; font-size: 9.5pt; }
+.bars { display: flex; height: 3mm; }
+.bars i { flex: 1; }
+/* Contents */
+.toc { list-style: none; padding: 0; columns: 2; column-gap: 10mm; }
+.toc li { break-inside: avoid; border-bottom: 1px dotted var(--line); padding: 1mm 0; margin: 0; }
+.toc .n { color: var(--blue); font-weight: 700; margin-right: 2mm; }
+.toc small { color: var(--pink); font-weight: 700; margin: 0 2mm; }
+.small { font-size: 9pt; color: var(--muted); }
+.ui { white-space: normal; }
+</style>
+</head>
+<body>
+
+<!-- Cover -->
+<section class="cover">
+  <div class="bars"><i style="background:#F04770"></i><i style="background:#F78C6A"></i><i style="background:#FFD167"></i><i style="background:#06D7A0"></i><i style="background:#108AB1"></i></div>
+  <div class="top">
+    <div class="brand"><img src="../manual-fa/img/resonik-symbol.svg" alt=""><span>RESONIK</span></div>
+    <h1>RESONIK firmware user manual<br>for the ATS Mini radio</h1>
+    <p class="sub">Pocket receiver for LW · MW · SW · FM with AM · LSB · USB · CW</p>
+    <span class="ver">{{VERSION}}</span><span class="date">{{DATE_EN}}</span>
+  </div>
+  <div class="photo"><img src="../manual-fa/img/radio-front.jpg" alt="ATS Mini radio with the RESONIK start screen"></div>
+  <div class="bottom">
+    <div><span class="site">resonik.mikroutik.com</span><small>Browser installer, the latest version of this manual, and what has changed</small></div>
+    <img src="../manual-fa/img/qr-site.svg" alt="">
+  </div>
+</section>
+
+<!-- Contents -->
+<section class="chapter">
+  <h2>Contents</h2>
+  <ol class="toc">
+    <li><span class="n">1</span>About RESONIK</li>
+    <li><span class="n">2</span>Installing and updating</li>
+    <li><span class="n">3</span>Controls and the main screen</li>
+    <li><span class="n">4</span>The menu<small>R2</small></li>
+    <li><span class="n">5</span>CW mode</li>
+    <li><span class="n">6</span>Band plan</li>
+    <li><span class="n">7</span>Clock, time zone and dual clock</li>
+    <li><span class="n">8</span>Battery time left</li>
+    <li><span class="n">9</span>Automatic attenuation</li>
+    <li><span class="n">10</span>Beacons<small>R2</small></li>
+    <li><span class="n">11</span>Memory scan<small>R2</small></li>
+    <li><span class="n">12</span>Signal logger<small>R2</small></li>
+    <li><span class="n">13</span>Propagation<small>R2</small></li>
+    <li><span class="n">14</span>EiBi schedules<small>R2</small></li>
+    <li><span class="n">15</span>CAT control from a computer<small>R2</small></li>
+    <li><span class="n">16</span>FT8 and FT4 decoder<small class="r3">R3</small></li>
+    <li><span class="n">17</span>CW decoder<small class="r3">R3</small></li>
+    <li><span class="n">18</span>Band scanner<small class="r3">R3</small></li>
+    <li><span class="n">19</span>Frequency lock and CPU speed<small class="r3">R3</small></li>
+    <li><span class="n">20</span>Wi-Fi and the radio's web pages<small class="r4">R4</small></li>
+    <li><span class="n">21</span>Web Control<small class="r4">R4</small></li>
+    <li><span class="n">22</span>Feedback and troubleshooting</li>
+    <li><span class="n">23</span>Credits and licence</li>
+  </ol>
+  <div class="note">This manual is written for firmware {{VERSION}} and is updated with every release. The latest version is always at resonik.mikroutik.com. Your radio's firmware version is shown in <span class="ui">Menu → System → About</span>.</div>
+  <p class="small">Sections marked <b style="color:var(--pink)">R2</b> are available from v2.45-r2, <b style="color:#108AB1">R3</b> from v2.45-r3 and <b style="color:#C77700">R4</b> from v2.45-r4. Menu items are written as they appear on the radio's screen.</p>
+</section>
+
+<!-- 1 -->
+<section class="chapter">
+  <h2><span class="num">1</span>About RESONIK</h2>
+  <p>RESONIK is free, open-source firmware for the ATS Mini pocket receiver (ESP32-S3 processor and SI4732 receiver chip). It is built on the official open-source ats-mini firmware version 2.45, keeps everything it does, and adds features for shortwave listeners and radio amateurs.</p>
+  <ul>
+    <li>CW mode showing the signal's true frequency, a narrow filter and 10 Hz steps</li>
+    <li>The IARU Region 1 band plan on the tuning scale, with automatic LSB/USB</li>
+    <li>Dual clock (local and UTC), time zones with summer time, reliable clock sync</li>
+    <li>Battery time left, and automatic attenuation for very strong signals</li>
+    <li>A new menu with six groups and full-screen settings pages <small>(R2)</small></li>
+    <li>Beacon tracker, memory scan, signal logger, propagation data, EiBi schedules with days, and CAT control <small>(R2)</small></li>
+    <li>FT8/FT4 and CW decoders, band scanner, automatic band plan for Regions 1, 2 and 3, frequency lock and CPU speed <small>(R3)</small></li>
+    <li>Web Control: the whole radio in a browser on a phone or computer, with a band scope and a live beacon map; Wi-Fi set up on the radio itself; Seek in SSB and CW <small>(R4)</small></li>
+  </ul>
+  <p>Bands, modes, memories, RDS, Wi-Fi and Bluetooth work as in the official firmware. The official firmware's full manual: esp32-si4732.github.io/ats-mini/manual.html</p>
+</section>
+
+<!-- 2 -->
+<section class="chapter">
+  <h2><span class="num">2</span>Installing and updating</h2>
+  <div class="note">Make a backup of your radio before installing (see Backup on the ats-mini site). You can always go back to the official firmware over USB.</div>
+  <h3>Installing from the browser (first time)</h3>
+  <ol class="steps">
+    <li>Open <b>resonik.mikroutik.com</b> in <b>Chrome</b> or <b>Edge</b> on a computer (phones are not supported).</li>
+    <li>Connect the radio to the computer with a USB-C cable that carries data (not a charge-only cable), and switch it on.</li>
+    <li>Check the memory type: <span class="ui">Settings → About</span> in the official firmware, <span class="ui">Menu → System → About</span> in RESONIK. The PSRAM line shows <b>8192K</b> or <b>2048K</b>.</li>
+    <li>In the site's Install section, press the matching button: <b>8 MB (OSPI)</b> for 8192K, <b>2 MB (QSPI)</b> for 2048K. Then choose the radio's port from the list.</li>
+    <li>Do <b>not</b> tick <b>Erase device</b>, so your settings and memories are kept, and press <b>Install</b>. It takes about two minutes, and the radio restarts by itself.</li>
+  </ol>
+  <h3>Updating over Wi-Fi (later versions)</h3>
+  <p>Once RESONIK is on the radio, install new versions without a cable: connect the radio to Wi-Fi (section 20), then <span class="ui">Menu → System → Update FW</span>. <b>Check</b> looks for a new version and <b>Update</b> installs it. Settings are kept. On R1 the same item is <span class="ui">Settings → Update FW</span>.</p>
+  <h3>Installing by hand</h3>
+  <p>Download <b>resonik-ats-mini-{{VERSION}}-ospi.zip</b> (or -qspi) from Releases on GitHub and write these files with esptool: <b>ats-mini.ino.bootloader.bin</b> at 0x0, <b>ats-mini.ino.partitions.bin</b> at 0x8000, <b>boot_app0.bin</b> at 0xe000 and <b>ats-mini.ino.bin</b> at 0x10000.</p>
+  <p class="small">Project page: github.com/ep3mhb/resonik-ats-mini</p>
+</section>
+
+<!-- 3 -->
+<section class="chapter">
+  <h2><span class="num">3</span>Controls and the main screen</h2>
+  <p>Everything is done with one knob (the encoder), which you turn and press:</p>
+  <div class="keys">
+    <b>Turn</b><span>Tune the frequency; in the menu, move between items and change values</span>
+    <b>Click</b><span>Press and release quickly (under half a second): open the menu and choose an item</span>
+    <b>Short press</b><span>Hold for about a second: the volume, or an item's second action; in the menu, close it</span>
+    <b>Long press</b><span>Hold for more than two seconds: switch the display off and on (the radio keeps playing)</span>
+  </div>
+  <figure><img class="screen" src="../manual-fa/img/screen-31m.png" alt=""><figcaption>The main screen on the 31 m band</figcaption></figure>
+  <table>
+    <tr><th style="width:32%">Part of the screen</th><th>Meaning</th></tr>
+    <tr><td>Top left</td><td>Signal strength</td></tr>
+    <tr><td>Top right</td><td>Battery: voltage, alternating with the time left (section 8), or the charging symbol</td></tr>
+    <tr><td>Information box (left)</td><td>Step, BW (filter), AGC (gain control or attenuation), Vol, AVC, and the date and time at the bottom</td></tr>
+    <tr><td>Centre</td><td>Band name, mode (for example AM) and frequency</td></tr>
+    <tr><td>Bottom</td><td>Tuning scale with the red marker; on the amateur bands, the coloured band plan strip (section 6)</td></tr>
+  </table>
+  <p>To change band: click → <span class="ui">Tuning → Band</span>, turn to the band and click. The menu closes and the knob tunes straight away.</p>
+</section>
+
+<!-- 4 -->
+<section class="chapter">
+  <h2><span class="num">4</span>The menu<span class="tag">R2</span></h2>
+  <p>A click opens the menu with six groups, each a large coloured button with an icon. Turn the knob to move and click to open a group. The first button in each group is <b>Back</b>. A group with more than five items has a second page; the dots at the bottom show which page you are on. A short press closes the menu from anywhere.</p>
+  <div class="pair">
+    <figure><img class="screen" src="../manual-fa/img/screen-menu.png" alt=""><figcaption>The six menu groups</figcaption></figure>
+    <figure><img class="screen" src="../manual-fa/img/screen-tuning.png" alt=""><figcaption>The Tuning group</figcaption></figure>
+  </div>
+  <table>
+    <tr><th style="width:20%">Group</th><th>Items</th></tr>
+    <tr><td>Tuning</td><td>Band, Mode, Bandwidth, Freq Lock, FM Region, RDS, Scan, Scanner, Seek, Step, VFO A/B</td></tr>
+    <tr><td>Audio</td><td>Volume, AGC/ATTN, Auto Att., AVC, FM Stereo, SoftMute, Squelch</td></tr>
+    <tr><td>Memory</td><td>Memory, Logger, Mem Scan</td></tr>
+    <tr><td>Ham &amp; SWL</td><td>Band Plan, Beacons, Calibration, CW Decoder, CW Strip, FT8/FT4, Load EiBi, Plan Area, Propagation</td></tr>
+    <tr><td>Display</td><td>Brightness, Menu Style, Scroll Dir., Sleep Mode, Sleep Timer, Theme, UI Layout, Zoom Menu</td></tr>
+    <tr><td>System</td><td>About, Bluetooth, Date/Time, DSP Patches, Knob, Off Timer, TCP Port, Time Zone, Update FW, USB Port, Wi-Fi, CPU</td></tr>
+  </table>
+  <h3>Listening controls and settings pages</h3>
+  <p>Controls such as Band, Mode, Step or Volume open their list as before; after a choice the menu closes, so the knob tunes straight away. Settings open as full-screen pages: either a list of values or a number with a bar. Turn to change the value; a click keeps it and returns to the same group.</p>
+  <div class="pair">
+    <figure><img class="screen" src="../manual-fa/img/screen-value-list.png" alt=""><figcaption>A list page: Band Plan</figcaption></figure>
+    <figure><img class="screen" src="../manual-fa/img/screen-value-number.png" alt=""><figcaption>A number page: Brightness</figcaption></figure>
+  </div>
+  <h3>Knob type: System → Knob</h3>
+  <p>Two kinds of knob are fitted to these radios: <b>20 clicks</b> or <b>30 clicks</b> per turn. If the knob skips a step, or needs two clicks for one step, choose the other value. (On the radio's web page the same setting is called Half-step Encoder.)</p>
+  <figure><img class="screen" src="../manual-fa/img/screen-knob.png" alt=""><figcaption>The Knob page</figcaption></figure>
+  <h3>Classic menu<span class="tag r4" style="font-size:8pt">R4</span></h3>
+  <p><span class="ui">Menu → Display → Menu Style → Classic</span> brings back the small list menu of the official firmware, in the corner of the screen. From R4 it has the same six groups as the table above: choose a group and click; the first row of each group is <b>&lt; Back</b>, and the box title names the group. After a setting is changed the menu returns to its group. <b>Tiles</b> switches back to the tile menu.</p>
+  <div class="tip"><b>Scan</b> in Tuning draws the signal strength across the band (a snapshot of the band); the radio does not stop on stations. <b>Seek</b> goes to the next station; from R4 it also works in SSB and CW: it searches the band 1 kHz at a time with the sound muted and stops on the first signal (at most 200 kHz per press; if it finds nothing it says so and goes back to where it started). To stop on stations as you go, use <b>Scanner</b> (section 18).</div>
+</section>
+
+<!-- 5 -->
+<section class="chapter">
+  <h2><span class="num">5</span>CW mode</h2>
+  <p><span class="ui">Menu → Tuning → Mode → CW</span> (after AM). The display shows the frequency of the CW signal itself, the way a CW transceiver does: tune until the frequency matches the announced one and the tone sits in the middle of the filter.</p>
+  <table>
+    <tr><th>Filter</th><th>Tone</th><th>Use</th></tr>
+    <tr><td>0.5k (default)</td><td>500 Hz</td><td>Busy bands, weak signals</td></tr>
+    <tr><td>1.0k</td><td>1000 Hz</td><td>Finding signals, faster tuning</td></tr>
+    <tr><td>1.2k and wider</td><td>700 Hz</td><td>Listening across the band</td></tr>
+  </table>
+  <p>The step starts at 10 Hz; change it in <span class="ui">Menu → Tuning → Step</span>. CW uses the band's USB calibration value (<span class="ui">Menu → Ham &amp; SWL → Calibration</span>).</p>
+</section>
+
+<!-- 6 -->
+<section class="chapter cont">
+  <h2><span class="num">6</span>Band plan</h2>
+  <p>On the amateur bands from 160 to 10 m, a coloured strip under the scale shows the IARU Region 1 band plan, and the name of the segment you are in appears next to the marker.</p>
+  <div class="pair">
+    <figure><img class="screen" src="../manual-fa/img/screen-40m.png" alt=""><figcaption>40 m, SSB segment</figcaption></figure>
+    <figure><img class="screen" src="../manual-fa/img/screen-40m-cw.png" alt=""><figcaption>40 m, CW segment</figcaption></figure>
+  </div>
+  <table>
+    <tr><th style="width:26%">Colour</th><th>Segment</th></tr>
+    <tr><td><span class="sw" style="background:#22d3ee"></span>Cyan</td><td>CW only</td></tr>
+    <tr><td><span class="sw" style="background:#facc15"></span>Yellow</td><td>Narrow modes: CW and digital (FT8, PSK, RTTY…)</td></tr>
+    <tr><td><span class="sw" style="background:#ef4444"></span>Red</td><td>International beacons (NCDXF/IARU)</td></tr>
+    <tr><td><span class="sw" style="background:#22c55e"></span>Green</td><td>All modes, including SSB phone</td></tr>
+    <tr><td><span class="sw" style="background:#a0a0a0"></span>Grey</td><td>Satellite and FM (10 m)</td></tr>
+  </table>
+  <p><span class="ui">Menu → Ham &amp; SWL → Band Plan</span>:</p>
+  <ul>
+    <li><b>Off</b>: no strip.</li>
+    <li><b>Scale</b>: the strip and the segment name only.</li>
+    <li><b>Auto</b> (default): entering a segment also sets mode, filter and step: CW with a narrow filter in the CW segment, USB for digital and beacons, and in the phone segment LSB below 10 MHz and USB above. A short message confirms it. If you change the mode yourself, your choice stays until you leave the segment. From AM it switches only when you tune into an amateur band from outside.</li>
+  </ul>
+  <h3>Plan Area<span class="tag r3" style="font-size:8pt">R3</span></h3>
+  <div class="pair">
+    <figure><img class="screen" src="../manual-fa/img/screen-planarea.png" alt=""><figcaption>The Plan Area page</figcaption></figure>
+    <div style="flex:1"></div>
+  </div>
+  <table>
+    <tr><th style="width:26%">Choice</th><th>What it shows</th></tr>
+    <tr><td>All regions</td><td>Every region's bands: the Region 1 details wherever Region 1 has the band, and the wider Region 2 and 3 parts outside it (80 m to 4000 and 40 m to 7300 kHz)</td></tr>
+    <tr><td>Region 1</td><td>Europe, Africa, the Middle East (default)</td></tr>
+    <tr><td>Region 2</td><td>The Americas: 160 m from 1800, 80 m to 4000, 40 m to 7300 kHz</td></tr>
+    <tr><td>Region 3</td><td>Asia and the Pacific: 160 m from 1800, 80 m to 3900, 40 m to 7300 kHz</td></tr>
+    <tr><td>Iran (EP)</td><td>Region 1 without the 160, 80 and 30 m bands, which the national table does not allocate</td></tr>
+    <tr><td>UAE (A6)</td><td>Region 1 with 160 m limited to 1810–1850 kHz</td></tr>
+  </table>
+  <p>Parts the chosen country does not allow are shown dark grey and named NOT ALLOWED.</p>
+  <p class="small">The Region 2 and 3 plans are simplified and for guidance only. National allocations differ; check your own licence before transmitting with another radio.</p>
+</section>
+
+<!-- 7 -->
+<section class="chapter">
+  <h2><span class="num">7</span>Clock, time zone and dual clock</h2>
+  <p><span class="ui">Menu → System → Time Zone</span> lists UTC first, then every time offset, with city names beside them: for example Dubai and Muscat next to UTC+4. Cities with summer time change automatically.</p>
+  <figure><img class="screen" src="../manual-fa/img/screen-timezone.png" alt=""><figcaption>The Time Zone page</figcaption></figure>
+  <p>When the time zone is not UTC, the clock line in the information box alternates every few seconds between the local date and time and UTC. UTC is the time the station schedules, the signal logger and the beacon table use. <b>Time: --:--</b> means the clock has not been set yet.</p>
+  <p><span class="ui">Menu → System → Date/Time</span> shows the current time in UTC. Turn to change a value, click to go to the next one, and short-press to save. If you change nothing, the clock is not touched.</p>
+  <h3>Setting the clock automatically</h3>
+  <p>The radio has no clock battery, so the time is lost when it is switched off. To set it automatically at every power-on:</p>
+  <ol class="steps">
+    <li>Add your Wi-Fi network to the radio (section 20).</li>
+    <li>Choose <span class="ui">Menu → System → Wi-Fi → Mode → Sync Only</span>. The radio connects, sets the clock and switches Wi-Fi off to save battery. (Connect mode also sets the clock, and stays connected.)</li>
+  </ol>
+  <p>Messages: <b>Time synchronized</b> (internet time server), <b>Time set from web</b> (the network blocks time servers, so the time was read from a web server), or <b>Time sync failed</b> with a second line giving the reason. Without Wi-Fi, an FM station sending RDS time also sets the clock; or on the radio's web page, <b>Use Browser Date/Time</b> copies the time and time zone of your phone or computer.</p>
+</section>
+
+<!-- 8, 9 -->
+<section class="chapter">
+  <h2><span class="num">8</span>Battery time left</h2>
+  <p>On battery, the voltage at the top alternates with an estimate of the listening time left, for example <b>~8h20</b> (eight hours twenty minutes). The <b>~</b> means a typical consumption is assumed; after about ten minutes the radio uses its own measured drain and the ~ disappears. Screen brightness, volume and Wi-Fi all change the result. When charging over USB, the charging symbol is shown.</p>
+</section>
+<section class="chapter cont">
+  <h2><span class="num">9</span>Automatic attenuation</h2>
+  <p>In AM, with <span class="ui">Menu → Audio → AGC/ATTN</span> set to On, a very strong signal (a local medium-wave station, or a big transmitter at night) can overload the receiver and cause distorted sound and unwanted stations. The radio then adds attenuation step by step, and removes it again on weaker stations. While it is active the information box shows <b>Att: A12</b> (A for automatic). To switch it off: <span class="ui">Menu → Audio → Auto Att.</span>; a manual AGC/ATTN setting always takes priority.</p>
+</section>
+
+<!-- 10 -->
+<section class="chapter cont">
+  <h2><span class="num">10</span>Beacons<span class="tag">R2</span></h2>
+  <p>The eighteen beacons of the international NCDXF/IARU project take turns on 14100, 18110, 21150, 24930 and 28200 kHz, ten seconds each, repeating every three minutes. Each sends its callsign in CW and then four dashes at 100 W, 10 W, 1 W and 0.1 W; how many dashes you hear tells you how good the path is.</p>
+  <figure><img class="screen" src="../manual-fa/img/screen-beacon.png" alt=""><figcaption>On 14100: the beacon on the air and the seconds left</figcaption></figure>
+  <p>On one of these five frequencies (CW or USB), the station line shows the beacon on the air and the seconds left, for example <b>Beacon 4S7B Sri Lanka 6s</b>. The radio's clock must be set.</p>
+  <p><span class="ui">Menu → Ham &amp; SWL → Beacons</span> and a callsign makes the radio <b>follow</b> that beacon: every ten seconds it changes band with the beacon, from 20 m to 10 m, and waits while it is silent. Tuning by hand ends it.</p>
+  <p><span class="tag r4" style="font-size:8pt;margin:0 2mm 0 0">R4</span>The first two choices of the list: <b>Off</b> also hides the beacon names, and <b>Names only</b> names the beacon on the air on these five frequencies without following one. The choice is kept across restarts. A live world map of the beacons is on the Web Control page (section 21).</p>
+</section>
+
+<!-- 11, 12 -->
+<section class="chapter">
+  <h2><span class="num">11</span>Memory scan<span class="tag">R2</span></h2>
+  <p><span class="ui">Menu → Memory → Mem Scan</span> steps through the stored memories (at least two) and holds on any with a signal; it carries on four seconds after the signal goes. A signal means the mode's Squelch level if you have set one, otherwise an SNR of 6 dB or more. Turning the knob or a click stops the scan, and the radio stays on that memory.</p>
+</section>
+<section class="chapter cont">
+  <h2><span class="num">12</span>Signal logger<span class="tag">R2</span></h2>
+  <p><span class="ui">Menu → Memory → Logger</span> writes a line every 10 seconds, every minute or every five minutes: UTC time, frequency, mode, band, signal strength (dBµV), SNR (dB) and station name. Leave the radio on one frequency overnight to see when a path opens and closes.</p>
+  <p>Download the file from the radio's web page with <b>Log (CSV)</b> and open it in a spreadsheet such as Excel. <b>Clear log</b> in the same menu (click to confirm) empties it. Logging stops by itself at one megabyte.</p>
+</section>
+<section class="chapter cont">
+  <h2><span class="num">13</span>Propagation<span class="tag">R2</span></h2>
+  <p><span class="ui">Menu → Ham &amp; SWL → Propagation</span> shows the solar flux (SFI), sunspot number, A and K index, X-ray level and the day and night conditions for 80–40, 30–20, 17–15 and 12–10 m, from hamqsl.com (N0NBH). The data is fetched whenever Wi-Fi is connected (including the clock sync at power-on), at most every 15 minutes. Higher SFI and lower K mean better conditions on the higher bands.</p>
+</section>
+<section class="chapter cont">
+  <h2><span class="num">14</span>EiBi schedules<span class="tag">R2</span></h2>
+  <p><span class="ui">Menu → Ham &amp; SWL → Load EiBi</span> loads the seasonal schedule of the shortwave broadcasters, with their days on the air (needs Wi-Fi). A station that only broadcasts at weekends is shown only on those days, and the language and target area follow the name, for example <b>BBC World Service [E &gt; ME]</b> (English, to the Middle East). After updating from R1, load the schedule once more.</p>
+</section>
+
+<!-- 15 -->
+<section class="chapter">
+  <h2><span class="num">15</span>CAT control from a computer<span class="tag">R2</span></h2>
+  <p><span class="ui">Menu → System → USB Port → CAT</span> makes the radio answer Kenwood TS-480 commands on the USB port, so programs can read and set the frequency and mode and read the signal strength. In the program (flrig, Hamlib, WSJT-X receive only, fldigi or a logging program) choose the Kenwood TS-480 (Hamlib rig 2028) on the radio's serial port; the speed does not matter. Transmit commands are refused, since the radio only receives. For remote-control tools and screenshots, switch back to Ad hoc.</p>
+</section>
+
+<!-- 16 -->
+<section class="chapter">
+  <h2><span class="num">16</span>FT8 and FT4 decoder<span class="tag r3">R3</span></h2>
+  <p><span class="ui">Menu → Ham &amp; SWL → FT8/FT4</span> opens a full-screen page that decodes FT8 signals from the radio's own audio. The radio tunes to the FT8 frequency of the band you are on (or 40 m) in USB with the 3.0k filter. Under the header a waterfall scrolls, and after every 15 second slot the messages are listed with the signal report (dB), audio frequency (Hz) and text; CQ calls are green.</p>
+  <figure><img class="screen" src="../manual-fa/img/screen-ft8.png" alt=""><figcaption>The FT8 page on 40 m</figcaption></figure>
+  <ul>
+    <li><b>Turn:</b> change band: 160, 80, 40, 30, 20, 17, 15, 12 and 10 m, then the FT4 frequencies of 80 to 10 m (FT4 in yellow, with 7.5 second slots).</li>
+    <li><b>Click:</b> clear the list. <b>Short press:</b> leave; the radio goes back exactly as it was.</li>
+    <li>With the clock set (Wi-Fi sync) it decodes from the first slot. <b>Without a clock it still decodes:</b> the header shows <b>No clock: syncing</b> while it finds the slot timing from the stations it hears (usually a minute or two), then <b>Synced to band</b>.</li>
+    <li>Bottom left: <b>In</b> is the audio level reaching the decoder (10 to 150 is good) and <b>Last</b> the number of messages in the last slot.</li>
+  </ul>
+  <div class="note">This page needs the V4B board, which wires the speaker line to the processor; other boards show <b>No audio on the decoder input</b>. Wi-Fi is paused while the page is open. On boards that take the audio after the speaker amplifier the speaker stays on (<b>Spk</b> next to the level). Headphones plugged into the radio cut this line: unplug them to decode.</div>
+  <div class="tip">FT8 signals are often 15 to 20 dB below the noise. The telescopic antenna indoors hears few of them: by a window or on a balcony, or with a few metres of wire clipped to the antenna, it makes a big difference. Keep chargers, LED lamps and laptops away from the radio and run it on battery.</div>
+</section>
+
+<!-- 17, 18 -->
+<section class="chapter">
+  <h2><span class="num">17</span>CW decoder<span class="tag r3">R3</span></h2>
+  <p><span class="ui">Menu → Ham &amp; SWL → CW Decoder</span> turns Morse code into text on a full-screen page, with speed (WPM), tone frequency, a level bar and a key indicator. Tune so the tone is in the middle of the CW filter. <b>Turn:</b> tune, <b>click:</b> clear the text, <b>short press:</b> leave. The speed is followed automatically from about 5 to 40 words per minute. Static crashes and clicks are ignored; characters that cannot be read are shown as <b>*</b>. From R4 the page uses a steady receiver level, so decoding does not depend on the volume setting.</p>
+  <p><span class="ui">Menu → Ham &amp; SWL → CW Strip → On</span> shows the decoded text at the bottom of the main screen in CW mode. Like the FT8 page it needs the V4B board, and it works while Wi-Fi is off.</p>
+
+  <h2 style="margin-top:9mm"><span class="num">18</span>Band scanner<span class="tag r3">R3</span></h2>
+  <p><span class="ui">Menu → Tuning → Scanner</span> moves along the band from the current frequency and stops on signals (the Squelch level if set, otherwise an SNR of 6 dB or more). At the band edge it carries on from the other end.</p>
+  <figure><img class="screen" src="../manual-fa/img/screen-scanner.png" alt=""><figcaption>The scanner moving down on 40 m</figcaption></figure>
+  <ul>
+    <li><b>Turn:</b> sets the direction: right up, left down, and it carries on at once.</li>
+    <li><b>Click:</b> stops the scanner on the current frequency.</li>
+    <li>In SSB and CW it holds while the station is heard and moves on four seconds after it goes. On AM and FM broadcasts, which never go quiet, it stays five seconds on each station; in FM it skips the next 200 kHz after each station so a strong station does not stop it twice.</li>
+  </ul>
+  <p class="small">It moves by the tuning step, at least 1 kHz in SSB, 500 Hz in CW and 100 kHz in FM. If it stops on noise too often, set a Squelch level first.</p>
+</section>
+
+<!-- 19 -->
+<section class="chapter">
+  <h2><span class="num">19</span>Frequency lock and CPU speed<span class="tag r3">R3</span></h2>
+  <p><span class="ui">Menu → Tuning → Freq Lock → On</span>: the knob sets the volume instead of tuning, and digit tuning (press and turn) is off. A padlock next to the mode shows the lock is on; it is kept across restarts.</p>
+  <div class="pair">
+    <figure><img class="screen" src="../manual-fa/img/screen-lock.png" alt=""><figcaption>The padlock next to the mode</figcaption></figure>
+    <figure><img class="screen" src="../manual-fa/img/screen-cpu.png" alt=""><figcaption>The CPU page</figcaption></figure>
+  </div>
+  <p><span class="ui">Menu → System → CPU</span> (called Performance up to R3): <b>80 MHz</b> (as the official firmware, longest battery), <b>160 MHz</b> or <b>240 MHz</b>. Faster makes the screen and menus quicker and uses more battery; the battery estimate shows the difference. The FT8 page always runs at 240 MHz while it is open.</p>
+</section>
+
+<!-- 20 -->
+<section class="chapter">
+  <h2><span class="num">20</span>Wi-Fi and the radio's web pages<span class="tag r4">R4</span></h2>
+  <p>All Wi-Fi settings are on one page: <span class="ui">Menu → System → Wi-Fi</span>. The top says where to open the radio's web pages: the radio's IP address on your home network (or atsmini.local), or 10.1.1.1 after joining the radio's own network. Below are three rows: <b>Mode</b>, <b>Join a network</b> and <b>Power</b>. Click Mode or Power, turn to change the value and click to apply; a short press cancels.</p>
+  <div class="pair">
+    <figure><img class="screen" src="../manual-fa/img/screen-wifi.png" alt=""><figcaption>The Wi-Fi page: address, Mode, Join a network, Power</figcaption></figure>
+    <figure><img class="screen" src="../manual-fa/img/screen-wifi-list.png" alt=""><figcaption>Networks in range with signal, security and channel</figcaption></figure>
+  </div>
+  <table>
+    <tr><th style="width:24%">Mode</th><th>What it does</th></tr>
+    <tr><td>Off</td><td>Wi-Fi off (least battery use)</td></tr>
+    <tr><td>AP Only</td><td>The radio makes its own network: join ATS-Mini and open http://10.1.1.1</td></tr>
+    <tr><td>AP+Connect</td><td>Its own network, and at the same time connected to your home network</td></tr>
+    <tr><td>Connect</td><td>Connected to your home network only</td></tr>
+    <tr><td>Sync Only</td><td>Connects at power-on, sets the clock and switches off</td></tr>
+  </table>
+  <p><b>Power</b>: Normal (17 dBm), Low (13 dBm) or Lowest (8.5 dBm). Lower power helps boards that restart when Wi-Fi transmits and saves some battery, at the cost of range.</p>
+  <h3>Joining your home network on the radio</h3>
+  <div style="display:flex;gap:5mm;align-items:flex-start;break-inside:avoid">
+    <div style="flex:1"><p style="margin-top:0"><b>Join a network</b> lists the networks around you, strongest first. Choose one and type the password on the on-screen keyboard: turn the knob to move over the keys and click to type each character. <b>aA</b> gives capitals (for one letter), <b>#+=</b> symbols, <b>Del</b> deletes, and <b>Show</b> shows the password. The password is shown as stars with only the last character visible, so you can spot typing mistakes. <b>OK</b> lights up after eight characters. The network is saved, the radio connects at once (AP+Connect mode) and shows its IP address in large type.</p></div>
+    <figure style="margin:0;flex:0 0 66mm"><img class="screen" style="width:60mm" src="../manual-fa/img/screen-wifi-keys.png" alt=""><figcaption>The on-screen keyboard for the password</figcaption></figure>
+  </div>
+  <div class="note">The radio has 2.4 GHz Wi-Fi only; 5 GHz networks are not listed. If your router uses one name for both bands, the radio connects on 2.4 GHz.</div>
+  <p>The <b>radio's web pages</b> (dark theme) hold the settings, memories, updates and the signal log. Networks can still be saved from their Wi-Fi page too. At <b>http://&lt;IP&gt;/update</b> a version's …-ota.bin file can be installed directly.</p>
+</section>
+
+<!-- 21 -->
+<section class="chapter">
+  <h2><span class="num">21</span>Web Control<span class="tag r4">R4</span></h2>
+  <p>With the radio and a phone or computer on the same network, open <b>http://&lt;IP&gt;/control</b> (or tap Control on the radio's web pages). The whole radio is in the browser, and every change applies to the radio at once and is saved. The top always shows the frequency, band, mode, step, filter, S-meter, battery (volts and percent), the memory you are on, and the RDS station name and text.</p>
+  <div class="pair">
+    <figure><img class="phone" src="../manual-fa/img/web-receiver.jpg" alt=""><figcaption>The Receiver tab on a phone</figcaption></figure>
+    <figure><img class="phone" src="../manual-fa/img/web-beacons.jpg" alt=""><figcaption>The Beacons tab: world map of the beacons</figcaption></figure>
+  </div>
+  <table>
+    <tr><th style="width:18%">Tab</th><th>What it does</th></tr>
+    <tr><td>Receiver</td><td>Step tuning, Seek, a frequency box (kHz; MHz on FM), mode buttons (with Stereo or Mono on FM), Band, Step, Filter and AGC lists, volume, a button for every band, and the <b>band scope</b>: Sweep measures the signal at 41 points around the frequency; tap a bar to tune there</td></tr>
+    <tr><td>Memory</td><td>Tune to a memory, save the current station, delete one</td></tr>
+    <tr><td>Beacons</td><td>A map of the eighteen NCDXF/IARU beacons. The five on the air pulse in their band's colour. Tap a frequency to tune there in CW: in every ten second slot the radio measures the signal and colours that beacon green (heard well), yellow (weak) or grey (not heard). After one three minute cycle you see which parts of the world the band is open to. Tap a beacon to follow it across the bands</td></tr>
+    <tr><td>Settings</td><td>Every setting of the radio's menus, in five groups. Bluetooth, USB and Wi-Fi modes and firmware updates stay on the radio itself, so the connection cannot be cut</td></tr>
+    <tr><td>More</td><td>The radio's own screen with its knob and buttons (for its menus and the FT8 and CW pages; sent only while shown), and <b>Listen</b></td></tr>
+  </table>
+  <h3>Listening in the browser (experimental)</h3>
+  <p><b>Listen</b> plays the radio's sound in the browser. It works on V4B boards only, and the quality is about that of a telephone: the sound is sampled from the speaker line at 8 kHz, and Wi-Fi and the receiver share one converter. <b>Hiss filter</b> reduces hiss. <b>Radio speaker while listening</b> makes the radio's speaker quieter, but on the V4B that also weakens the browser sound, so <b>Normal</b> gives the best sound. It works best in Chrome.</p>
+  <div class="note">On V4B boards the decoders and Listen take their audio from the speaker line. With headphones plugged into the radio this line is cut: the FT8, FT4 and CW decoders and the browser sound do not work. Unplug the headphones to decode.</div>
+</section>
+
+<!-- 22, 23 -->
+<section class="chapter">
+  <h2><span class="num">22</span>Feedback and troubleshooting</h2>
+  <p>Every report, a small bug or a suggestion, helps the next version. Write in the Telegram group or open an Issue on GitHub: github.com/ep3mhb/resonik-ats-mini/issues. Please include:</p>
+  <ol class="steps">
+    <li>The radio model (V3, V4 or V4B)</li>
+    <li>The firmware version (<span class="ui">Menu → System → About</span>)</li>
+    <li>What you did and what happened</li>
+    <li>If possible, a photo or short video of the screen</li>
+  </ol>
+  <h3>Common problems</h3>
+  <table>
+    <tr><th style="width:36%">Problem</th><th>Solution</th></tr>
+    <tr><td>The knob skips steps, or needs two clicks for one step</td><td><span class="ui">Menu → System → Knob</span>: the other value (20 or 30 clicks)</td></tr>
+    <tr><td>The clock shows --:--</td><td>Section 7: Wi-Fi Mode Sync Only, or set it by hand</td></tr>
+    <tr><td>No beacon name is shown</td><td>The clock must be set and correct, and Beacons not set to Off</td></tr>
+    <tr><td>The Install button shows no port</td><td>Try another USB cable (a data cable); Chrome or Edge on a computer</td></tr>
+    <tr><td>You want the old menu</td><td><span class="ui">Menu → Display → Menu Style → Classic</span></td></tr>
+    <tr><td>The EiBi schedule does not show the days</td><td>Load EiBi once more</td></tr>
+    <tr><td>FT8 or CW page: No audio, or In 0</td><td>These pages need the V4B board (Hardware page of the site), and the headphones unplugged</td></tr>
+    <tr><td>FT8 decodes nothing</td><td>Try another band (20 or 10 m by day, 40 m at night); take the radio to a window and unplug the charger</td></tr>
+    <tr><td>The radio's web page does not open</td><td>The address is at the top of <span class="ui">Menu → System → Wi-Fi</span>; the phone or computer must be on the same network</td></tr>
+  </table>
+
+  <h2 style="margin-top:9mm"><span class="num">23</span>Credits and licence</h2>
+  <p>RESONIK edition: EP2MHB (Mohammad Bahrololoum). Based on ats-mini by PU2CLR (Ricardo Caratti), Volos Projects, Ralph Xavier, Sunnygold, Goshante, G8PTN (Dave), R9UCL (Max Arnold), Marat Fayzullin and all contributors. The FT8 decoder uses ft8_lib by Karlis Goba, following the epiHATR fork; some fixes come from the jokubasver and mattafaak forks. The source code is on GitHub under the MIT licence.</p>
+  <p class="small">RESONIK is not affiliated with the makers of ATS Mini radios. Installing unofficial firmware is at your own risk; a backup lets you go back. <b>73 · resonik.mikroutik.com</b></p>
+</section>
+
+</body>
+</html>
