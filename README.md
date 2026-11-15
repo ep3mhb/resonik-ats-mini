@@ -10,13 +10,23 @@ An improved firmware for the **ATS Mini** pocket receiver (ESP32-S3 + SI4732): L
 It is built on the open-source [ats-mini](https://github.com/esp32-si4732/ats-mini) firmware and keeps everything it does,
 adding features for shortwave listeners and radio amateurs.
 
-> **Latest release: [v2.45-r3](https://github.com/ep3mhb/resonik-ats-mini/releases/latest)** (13 November 2026).
+> **Latest release: [v2.45-r4](https://github.com/ep3mhb/resonik-ats-mini/releases/latest)** (15 November 2026).
 
 Website, browser installer and manual: **<https://resonik.mikroutik.com>**
 
 What is coming in each release: [roadmap (PDF)](website/resonik-roadmap.pdf) · [نقشه‌ی راه فارسی (PDF)](website/resonik-roadmap-fa.pdf), source in `docs/roadmap/`.
 
-## What v2.45-r3 adds
+## What v2.45-r4 adds
+
+- **Web Control:** the whole radio in a browser on your phone or computer: frequency, S-meter, RDS, every setting,
+  memories, bands and modes, a band scope (click a signal to tune), a live world map of the NCDXF/IARU beacons,
+  and Listen (experimental, V4B)
+- **Wi-Fi on the radio:** one Wi-Fi page with the IP address, Mode, Power, and Join a network with an on-screen keyboard
+- **Seek in SSB and CW**, on the radio and in the browser
+- The classic menu has the same six groups as the tile menu; faster band and mode changes; dark radio web pages
+- Beacons: Off or Names only; betas update to the release over Wi-Fi
+
+## Also included (from v2.45-r3)
 
 - FT8 and FT4 decoder on a full-screen page with waterfall; it decodes even without a clock, finding the slot timing from the stations heard (needs the V4B board, speaker line on GPIO11)
 - CW (Morse) decoder page, and a CW strip on the normal screen
@@ -25,7 +35,7 @@ What is coming in each release: [roadmap (PDF)](website/resonik-roadmap.pdf) · 
 - Frequency lock, Wi-Fi power (Normal, Low, Lowest) and processor speed (Battery, Balanced, Fast)
 - Fixes: no freezes on slow networks after Wi-Fi connects, seek stays inside the band, smoother SSB tuning
 
-## Also included (from v2.45-r2)
+## And from v2.45-r2
 
 - A new default menu: six categories of large coloured tiles (Tuning, Audio, Memory, Ham & SWL, Display, System),
   settings shown full screen; the classic menu stays available
@@ -46,8 +56,7 @@ What is coming in each release: [roadmap (PDF)](website/resonik-roadmap.pdf) · 
 - Automatic attenuation when strong stations overload the receiver
 - The clock survives switching off: automatic time sync at power-on, with a web-time fallback for networks that block NTP
 
-Coming next, on V4 boards with the speaker line on GPIO11: CW and FT8 decoders, a band scanner, and band plans
-that set mode, filter and step per segment.
+Coming next: RTTY decoder, scan waterfall, status page, settings backup, setup wizard (see the roadmap).
 
 ## Which file do I need?
 

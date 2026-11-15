@@ -4,6 +4,39 @@ RESONIK edition: <https://resonik.mikroutik.com> · Upstream user manual: <https
 
 <!-- towncrier release notes start -->
 
+## 2.45-r4 (2026-11-15)
+
+RESONIK edition, Phase 4: control the radio from a phone or computer, and set up Wi-Fi on the radio itself. From R3: Menu → System → Update FW over Wi-Fi, or the Install button on https://resonik.mikroutik.com. Settings and memories are kept.
+
+### Added
+
+- **Web Control** (`http://<radio-ip>/control`, or the **Control** link on the radio's web pages): the whole radio in a browser on a phone, tablet or computer, on the same Wi-Fi.
+  - **Receiver tab:** large frequency, band, mode, step, filter, S-meter, battery (volts and percent), the memory you are on, RDS station name and radio text; tuning arrows, Seek, frequency box (kHz; MHz on FM), mode buttons with Stereo/Mono shown on FM, Band, Step, Filter and AGC/attenuator lists, volume slider, one button per band.
+  - **Band scope:** Sweep measures 41 points around the frequency (FM ±2 MHz, AM ±100 kHz, SSB/CW ±20 kHz); click a bar to tune there.
+  - **Memory tab:** tune to a memory, save the current station, delete one.
+  - **Beacons tab:** a world map of the 18 NCDXF/IARU beacons. The five on the air pulse in their band's colour with a countdown; tap a frequency to tune there in CW and the radio colours each beacon it hears (well, weakly, not heard), slot by slot. Tap a station to follow it across the bands.
+  - **Settings tab:** every setting of the radio's menus, in groups, applied and saved at once. Bluetooth, USB and Wi-Fi modes and firmware updates stay on the radio.
+  - **More tab:** the radio's own screen with its knob and buttons (sent only while shown), and **Listen** (experimental): the radio's sound in the browser on V4B boards, phone quality, with a hiss filter and a choice of how quiet the radio's speaker plays.
+- **Wi-Fi on the radio** (**Menu → System → Wi-Fi**): one page for everything Wi-Fi. The top shows where to find the radio's web pages (its IP address, or 10.1.1.1 on its own access point). **Mode**, **Power**, and **Join a network**: the networks in range with signal, security and channel, the password typed with the knob on an on-screen keyboard (letters, capitals, symbols, show or hide). The network is saved and the radio connects at once. The radio has 2.4 GHz Wi-Fi only.
+- **Seek in SSB and CW**, on the radio and in the browser: the receiver chip only seeks in AM and FM, and Seek used to move one tuning step in SSB and CW. It now searches 1 kHz at a time with the sound muted and stops on the first signal, at most 200 kHz per press, and says so when it finds nothing.
+- **Beacons: Off and Names only.** Off now also hides the beacon names on the beacon frequencies; Names only shows the beacon due in each slot without following one. Saved across restarts.
+- **Dark theme** on all the radio's web pages, with the RESONIK logo and the menu as buttons.
+
+### Changed
+
+- **The classic menu has the same six groups as the tiles** (Tuning, Audio, Memory, Ham & SWL, Display, System), each with its items and a Back row; a setting goes back to its group when done ([#4](https://github.com/ep3mhb/resonik-ats-mini/issues/4)).
+- Wi-Fi, Wi-Fi Power and joining a network are one **Wi-Fi** item. **Performance** is now **CPU**, with the speeds 80, 160 and 240 MHz.
+- **Faster band and mode changes** between SSB bands (about 40 ms instead of 260 ms).
+- The CW decoder page and Listen use a steady receiver level, so decoding and the web sound do not depend on the volume setting.
+- RDS options shortened (ALL-CT EU, ALL EU...) to fit the classic menu.
+
+### Fixed
+
+- A radio on a beta could not update to the release with the same number over Wi-Fi ("Already up to date") ([#3](https://github.com/ep3mhb/resonik-ats-mini/issues/3)). Builds from now on mark betas; a radio still on v2.45-r3-beta1 updates once by uploading the release file at `http://<radio-ip>/update`.
+- Sleep Mode in the classic menu listed its options twice.
+- The FT8 and CW pages say "unplug headphones" when there is no audio: on V4B boards, headphones in the radio cut the line the decoders listen to.
+
+
 ## 2.45-r3 (2026-11-13)
 
 RESONIK edition, Phase 3. From R2: Menu → System → Update FW over Wi-Fi, or the Install button on https://resonik.mikroutik.com. Settings and memories are kept. Thanks to everyone who tested the beta.
