@@ -103,3 +103,5 @@ footer .hint { color: #8d8c88; }
 
 .beta { border: 2px solid #FFD167; background: rgba(255,209,103,.12); border-radius: 12px; padding: .2rem 1rem; margin: 1rem 0 1.4rem; }
 .beta p { margin: .7rem 0; }
+
+img.yt { height: 1.15em; width: auto; vertical-align: -0.22em; margin-inline-end: .4em; }
