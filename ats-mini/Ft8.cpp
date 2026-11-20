@@ -169,6 +169,8 @@ static volatile bool collecting = false;  // Inside a slot that will be decoded
 static volatile int lastDecoded = -1;     // Messages in the last slot, -1 before the first
 static volatile uint32_t lastDecodeMs = 0;
 static volatile uint32_t changes = 0;     // Bumped when anything on the page changed
+static volatile uint32_t batchSerial = 0; // R5: bumped on every decoded slot (browser)
+static int batchCount = 0;
 
 //
 // Worker
@@ -246,6 +248,8 @@ static void decodeSlot(uint32_t slot)
   for(int i = 0 ; i < n && i < LOG_MAX ; i++) { logBuf[i].m = found[i]; logBuf[i].slot = slot; }
   logCount = keep + n > LOG_MAX ? LOG_MAX : keep + n;
   lastDecoded = n;
+  batchCount = n < LOG_MAX ? n : LOG_MAX;
+  batchSerial++;
   lastDecodeMs = t;
 #ifdef RESONIK_DIAG
   capDoneDecoded = n;
@@ -419,6 +423,44 @@ void ft8Turn(int16_t enc)
   lastDecoded = -1;
   xSemaphoreGive(lock);
   generation++;
+}
+
+// RESONIK R5: the newest slot's messages for the browser, once each:
+// {"dec":{"m":"FT8","slot":N,"r":[[snr,hz,"text"],...]}}; false when none new
+bool ft8WebBatch(uint32_t *seen, String &j)
+{
+  if(!lock || *seen == batchSerial) return(false);
+  xSemaphoreTake(lock, portMAX_DELAY);
+  *seen = batchSerial;
+  j = "{\"dec\":{\"m\":\"";
+  j += wantFt4 ? "FT4" : "FT8";
+  j += "\",\"slot\":";
+  j += batchCount ? logBuf[0].slot : 0;
+  j += ",\"r\":[";
+  for(int i = 0; i < batchCount && i < logCount; i++)
+  {
+    if(i) j += ',';
+    j += '['; j += logBuf[i].m.snr; j += ','; j += logBuf[i].m.freq; j += ",\"";
+    for(const char *c = logBuf[i].m.text; *c; c++) if(*c != '"' && *c != '\\') j += *c;
+    j += "\"]";
+  }
+  j += "]}}";
+  xSemaphoreGive(lock);
+  return(true);
+}
+
+// RESONIK R5: the newest waterfall row, 80 values, for the browser
+bool ft8WebRow(uint32_t *seen, String &j)
+{
+  if(!lock || *seen == (uint32_t)changes || !wfCount) return(false);
+  *seen = changes;
+  xSemaphoreTake(lock, portMAX_DELAY);
+  const uint8_t *row = wf[(wfHead + WF_H - 1) % WF_H];
+  j = "{\"sp\":{\"lo\":200,\"hi\":2900,\"v\":[";
+  for(int x = 0; x < 80; x++) { if(x) j += ','; j += row[x * WF_W / 80]; }
+  j += "]}}";
+  xSemaphoreGive(lock);
+  return(true);
 }
 
 void ft8Clear()

@@ -9,6 +9,9 @@ void digiClick(bool shortPress);   // Click: next mode; short press: leave
 bool digiTick();                   // Main loop; true when the screen needs a redraw
 void drawDigiPage();
 
+#include <Arduino.h>
+bool digiWebState(uint32_t *seen, String &j);   // R5: for the browser
+
 // In Menu.cpp: USB with the 3.0k filter, on hz (0: where the radio is)
 void digiSetUsb(uint32_t hz);
 

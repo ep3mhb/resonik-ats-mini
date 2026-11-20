@@ -324,6 +324,17 @@ uint16_t audioInputLevel() { return(audioLevel); }
 uint32_t audioTimingRestarts() { return(timingRestarts); }
 uint32_t audioAdcErrors() { return(adcErrors); }
 
+// RESONIK R5: the decoded text and speed, for the browser
+void cwWebText(char *buf, int size, int *wpm)
+{
+  if(!lock) { buf[0] = '\0'; *wpm = 0; return; }
+  xSemaphoreTake(lock, portMAX_DELAY);
+  strncpy(buf, decoder.getText(), size - 1);
+  buf[size - 1] = '\0';
+  *wpm = decoder.getWpm();
+  xSemaphoreGive(lock);
+}
+
 bool cwStripShown()
 {
   return(cwStripIdx && currentMode == CW && !sleepOn());

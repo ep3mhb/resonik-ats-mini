@@ -23,6 +23,7 @@ void cwPageClear();
 bool cwStripShown();                       // The strip replaces the scale on the normal screen
 void drawCwStrip();
 void drawCwPage();
+void cwWebText(char *buf, int size, int *wpm);   // R5: decoded text for the browser
 
 // Sampler shared with the FT8 page (Ft8.cpp)
 void audioFt8Ring(int16_t *ring, uint32_t size);   // nullptr gives it back to CW
