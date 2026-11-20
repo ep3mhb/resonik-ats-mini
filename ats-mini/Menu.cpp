@@ -16,6 +16,7 @@
 #include "Patches.h"
 #include "Storage.h"
 #include "WifiSetup.h"
+#include "UpdateNotice.h"
 
 #include <time.h>
 
@@ -164,7 +165,8 @@ static const char *menu[] =
 #define MENU_FT8          30  // RESONIK R3
 #define MENU_FREQLOCK     31  // RESONIK R3
 #define MENU_PERF         32  // RESONIK R3
-#define MENU_ABOUT        33
+#define MENU_UPDNOTICE    33  // RESONIK R5
+#define MENU_ABOUT        34
 // RESONIK R4: Wi-Fi mode, Wi-Fi Power and joining a network are one item,
 // "Wi-Fi" (MENU_WIFIMODE), which opens the Wi-Fi page (WifiSetup.cpp)
 
@@ -209,6 +211,7 @@ static const char *settings[] =
   "FT8/FT4",
   "Freq Lock",
   "CPU",
+  "Update Notice",
   "About",
 };
 
@@ -274,7 +277,7 @@ static const TileEntry tileSystem[] =
   { TI_POWER, TILE_SET | MENU_OFFTIMER }, { TI_NETWORK, TILE_SET | MENU_TCPMODE },
   { TI_GLOBE, TILE_SET | MENU_UTCOFFSET }, { TI_FIRMWARE, TILE_SET | MENU_UPDATEFW },
   { TI_USB, TILE_SET | MENU_USBMODE }, { TI_WIFI, TILE_SET | MENU_WIFIMODE },
-  { TI_PERF, TILE_SET | MENU_PERF },
+  { TI_PERF, TILE_SET | MENU_PERF }, { TI_FIRMWARE, TILE_SET | MENU_UPDNOTICE },
 };
 
 static const TileCategory tileCategories[] =
@@ -1771,6 +1774,7 @@ static void clickSettings(int cmd, bool shortPress)
     case MENU_KNOB:       currentCmd = CMD_KNOB;      break;
     case MENU_FREQLOCK:   currentCmd = CMD_FREQLOCK;  break;
     case MENU_PERF:       currentCmd = CMD_PERF;      break;
+    case MENU_UPDNOTICE:  currentCmd = CMD_UPDSET;    break;
     case MENU_BANDPLAN:   currentCmd = CMD_BANDPLAN;  break;
     case MENU_BPAREA:     currentCmd = CMD_BPAREA;    break;
     case MENU_AUTOATT:    currentCmd = CMD_AUTOATT;   break;
@@ -1851,6 +1855,11 @@ bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
       cwStripIdx = wrap_range(cwStripIdx, scrollDirection * enc, 0, 1);
       prefsRequestSave(SAVE_SETTINGS);
       break;
+    case CMD_UPDSET:
+      updNoticeIdx = wrap_range(updNoticeIdx, scrollDirection * enc, 0, 1);
+      prefsRequestSave(SAVE_SETTINGS);
+      break;
+    case CMD_UPDNOTICE:  updNoticeTurn(scrollDirection * enc); break;
     case CMD_BPAREA:
       bandPlanArea = wrap_range(bandPlanArea, scrollDirection * enc, 0, BP_AREA_COUNT - 1);
       if(bandPlanArea == BP_AREA_IRAN) statusShow("Iran (EP)", "No 160, 80 or 30 m");
@@ -1921,6 +1930,7 @@ bool clickHandler(uint16_t cmd, bool shortPress)
     case CMD_WIFISETUP:
       wifiSetupClick(shortPress);
       break;
+    case CMD_UPDNOTICE:  updNoticeClick(shortPress); break;
     case CMD_FT8:
       // FT8 page: click clears the list, a short press leaves
       if(shortPress) currentCmd = CMD_NONE;
@@ -2970,6 +2980,7 @@ void drawSideBar(uint16_t cmd, int x, int y, int sx)
     case CMD_MENUSTYLE:  drawOptionList(settings[MENU_MENUSTYLE], menuStyleDesc, ITEM_COUNT(menuStyleDesc), menuStyleIdx, x, y, sx); break;
     case CMD_LOGGER:     drawOptionList(settings[MENU_LOGGER], loggerDesc, 5, loggerIdx, x, y, sx); break;
     case CMD_CWSTRIP:    drawOptionList(settings[MENU_CWSTRIP], cwStripDesc, 2, cwStripIdx, x, y, sx); break;
+    case CMD_UPDSET:     drawOptionList(settings[MENU_UPDNOTICE], updNoticeDesc, 2, updNoticeIdx, x, y, sx); break;
     case CMD_BPAREA:     drawOptionList(settings[MENU_BPAREA], bandPlanAreaDesc, BP_AREA_COUNT, bandPlanArea, x, y, sx); break;
     case CMD_KNOB:       drawOptionList(settings[MENU_KNOB], knobDesc, 2, encoderHalfStep ? 1 : 0, x, y, sx); break;
     case CMD_FREQLOCK:   drawOptionList(settings[MENU_FREQLOCK], freqLockDesc, 2, freqLock, x, y, sx); break;
@@ -3187,6 +3198,7 @@ static const char *tileValueLabel(uint16_t cmd, int i)
     case CMD_ZOOM:      return(i ? "On" : "Off");
     case CMD_SCROLL:    return(i ? "Reversed" : "Normal");
     case CMD_CWSTRIP:   return(cwStripDesc[i]);
+    case CMD_UPDSET:    return(updNoticeDesc[i]);
     case CMD_KNOB:      return(knobDesc[i]);
     case CMD_FREQLOCK:  return(freqLockDesc[i]);
     case CMD_WIFIPOWER: return(wifiPowerDesc[i]);
@@ -3231,6 +3243,7 @@ static bool tileValueGet(uint16_t cmd, TileValue &v)
     case CMD_ZOOM:      v.count = 2; v.idx = zoomMenu ? 1 : 0; return(true);
     case CMD_SCROLL:    v.count = 2; v.idx = scrollDirection > 0 ? 0 : 1; return(true);
     case CMD_CWSTRIP:   v.count = 2; v.idx = cwStripIdx; return(true);
+    case CMD_UPDSET:    v.count = 2; v.idx = updNoticeIdx; return(true);
     case CMD_BPAREA:    v.count = BP_AREA_COUNT; v.idx = bandPlanArea; return(true);
     case CMD_KNOB:      v.count = 2; v.idx = encoderHalfStep ? 1 : 0; return(true);
     case CMD_FREQLOCK:  v.count = 2; v.idx = freqLock; return(true);
@@ -3508,6 +3521,7 @@ void webMenuDef(String &j)
   n = 0; for(int i = 0; i < (int)ITEM_COUNT(timeZones) && n < 128; i++) labels[n++] = timeZones[i].desc;
   j += ",\"o\":"; wjList(j, labels, n); j += '}';
   wjItem(j, CMD_KNOB, "Power and time", "Knob", "l"); j += ",\"o\":"; wjList(j, knobDesc, ITEM_COUNT(knobDesc)); j += '}';
+  wjItem(j, CMD_UPDSET, "Power and time", "New version notice", "b"); j += '}';
   j += ']';
 }
 
@@ -3539,6 +3553,7 @@ void webMenuVals(String &j)
   kv(CMD_BANDPLAN, bandPlanIdx);
   kv(CMD_BPAREA, bandPlanArea);
   kv(CMD_CWSTRIP, cwStripIdx);
+  kv(CMD_UPDSET, updNoticeIdx);
   kv(CMD_LOGGER, loggerIdx < LOG_CLEAR ? loggerIdx : 0);
   kv(CMD_BRT, currentBrt);
   kv(CMD_THEME, themeIdx);
@@ -3625,6 +3640,7 @@ bool webMenuSet(uint16_t cmd, int32_t v)
     case CMD_BEACON:     if(v < 0 || v >= BEACON_MENU_COUNT) return(false); beaconMenuSet(v); break;
     case CMD_BPAREA:     if(v < 0 || v >= BP_AREA_COUNT) return(false); bandPlanArea = v; prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_CWSTRIP:    cwStripIdx = v ? 1 : 0; prefsRequestSave(SAVE_SETTINGS); break;
+    case CMD_UPDSET:     updNoticeIdx = v ? 1 : 0; prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_LOGGER:     if(v < 0 || v >= LOG_CLEAR) return(false); loggerIdx = v; prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_BRT:        doBrt((constrain(v, 10, 255) - (int)currentBrt) / 5); break;
     case CMD_THEME:      if(v < 0 || v >= getTotalThemes()) return(false); doTheme(v - themeIdx); break;
