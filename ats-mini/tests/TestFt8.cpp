@@ -11,7 +11,7 @@ struct Tx { const char *text; float freq; float snr; float start; };
 
 // Real ADC sample rate: the decoder assumes Ft8Rx::FS. The radio's sampler
 // used to run at 12048 Hz (83 us steps), so this checks what that costs.
-static double adcRate = 12000.0;
+static double adcRate = Ft8Rx::FS;
 
 static double gauss()
 {
@@ -239,7 +239,7 @@ int main()
 
   // Sample rate error: the decoder must still work at the rate the radio delivers
   printf("FT8 at a wrong ADC sample rate (-15/-18/-20 dB):\n");
-  for(double rate : { 12000.0, 12048.0 })
+  for(double rate : { (double)Ft8Rx::FS, Ft8Rx::FS * 1.004 })
   {
     adcRate = rate;
     int got = 0;
@@ -250,9 +250,9 @@ int main()
         if(find(m, n, "CQ DX EP2MHB LL58")) got++;
       }
     printf("  %5.0f Hz: %2d of 12 decoded\n", rate, got);
-    if(rate == 12000.0) assert(got >= 9);
+    if(rate == Ft8Rx::FS) assert(got >= 9);
   }
-  adcRate = 12000.0;
+  adcRate = Ft8Rx::FS;
 
   rx.end();
   printf("TestFt8: all tests passed\n");
