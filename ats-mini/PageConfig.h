@@ -45,6 +45,12 @@ static const char pageConfig[] PROGMEM = R"HTML(<H1>{{title}}</H1>
     <TR><TH COLSPAN="2" CLASS="HEADING"><INPUT TYPE="SUBMIT" VALUE="Save"></TH></TR>
   </TABLE>
 </FORM>
+<H2>Backup and restore</H2>
+<P>Keep all the radio's settings, bands, memories and Wi-Fi networks in one file, and put them back later or on another radio.</P>
+<P><A HREF="/backup.txt">Download a backup</A></P>
+<FORM ACTION="/restore" METHOD="POST" ENCTYPE="multipart/form-data" ONSUBMIT="return confirm('Replace all settings, memories and Wi-Fi networks with this backup? The radio restarts.')">
+<INPUT TYPE="file" NAME="backup" ACCEPT=".txt" REQUIRED> <INPUT TYPE="submit" VALUE="Restore">
+</FORM>
 <SCRIPT>
 function browserDateTime(submit) {
   const enabled = document.getElementById('browserdatetime').checked;

@@ -26,6 +26,7 @@
 #include "WifiSetup.h"
 #include "WebControl.h"
 #include "UpdateNotice.h"
+#include "Backup.h"
 #include <stdlib.h>
 #include <time.h>
 
@@ -1146,6 +1147,7 @@ void loop()
   { DIAG_T0; needRedraw |= webControlTick(); DIAG_T1("wctl"); }
   { DIAG_T0; needRedraw |= netTickTime(); DIAG_T1("wifi"); }
   needRedraw |= updNoticeTick();   // RESONIK R5: new version page
+  backupTick();                    // RESONIK R5: restore a backup (restarts)
 
   // Update clock display
   needRedraw |= clockUpdate();
