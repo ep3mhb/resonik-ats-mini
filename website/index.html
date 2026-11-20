@@ -110,7 +110,7 @@
             </esp-web-install-button>
           </div>
         </div>
-        <p class="stats" id="stats" hidden>Installed from this page <b id="st-web">0</b> times<span id="st-gh-part"> · downloaded from GitHub <b id="st-gh">0</b> times</span></p>
+        <p class="stats" style="display:flex;flex-wrap:wrap;gap:0.4rem"><a href="https://github.com/ep3mhb/resonik-ats-mini/releases" rel="noopener"><img src="https://img.shields.io/github/downloads/ep3mhb/resonik-ats-mini/total?label=GitHub%20downloads&amp;color=108AB1" height="20" alt="GitHub downloads"></a> <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fresonik.mikroutik.com%2Fapi%2Fbadge%3Ftype%3Dweb" height="20" alt="Web installs"> <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fresonik.mikroutik.com%2Fapi%2Fbadge%3Ftype%3Dtotal" height="20" alt="Total downloads"></p>
 
         <details class="more">
           <summary>Before you start, and other ways to install</summary>
@@ -197,16 +197,5 @@
       <rect x="72" y="55" width="8" height="11" rx="3" fill="currentColor"/>
     </symbol>
   </svg>
-  <script>
-    fetch("/api/stats").then(r => r.ok ? r.json() : Promise.reject())
-      .then(d => {
-        const f = n => Number(n).toLocaleString("en");
-        document.getElementById("st-web").textContent = f(d.web.total);
-        // GitHub numbers unavailable: leave that part out rather than show 0
-        if (d.github.total == null) document.getElementById("st-gh-part").hidden = true;
-        else document.getElementById("st-gh").textContent = f(d.github.total);
-        document.getElementById("stats").hidden = false;
-      }).catch(() => {});
-  </script>
 </body>
 </html>
