@@ -3,8 +3,8 @@
 // (amateur 45.45 baud / 170 Hz and DWD weather 50 baud / 450 Hz), NAVTEX
 // (518 kHz) and PSK31, from the speaker line on GPIO11 like the FT8 page.
 //
-// The sampler (CwAudio.cpp) writes 12 kHz audio into this page's ring; a
-// worker on core 1 halves it to 6 kHz, feeds the decoder and makes a
+// The sampler (CwAudio.cpp) writes 6 kHz audio into this page's ring; a
+// worker on core 1 feeds the decoder and makes a
 // spectrum, on which the signal is found by itself: the strongest pair of
 // tones the mode's shift apart (RTTY, NAVTEX) or the strongest carrier
 // (PSK31). The knob tunes the radio, a click changes the mode, a short
@@ -26,7 +26,7 @@
 #include <freertos/semphr.h>
 #include <new>
 
-#define IN_FS        12000
+#define IN_FS        6000             // R5: the sampler gives 6 kHz (was 12, halved here)
 #define FS           6000
 #define RING         (IN_FS * 4)
 #define NFFT         1024
@@ -136,14 +136,13 @@ static void work(void *)
     }
     if(written - pos > RING - 1024) pos = written - 1024;   // Fell behind: skip
 
-    while(written - pos >= 2)
+    while(written - pos >= 1)
     {
       int n = 0;
-      while(n < 512 && written - pos >= 2)
+      while(n < 512 && written - pos >= 1)
       {
-        int32_t a = ring[pos % RING], b = ring[(pos + 1) % RING];
-        pos += 2;
-        int16_t s = (int16_t)((a + b) / 2);
+        int16_t s = ring[pos % RING];
+        pos++;
         buf[n++] = s;
         hist[histPos] = s;
         histPos = (histPos + 1) % NFFT;

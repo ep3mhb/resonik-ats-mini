@@ -80,7 +80,7 @@ public:
     return((int32_t)lroundf((med - 0.5f) * 1000.0f));
   }
 
-  static const int FS = 12000;
+  static const int FS = 6000;   // R5: was 12000. FT8 and FT4 fit below 3 kHz; half the rate halves the sampling and decoding work
   // Half-symbol time and half-bin frequency steps: real signals start and
   // sit anywhere, and a whole-step grid loses several dB on them
   static const int TIME_OSR = 2, FREQ_OSR = 2;

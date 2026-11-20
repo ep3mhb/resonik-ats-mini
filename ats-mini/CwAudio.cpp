@@ -46,8 +46,8 @@ static char shownText[CwDecoder::TEXT_MAX + 1];
 static bool shownKey = false;
 static int shownWpm = 0;
 
-// FT8 (Ft8.cpp) borrows the sampler: at 12 kHz the samples go into its ring
-#define FT8_FS        12000
+// FT8 (Ft8.cpp) borrows the sampler: at 6 kHz (R5) the samples go into its ring
+#define FT8_FS        6000      // R5: was 12000 (Ft8Rx::FS); the Digital page uses it too
 static int16_t *volatile ft8Ring = nullptr;
 static uint32_t ft8RingSize = 0;
 static volatile uint32_t ft8Written = 0;   // Samples written since the start

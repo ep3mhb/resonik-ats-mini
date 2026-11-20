@@ -1,7 +1,7 @@
 // RESONIK R3: FT8 decoder page.
 //
 // The V4B board wires the speaker line to GPIO11. While the page is open the
-// CW decoder's sampler (CwAudio.cpp, core 0) reads it at 12 kHz into a ring
+// CW decoder's sampler (CwAudio.cpp, core 0) reads it at 6 kHz (R5; was 12) into a ring
 // in PSRAM; a worker task here feeds Ft8Rx.h, cuts the audio at the UTC
 // 15 second slot edges and decodes each slot while the next one is coming in.
 // The main loop only draws. Turning the knob past 10 m goes on to the FT4
