@@ -13,6 +13,7 @@
 #include "UpdateNotice.h"
 #include "FreqPad.h"
 #include "DigiPage.h"
+#include "BandView.h"
 
 //
 // Draw preferences write indicator
@@ -534,6 +535,13 @@ void drawScreen()
   if(currentCmd==CMD_ABOUT)
   {
     drawAbout();
+    return;
+  }
+
+  // Band View (RESONIK R5)
+  if(currentCmd==CMD_BANDVIEW)
+  {
+    drawBandView();
     return;
   }
 

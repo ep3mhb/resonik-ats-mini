@@ -28,6 +28,7 @@
 #include "UpdateNotice.h"
 #include "Backup.h"
 #include "DigiPage.h"
+#include "BandView.h"
 #include <stdlib.h>
 #include <time.h>
 
@@ -1102,7 +1103,7 @@ void loop()
   // Disable commands control
   if((currentTime - elapsedCommand) > ELAPSED_COMMAND)
   {
-    if(currentCmd != CMD_NONE && currentCmd != CMD_SEEK && currentCmd != CMD_SCAN && currentCmd != CMD_MEMORY && currentCmd != CMD_CWDEC && currentCmd != CMD_FT8 && currentCmd != CMD_WIFISETUP && currentCmd != CMD_UPDNOTICE && currentCmd != CMD_FREQPAD && currentCmd != CMD_DIGI)
+    if(currentCmd != CMD_NONE && currentCmd != CMD_SEEK && currentCmd != CMD_SCAN && currentCmd != CMD_MEMORY && currentCmd != CMD_CWDEC && currentCmd != CMD_FT8 && currentCmd != CMD_WIFISETUP && currentCmd != CMD_UPDNOTICE && currentCmd != CMD_FREQPAD && currentCmd != CMD_DIGI && currentCmd != CMD_BANDVIEW)
     {
       tileReturnCancel();
       currentCmd = CMD_NONE;
@@ -1151,6 +1152,7 @@ void loop()
   needRedraw |= updNoticeTick();   // RESONIK R5: new version page
   backupTick();                    // RESONIK R5: restore a backup (restarts)
   needRedraw |= digiTick();        // RESONIK R5: digital modes page
+  needRedraw |= bandViewTick();    // RESONIK R5: Band View sweeps
 
   // Update clock display
   needRedraw |= clockUpdate();

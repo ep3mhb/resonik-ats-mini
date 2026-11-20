@@ -68,6 +68,7 @@
 #define CMD_BATTDISP   0x4800 // RESONIK R5: battery display setting
 #define CMD_FREQPAD    0x4900 // RESONIK R5: number pad page
 #define CMD_DIGI       0x4A00 // RESONIK R5: RTTY / NAVTEX / PSK31 page
+#define CMD_BANDVIEW   0x4B00 // RESONIK R5: Band View waterfall
 
 // Band plan settings (RESONIK)
 #define BANDPLAN_OFF       0

@@ -19,6 +19,7 @@
 #include "UpdateNotice.h"
 #include "FreqPad.h"
 #include "DigiPage.h"
+#include "BandView.h"
 
 #include <time.h>
 
@@ -106,7 +107,9 @@ Band *getCurrentBand() { return(&bands[bandIdx]); }
 #define MENU_MEMSCAN     14  // RESONIK
 #define MENU_SCANNER     15  // RESONIK R3
 #define MENU_FREQPAD     16  // RESONIK R5
-#define MENU_SETTINGS    17
+#define MENU_BANDVIEW    17  // RESONIK R5
+#define MENU_AUTOSTORE   18  // RESONIK R5
+#define MENU_SETTINGS    19
 
 int8_t menuIdx = MENU_VOLUME;
 
@@ -129,6 +132,8 @@ static const char *menu[] =
   "Mem Scan",
   "Scanner",
   "Freq Entry",
+  "Band View",
+  "Auto-Store",
   "Settings",
 };
 
@@ -251,7 +256,7 @@ static const TileEntry tileTuning[] =
   { TI_LOCK, TILE_SET | MENU_FREQLOCK },
   { TI_REGION, TILE_SET | MENU_FM_REGION }, { TI_RDS, TILE_SET | MENU_RDS },
   { TI_SCAN, MENU_SCAN }, { TI_SCANNER, MENU_SCANNER }, { TI_SEEK, MENU_SEEK }, { TI_STEP, MENU_STEP }, { TI_VFO, MENU_VFO },
-  { TI_DIAL, MENU_FREQPAD },
+  { TI_DIAL, MENU_FREQPAD }, { TI_FT8, MENU_BANDVIEW },
 };
 static const TileEntry tileAudio[] =
 {
@@ -262,6 +267,7 @@ static const TileEntry tileAudio[] =
 static const TileEntry tileMemory[] =
 {
   { TI_MEMORY, MENU_MEMORY }, { TI_LOG, TILE_SET | MENU_LOGGER }, { TI_MEMSCAN, MENU_MEMSCAN },
+  { TI_DOWNLOAD, MENU_AUTOSTORE },
 };
 static const TileEntry tileHam[] =
 {
@@ -1707,6 +1713,8 @@ static void clickMenuItem(int cmd, bool shortPress)
     case MENU_MEMSCAN:  memScanStart();             break;
     case MENU_SCANNER:  bandScanStart();            break;
     case MENU_FREQPAD:  freqPadOpen();              break;
+    case MENU_BANDVIEW: bandViewOpen();             break;
+    case MENU_AUTOSTORE: currentCmd = CMD_NONE; autoStoreRun(); break;
     case MENU_SQUELCH:  currentCmd = CMD_SQUELCH;   break;
     case MENU_VOLUME:   currentCmd = CMD_VOLUME;    break;
     case MENU_VFO:      clickVfo(shortPress);       break;
@@ -1875,6 +1883,7 @@ bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
       break;
     case CMD_UPDNOTICE:  updNoticeTurn(scrollDirection * enc); break;
     case CMD_FREQPAD:    freqPadTurn(scrollDirection * enc); break;
+    case CMD_BANDVIEW:   bandViewTurn(scrollDirection * enc); break;
     case CMD_BATTDISP:
       battDispIdx = wrap_range(battDispIdx, scrollDirection * enc, 0, 3);
       prefsRequestSave(SAVE_SETTINGS);
@@ -1952,6 +1961,7 @@ bool clickHandler(uint16_t cmd, bool shortPress)
     case CMD_UPDNOTICE:  updNoticeClick(shortPress); break;
     case CMD_FREQPAD:    freqPadClick(shortPress); break;
     case CMD_DIGI:       digiClick(shortPress); break;
+    case CMD_BANDVIEW:   bandViewClick(shortPress); break;
     case CMD_FT8:
       // FT8 page: click clears the list, a short press leaves
       if(shortPress) currentCmd = CMD_NONE;

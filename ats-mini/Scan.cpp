@@ -173,3 +173,75 @@ void scanRun(uint32_t centerFreq, uint32_t step)
   // Unmute the audio
   muteOn(MUTE_TEMP, false);
 }
+
+//
+// RESONIK R5: the same sweep, step by step, for the Band View page, and the
+// peaks of the last sweep for Auto-Store
+//
+static uint32_t asyncFreq = 0;
+
+bool scanAsyncStart(uint32_t centerFreq, uint32_t step)
+{
+  if(!scanData)
+  {
+    scanData = static_cast<ScanPoint *>(ps_malloc(SCAN_POINTS * sizeof(*scanData)));
+    if(!scanData) return(false);
+  }
+  if(!asyncFreq)
+  {
+    asyncFreq = currentFrequency;
+    muteOn(MUTE_TEMP, true);
+    if(isSSB()) rx.setSSBBfo(0);
+  }
+  seekStop = false;
+  scanInit(centerFreq, step);
+  return(true);
+}
+
+// One step; false when the sweep is complete
+bool scanAsyncTick()
+{
+  return(scanTickTime());
+}
+
+void scanAsyncStop()
+{
+  if(!asyncFreq) return;
+  scanStatus = SCAN_DONE;
+  if(isSSB()) rx.setFrequencyConfirmed(getReceiverFrequency(asyncFreq));
+  updateFrequency(asyncFreq, false);
+  muteOn(MUTE_TEMP, false);
+  asyncFreq = 0;
+}
+
+// The last sweep: start, step, points and the RSSI of each (dBuV)
+int scanLastSweep(uint32_t *start, uint32_t *step, uint8_t *rssiOut, int max)
+{
+  if(!scanData || scanStatus == SCAN_OFF) return(0);
+  int n = scanCount < max ? scanCount : max;
+  for(int i = 0; i < n; i++) rssiOut[i] = scanData[i].rssi;
+  *start = scanStartFreq;
+  *step = scanStep;
+  return(n);
+}
+
+// Strongest peaks of the last sweep, at least 10 dB over its median
+int scanPeaks(uint32_t *freqs, int max)
+{
+  if(!scanData || scanStatus != SCAN_DONE || scanCount < 5) return(0);
+  uint8_t sorted[SCAN_POINTS];
+  for(int i = 0; i < scanCount; i++) sorted[i] = scanData[i].rssi;
+  for(int i = 1; i < scanCount; i++) for(int j = i; j > 0 && sorted[j] < sorted[j - 1]; j--) { uint8_t t = sorted[j]; sorted[j] = sorted[j - 1]; sorted[j - 1] = t; }
+  int floorRssi = sorted[scanCount / 2];
+  int idx[SCAN_POINTS], n = 0;
+  for(int i = 1; i < scanCount - 1; i++)
+  {
+    int r = scanData[i].rssi;
+    if(r >= floorRssi + 10 && r >= scanData[i - 1].rssi && r > scanData[i + 1].rssi) idx[n++] = i;
+  }
+  // Strongest first
+  for(int i = 1; i < n; i++) for(int j = i; j > 0 && scanData[idx[j]].rssi > scanData[idx[j - 1]].rssi; j--) { int t = idx[j]; idx[j] = idx[j - 1]; idx[j - 1] = t; }
+  if(n > max) n = max;
+  for(int i = 0; i < n; i++) freqs[i] = scanStartFreq + scanStep * idx[i];
+  return(n);
+}
