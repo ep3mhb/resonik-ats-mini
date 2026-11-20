@@ -633,6 +633,8 @@ static uint8_t catGetSmeter() { return(catSmeterFromRssi(rssi)); }
 static uint8_t catGetVolume() { return((uint8_t)(volume * 255 / 63)); }
 static void catSetVolume(uint8_t v) { doVolume((int16_t)(v * 63 / 255) - (int16_t)volume); }
 
+bool resonikTuneHz(uint32_t hz) { return(catSetFreq(hz)); }
+
 static const CatRadio catRadio = { catGetFreq, catSetFreq, catGetMode, catSetMode, catGetSmeter, catGetVolume, catSetVolume };
 static CatKenwood cat;
 
