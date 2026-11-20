@@ -596,10 +596,14 @@ bool consumeAbortPending()
 }
 
 // This function is called by the seek function process.
+// RESONIK R5: Web Control follows a seek started from the page
+void (*seekProgressHook)(uint32_t hz) = nullptr;
+
 void showFrequencySeek(uint16_t freq)
 {
   currentFrequency = freqToHz(freq, currentMode);
   drawScreen();
+  if(seekProgressHook) seekProgressHook(currentFrequency);
 }
 
 //
@@ -647,7 +651,7 @@ uint32_t ssbSeek(int dir, void (*progress)(uint32_t hz), uint8_t *seen, int *cou
   return(found);
 }
 
-static void seekShowProgress(uint32_t hz)
+void seekShowProgress(uint32_t hz)
 {
   uint32_t keep = currentFrequency;
   currentFrequency = hz;

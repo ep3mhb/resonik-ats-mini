@@ -75,6 +75,8 @@ public:
 static NullStream nullStream;
 
 bool doSeek(int16_t enc, int16_t enca);    // ats-mini.ino
+extern void (*seekProgressHook)(uint32_t hz);   // ats-mini.ino (R5)
+void seekShowProgress(uint32_t hz);              // ats-mini.ino: the radio's screen
 
 static InputEvent webReadInput(uint8_t &byte)
 {
@@ -440,6 +442,13 @@ static void webSeekProgress(uint32_t hz)
   ws.textAll(j);
 }
 
+// R5: the radio's screen and the page both follow the search
+static void webSeekBoth(uint32_t hz)
+{
+  seekShowProgress(hz);
+  webSeekProgress(hz);
+}
+
 static void webSeekSsb(int dir)
 {
   static uint8_t seen[200];
@@ -448,7 +457,7 @@ static void webSeekSsb(int dir)
   uint32_t start = (currentFrequency / 1000) * 1000;
   webBusy = true;
   webAbort = false;
-  uint32_t found = ssbSeek(dir, webSeekProgress, seen, &n, &thr, &why);
+  uint32_t found = ssbSeek(dir, webSeekBoth, seen, &n, &thr, &why);
   clearStationInfo();
   identifyFrequency(currentFrequency);
   webBusy = false;
@@ -691,7 +700,14 @@ bool webControlTick()
     webBusy = true;
     webAbort = false;
     if(isSSB()) webSeekSsb(sk);
-    else doSeek(sk, sk);
+    else
+    {
+      // AM and FM: the chip seeks; the page shows each frequency it passes
+      seekProgressHook = webSeekProgress;
+      doSeek(sk, sk);
+      seekProgressHook = nullptr;
+      ws.textAll("{\"note\":\"Seek done\"}");
+    }
     webBusy = false;
     webAbort = false;
     // R5: the page showed the frequencies tried; send where the radio
