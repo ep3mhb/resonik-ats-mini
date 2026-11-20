@@ -19,7 +19,7 @@
     "url": "https://resonik.mikroutik.com/",
     "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "ATS Mini receiver (ESP32-S3 + SI4732)",
-    "softwareVersion": "v2.45-r4",
+    "softwareVersion": "v2.46-r4",
     "license": "https://opensource.org/licenses/MIT",
     "isAccessibleForFree": true,
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
@@ -57,7 +57,7 @@
     <section class="hero">
       <div class="wrap hero-in">
         <div>
-          <p class="kicker">ATS Mini firmware · <span class="badge">v2.45-r4</span> · 15 November 2026</p>
+          <p class="kicker">ATS Mini firmware · <span class="badge">v2.46-r4</span> · 20 November 2026</p>
           <h1>A sharper ATS Mini, for listeners and radio amateurs.</h1>
           <p class="lead">RESONIK is free, open-source firmware for the ATS Mini pocket receiver (ESP32-S3 + SI4732). It keeps everything the official <a href="https://github.com/esp32-si4732/ats-mini" rel="noopener">ats-mini</a> firmware does and adds full control from your phone or computer, FT8, FT4 and CW decoders, a band scanner, an automatic band plan, a dual clock, a beacon tracker, a new menu and more.</p>
           <p class="hint">Free firmware update for the ATS Mini V3, V4 and V4B (ESP32-S3 + SI4732), with a one-click browser installer.</p>
@@ -79,7 +79,8 @@
         <h2>Install</h2>
         <p class="lead">Straight from this page, over USB. No software to install, and your settings, memories and Wi-Fi networks are kept.</p>
         <div class="beta">
-          <p><b>New: R4 (15 November 2026).</b> Web Control: the whole radio in your phone's or computer's browser, with a band scope and a live beacon map. Wi-Fi set up on the radio itself with an on-screen keyboard. Seek in SSB and CW, and the classic menu with the six groups. Already on R2 or R3? Update over Wi-Fi: <span class="ui">Menu → System → Update FW</span>. <a href="https://github.com/ep3mhb/resonik-ats-mini/releases/tag/v2.45-r4" rel="noopener">Release notes</a>.</p>
+          <p><b>New: R4.1 (20 November 2026).</b> Brought up to ats-mini 2.46: mute and squelch now hold across band and mode changes, and the CW decoder page no longer turns the sound down. <a href="https://github.com/ep3mhb/resonik-ats-mini/releases/tag/v2.46-r4" rel="noopener">Release notes</a>.</p>
+          <p><b>R4 (15 November 2026).</b> Web Control: the whole radio in your phone's or computer's browser, with a band scope and a live beacon map. Wi-Fi set up on the radio itself with an on-screen keyboard. Seek in SSB and CW, and the classic menu with the six groups. Already on R2, R3 or R4? Update over Wi-Fi: <span class="ui">Menu → System → Update FW</span>. <a href="https://github.com/ep3mhb/resonik-ats-mini/releases/tag/v2.45-r4" rel="noopener">Release notes</a>.</p>
         </div>
 
         <ol class="steps">
@@ -117,7 +118,7 @@
             <li><b>Back up first.</b> A full copy of the radio's flash lets you return to exactly what you have now. See the upstream <a href="https://esp32-si4732.github.io/ats-mini/recovery.html" rel="noopener">backup and recovery guide</a>.</li>
             <li><b>The port does not appear?</b> Try another cable (many are charge-only) or another USB port, and close any other program using the radio.</li>
             <li><b>Already on RESONIK?</b> Later versions install over Wi-Fi: <span class="ui">Menu → System → Update FW</span> (on r1: <span class="ui">Settings → Update FW</span>).</li>
-            <li><b>By hand with esptool-js or esptool:</b> download <code>resonik-ats-mini-v2.45-r4-ospi.zip</code> (or <code>-qspi</code>) from <a href="https://github.com/ep3mhb/resonik-ats-mini/releases/latest" rel="noopener">GitHub</a> and flash <code>ats-mini.ino.bootloader.bin</code> at <code>0x0</code>, <code>ats-mini.ino.partitions.bin</code> at <code>0x8000</code>, <code>boot_app0.bin</code> at <code>0xe000</code> and <code>ats-mini.ino.bin</code> at <code>0x10000</code>.</li>
+            <li><b>By hand with esptool-js or esptool:</b> download <code>resonik-ats-mini-v2.46-r4-ospi.zip</code> (or <code>-qspi</code>) from <a href="https://github.com/ep3mhb/resonik-ats-mini/releases/latest" rel="noopener">GitHub</a> and flash <code>ats-mini.ino.bootloader.bin</code> at <code>0x0</code>, <code>ats-mini.ino.partitions.bin</code> at <code>0x8000</code>, <code>boot_app0.bin</code> at <code>0xe000</code> and <code>ats-mini.ino.bin</code> at <code>0x10000</code>.</li>
             <li><b>Going back</b> to the official firmware is the same procedure with the official files.</li>
           </ul>
         </details>
@@ -149,7 +150,7 @@
           <article class="feat"><i style="--c:#FFD167"></i><h3>Propagation</h3><p>Solar flux, sunspots, A and K index and HF band conditions from hamqsl.com, fetched over Wi-Fi. <small>r2</small></p></article>
           <article class="feat"><i style="--c:#108AB1"></i><h3>CAT control</h3><p>Kenwood TS-480 commands over USB, for flrig, Hamlib, WSJT-X (receive), fldigi and logging programs. <small>r2</small></p></article>
           <article class="feat"><i style="--c:#F78C6A"></i><h3>Better EiBi schedules</h3><p>The season's schedule with days of the week, language and target area, so you only see stations that are on today. <small>r2</small></p></article>
-          <article class="feat"><i style="--c:#F6F5F1"></i><h3>Everything else, unchanged</h3><p>All bands, modes, memories, RDS, Wi-Fi and Bluetooth of ats-mini 2.45.</p></article>
+          <article class="feat"><i style="--c:#F6F5F1"></i><h3>Everything else, unchanged</h3><p>All bands, modes, memories, RDS, Wi-Fi and Bluetooth of ats-mini 2.46.</p></article>
         </div>
         <figure class="shot wide">
           <img src="img/radio-main.jpg" srcset="img/radio-main-700.jpg 700w, img/radio-main.jpg 1400w" sizes="(max-width: 1000px) 100vw, 960px" width="1400" height="605" loading="lazy" alt="ATS Mini receiving FM at 93.40 MHz with the info box showing step, bandwidth, AGC and volume">
@@ -161,7 +162,7 @@
     <section id="fa" class="band fa" lang="fa" dir="rtl">
       <div class="wrap">
         <h2>فارسی</h2>
-        <p class="lead">RESONIK فریم‌وری رایگان و متن‌باز برای رادیوی جیبی <bdi>ATS Mini</bdi> است، بر پایهٔ فریم‌ور رسمی <bdi>ats-mini 2.45</bdi>، با حالت <bdi>CW</bdi>، نقشهٔ باند <bdi>IARU</bdi> منطقهٔ ۱ و انتخاب خودکار <bdi>LSB/USB</bdi>، ساعت دوگانهٔ <bdi>UTC</bdi> و محلی، نمایش زمان باقی‌ماندهٔ باتری، تضعیف خودکار؛ و از نسخهٔ <bdi>R2</bdi>: منوی جدید با شش دسته، ردیاب بیکن‌های <bdi>NCDXF/IARU</bdi>، اسکن حافظه‌ها، ثبت سیگنال، شرایط انتشار امواج، کنترل <bdi>CAT</bdi> و برنامهٔ ایستگاه‌های <bdi>EiBi</bdi> همراه با روزهای پخش؛ و از نسخهٔ <bdi>R3</bdi>: دیکودر <bdi>FT8/FT4</bdi> و <bdi>CW</bdi>، اسکنر باند، نقشهٔ باند خودکار برای منطقه‌های ۱، ۲ و ۳، قفل فرکانس، توان وای‌فای و سرعت پردازنده؛ و از نسخهٔ <bdi>R4</bdi>: کنترل کامل رادیو از مرورگر گوشی یا کامپیوتر، نقشهٔ زندهٔ بیکن‌ها، اتصال وای‌فای روی خود رادیو با صفحه‌کلید، و <bdi>Seek</bdi> در <bdi>SSB</bdi> و <bdi>CW</bdi>.</p>
+        <p class="lead">RESONIK فریم‌وری رایگان و متن‌باز برای رادیوی جیبی <bdi>ATS Mini</bdi> است، بر پایهٔ فریم‌ور رسمی <bdi>ats-mini 2.46</bdi>، با حالت <bdi>CW</bdi>، نقشهٔ باند <bdi>IARU</bdi> منطقهٔ ۱ و انتخاب خودکار <bdi>LSB/USB</bdi>، ساعت دوگانهٔ <bdi>UTC</bdi> و محلی، نمایش زمان باقی‌ماندهٔ باتری، تضعیف خودکار؛ و از نسخهٔ <bdi>R2</bdi>: منوی جدید با شش دسته، ردیاب بیکن‌های <bdi>NCDXF/IARU</bdi>، اسکن حافظه‌ها، ثبت سیگنال، شرایط انتشار امواج، کنترل <bdi>CAT</bdi> و برنامهٔ ایستگاه‌های <bdi>EiBi</bdi> همراه با روزهای پخش؛ و از نسخهٔ <bdi>R3</bdi>: دیکودر <bdi>FT8/FT4</bdi> و <bdi>CW</bdi>، اسکنر باند، نقشهٔ باند خودکار برای منطقه‌های ۱، ۲ و ۳، قفل فرکانس، توان وای‌فای و سرعت پردازنده؛ و از نسخهٔ <bdi>R4</bdi>: کنترل کامل رادیو از مرورگر گوشی یا کامپیوتر، نقشهٔ زندهٔ بیکن‌ها، اتصال وای‌فای روی خود رادیو با صفحه‌کلید، و <bdi>Seek</bdi> در <bdi>SSB</bdi> و <bdi>CW</bdi>.</p>
         <p>به‌روزرسانی رایگان فریمور رادیو <bdi>ATS Mini</bdi> مدل‌های <bdi>V3</bdi>، <bdi>V4</bdi> و <bdi>V4B</bdi>، با نصب مستقیم از مرورگر.</p>
         <div class="beta"><p><b>نسخهٔ جدید <bdi>R4</bdi> (۲۴ آبان ۱۴۰۵):</b> کنترل کامل رادیو از مرورگر با نمای باند و نقشهٔ زندهٔ بیکن‌ها، اتصال وای‌فای روی خود رادیو با صفحه‌کلید، <bdi>Seek</bdi> در <bdi>SSB</bdi> و <bdi>CW</bdi> و منوی کلاسیک با شش دسته. اگر <bdi>R2</bdi> یا <bdi>R3</bdi> دارید، از راه وای‌فای به‌روز کنید: <bdi class="ui">Menu → System → Update FW</bdi>. <a href="https://github.com/ep3mhb/resonik-ats-mini/releases/tag/v2.45-r4" rel="noopener">یادداشت‌های انتشار</a>.</p></div>
         <ol class="steps">
