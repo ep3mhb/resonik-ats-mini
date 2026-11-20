@@ -35,6 +35,26 @@
 
 static AsyncWebSocket ws("/ws");
 
+// R5: a message only when every browser can take it; a full connection is
+// never fed more (it used to pile up until the web server stopped answering)
+static void wsSend(const String &j) { if(ws.availableForWriteAll()) ws.textAll(j); }
+static void wsSend(const char *j) { if(ws.availableForWriteAll()) ws.textAll(j); }
+
+// R5: a browser whose connection stays full for 5 s is closed; it reconnects
+// at once with a clean queue instead of the page freezing
+static void wsDropStalled(uint32_t now)
+{
+  static uint32_t stalledId[4] = { 0 }, stalledSince[4] = { 0 };
+  for(auto &c : ws.getClients())
+  {
+    int k = -1, freeK = -1;
+    for(int i = 0; i < 4; i++) { if(stalledId[i] == c.id()) k = i; if(!stalledId[i] && freeK < 0) freeK = i; }
+    if(c.status() != WS_CONNECTED || c.canSend()) { if(k >= 0) stalledId[k] = 0; continue; }
+    if(k < 0) { if(freeK >= 0) { stalledId[freeK] = c.id(); stalledSince[freeK] = now; } continue; }
+    if(now - stalledSince[k] > 5000) { c.close(); stalledId[k] = 0; }
+  }
+}
+
 // Command bytes from the socket task to the main loop
 static std::mutex inMutex;
 static uint8_t inBuf[512];
@@ -444,6 +464,12 @@ static void speakerTick(bool wanted)
 //
 static void webSeekProgress(uint32_t hz)
 {
+  // R5: at most four a second, and never into a full connection: the chip's
+  // own seek (AM, FM) reports every channel, and on an empty band (11 m) the
+  // messages piled up until the web server stopped answering
+  static uint32_t last = 0;
+  if(millis() - last < 250 || !ws.availableForWriteAll()) return;
+  last = millis();
   char j[40];
   snprintf(j, sizeof(j), "{\"seekf\":%lu}", (unsigned long)hz);
   ws.textAll(j);
@@ -475,7 +501,7 @@ static void webSeekSsb(int dir)
   else if(why == 1) snprintf(j, sizeof(j), "{\"note\":\"Seek stopped\"}");
   else snprintf(j, sizeof(j), "{\"note\":\"Seek: nothing above the noise %s, back to the start\"}",
                 why == 3 ? "up to the band edge" : "in 200 kHz");
-  ws.textAll(j);
+  wsSend(j);
 
   // What it measured, lowest frequency first, with the threshold
   if(n > 200) n = 200;
@@ -491,7 +517,7 @@ static void webSeekSsb(int dir)
     sc += "],\"s\":[";
     for(int i = 0; i < n; i++) { if(i) sc += ','; sc += '0'; }
     sc += "]}";
-    ws.textAll(sc);
+    wsSend(sc);
   }
 }
 
@@ -548,7 +574,7 @@ static void webScope()
   j += "],\"s\":[";
   for(int i = 0; i < n; i++) { if(i) j += ','; j += q[i]; }
   j += "]}";
-  ws.textAll(j);
+  wsSend(j);
 }
 
 // Text for JSON: quotes, backslashes and control characters escaped,
@@ -606,7 +632,7 @@ static void webSendPanel(bool force)
   j += '}';
   if(!force && j == last) return;
   last = j;
-  ws.textAll(j);
+  wsSend(j);
 }
 
 //
@@ -631,7 +657,7 @@ static void webBeaconTick()
       char j[96];
       snprintf(j, sizeof(j), "{\"bcn\":1,\"b\":%d,\"i\":%d,\"r\":%u,\"q\":%u,\"t\":%lu}",
                curBand, ibpBeaconOn(curBand, curSlot * 10), maxR, maxQ, (unsigned long)(curSlot * 10));
-      ws.textAll(j);
+      wsSend(j);
     }
     whole = next;                          // A slot joined part way is not reported
     curBand = band;
@@ -667,6 +693,7 @@ bool webControlTick()
   {
     lastCleanup = now;
     ws.cleanupClients(3);
+    wsDropStalled(now);
   }
   if(!ws.count())
   {
@@ -722,7 +749,7 @@ bool webControlTick()
       seekProgressHook = webSeekProgress;
       doSeek(sk, sk);
       seekProgressHook = nullptr;
-      ws.textAll("{\"note\":\"Seek done\"}");
+      wsSend("{\"note\":\"Seek done\"}");
     }
     webBusy = false;
     webAbort = false;
@@ -867,7 +894,7 @@ bool webControlTick()
       audioInputLevel(), (unsigned)ws.count(), (unsigned long)currentFrequency,
       (unsigned long)avgUs, (unsigned long)maxUs, (unsigned long)late, (unsigned long)getCpuFrequencyMhz(), spkName[(int)spk],
       (unsigned long)caughtUp, (unsigned long)overrun, (unsigned long)audioSendWaits);
-    ws.textAll(json);
+    wsSend(json);
   }
   return(redraw);
 }

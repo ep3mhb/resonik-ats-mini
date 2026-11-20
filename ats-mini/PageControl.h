@@ -182,12 +182,18 @@ const cv=document.getElementById('c'),cx=cv.getContext('2d'),img=cx.createImageD
 for(let i=3;i<px.length;i+=4)px[i]=255;
 const st=document.getElementById('st'),ai=document.getElementById('ai');
 let ws=null,dirty=false;
+// R5: the radio sends its status every second; silence for 8 s means the
+// connection is stuck (it can stay open while nothing gets through), so the
+// page closes it and connects again instead of freezing
+let lastMsg=Date.now();
+setInterval(()=>{if(ws&&ws.readyState===1&&Date.now()-lastMsg>8000){st.textContent='reconnecting';st.className='';const old=ws;old.onclose=null;old.onmessage=null;try{old.close();}catch(e){}setTimeout(connect,500);}},2000);
 function connect(){
+ lastMsg=Date.now();
  ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws');
  ws.binaryType='arraybuffer';
  ws.onopen=()=>{st.textContent='live';st.className='on';if(scrOpen)ws.send('!screen1');if(document.querySelector('section[data-tab="dec"].on'))ws.send('!dec1');if(listening){ws.send('!audio1');ws.send('!mute'+document.getElementById('sil').value);}};
  ws.onclose=()=>{st.textContent='offline';st.className='';setTimeout(connect,2000);};
- ws.onmessage=e=>{
+ ws.onmessage=e=>{lastMsg=Date.now();
   if(typeof e.data==='string'){const j=JSON.parse(e.data);
    if(j.dec||j.dg||j.sp){if(j.dec)dDecodes(j.dec);if(j.dg)dText(j.dg);if(j.sp)dSpec(j.sp);if(j.fx)dFax(j.fx);}else if(j.p)panel(j);else if(j.bcn)beaconReport(j);else if(j.seekf)seekShow(j.seekf);else if(j.note)note(j.note);else if(j.scope)scope(j);else if(j.def)buildSets(j.def);else if(j.v)vals(j);else if(j.mem)mems(j.mem);else status(j);return;}
   const b=new Uint8Array(e.data);
