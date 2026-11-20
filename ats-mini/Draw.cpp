@@ -11,6 +11,7 @@
 #include "CwAudio.h"
 #include "Ft8.h"
 #include "UpdateNotice.h"
+#include "FreqPad.h"
 
 //
 // Draw preferences write indicator
@@ -532,6 +533,13 @@ void drawScreen()
   if(currentCmd==CMD_ABOUT)
   {
     drawAbout();
+    return;
+  }
+
+  // Number pad (RESONIK R5)
+  if(currentCmd==CMD_FREQPAD)
+  {
+    drawFreqPad();
     return;
   }
 

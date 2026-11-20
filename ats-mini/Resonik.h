@@ -9,6 +9,7 @@
 
 // Tune any frequency and mode, switching band when needed
 bool tuneToFrequency(uint32_t hz, uint8_t mode);
+bool resonikTuneHz(uint32_t hz);   // R5: tune anywhere, changing band if needed (as CAT)
 
 // NCDXF/IARU beacons
 const char *beaconLabel(uint32_t freq);      // Station line text on a beacon frequency, or nullptr
