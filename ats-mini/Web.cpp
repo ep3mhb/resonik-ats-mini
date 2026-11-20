@@ -32,6 +32,7 @@
 #include <LittleFS.h>
 #include <time.h>
 #include <esp_heap_caps.h>
+#include <esp_system.h>
 
 #define SPLASH_MAX_FILE_SIZE (512U * 1024U)
 
@@ -740,8 +741,35 @@ static const String webRadioPage()
     ssid = String(RECEIVER_NAME);
   }
 
+  // RESONIK R5: uptime, last restart, temperature, memory, Wi-Fi signal
+  uint32_t up = millis() / 1000;
+  char uptime[24];
+  if(up >= 86400) snprintf(uptime, sizeof(uptime), "%ud %uh %02um", (unsigned)(up / 86400), (unsigned)(up / 3600 % 24), (unsigned)(up / 60 % 60));
+  else snprintf(uptime, sizeof(uptime), "%uh %02um %02us", (unsigned)(up / 3600), (unsigned)(up / 60 % 60), (unsigned)(up % 60));
+  const char *reset;
+  switch(esp_reset_reason())
+  {
+    case ESP_RST_POWERON:  reset = "Switched on"; break;
+    case ESP_RST_SW:       reset = "Restarted by the firmware (update, settings)"; break;
+    case ESP_RST_PANIC:    reset = "Crash (software error)"; break;
+    case ESP_RST_INT_WDT:
+    case ESP_RST_TASK_WDT:
+    case ESP_RST_WDT:      reset = "Watchdog (the firmware hung)"; break;
+    case ESP_RST_BROWNOUT: reset = "Low voltage (brownout)"; break;
+    case ESP_RST_DEEPSLEEP: reset = "Woke from sleep"; break;
+    case ESP_RST_EXT:      reset = "Reset button"; break;
+    case ESP_RST_USB:      reset = "USB"; break;
+    default:               reset = "Unknown"; break;
+  }
+  String wrssi = WiFi.status() == WL_CONNECTED ? String(WiFi.RSSI()) + " dBm" : String("Not connected");
   return webPage(pageStatus, pageStatusTitle, {
     {"title", pageStatusTitle},
+    {"uptime", String(uptime)}, {"reset", String(reset)},
+    {"temp", String(temperatureRead(), 0)}, {"cpu", String(getCpuFrequencyMhz())},
+    {"heap", String(heap_caps_get_free_size(MALLOC_CAP_INTERNAL) / 1024)},
+    {"psram", String(heap_caps_get_free_size(MALLOC_CAP_SPIRAM) / 1024)},
+    {"heapmin", String(heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL) / 1024)},
+    {"wrssi", wrssi},
     {"ip", ip}, {"ssid", ssid},
     {"mac", String(getMACAddress())}, {"version", String(getVersion(true))},
     {"time", receiverTime}, {"band", getCurrentBand()->bandName},

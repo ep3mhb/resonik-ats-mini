@@ -17,6 +17,11 @@ static const char pageStatus[] PROGMEM = R"HTML(<H1>{{title}}</H1>
   <TR><TD CLASS="LABEL">Signal Strength</TD><TD>{{rssi}}dBuV</TD></TR>
   <TR><TD CLASS="LABEL">Signal to Noise</TD><TD>{{snr}}dB</TD></TR>
   <TR><TD CLASS="LABEL">Battery Voltage</TD><TD>{{battery}}V</TD></TR>
+  <TR><TD CLASS="LABEL">Running for</TD><TD>{{uptime}}</TD></TR>
+  <TR><TD CLASS="LABEL">Last restart</TD><TD>{{reset}}</TD></TR>
+  <TR><TD CLASS="LABEL">Processor</TD><TD>{{temp}} &deg;C, {{cpu}} MHz</TD></TR>
+  <TR><TD CLASS="LABEL">Memory free</TD><TD>{{heap}} KiB internal, {{psram}} KiB PSRAM (lowest {{heapmin}} KiB)</TD></TR>
+  <TR><TD CLASS="LABEL">Wi-Fi signal</TD><TD>{{wrssi}}</TD></TR>
 </TABLE>
 <P CLASS="CENTER"><A HREF="/screenshot.bmp">Download screenshot</A></P>
 )HTML";
