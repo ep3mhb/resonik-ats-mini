@@ -1,0 +1,1 @@
+**WEFAX** (radiofax) on the Digital page: weather charts at 120 lines a minute, drawn on the radio and, larger, in the Decodes tab of Web Control, where **Save picture** downloads it. Tune 1.9 kHz below the published frequency in USB.

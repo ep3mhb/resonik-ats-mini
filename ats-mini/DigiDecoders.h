@@ -414,6 +414,97 @@ private:
   }
 };
 
+//
+// WEFAX (radiofax): 120 lines a minute, IOC 576, black 1500 Hz, white
+// 2300 Hz. The frequency of the carrier is measured sample by sample and
+// averaged into 300 pixels a line; phasing lines (black with a short white
+// pulse at the line start) set where a line begins.
+//
+class Wefax
+{
+public:
+  static const int W = 300;          // Pixels per line kept
+  static const int LINES = 128;      // Lines kept
+  void begin(float fs)
+  {
+    this->fs = fs;
+    spl = fs * 0.5f;                 // Samples per line
+    ph = 0; pRe = 1; pIm = 0;
+    for(int i = 0; i < 4; i++) { bRe[i] = bIm[i] = 0; }
+    bPos = 0; aRe = aIm = 0;
+    t = 0; px = 0; acc = 0; accN = 0;
+    lines = 0; head = 0; align = 0;
+    memset(pulseVotes, 0, sizeof(pulseVotes));
+    memset(img, 0, sizeof(img));
+  }
+  void push(const int16_t *x, int n)
+  {
+    for(int i = 0; i < n; i++)
+    {
+      // Mix 1900 Hz to zero, smooth four samples, measure the phase step
+      ph += 2 * (float)M_PI * 1900 / fs;
+      if(ph > (float)M_PI) ph -= 2 * (float)M_PI;
+      float r = x[i] * cosf(ph), q = -x[i] * sinf(ph);
+      aRe += r - bRe[bPos]; aIm += q - bIm[bPos];
+      bRe[bPos] = r; bIm[bPos] = q;
+      bPos = (bPos + 1) & 3;
+      float dRe = aRe * pRe + aIm * pIm, dIm = aIm * pRe - aRe * pIm;
+      pRe = aRe; pIm = aIm;
+      float hz = 1900 + atan2f(dIm, dRe) * fs / (2 * (float)M_PI);
+      float v = (hz - 1500) / 800;
+      acc += v < 0 ? 0 : v > 1 ? 1 : v;
+      accN++;
+      t += 1;
+      int p = (int)(t * W / spl);
+      if(p != px && p < W)
+      {
+        line[px] = (uint8_t)(acc / accN * 255);
+        acc = 0; accN = 0; px = p;
+      }
+      if(t >= spl)
+      {
+        t -= spl;
+        line[W - 1] = accN ? (uint8_t)(acc / accN * 255) : line[W - 2];
+        acc = 0; accN = 0; px = 0;
+        endLine();
+      }
+    }
+  }
+  const uint8_t *row(int back) const { return(img[(head - 1 - back + LINES) % LINES]); }
+  int count() const { return(lines < LINES ? lines : LINES); }
+  uint32_t total() const { return(lines); }
+
+private:
+  float fs = 6000, spl = 3000, ph = 0, pRe = 1, pIm = 0, t = 0;
+  float bRe[4], bIm[4], aRe = 0, aIm = 0;
+  int bPos = 0, px = 0, accN = 0;
+  float acc = 0;
+  uint8_t line[W];
+  uint8_t img[LINES][W];
+  uint32_t lines = 0;
+  int head = 0, align = 0;
+  uint16_t pulseVotes[W];
+
+  void endLine()
+  {
+    // A phasing line: mostly black with one short white stretch (about 5 %
+    // of the line). Its start, seen over several lines, is the line start.
+    int white = 0, first = -1;
+    for(int i = 0; i < W; i++) if(line[i] > 160) { if(first < 0) first = i; white++; }
+    if(white >= W / 40 && white <= W / 8 && first >= 0)
+    {
+      pulseVotes[first]++;
+      int best = 0;
+      for(int i = 1; i < W; i++) if(pulseVotes[i] > pulseVotes[best]) best = i;
+      if(pulseVotes[best] >= 5) align = best;
+    }
+    uint8_t *dst = img[head];
+    for(int i = 0; i < W; i++) dst[i] = line[(i + align) % W];
+    head = (head + 1) % LINES;
+    lines++;
+  }
+};
+
 } // namespace Digi
 
 #endif // DIGI_DECODERS_H

@@ -35,9 +35,9 @@
 #define SPEC_HI      2700
 #define SPEC_W       296
 
-enum DigiMode { DM_RTTY, DM_DWD, DM_NAVTEX, DM_PSK31, DM_COUNT };
-static const char *const modeName[DM_COUNT] = { "RTTY", "RTTY DWD", "NAVTEX", "PSK31" };
-static const char *const modeInfo[DM_COUNT] = { "45.45 Bd 170 Hz", "50 Bd 450 Hz", "100 Bd 518 kHz", "31.25 Bd BPSK" };
+enum DigiMode { DM_RTTY, DM_DWD, DM_NAVTEX, DM_PSK31, DM_WEFAX, DM_COUNT };
+static const char *const modeName[DM_COUNT] = { "RTTY", "RTTY DWD", "NAVTEX", "PSK31", "WEFAX" };
+static const char *const modeInfo[DM_COUNT] = { "45.45 Bd 170 Hz", "50 Bd 450 Hz", "100 Bd 518 kHz", "31.25 Bd BPSK", "120 lpm, dial -1.9 kHz" };
 
 static int16_t *ring = nullptr;
 static SemaphoreHandle_t lock = nullptr;
@@ -55,6 +55,8 @@ static uint32_t openedAt = 0;
 static Digi::Rtty *rtty = nullptr;
 static Digi::Navtex *navtex = nullptr;
 static Digi::Psk31 *psk = nullptr;
+static Digi::Wefax *fax = nullptr;
+static uint32_t faxSent = 0;          // Lines sent to the browser
 static char shownText[Digi::TEXT_MAX + 1];
 static uint8_t spec[SPEC_W];          // Spectrum, 0..255
 static volatile float centre = 1500;  // Signal found, Hz
@@ -67,7 +69,7 @@ static Digi::Text *activeText()
   {
     case DM_RTTY: case DM_DWD: return(&rtty->text);
     case DM_NAVTEX: return(&navtex->text);
-    default: return(&psk->text);
+    default: return(&psk->text);   // (WEFAX has no text: PSK31's is cleared)
   }
 }
 
@@ -78,6 +80,7 @@ static void beginDecoder(int m, float c)
     case DM_RTTY:   rtty->begin(FS, 45.45f, 170, c); break;
     case DM_DWD:    rtty->begin(FS, 50, 450, c); break;
     case DM_NAVTEX: navtex->begin(FS, c); break;
+    case DM_WEFAX:  fax->begin(FS); psk->begin(FS, c); faxSent = 0; break;
     default:        psk->begin(FS, c); break;
   }
 }
@@ -151,6 +154,7 @@ static void work(void *)
       {
         case DM_RTTY: case DM_DWD: rtty->push(buf, n); break;
         case DM_NAVTEX: navtex->push(buf, n); break;
+        case DM_WEFAX: { uint32_t was = fax->total(); fax->push(buf, n); if(fax->total() != was) changes++; break; }
         default: psk->push(buf, n); break;
       }
       Digi::Text *t = activeText();
@@ -192,7 +196,11 @@ static void work(void *)
         int k0 = (int)(SPEC_LO / hzPerBin), k1 = (int)(SPEC_HI / hzPerBin);
         for(int k = k0; k <= k1; k++) floorP += avgPower[k];
         floorP /= (k1 - k0 + 1);
-        if(m == DM_PSK31)
+        if(m == DM_WEFAX)
+        {
+          bestScore = 0;   // Fixed at 1900 Hz: no search
+        }
+        else if(m == DM_PSK31)
         {
           for(int k = k0; k <= k1; k++) if(avgPower[k] > bestScore) { bestScore = avgPower[k]; bestHz = k * hzPerBin; }
         }
@@ -208,7 +216,8 @@ static void work(void *)
             if(sc > bestScore) { bestScore = sc; bestHz = k * hzPerBin; }
           }
         }
-        bool sig = bestScore > floorP * 12;
+        bool sig = m == DM_WEFAX ? true : bestScore > floorP * 12;
+        if(m == DM_WEFAX) bestHz = 1900;
         found = sig;
         // Follow the signal; PSK31 tracks its own carrier once it reads
         if(sig && fabsf(bestHz - lastCentre) > (m == DM_PSK31 ? 4.0f : 12.0f) &&
@@ -258,10 +267,11 @@ static bool start()
 {
   if(!lock) lock = xSemaphoreCreateMutex();
   if(!ring) ring = (int16_t *)heap_caps_malloc(RING * sizeof(int16_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+  if(!fax) fax = new (heap_caps_malloc(sizeof(Digi::Wefax), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT)) Digi::Wefax();
   if(!rtty) rtty = new (heap_caps_malloc(sizeof(Digi::Rtty), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT)) Digi::Rtty();
   if(!navtex) navtex = new (heap_caps_malloc(sizeof(Digi::Navtex), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT)) Digi::Navtex();
   if(!psk) psk = new (heap_caps_malloc(sizeof(Digi::Psk31), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT)) Digi::Psk31();
-  if(!ring || !rtty || !navtex || !psk)
+  if(!ring || !rtty || !navtex || !psk || !fax)
   {
     statusShow("Digital", "Not enough memory");
     return(false);
@@ -273,7 +283,7 @@ static bool start()
   cpuSaved = getCpuFrequencyMhz();
   if(cpuSaved < 240) setCpuFrequencyMhz(240);
   workMode = mode;
-  centre = mode == DM_PSK31 ? 1000 : 1500;
+  centre = mode == DM_PSK31 ? 1000 : mode == DM_WEFAX ? 1900 : 1500;
   audioFt8Ring(ring, RING);
   openedAt = millis();
   generation++;
@@ -309,7 +319,31 @@ bool digiWebState(uint32_t *seen, String &j)
   j += "\"},\"sp\":{\"lo\":";
   j += SPEC_LO; j += ",\"hi\":"; j += SPEC_HI; j += ",\"v\":[";
   for(int x = 0; x < 74; x++) { if(x) j += ','; j += spec[x * SPEC_W / 74]; }
-  j += "]}}";
+  j += "]}";
+  // WEFAX: the lines not yet sent, 150 pixels each, at most 4 at a time
+  if(mode == DM_WEFAX && fax)
+  {
+    uint32_t total = fax->total();
+    if(total - faxSent > 4) faxSent = total - 4;
+    if(total != faxSent)
+    {
+      j += ",\"fx\":[";
+      bool first = true;
+      xSemaphoreTake(lock, portMAX_DELAY);
+      for(; faxSent < total; faxSent++)
+      {
+        const uint8_t *r = fax->row(total - 1 - faxSent);
+        if(!first) j += ',';
+        first = false;
+        j += '[';
+        for(int x = 0; x < 150; x++) { if(x) j += ','; j += r[x * 2]; }
+        j += ']';
+      }
+      xSemaphoreGive(lock);
+      j += ']';
+    }
+  }
+  j += "}";
   return(true);
 }
 
@@ -321,7 +355,7 @@ void digiClick(bool shortPress)
   tuneForMode();
   audioOn();
   workMode = mode;
-  centre = mode == DM_PSK31 ? 1000 : 1500;
+  centre = mode == DM_PSK31 ? 1000 : mode == DM_WEFAX ? 1900 : 1500;
   generation++;
 }
 
@@ -388,6 +422,24 @@ void drawDigiPage()
   float half = mode == DM_DWD ? 225 : mode == DM_PSK31 ? 0 : 85;
   if(half) { spr.drawFastVLine(hzX(centre - half), sy, sh, DG_RGB(0xF04770)); spr.drawFastVLine(hzX(centre + half), sy, sh, DG_RGB(0xF04770)); }
   else spr.drawFastVLine(hzX(centre), sy, sh, DG_RGB(0xF04770));
+
+  // WEFAX: the picture, newest line at the bottom
+  if(mode == DM_WEFAX && fax && lock)
+  {
+    xSemaphoreTake(lock, portMAX_DELAY);
+    int n = fax->count() < 98 ? fax->count() : 98;
+    for(int r = 0; r < n; r++)
+    {
+      const uint8_t *row = fax->row(r);
+      int y = 64 + 97 - r;
+      for(int x = 0; x < 296; x++) { uint8_t v = row[x * Digi::Wefax::W / 296]; spr.drawPixel(12 + x, y, spr.color565(v, v, v)); }
+    }
+    xSemaphoreGive(lock);
+    spr.setTextDatum(BC_DATUM);
+    spr.setTextColor(DG_RGB(0x8FB3C0));
+    spr.drawString("Turn: tune  Click: mode  Press: leave", 160, 169, uiFont(true));
+    return;
+  }
 
   // Text: the last characters, five lines of 32
   char text[Digi::TEXT_MAX + 1];

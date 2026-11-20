@@ -145,6 +145,8 @@ section[data-tab]>:first-child{margin-top:0}
  <p class="hint" id="bhint">Pulsing rings show the five beacons on the air now, one per frequency, each for 10 seconds. Tap a frequency to tune there in CW: the radio then checks every beacon slot and colours what it hears. Tap a station to follow it across the bands.</p></div></section>
 <section data-tab="dec"><div class="card"><h2>Decodes <span id="dmode" style="float:right;color:var(--muted);font-weight:600">Open FT8, CW or Digital on the radio</span></h2>
 <canvas id="dwf" width="600" height="110" style="width:100%;height:110px;background:#041F29;border-radius:8px"></canvas>
+<canvas id="dfax" width="600" height="400" style="width:100%;display:none;background:#fff;border-radius:8px;margin-top:8px"></canvas>
+<p id="dfaxsave" style="display:none"><button onclick="(()=>{const a=document.createElement('a');a.href=$('dfax').toDataURL('image/png');a.download='resonik-wefax.png';a.click();})()">Save picture</button></p>
 <svg id="dmap" viewBox="0 0 720 300" role="img" aria-label="Map of the stations heard" style="width:100%;margin-top:8px"></svg>
 <div id="dtxt" style="font-family:monospace;white-space:pre-wrap;word-break:break-all;min-height:1.2em;margin:8px 0"></div>
 <p style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><label>My locator <input id="dqth" size="6" maxlength="6" placeholder="LL58"></label>
@@ -187,7 +189,7 @@ function connect(){
  ws.onclose=()=>{st.textContent='offline';st.className='';setTimeout(connect,2000);};
  ws.onmessage=e=>{
   if(typeof e.data==='string'){const j=JSON.parse(e.data);
-   if(j.dec||j.dg||j.sp){if(j.dec)dDecodes(j.dec);if(j.dg)dText(j.dg);if(j.sp)dSpec(j.sp);}else if(j.p)panel(j);else if(j.bcn)beaconReport(j);else if(j.seekf)seekShow(j.seekf);else if(j.note)note(j.note);else if(j.scope)scope(j);else if(j.def)buildSets(j.def);else if(j.v)vals(j);else if(j.mem)mems(j.mem);else status(j);return;}
+   if(j.dec||j.dg||j.sp){if(j.dec)dDecodes(j.dec);if(j.dg)dText(j.dg);if(j.sp)dSpec(j.sp);if(j.fx)dFax(j.fx);}else if(j.p)panel(j);else if(j.bcn)beaconReport(j);else if(j.seekf)seekShow(j.seekf);else if(j.note)note(j.note);else if(j.scope)scope(j);else if(j.def)buildSets(j.def);else if(j.v)vals(j);else if(j.mem)mems(j.mem);else status(j);return;}
   const b=new Uint8Array(e.data);
   if(b[0]===1){const y=b[1],n=b[2];let o=3,p=y*320*4;
    for(let i=0;i<n*320;i++,o+=2,p+=4){const v=(b[o]<<8)|b[o+1];
@@ -387,6 +389,8 @@ function dText(d){dInit();$('dmode').textContent=d.m+(d.m==='CW'?(d.c?' · '+d.c
  const a=($('dalarm').value||'').trim().toUpperCase();if(a&&a.split(/[ ,]+/).some(x=>x&&d.t.toUpperCase().endsWith(x))&&!dText.rang){dText.rang=1;dBeep();setTimeout(()=>dText.rang=0,10000);}}
 function dSpec(s){const c=$('dwf');if(!c)return;const x=c.getContext('2d'),w=c.width,h=c.height;const im=x.getImageData(0,0,w,h-1);x.putImageData(im,0,1);
  const n=s.v.length;for(let i=0;i<n;i++){const v=s.v[i];x.fillStyle='rgb('+Math.min(255,v*1.6|0)+','+Math.min(255,v*1.2|0)+','+(80+v*0.6|0)+')';x.fillRect(Math.floor(i*w/n),0,Math.ceil(w/n),1);}}
+function dFax(rows){const c=$('dfax');c.style.display='';$('dfaxsave').style.display='';const x=c.getContext('2d'),w=c.width,h=c.height,lh=2;
+ rows.forEach(r=>{const im=x.getImageData(0,lh,w,h-lh);x.putImageData(im,0,0);const n=r.length;for(let i=0;i<n;i++){const v=r[i];x.fillStyle='rgb('+v+','+v+','+v+')';x.fillRect(Math.floor(i*w/n),h-lh,Math.ceil(w/n),lh);}});}
 function drawBeacons(){if(!document.querySelector('section[data-tab="bcn"].on'))return;
  const utc=Math.floor(Date.now()/1000),left=10-utc%10;
  $('bclk').textContent=new Date(utc*1000).toISOString().substr(11,8)+' UTC';
