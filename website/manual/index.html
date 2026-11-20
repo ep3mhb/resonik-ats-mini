@@ -43,7 +43,7 @@
   <main>
     <section>
       <div class="wrap doc">
-        <p class="kicker" style="color:var(--muted)">Manual · firmware v2.45-r4</p>
+        <p class="kicker" style="color:var(--muted)">Manual · firmware v2.46-r4</p>
         <h1 style="font-size:2.2rem;margin:.3rem 0 1rem">Using the RESONIK additions</h1>
         <p><a href="resonik-manual-en.pdf"><b>Full user manual (PDF, A4)</b></a> · <a href="resonik-manual-fa.pdf" lang="fa" dir="rtl">راهنمای کاربری فارسی (PDF، A4)</a></p>
         <p class="lead">This page covers what RESONIK adds. Everything else — bands, modes, memories, seek and scan, EiBi schedules, RDS, Wi-Fi and Bluetooth — works as in the official firmware and is described in the <a href="https://esp32-si4732.github.io/ats-mini/manual.html" rel="noopener">ats-mini user manual</a>.</p>
@@ -178,7 +178,7 @@
         <p class="hint">FT8 signals are often 15 to 20 dB below the noise. An indoor whip hears few of them: a window, a balcony or a few metres of wire on the antenna make a big difference, and so does keeping chargers and LED lamps away.</p>
 
         <h2 id="cwdec">CW decoder <small style="font-size:.7em;color:var(--muted)">v2.45-r3</small></h2>
-        <p><span class="ui">Menu → Ham &amp; SWL → CW Decoder</span> turns Morse into text on a full-screen page, with the speed (WPM), tone, a level bar and a key indicator. Tune so the tone sits at the pitch of the CW filter; <b>turn</b> to tune, <b>click</b> to clear the text, <b>short press</b> to leave. The speed follows the sender by itself from about 5 to 40 WPM. Static crashes and clicks are ignored; letters it cannot read are shown as <b>*</b>.</p>
+        <p><span class="ui">Menu → Ham &amp; SWL → CW Decoder</span> turns Morse into text on a full-screen page, with the speed (WPM), tone, a level bar and a key indicator. Tune so the tone sits at the pitch of the CW filter; <b>turn</b> to tune, <b>click</b> to clear the text, <b>short press</b> to leave. The speed follows the sender by itself from about 5 to 40 WPM. Static crashes and clicks are ignored; letters it cannot read are shown as <b>*</b>. While the page is open the radio plays at least at a fixed level, so the decoder hears the same whatever the volume; it is never quieter than your own volume (v2.46-r4).</p>
         <p><span class="ui">Menu → Ham &amp; SWL → CW Strip → On</span> shows the decoded text along the bottom of the normal screen while in CW mode. Like the FT8 page it needs the V4B board, and it works while Wi-Fi is off.</p>
 
         <h2 id="scanner">Band scanner <small style="font-size:.7em;color:var(--muted)">v2.45-r3</small></h2>
