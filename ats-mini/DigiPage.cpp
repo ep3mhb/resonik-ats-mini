@@ -294,6 +294,25 @@ static void stop()
 
 void digiPageOpen() { currentCmd = CMD_DIGI; }
 
+// RESONIK R5: mode, signal, text and spectrum for the browser
+bool digiWebState(uint32_t *seen, String &j)
+{
+  if(!pageActive || !lock || *seen == changes) return(false);
+  *seen = changes;
+  j = "{\"dg\":{\"m\":\"";
+  j += modeName[mode];
+  j += "\",\"c\":"; j += found ? (int)centre : 0;
+  j += ",\"t\":\"";
+  xSemaphoreTake(lock, portMAX_DELAY);
+  for(const char *c = shownText; *c; c++) if(*c >= 32 && *c != '"' && *c != '\\') j += *c;
+  xSemaphoreGive(lock);
+  j += "\"},\"sp\":{\"lo\":";
+  j += SPEC_LO; j += ",\"hi\":"; j += SPEC_HI; j += ",\"v\":[";
+  for(int x = 0; x < 74; x++) { if(x) j += ','; j += spec[x * SPEC_W / 74]; }
+  j += "]}}";
+  return(true);
+}
+
 void digiClick(bool shortPress)
 {
   if(shortPress) { currentCmd = CMD_NONE; return; }

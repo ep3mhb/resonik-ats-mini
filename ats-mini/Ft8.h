@@ -12,6 +12,10 @@ void ft8Turn(int16_t enc);      // Knob: next or previous FT8 band
 void ft8Clear();                // Click: clear the list
 void drawFt8Page();
 
+#include <Arduino.h>
+bool ft8WebBatch(uint32_t *seen, String &j);   // R5: new decodes for the browser
+bool ft8WebRow(uint32_t *seen, String &j);     // R5: newest waterfall row
+
 // In Menu.cpp: FT8 dial frequencies and the radio set-up around the page
 int ft8ChannelCount();
 int ft8ChannelOfCurrent();      // FT8 channel of the band in use, or -1

@@ -28,6 +28,8 @@
 #include "Beacons.h"
 #include "BatteryTime.h"
 #include <ESPAsyncWebServer.h>
+#include "Ft8.h"
+#include "DigiPage.h"
 #include <mutex>
 #include <atomic>
 
@@ -772,6 +774,40 @@ bool webControlTick()
     }
   }
   webBeaconTick();
+  // RESONIK R5: decodes for the browser's Decodes tab, from whichever
+  // decoder page is open on the radio
+  static uint32_t lastDec = 0, ft8Seen = 0, rowSeen = 0, digiSeen = 0;
+  static String cwLast;
+  if(now - lastDec >= 300 && ws.availableForWriteAll())
+  {
+    lastDec = now;
+    String j;
+    if(currentCmd == CMD_FT8)
+    {
+      if(ft8WebBatch(&ft8Seen, j)) ws.textAll(j);
+      if(ft8WebRow(&rowSeen, j)) ws.textAll(j);
+    }
+    else if(currentCmd == CMD_DIGI)
+    {
+      if(digiWebState(&digiSeen, j)) ws.textAll(j);
+    }
+    else if(currentCmd == CMD_CWDEC)
+    {
+      char t[100];
+      int wpm;
+      cwWebText(t, sizeof(t), &wpm);
+      if(cwLast != t)
+      {
+        cwLast = t;
+        j = "{\"dg\":{\"m\":\"CW\",\"c\":";
+        j += wpm;
+        j += ",\"t\":\"";
+        for(const char *c = t; *c; c++) if(*c >= 32 && *c != '"' && *c != '\\') j += *c;
+        j += "\"}}";
+        ws.textAll(j);
+      }
+    }
+  }
   if(now - lastPanel >= 250)
   {
     lastPanel = now;
