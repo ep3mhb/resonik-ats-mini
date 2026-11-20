@@ -68,6 +68,7 @@ static std::atomic<int8_t> seekWanted{0};        // +1 up, -1 down
 static std::atomic<bool> scopeWanted{false};
 static std::atomic<bool> screenWanted{false};     // The radio's screen: only when the page shows it
 static std::atomic<bool> decWanted{false};        // R5: decodes, only while the Decodes tab is shown
+static std::atomic<uint32_t> lastInputMs{0};      // R5: when the page last sent something
 static std::atomic<bool> defWanted{true};         // Settings list (on connect and on request)
 static std::atomic<bool> memWanted{true};         // Memory list
 
@@ -131,6 +132,7 @@ static void webOnEvent(AsyncWebSocket *, AsyncWebSocketClient *client, AwsEventT
   {
     AwsFrameInfo *info = (AwsFrameInfo *)arg;
     if(!info->final || info->index || info->len != len || info->opcode != WS_TEXT) return;
+    lastInputMs = millis();   // R5: the page gets its answer at once (webControlTick)
     bool busy = webBusy;
     if(busy && !(len >= 6 && !memcmp(data, "!audio", 6)) && !(len >= 5 && !memcmp(data, "!mute", 5)))
     {
@@ -695,12 +697,28 @@ bool webControlTick()
     ws.cleanupClients(3);
     wsDropStalled(now);
   }
+  // R5: full processor speed while a browser has Web Control open. At
+  // 80 MHz the page answered slowly (Mohammad, 20 Nov: "after I changed the
+  // CPU to 240 got better"); Listen and the FT8 page already did this.
+  static bool boosted = false;
+  static uint32_t lastBoost = 0;
   if(!ws.count())
   {
     webAudioSet(false);
     audioWanted = -1;
+    // Back to the CPU setting, unless a decoder page still needs full speed
+    if(boosted && currentCmd != CMD_FT8 && currentCmd != CMD_DIGI) { boosted = false; perfApply(); }
     return(false);
   }
+  if(!boosted || now - lastBoost > 1000)
+  {
+    lastBoost = now;
+    boosted = true;
+    if(getCpuFrequencyMhz() < 240) setCpuFrequencyMhz(240);
+  }
+  // R5: for a moment after a button on the page, the panel and the radio's
+  // screen go out quickly, so the page answers at once
+  bool quick = now - lastInputMs.load() < 450;
 
   // Commands, at most a few per loop pass
   bool redraw = false;
@@ -805,7 +823,7 @@ bool webControlTick()
   // which does not compress: twice a second there, 12 kB at a time, leaves
   // the radio time to decode and the connection room for everything else
   bool decoderPage = currentCmd == CMD_FT8 || currentCmd == CMD_DIGI || currentCmd == CMD_CWDEC;
-  if(screenWanted && now - lastScreen >= (decoderPage ? 500u : audioOn ? 150u : 50u))
+  if(screenWanted && now - lastScreen >= (decoderPage ? (quick ? 150u : 500u) : audioOn ? 150u : 50u))
   {
     lastScreen = now;
     if(decoderPage) webSendScreen(12000);
@@ -877,7 +895,7 @@ bool webControlTick()
       }
     }
   }
-  if(now - lastPanel >= 250)
+  if(now - lastPanel >= (quick ? 60u : 250u))
   {
     lastPanel = now;
     // A new browser gets the panel at once

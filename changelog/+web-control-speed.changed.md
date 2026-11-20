@@ -1,0 +1,1 @@
+Web Control answers faster: while a browser has it open the radio runs its processor at full speed (240 MHz, a little more battery; the **CPU** setting applies again when the browser leaves), and after a button on the page the frequency panel and the radio's screen are sent at once instead of at the next regular update.
