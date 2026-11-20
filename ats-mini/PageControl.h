@@ -185,7 +185,7 @@ let ws=null,dirty=false;
 function connect(){
  ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws');
  ws.binaryType='arraybuffer';
- ws.onopen=()=>{st.textContent='live';st.className='on';if(scrOpen)ws.send('!screen1');if(listening){ws.send('!audio1');ws.send('!mute'+document.getElementById('sil').value);}};
+ ws.onopen=()=>{st.textContent='live';st.className='on';if(scrOpen)ws.send('!screen1');if(document.querySelector('section[data-tab="dec"].on'))ws.send('!dec1');if(listening){ws.send('!audio1');ws.send('!mute'+document.getElementById('sil').value);}};
  ws.onclose=()=>{st.textContent='offline';st.className='';setTimeout(connect,2000);};
  ws.onmessage=e=>{
   if(typeof e.data==='string'){const j=JSON.parse(e.data);
@@ -325,7 +325,7 @@ $('scr').addEventListener('toggle',e=>{scrOpen=$('scr').open;send(scrOpen?'!scre
 // Tabs (remembered in this browser)
 function showTab(t){document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
  document.querySelectorAll('section[data-tab]').forEach(x=>x.classList.toggle('on',x.dataset.tab===t));
- try{localStorage.setItem('rtab',t);}catch(e){}if(t==='bcn')drawBeacons();}
+ try{localStorage.setItem('rtab',t);}catch(e){}if(t==='bcn')drawBeacons();try{if(ws&&ws.readyState===1)ws.send(t==='dec'?'!dec1':'!dec0');}catch(e){}}
 document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>showTab(b.dataset.t));
 try{const t=localStorage.getItem('rtab');if(t&&document.querySelector('section[data-tab="'+t+'"]'))showTab(t);}catch(e){}
 // Beacons: schedule from the clock, as on the radio

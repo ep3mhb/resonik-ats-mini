@@ -47,6 +47,7 @@ static std::atomic<int8_t> muteWanted{-1};        // Speaker while listening: st
 static std::atomic<int8_t> seekWanted{0};        // +1 up, -1 down
 static std::atomic<bool> scopeWanted{false};
 static std::atomic<bool> screenWanted{false};     // The radio's screen: only when the page shows it
+static std::atomic<bool> decWanted{false};        // R5: decodes, only while the Decodes tab is shown
 static std::atomic<bool> defWanted{true};         // Settings list (on connect and on request)
 static std::atomic<bool> memWanted{true};         // Memory list
 
@@ -103,6 +104,7 @@ static void webOnEvent(AsyncWebSocket *, AsyncWebSocketClient *client, AwsEventT
     fullFrame = true;
     defWanted = true;
     memWanted = true;
+    decWanted = false;   // R5: the page asks again if it shows Decodes
     client->setCloseClientOnQueueFull(false);
   }
   else if(type == WS_EVT_DATA)
@@ -123,6 +125,11 @@ static void webOnEvent(AsyncWebSocket *, AsyncWebSocketClient *client, AwsEventT
     if(len >= 6 && !memcmp(data, "!scope", 6))
     {
       scopeWanted = true;
+      return;
+    }
+    if(len >= 5 && !memcmp(data, "!dec", 4))
+    {
+      decWanted = data[4] == '1';
       return;
     }
     if(len >= 7 && !memcmp(data, "!screen", 7))
@@ -808,7 +815,7 @@ bool webControlTick()
   // decoder page is open on the radio
   static uint32_t lastDec = 0, ft8Seen = 0, rowSeen = 0, digiSeen = 0;
   static String cwLast;
-  if(now - lastDec >= 300 && ws.availableForWriteAll())
+  if(decWanted && now - lastDec >= 300 && ws.availableForWriteAll())
   {
     lastDec = now;
     String j;
