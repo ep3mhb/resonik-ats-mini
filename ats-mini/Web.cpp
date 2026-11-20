@@ -14,6 +14,7 @@
 #include "Patches.h"
 #include "PageTemplate.h"
 #include "UpdateNotice.h"
+#include "Backup.h"
 #include "PageCommon.h"
 #include "PageStatus.h"
 #include "PageMemory.h"
@@ -358,6 +359,26 @@ void webInit()
 
   server.onNotFound([] (AsyncWebServerRequest *request) {
     request->send(404, "text/plain", "Not found");
+  });
+
+  // RESONIK R5: backup and restore of all settings
+  server.on("/backup.txt", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    if(!webIsAuthenticated(request)) return request->requestAuthentication();
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", backupMake());
+    response->addHeader("Content-Disposition", "attachment; filename=\"resonik-backup.txt\"");
+    response->addHeader("Cache-Control", "no-store");
+    request->send(response);
+  });
+  server.on("/restore", HTTP_POST, [] (AsyncWebServerRequest *request) {
+    if(!webIsAuthenticated(request)) return request->requestAuthentication();
+    const char *error = backupCheck();
+    request->send(error ? 400 : 200, "text/html",
+      String("<!DOCTYPE html><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"><body style=\"font-family:sans-serif;padding:2em\"><p>") +
+      (error ? error : "Backup accepted. The radio restarts with the restored settings.") +
+      "</p><p><a href=\"/config\">Back</a></p>");
+  }, [] (AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len, bool final) {
+    if(!webIsAuthenticated(request)) return;
+    backupUpload(index, data, len, final);
   });
 
   // This method saves configuration form contents
