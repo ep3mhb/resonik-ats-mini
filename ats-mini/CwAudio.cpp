@@ -345,12 +345,15 @@ bool cwAudioTick()
 {
   bool page = pageOpen() && !sleepOn();
 
-  // CW page: a steady receiver level for the decoder, whatever the volume
-  // setting (the knob tunes on this page). The speaker stays on, so the
+  // CW page: at least a steady receiver level for the decoder, whatever the
+  // volume setting (the knob tunes on this page). The speaker stays on, so the
   // signal can still be heard; the user's volume comes back on leaving.
+  // R5: the same level as the FT8 page (50, was 45), and never below the
+  // user's own volume: a user report on R4 said the sound dropped sharply on
+  // opening the page and nothing decoded, while FT8 at 50 worked.
   static bool cwLevel = false;
   bool cwPage = currentCmd == CMD_CWDEC;
-  if(cwPage && !cwLevel) { rx.setVolume(AUDIO_LINE_VOLUME); cwLevel = true; }
+  if(cwPage && !cwLevel) { rx.setVolume(volume > CW_PAGE_VOLUME ? volume : CW_PAGE_VOLUME); cwLevel = true; }
   else if(!cwPage && cwLevel) { rx.setVolume(volume); cwLevel = false; }
 
   // The page owns Wi-Fi while it is open and gives it back afterwards
