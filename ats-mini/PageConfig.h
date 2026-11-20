@@ -46,7 +46,7 @@ static const char pageConfig[] PROGMEM = R"HTML(<H1>{{title}}</H1>
   </TABLE>
 </FORM>
 <H2>Backup and restore</H2>
-<P>Keep all the radio's settings, bands, memories and Wi-Fi networks in one file, and put them back later or on another radio.</P>
+<P>Keep all the radio's settings, bands, memories and Wi-Fi networks in one file, and put them back later or on another radio. The file holds your Wi-Fi passwords: keep it private.</P>
 <P><A HREF="/backup.txt">Download a backup</A></P>
 <FORM ACTION="/restore" METHOD="POST" ENCTYPE="multipart/form-data" ONSUBMIT="return confirm('Replace all settings, memories and Wi-Fi networks with this backup? The radio restarts.')">
 <INPUT TYPE="file" NAME="backup" ACCEPT=".txt" REQUIRED> <INPUT TYPE="submit" VALUE="Restore">
