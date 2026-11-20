@@ -801,10 +801,15 @@ bool webControlTick()
   // While listening the screen gets what is left: at most about 20 kB/s,
   // and nothing while the audio is behind. Tuning redraws much of the
   // screen, and in test 7 that crowded out the sound (gaps of seconds).
-  if(screenWanted && now - lastScreen >= (audioOn ? 150u : 50u))
+  // R5: on the FT8, CW and Digital pages the waterfall changes every row,
+  // which does not compress: twice a second there, 12 kB at a time, leaves
+  // the radio time to decode and the connection room for everything else
+  bool decoderPage = currentCmd == CMD_FT8 || currentCmd == CMD_DIGI || currentCmd == CMD_CWDEC;
+  if(screenWanted && now - lastScreen >= (decoderPage ? 500u : audioOn ? 150u : 50u))
   {
     lastScreen = now;
-    if(!audioOn) webSendScreen(SIZE_MAX);
+    if(decoderPage) webSendScreen(12000);
+    else if(!audioOn) webSendScreen(SIZE_MAX);
     else if(audioWebBacklog(audioPos) < WEB_SCREEN_AUDIO_SLACK) webSendScreen(3000);
   }
   // Settings: the list once, then the values when they change. Not while
