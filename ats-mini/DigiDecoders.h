@@ -207,7 +207,7 @@ public:
       }
       prev = d;
       phase += 1.0f / spb;
-      if(phase >= 1.0f) { phase -= 1.0f; bit(d); }
+      if(phase >= 1.0f) { phase -= 1.0f; takeBit(d); }
     }
   }
   Text text;
@@ -250,7 +250,7 @@ private:
     return(c);
   }
 
-  void bit(float d)
+  void takeBit(float d)
   {
     hist[nbits % HIST] = (d > 0) != inverted ? 1 : -1;
     nbits++;
