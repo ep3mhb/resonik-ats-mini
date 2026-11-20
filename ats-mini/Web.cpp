@@ -15,6 +15,7 @@
 #include "PageTemplate.h"
 #include "UpdateNotice.h"
 #include "Backup.h"
+#include "BatteryTime.h"
 #include "PageCommon.h"
 #include "PageStatus.h"
 #include "PageMemory.h"
@@ -783,6 +784,36 @@ static const String webRadioPage()
     default:               reset = "Unknown"; break;
   }
   String wrssi = WiFi.status() == WL_CONNECTED ? String(WiFi.RSSI()) + " dBm" : String("Not connected");
+
+  // RESONIK R5: a word on each figure, with a colour: good, fair or bad
+  auto grade = [](int v, int good, int fair) { return(v >= good ? "good" : v >= fair ? "fair" : "bad"); };
+  bool fm = currentMode == FM;
+  const char *rssiC = grade(rssi, fm ? 25 : 20, fm ? 12 : 8);
+  const char *rssiV = rssi >= 40 ? "strong signal" : rssi >= (fm ? 25 : 20) ? "good signal" : rssi >= (fm ? 12 : 8) ? "fair, may be noisy" : "weak";
+  const char *snrC = grade(snr, 15, 8);
+  const char *snrV = snr >= 25 ? "excellent, clean sound" : snr >= 15 ? "good" : snr >= 8 ? "fair, some noise" : "poor, noisy";
+  float bv = batteryMonitor();
+  int soc = (int)(batterySocFromVolts(bv) + 0.5f);
+  char batV[40];
+  const char *batC;
+  if(bv > 4.3f) { snprintf(batV, sizeof(batV), "on USB power"); batC = "good"; }
+  else { snprintf(batV, sizeof(batV), "about %d%%%s", soc, soc < 20 ? ", charge soon" : ""); batC = grade(soc, 50, 20); }
+  bool badReset = false;
+  switch(esp_reset_reason())
+  {
+    case ESP_RST_PANIC: case ESP_RST_INT_WDT: case ESP_RST_TASK_WDT: case ESP_RST_WDT: case ESP_RST_BROWNOUT: badReset = true; break;
+    default: break;
+  }
+  const char *rstV = !badReset ? "normal" : esp_reset_reason() == ESP_RST_BROWNOUT ? "battery too low" : "should not happen: please report it";
+  int tempC = (int)temperatureRead();
+  const char *tmpC = tempC < 60 ? "good" : tempC < 75 ? "fair" : "bad";
+  const char *tmpV = tempC < 60 ? "normal" : tempC < 75 ? "warm" : "hot";
+  int heapLow = heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL) / 1024;
+  const char *memC = grade(heapLow, 40, 20);
+  const char *memV = heapLow >= 40 ? "plenty" : heapLow >= 20 ? "tight" : "low: please report it";
+  int wr = WiFi.status() == WL_CONNECTED ? WiFi.RSSI() : -200;
+  const char *wifiC = wr == -200 ? "fair" : grade(wr, -70, -80);
+  const char *wifiV = wr == -200 ? "off" : wr >= -60 ? "excellent" : wr >= -70 ? "good" : wr >= -80 ? "weak, pages may be slow" : "poor, may drop";
   return webPage(pageStatus, pageStatusTitle, {
     {"title", pageStatusTitle},
     {"uptime", String(uptime)}, {"reset", String(reset)},
@@ -791,6 +822,10 @@ static const String webRadioPage()
     {"psram", String(heap_caps_get_free_size(MALLOC_CAP_SPIRAM) / 1024)},
     {"heapmin", String(heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL) / 1024)},
     {"wrssi", wrssi},
+    {"rssi_c", String(rssiC)}, {"rssi_v", String(rssiV)}, {"snr_c", String(snrC)}, {"snr_v", String(snrV)},
+    {"bat_c", String(batC)}, {"bat_v", String(batV)}, {"rst_c", String(badReset ? "bad" : "good")}, {"rst_v", String(rstV)},
+    {"tmp_c", String(tmpC)}, {"tmp_v", String(tmpV)}, {"mem_c", String(memC)}, {"mem_v", String(memV)},
+    {"wifi_c", String(wifiC)}, {"wifi_v", String(wifiV)},
     {"ip", ip}, {"ssid", ssid},
     {"mac", String(getMACAddress())}, {"version", String(getVersion(true))},
     {"time", receiverTime}, {"band", getCurrentBand()->bandName},
