@@ -1,0 +1,1 @@
+Web Control: after a Seek that found nothing, the page kept showing the last frequency it tried while the radio had gone back to where it started. The page now always shows the radio's frequency when Seek ends.

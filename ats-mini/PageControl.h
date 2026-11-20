@@ -410,7 +410,7 @@ function beaconReport(j){heard[j.b][j.i]={q:j.q,r:j.r,t:j.t};drawBeacons();}
 // Seek in SSB/CW: the frequency moves on the panel while it searches
 function seekShow(f){$('pfq').innerHTML=fmtF(f,P?P.m:1);$('pfq').style.opacity=.6;note('Seeking\u2026');}
 let noteT=0;function note(t){const n=$('note');n.textContent=t;n.style.display='block';clearTimeout(noteT);
- if(!/Seeking/.test(t)){$('pfq').style.opacity='';noteT=setTimeout(()=>n.style.display='none',5000);}}
+ if(!/Seeking/.test(t)){$('pfq').style.opacity='';if(P)$('pfq').innerHTML=fmtF(P.f,P.m);noteT=setTimeout(()=>n.style.display='none',5000);}}
 function tune(){const v=parseFloat(document.getElementById('f').value.replace(',','.'));
  if(v>0)send('F'+Math.round(P&&P.m===0&&v<200?v*1e6:v*1000)+'\n');}
 document.getElementById('go').onclick=tune;

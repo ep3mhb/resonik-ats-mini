@@ -552,6 +552,8 @@ static void jsonText(String &j, const char *key, const char *v)
 
 // The panel the page draws itself: sent when something on it changes,
 // at most four times a second
+static bool panelForce = false;   // R5: send the panel even if unchanged
+
 static void webSendPanel(bool force)
 {
   static String last;
@@ -692,6 +694,9 @@ bool webControlTick()
     else doSeek(sk, sk);
     webBusy = false;
     webAbort = false;
+    // R5: the page showed the frequencies tried; send where the radio
+    // really is now, even if that is where it started
+    panelForce = true;
     prefsRequestSave(SAVE_CUR_BAND);
     redraw = true;
   }
@@ -812,7 +817,8 @@ bool webControlTick()
   {
     lastPanel = now;
     // A new browser gets the panel at once
-    bool force = ws.count() != lastCount;
+    bool force = ws.count() != lastCount || panelForce;
+    panelForce = false;
     lastCount = ws.count();
     if(ws.availableForWriteAll()) webSendPanel(force);
   }
