@@ -13,6 +13,9 @@
 #include <HTTPClient.h>
 #include "HttpDate.h"
 #include "Resonik.h"
+#include "Ota.h"
+#include "UpdateNotice.h"
+#include "CwAudio.h"
 
 #define CONNECT_TIME  3000  // Time of inactivity to start connecting WiFi
 #define WIFI_TOTAL_TIMEOUT  30000
@@ -47,6 +50,7 @@ static char timeSyncDiag[48] = "";
 //
 #define NET_JOB_TIME 1
 #define NET_JOB_PROP 2
+#define NET_JOB_REL  4   // RESONIK R5: new version notice
 static TaskHandle_t netJobTask = nullptr;
 static std::atomic<uint8_t> netJobs{0};
 static std::atomic<bool> netJobBusy{false};
@@ -72,6 +76,12 @@ static void netJobWork(void *)
         httpTimeResult = ok ? 1 : 0;
       }
       if(jobs & NET_JOB_PROP) propagationFetch();
+      if(jobs & NET_JOB_REL)
+      {
+        uint32_t version = 0;
+        bool ok = getWiFiStatus() >= 2 && otaFetchLatestVersion(&version);
+        updNoticeChecked(ok, version);
+      }
       netJobBusy = false;
     }
   }
@@ -279,6 +289,11 @@ bool netTickTime()
         httpTimeTried++;
         netJobStart(NET_JOB_TIME);
       }
+      // RESONIK R5: new version notice, in the background, not while the
+      // browser is streaming the radio's sound
+      if(activeNetMode != NET_SYNC && !netJobBusy && clockAvailable() &&
+         !audioWebStreaming() && updNoticeDue(now))
+        netJobStart(NET_JOB_REL);
       if(activeNetMode == NET_SYNC && now - attemptStarted >= NTP_TIMEOUT)
       {
         netStop();

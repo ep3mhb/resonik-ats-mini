@@ -13,6 +13,7 @@
 #include "Ota.h"
 #include "Patches.h"
 #include "PageTemplate.h"
+#include "UpdateNotice.h"
 #include "PageCommon.h"
 #include "PageStatus.h"
 #include "PageMemory.h"
@@ -674,6 +675,15 @@ static String webPage(const char *body, const char *title, std::initializer_list
   pageReserve(page, sizeof(pageStart) + strlen(title) + strlen(body) + sizeof(pageEnd) + 64);
   static const String version = String("v") + (VER_APP / 100) + "." + (VER_APP % 100) + "-r" + VER_RESONIK;
   pageAppend(page, pageStart, {{"title", title}, {"version", version}});
+  // RESONIK R5: a newer release is out
+  if(updNoticeWaiting())
+  {
+    char v[16];
+    updNoticeVersionText(v, sizeof(v), updNoticeVersion());
+    page += "<p style=\"background:#06D7A0;color:#041F29;padding:.5em 1em;border-radius:8px;font-weight:600\">New firmware RESONIK ";
+    page += v;
+    page += " is available. <a href=\"/update\" style=\"color:#041F29\">Update over Wi-Fi</a></p>";
+  }
   pageAppend(page, body, values, fragments);
   pageReserve(page, sizeof(pageEnd) + 64);
   // Snapshot after allocating the page, before the HTTP response copies it.

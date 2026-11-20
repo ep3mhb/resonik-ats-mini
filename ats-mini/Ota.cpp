@@ -226,6 +226,30 @@ bool otaRequestLatest(bool install)
   return true;
 }
 
+// RESONIK R5: the latest release's version only, for the background new
+// version notice (UpdateNotice.cpp). Runs on the network job task, so it
+// touches nothing of the OTA state the main task uses.
+bool otaFetchLatestVersion(uint32_t *version)
+{
+  if(WiFi.status() != WL_CONNECTED) return(false);
+  if(!clockGetDate(nullptr, nullptr, nullptr, nullptr)) return(false);
+  NetworkClientSecure client;
+  client.setCACertBundle(caBundleStart, caBundleEnd - caBundleStart);
+  client.setHandshakeTimeout(OTA_HTTP_TIMEOUT_SECONDS);
+  HTTPClient http;
+  http.setConnectTimeout(OTA_HTTP_TIMEOUT_SECONDS * 1000);
+  http.setTimeout(OTA_HTTP_TIMEOUT_SECONDS * 1000);
+  http.useHTTP10(true);
+  http.setUserAgent(getUserAgent());
+  if(!http.begin(client, FIRMWARE_URL "/releases/latest")) return(false);
+  int code = http.sendRequest("HEAD");
+  String location = http.getLocation();
+  http.end();
+  const String tagPrefix = FIRMWARE_URL "/releases/tag/";
+  if((code != 302 && code != 301) || !location.startsWith(tagPrefix)) return(false);
+  return(otaParseReleaseTag(location.substring(tagPrefix.length()).c_str(), version));
+}
+
 static bool otaDownloadLatest(bool install)
 {
   ota.phase = OTA_CONNECTING;

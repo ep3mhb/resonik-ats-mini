@@ -63,6 +63,8 @@
 #define CMD_WIFIPOWER  0x4300 // RESONIK R3: Wi-Fi transmit power
 #define CMD_PERF       0x4400 // RESONIK R3: processor speed
 #define CMD_WIFISETUP  0x4500 // RESONIK R4: Wi-Fi Setup page (network list and keyboard)
+#define CMD_UPDSET     0x4600 // RESONIK R5: Update Notice setting
+#define CMD_UPDNOTICE  0x4700 // RESONIK R5: new version page
 
 // Band plan settings (RESONIK)
 #define BANDPLAN_OFF       0

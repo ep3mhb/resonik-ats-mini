@@ -25,6 +25,7 @@
 #include "Web.h"
 #include "WifiSetup.h"
 #include "WebControl.h"
+#include "UpdateNotice.h"
 #include <stdlib.h>
 #include <time.h>
 
@@ -1098,7 +1099,7 @@ void loop()
   // Disable commands control
   if((currentTime - elapsedCommand) > ELAPSED_COMMAND)
   {
-    if(currentCmd != CMD_NONE && currentCmd != CMD_SEEK && currentCmd != CMD_SCAN && currentCmd != CMD_MEMORY && currentCmd != CMD_CWDEC && currentCmd != CMD_FT8 && currentCmd != CMD_WIFISETUP)
+    if(currentCmd != CMD_NONE && currentCmd != CMD_SEEK && currentCmd != CMD_SCAN && currentCmd != CMD_MEMORY && currentCmd != CMD_CWDEC && currentCmd != CMD_FT8 && currentCmd != CMD_WIFISETUP && currentCmd != CMD_UPDNOTICE)
     {
       tileReturnCancel();
       currentCmd = CMD_NONE;
@@ -1144,6 +1145,7 @@ void loop()
   { DIAG_T0; needRedraw |= webTick(); DIAG_T1("web"); }
   { DIAG_T0; needRedraw |= webControlTick(); DIAG_T1("wctl"); }
   { DIAG_T0; needRedraw |= netTickTime(); DIAG_T1("wifi"); }
+  needRedraw |= updNoticeTick();   // RESONIK R5: new version page
 
   // Update clock display
   needRedraw |= clockUpdate();

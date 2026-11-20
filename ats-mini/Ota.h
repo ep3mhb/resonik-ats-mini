@@ -24,6 +24,7 @@ void otaEndUpload();
 OtaStatus otaStatus();
 
 bool otaRequestLatest(bool install);
+bool otaFetchLatestVersion(uint32_t *version);   // RESONIK R5: HEAD only, any task
 void otaTick();
 
 #endif

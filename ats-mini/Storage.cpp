@@ -7,6 +7,7 @@
 #include "Menu.h"
 #include "Memories.h"
 #include "Resonik.h"
+#include "UpdateNotice.h"
 #include <LittleFS.h>
 #include "nvs_flash.h"
 
@@ -230,6 +231,8 @@ void prefsSave(uint32_t items)
     prefs.putUChar("AutoAtt",     autoAttIdx);     // Automatic attenuation (RESONIK)
     prefs.putUChar("BpArea2",     bandPlanArea);   // Band plan area (RESONIK R3: All, R1-R3, Iran, UAE)
     prefs.putUChar("CwStrip",     cwStripIdx);     // CW decoder strip (RESONIK R3)
+    prefs.putUChar("UpdNotice",   updNoticeIdx);   // New version notice (RESONIK R5)
+    prefs.putUInt("UpdSkip",      updSkipVersion); // Release the user skipped (RESONIK R5)
     prefs.putUChar("FreqLock",    freqLock);       // Frequency lock (RESONIK R3)
     prefs.putUChar("BcnNames",    beaconNames);    // Beacon names on beacon frequencies (RESONIK R4)
     prefs.putUChar("WifiPower",   wifiPowerIdx);   // Wi-Fi transmit power (RESONIK R3)
@@ -338,6 +341,8 @@ bool prefsLoad(uint32_t items)
     if(prefs.isKey("BpArea2")) bandPlanArea = prefs.getUChar("BpArea2", bandPlanArea) % BP_AREA_COUNT;
     else if(prefs.isKey("BpArea")) bandPlanArea = bandPlanAreaFromOld(prefs.getUChar("BpArea", 0));
     cwStripIdx     = prefs.getUChar("CwStrip", cwStripIdx) ? 1 : 0;   // Default Off (R3)
+    updNoticeIdx   = prefs.getUChar("UpdNotice", updNoticeIdx) ? 1 : 0;   // Default On (R5)
+    updSkipVersion = prefs.getUInt("UpdSkip", updSkipVersion);
     freqLock       = prefs.getUChar("FreqLock", freqLock) ? 1 : 0;
     beaconNames    = prefs.getUChar("BcnNames", beaconNames) ? 1 : 0;
     wifiPowerIdx   = prefs.getUChar("WifiPower", wifiPowerIdx) % 3;

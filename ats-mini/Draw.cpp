@@ -10,6 +10,7 @@
 #include "Draw.h"
 #include "CwAudio.h"
 #include "Ft8.h"
+#include "UpdateNotice.h"
 
 //
 // Draw preferences write indicator
@@ -71,6 +72,10 @@ void drawWiFiIndicator(int x, int y)
     spr.fillArc(x, 15+y, 9, 8, 240, 300, color);
     spr.fillArc(x, 15+y, 4, 3, 240, 300, color);
   }
+
+  // RESONIK R5: a newer release is out (Menu -> System -> Update FW)
+  if(updNoticeWaiting())
+    spr.fillTriangle(x + 9, y + 8, x + 13, y + 2, x + 17, y + 8, TH.rf_icon_conn);
 }
 
 //
@@ -527,6 +532,13 @@ void drawScreen()
   if(currentCmd==CMD_ABOUT)
   {
     drawAbout();
+    return;
+  }
+
+  // New version page (RESONIK R5)
+  if(currentCmd==CMD_UPDNOTICE)
+  {
+    drawUpdNotice();
     return;
   }
 
