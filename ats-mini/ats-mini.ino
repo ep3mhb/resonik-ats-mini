@@ -1103,7 +1103,7 @@ void loop()
   // Disable commands control
   if((currentTime - elapsedCommand) > ELAPSED_COMMAND)
   {
-    if(currentCmd != CMD_NONE && currentCmd != CMD_SEEK && currentCmd != CMD_SCAN && currentCmd != CMD_MEMORY && currentCmd != CMD_CWDEC && currentCmd != CMD_FT8 && currentCmd != CMD_WIFISETUP && currentCmd != CMD_UPDNOTICE && currentCmd != CMD_FREQPAD && currentCmd != CMD_DIGI && currentCmd != CMD_BANDVIEW)
+    if(currentCmd != CMD_NONE && currentCmd != CMD_SEEK && currentCmd != CMD_SCAN && currentCmd != CMD_MEMORY && currentCmd != CMD_CWDEC && currentCmd != CMD_FT8 && currentCmd != CMD_WIFISETUP && currentCmd != CMD_UPDNOTICE && currentCmd != CMD_FREQPAD && currentCmd != CMD_DIGI && currentCmd != CMD_BANDVIEW && currentCmd != CMD_WIZARD)
     {
       tileReturnCancel();
       currentCmd = CMD_NONE;
@@ -1153,6 +1153,7 @@ void loop()
   backupTick();                    // RESONIK R5: restore a backup (restarts)
   needRedraw |= digiTick();        // RESONIK R5: digital modes page
   needRedraw |= bandViewTick();    // RESONIK R5: Band View sweeps
+  needRedraw |= wizardTick();      // RESONIK R5: setup wizard at first start
 
   // Update clock display
   needRedraw |= clockUpdate();

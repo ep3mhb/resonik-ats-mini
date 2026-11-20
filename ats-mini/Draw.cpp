@@ -538,6 +538,13 @@ void drawScreen()
     return;
   }
 
+  // Setup wizard (RESONIK R5)
+  if(currentCmd==CMD_WIZARD)
+  {
+    drawWizard();
+    return;
+  }
+
   // Band View (RESONIK R5)
   if(currentCmd==CMD_BANDVIEW)
   {
