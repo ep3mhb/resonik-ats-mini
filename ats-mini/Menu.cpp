@@ -1884,6 +1884,7 @@ bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
     case CMD_UPDNOTICE:  updNoticeTurn(scrollDirection * enc); break;
     case CMD_FREQPAD:    freqPadTurn(scrollDirection * enc); break;
     case CMD_BANDVIEW:   bandViewTurn(scrollDirection * enc); break;
+    case CMD_WIZARD:     wizardTurn(scrollDirection * enc); break;
     case CMD_BATTDISP:
       battDispIdx = wrap_range(battDispIdx, scrollDirection * enc, 0, 3);
       prefsRequestSave(SAVE_SETTINGS);
@@ -1962,6 +1963,7 @@ bool clickHandler(uint16_t cmd, bool shortPress)
     case CMD_FREQPAD:    freqPadClick(shortPress); break;
     case CMD_DIGI:       digiClick(shortPress); break;
     case CMD_BANDVIEW:   bandViewClick(shortPress); break;
+    case CMD_WIZARD:     wizardClick(shortPress); break;
     case CMD_FT8:
       // FT8 page: click clears the list, a short press leaves
       if(shortPress) currentCmd = CMD_NONE;
@@ -3765,4 +3767,96 @@ bool webMemoryAction(char action, int slot)
   }
   memoryIdx = slot;
   return(tuneToMemory(&m));
+}
+
+//
+// RESONIK R5: setup wizard at first start (or after a factory reset): time
+// zone, knob type, band plan area, then Wi-Fi. Each choice is applied as it
+// is turned; a click goes on, a short press skips the rest.
+//
+uint8_t wizardDone = 0;
+static int wizStep = 0;
+static int wizWifi = 0;
+static const char *const wizWifiDesc[] = { "Set up Wi-Fi now", "Later" };
+#define WIZ_STEPS 4
+
+static void wizFinish()
+{
+  wizardDone = 1;
+  prefsRequestSave(SAVE_SETTINGS);
+  currentCmd = CMD_NONE;
+}
+
+bool wizardTick()
+{
+  static bool offered = false;
+  if(wizardDone || offered || millis() < 2500 || currentCmd != CMD_NONE || sleepOn()) return(false);
+  offered = true;
+  wizStep = 0;
+  currentCmd = CMD_WIZARD;
+  return(true);
+}
+
+void wizardTurn(int enc)
+{
+  switch(wizStep)
+  {
+    case 0: doUTCOffset(enc); break;
+    case 1: if(enc) { setEncoderHalfStep(!encoderHalfStep); prefsRequestSave(SAVE_SETTINGS); } break;
+    case 2: bandPlanArea = wrap_range(bandPlanArea, enc, 0, BP_AREA_COUNT - 1); prefsRequestSave(SAVE_SETTINGS); break;
+    case 3: wizWifi = wrap_range(wizWifi, enc, 0, 1); break;
+  }
+}
+
+void wizardClick(bool shortPress)
+{
+  if(shortPress) { wizFinish(); return; }
+  if(++wizStep < WIZ_STEPS) return;
+  wizFinish();
+  if(wizWifi == 0) wifiSetupOpen();
+}
+
+void drawWizard()
+{
+  static const char *const question[WIZ_STEPS] =
+    { "Your time zone", "Knob: clicks per turn", "Band plan for your licence", "Wi-Fi" };
+  const char *const *labels;
+  int count, idx;
+  switch(wizStep)
+  {
+    case 0:
+    {
+      static const char *tz[ITEM_COUNT(timeZones)];
+      for(int i = 0; i < (int)ITEM_COUNT(timeZones); i++) tz[i] = timeZones[i].desc;
+      labels = tz; count = ITEM_COUNT(timeZones); idx = utcOffsetIdx; break;
+    }
+    case 1:  labels = knobDesc; count = 2; idx = encoderHalfStep ? 1 : 0; break;
+    case 2:  labels = bandPlanAreaDesc; count = BP_AREA_COUNT; idx = bandPlanArea; break;
+    default: labels = wizWifiDesc; count = 2; idx = wizWifi; break;
+  }
+  char line[40];
+  spr.fillSprite(TH.bg);
+  spr.fillRoundRect(4, 3, 312, 24, 6, TH.menu_bg);
+  spr.setTextDatum(ML_DATUM);
+  spr.setTextColor(TH.menu_hdr);
+  spr.drawString("Welcome to RESONIK", 12, 15, uiFont(false));
+  spr.setTextDatum(MR_DATUM);
+  snprintf(line, sizeof(line), "%d of %d", wizStep + 1, WIZ_STEPS);
+  spr.drawString(line, 308, 15, uiFont(true));
+  spr.setTextDatum(MC_DATUM);
+  spr.setTextColor(TH.text);
+  spr.drawString(question[wizStep], 160, 44, uiFont(false));
+  // The choice with its neighbours above and below
+  for(int d = -1; d <= 1; d++)
+  {
+    int i = idx + d;
+    if(i < 0 || i >= count) continue;
+    int y = 92 + d * 28;
+    if(!d) spr.fillRoundRect(40, y - 12, 240, 24, 6, TH.menu_hl_bg);
+    spr.setTextColor(d ? TH.text_muted : TH.menu_hl_text);
+    spr.drawString(labels[i], 160, y, uiFont(d != 0));
+  }
+  spr.setTextDatum(BC_DATUM);
+  spr.setTextColor(TH.text_muted);
+  spr.drawString(wizStep < WIZ_STEPS - 1 ? "Turn: choose  Click: next  Press: skip" : "Turn: choose  Click: done", 160, 169, uiFont(true));
 }

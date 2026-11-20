@@ -1,0 +1,1 @@
+**Setup wizard** at first start (and after a factory reset): time zone, knob type (20 or 30 clicks), band plan for your licence, then Wi-Fi. A short press skips it. Radios updated from an earlier version keep their settings and do not see it.
