@@ -203,9 +203,8 @@ bool muteOn(uint8_t mode, int x, bool muteAmp)
       squelched = true;
       break;
     case MUTE_TEMP:
-      if(!muted && !squelched) {
-        mute = true;
-      }
+      // Reconfiguration can reset the chip mute even when already muted.
+      mute = true;
       break;
     }
   } else if(x==0) {
@@ -227,9 +226,8 @@ bool muteOn(uint8_t mode, int x, bool muteAmp)
       squelched = false;
       break;
     case MUTE_TEMP:
-      if(!muted && !squelched) {
-        unmute = true;
-      }
+      status = muted || squelched;
+      unmute = true;
       break;
     }
   }
@@ -242,9 +240,10 @@ bool muteOn(uint8_t mode, int x, bool muteAmp)
   }
 
   if(unmute) {
-    if(audioClamp) digitalWrite(AUDIO_MUTE, LOW);
+    // Restore chip mute before enabling the amplifier.
+    if(audioClamp) digitalWrite(AUDIO_MUTE, status ? HIGH : LOW);
     delay(50);
-    rx.setAudioMute(false);
+    rx.setAudioMute(status);
     // Enable audio amplifier to restore speaker output
     if(muteAmp && PIN_AMP_EN >= 0) digitalWrite(PIN_AMP_EN, HIGH);
   }
