@@ -27,6 +27,7 @@
 #include "WebControl.h"
 #include "UpdateNotice.h"
 #include "Backup.h"
+#include "DigiPage.h"
 #include <stdlib.h>
 #include <time.h>
 
@@ -887,8 +888,9 @@ bool handleRotation(int16_t enc, int16_t accelerated, bool pressed)
         changed = doTune(accelerated);
         prefsRequestSave(SAVE_CUR_BAND);
         break;
+      case CMD_DIGI:
       case CMD_CWDEC:
-        // CW decoder page: the knob keeps tuning
+        // CW decoder and digital pages: the knob keeps tuning
         changed = doTune(accelerated);
         prefsRequestSave(SAVE_CUR_BAND);
         break;
@@ -1100,7 +1102,7 @@ void loop()
   // Disable commands control
   if((currentTime - elapsedCommand) > ELAPSED_COMMAND)
   {
-    if(currentCmd != CMD_NONE && currentCmd != CMD_SEEK && currentCmd != CMD_SCAN && currentCmd != CMD_MEMORY && currentCmd != CMD_CWDEC && currentCmd != CMD_FT8 && currentCmd != CMD_WIFISETUP && currentCmd != CMD_UPDNOTICE && currentCmd != CMD_FREQPAD)
+    if(currentCmd != CMD_NONE && currentCmd != CMD_SEEK && currentCmd != CMD_SCAN && currentCmd != CMD_MEMORY && currentCmd != CMD_CWDEC && currentCmd != CMD_FT8 && currentCmd != CMD_WIFISETUP && currentCmd != CMD_UPDNOTICE && currentCmd != CMD_FREQPAD && currentCmd != CMD_DIGI)
     {
       tileReturnCancel();
       currentCmd = CMD_NONE;
@@ -1148,6 +1150,7 @@ void loop()
   { DIAG_T0; needRedraw |= netTickTime(); DIAG_T1("wifi"); }
   needRedraw |= updNoticeTick();   // RESONIK R5: new version page
   backupTick();                    // RESONIK R5: restore a backup (restarts)
+  needRedraw |= digiTick();        // RESONIK R5: digital modes page
 
   // Update clock display
   needRedraw |= clockUpdate();

@@ -275,7 +275,7 @@ static bool adcOpen()
 static bool wifiOn() { return(WiFi.getMode() != WIFI_MODE_NULL); }
 
 // The CW decoder page, or the FT8 page, which uses the same sampler
-static bool pageOpen() { return(currentCmd == CMD_CWDEC || currentCmd == CMD_FT8); }
+static bool pageOpen() { return(currentCmd == CMD_CWDEC || currentCmd == CMD_FT8 || currentCmd == CMD_DIGI); }
 
 // FT8 page (Ft8.cpp): hand the sampler a ring, or nullptr to give it back
 void audioFt8Ring(int16_t *ring, uint32_t size)
