@@ -18,6 +18,7 @@
 #include "WifiSetup.h"
 #include "UpdateNotice.h"
 #include "FreqPad.h"
+#include "DigiPage.h"
 
 #include <time.h>
 
@@ -170,7 +171,8 @@ static const char *menu[] =
 #define MENU_PERF         32  // RESONIK R3
 #define MENU_UPDNOTICE    33  // RESONIK R5
 #define MENU_BATTDISP     34  // RESONIK R5
-#define MENU_ABOUT        35
+#define MENU_DIGI         35  // RESONIK R5
+#define MENU_ABOUT        36
 // RESONIK R4: Wi-Fi mode, Wi-Fi Power and joining a network are one item,
 // "Wi-Fi" (MENU_WIFIMODE), which opens the Wi-Fi page (WifiSetup.cpp)
 
@@ -217,6 +219,7 @@ static const char *settings[] =
   "CPU",
   "Update Notice",
   "Battery",
+  "Digital",
   "About",
 };
 
@@ -265,6 +268,7 @@ static const TileEntry tileHam[] =
   { TI_BANDPLAN, TILE_SET | MENU_BANDPLAN }, { TI_BEACON, MENU_BEACONS },
   { TI_FORK, TILE_SET | MENU_CALIBRATION }, { TI_CWDEC, TILE_SET | MENU_CWDEC },
   { TI_CWSTRIP, TILE_SET | MENU_CWSTRIP }, { TI_FT8, TILE_SET | MENU_FT8 },
+  { TI_LOG, TILE_SET | MENU_DIGI },
   { TI_DOWNLOAD, TILE_SET | MENU_LOADEIBI },
   { TI_GLOBE, TILE_SET | MENU_BPAREA }, { TI_PROP, TILE_SET | MENU_PROPAG },
 };
@@ -1784,6 +1788,7 @@ static void clickSettings(int cmd, bool shortPress)
     case MENU_PERF:       currentCmd = CMD_PERF;      break;
     case MENU_UPDNOTICE:  currentCmd = CMD_UPDSET;    break;
     case MENU_BATTDISP:   currentCmd = CMD_BATTDISP;  break;
+    case MENU_DIGI:       digiPageOpen();             break;
     case MENU_BANDPLAN:   currentCmd = CMD_BANDPLAN;  break;
     case MENU_BPAREA:     currentCmd = CMD_BPAREA;    break;
     case MENU_AUTOATT:    currentCmd = CMD_AUTOATT;   break;
@@ -1946,6 +1951,7 @@ bool clickHandler(uint16_t cmd, bool shortPress)
       break;
     case CMD_UPDNOTICE:  updNoticeClick(shortPress); break;
     case CMD_FREQPAD:    freqPadClick(shortPress); break;
+    case CMD_DIGI:       digiClick(shortPress); break;
     case CMD_FT8:
       // FT8 page: click clears the list, a short press leaves
       if(shortPress) currentCmd = CMD_NONE;
@@ -3154,6 +3160,21 @@ void ft8SaveRadio()
   // The current frequency lives in the band only once it is saved there
   ft8SavedBands[bandIdx].currentFreq = currentFrequency;
   ft8SavedBands[bandIdx].bandMode = currentMode;
+}
+
+// RESONIK R5: the digital modes page listens in USB with the 3.0k filter
+void digiSetUsb(uint32_t hz)
+{
+  uint32_t f = hz ? hz : currentFrequency;
+  if(currentMode != USB || hz) tuneToFrequency(f, USB);
+  int bw = bandwidthIndexOf("3.0k");
+  if(bw >= 0 && bands[bandIdx].bandwidthIdx != bw)
+  {
+    bands[bandIdx].bandwidthIdx = bw;
+    bands[bandIdx].currentFreq = currentFrequency;
+    bands[bandIdx].bandMode = currentMode;
+    selectBand(bandIdx, false);
+  }
 }
 
 void ft8RestoreRadio()

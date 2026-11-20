@@ -12,6 +12,7 @@
 #include "Ft8.h"
 #include "UpdateNotice.h"
 #include "FreqPad.h"
+#include "DigiPage.h"
 
 //
 // Draw preferences write indicator
@@ -533,6 +534,13 @@ void drawScreen()
   if(currentCmd==CMD_ABOUT)
   {
     drawAbout();
+    return;
+  }
+
+  // Digital modes page (RESONIK R5)
+  if(currentCmd==CMD_DIGI)
+  {
+    drawDigiPage();
     return;
   }
 
