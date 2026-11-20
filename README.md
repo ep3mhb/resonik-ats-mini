@@ -10,11 +10,16 @@ An improved firmware for the **ATS Mini** pocket receiver (ESP32-S3 + SI4732): L
 It is built on the open-source [ats-mini](https://github.com/esp32-si4732/ats-mini) firmware and keeps everything it does,
 adding features for shortwave listeners and radio amateurs.
 
-> **Latest release: [v2.45-r4](https://github.com/ep3mhb/resonik-ats-mini/releases/latest)** (15 November 2026).
+> **Latest release: [v2.46-r4](https://github.com/ep3mhb/resonik-ats-mini/releases/latest)** (R4.1, 20 November 2026).
 
 Website, browser installer and manual: **<https://resonik.mikroutik.com>**
 
 What is coming in each release: [roadmap (PDF)](website/resonik-roadmap.pdf) · [نقشه‌ی راه فارسی (PDF)](website/resonik-roadmap-fa.pdf), source in `docs/roadmap/`.
+
+## What v2.46-r4 (R4.1) changes
+
+- Brought up to upstream ats-mini **v2.46**: mute and squelch now stay as they were across band and mode changes
+- **CW decoder page:** the sound no longer drops when the page opens; it plays at least at the FT8 page's level
 
 ## What v2.45-r4 adds
 

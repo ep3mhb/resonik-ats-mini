@@ -4,6 +4,20 @@ RESONIK edition: <https://resonik.mikroutik.com> · Upstream user manual: <https
 
 <!-- towncrier release notes start -->
 
+## 2.46-r4 (2026-11-20)
+
+RESONIK edition R4.1: R4 brought up to upstream ats-mini v2.46, with a fix for the CW decoder page. From R4: Menu → System → Update FW over Wi-Fi, or the Install button on https://resonik.mikroutik.com. Settings and memories are kept.
+
+
+### Changed
+
+- The CW decoder page plays at least at the FT8 page's level and never quieter than your own volume, so the sound no longer drops when the page opens. 
+
+
+### Fixed
+
+- Mute and squelch stay as they were across band and mode changes; before, a band or mode change could let sound through while the screen still showed Muted or the squelch closed (from upstream ats-mini v2.46). 
+
 ## 2.45-r4 (2026-11-15)
 
 RESONIK edition, Phase 4: control the radio from a phone or computer, and set up Wi-Fi on the radio itself. From R3: Menu → System → Update FW over Wi-Fi, or the Install button on https://resonik.mikroutik.com. Settings and memories are kept.

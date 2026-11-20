@@ -32,7 +32,7 @@ static constexpr const lgfx::IFont* FONT_DIGITS  = &lgfx::fonts::Font7;  // 48px
 #define AUTHORS_LINE6  "Fork work: epiHATR, jokubasver, mattafaak"
 
 #define VER_APP        246  // Upstream ats-mini version this edition is based on
-#define VER_RESONIK      5  // RESONIK release number on top of VER_APP (v2.46-r5)
+#define VER_RESONIK      4  // RESONIK release number on top of VER_APP (v2.46-r4, "R4.1")
 #define VER_FULL       (VER_APP * 100 + VER_RESONIK)  // Used for OTA version comparison
 #define VER_PRERELEASE   0  // 1 in beta/rc builds (set by the build workflow): the release with the same number is newer (GitHub #3)
 #define VER_OTA          1  // OTA compatibility; bump when a full USB flash is required
