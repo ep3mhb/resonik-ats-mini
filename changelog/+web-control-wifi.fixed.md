@@ -1,0 +1,1 @@
+Web Control with the FT8, CW or Digital page open: if the browser dropped off for a moment, the radio switched Wi-Fi off at once and the page could not reconnect, so the radio screen in the browser stopped after a while. The radio now waits a minute for the browser to come back.

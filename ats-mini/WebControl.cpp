@@ -638,7 +638,16 @@ static void webBeaconTick()
   if(snr > maxQ) maxQ = snr;
 }
 
-bool webControlActive() { return(ws.count() > 0); }
+// R5: a browser that drops off for a moment (Wi-Fi hiccup, phone screen
+// locked) still counts for a minute. Otherwise the FT8, CW and Digital pages
+// switched Wi-Fi off at once and the page could never reconnect: the radio
+// screen in the browser stopped after a while on the FT8 page.
+static uint32_t lastClientMs = 0;
+bool webControlActive()
+{
+  if(ws.count() > 0) { lastClientMs = millis(); return(true); }
+  return(lastClientMs && millis() - lastClientMs < 60000);
+}
 
 bool webControlTick()
 {
