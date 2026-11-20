@@ -3,6 +3,10 @@
 #include "Utils.h"
 #include "BatteryTime.h"
 
+// RESONIK R5: what the battery shows beside the icon
+uint8_t battDispIdx = 0;   // 0 Volts and time left, 1 Volts, 2 Percent, 3 Icon only
+const char *const battDispDesc[4] = { "Volts + time", "Volts", "Percent", "Icon only" };
+
 #define VBAT_MON  4                 // GPIO04 -- Battery Monitor PIN
 
 #define BATT_ADC_READS          10  // ADC reads for average calculation (Maximum value = 16 to avoid rollover in average calculation)
@@ -132,7 +136,9 @@ bool drawBattery(int x, int y)
     // Text representation of the voltage, alternating with the time remaining
     // ("~" while the discharge rate is still the typical value, not measured)
     uint16_t minutes = batteryEstimatorMinutes(&batteryEstimator);
-    if(minutes && (millis() / BACKGROUND_REFRESH_TIME) % 2 && !switchThemeEditor())
+    if(battDispIdx == 2 && !switchThemeEditor())
+      sprintf(voltage, "%d%%", (int)(batterySocFromVolts(batteryVolts) + 0.5f));
+    else if(minutes && battDispIdx == 0 && (millis() / BACKGROUND_REFRESH_TIME) % 2 && !switchThemeEditor())
     {
       // Same width as "3.95V": "~8h20", "12h", ">99h"
       if(minutes >= 100 * 60)
@@ -168,6 +174,7 @@ bool drawBattery(int x, int y)
     }
 
     spr.fillRoundRect(x + 2, y + 3, level, 10, 2, color);
+    if(battDispIdx == 3 && !switchThemeEditor()) return false;
     spr.drawString(voltage, x - 3, y, FONT_SMALL);
     return true;
   }

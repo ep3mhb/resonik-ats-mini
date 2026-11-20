@@ -166,7 +166,8 @@ static const char *menu[] =
 #define MENU_FREQLOCK     31  // RESONIK R3
 #define MENU_PERF         32  // RESONIK R3
 #define MENU_UPDNOTICE    33  // RESONIK R5
-#define MENU_ABOUT        34
+#define MENU_BATTDISP     34  // RESONIK R5
+#define MENU_ABOUT        35
 // RESONIK R4: Wi-Fi mode, Wi-Fi Power and joining a network are one item,
 // "Wi-Fi" (MENU_WIFIMODE), which opens the Wi-Fi page (WifiSetup.cpp)
 
@@ -212,6 +213,7 @@ static const char *settings[] =
   "Freq Lock",
   "CPU",
   "Update Notice",
+  "Battery",
   "About",
 };
 
@@ -268,6 +270,7 @@ static const TileEntry tileDisplay[] =
   { TI_SCROLL, TILE_SET | MENU_SCROLL }, { TI_MOON, TILE_SET | MENU_SLEEPMODE },
   { TI_SLEEPTIMER, TILE_SET | MENU_SLEEP }, { TI_PALETTE, TILE_SET | MENU_THEME },
   { TI_LAYOUT, TILE_SET | MENU_UI }, { TI_ZOOM, TILE_SET | MENU_ZOOM },
+  { TI_BATTERY, TILE_SET | MENU_BATTDISP },
 };
 static const TileEntry tileSystem[] =
 {
@@ -1775,6 +1778,7 @@ static void clickSettings(int cmd, bool shortPress)
     case MENU_FREQLOCK:   currentCmd = CMD_FREQLOCK;  break;
     case MENU_PERF:       currentCmd = CMD_PERF;      break;
     case MENU_UPDNOTICE:  currentCmd = CMD_UPDSET;    break;
+    case MENU_BATTDISP:   currentCmd = CMD_BATTDISP;  break;
     case MENU_BANDPLAN:   currentCmd = CMD_BANDPLAN;  break;
     case MENU_BPAREA:     currentCmd = CMD_BPAREA;    break;
     case MENU_AUTOATT:    currentCmd = CMD_AUTOATT;   break;
@@ -1860,6 +1864,10 @@ bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
       prefsRequestSave(SAVE_SETTINGS);
       break;
     case CMD_UPDNOTICE:  updNoticeTurn(scrollDirection * enc); break;
+    case CMD_BATTDISP:
+      battDispIdx = wrap_range(battDispIdx, scrollDirection * enc, 0, 3);
+      prefsRequestSave(SAVE_SETTINGS);
+      break;
     case CMD_BPAREA:
       bandPlanArea = wrap_range(bandPlanArea, scrollDirection * enc, 0, BP_AREA_COUNT - 1);
       if(bandPlanArea == BP_AREA_IRAN) statusShow("Iran (EP)", "No 160, 80 or 30 m");
@@ -2981,6 +2989,7 @@ void drawSideBar(uint16_t cmd, int x, int y, int sx)
     case CMD_LOGGER:     drawOptionList(settings[MENU_LOGGER], loggerDesc, 5, loggerIdx, x, y, sx); break;
     case CMD_CWSTRIP:    drawOptionList(settings[MENU_CWSTRIP], cwStripDesc, 2, cwStripIdx, x, y, sx); break;
     case CMD_UPDSET:     drawOptionList(settings[MENU_UPDNOTICE], updNoticeDesc, 2, updNoticeIdx, x, y, sx); break;
+    case CMD_BATTDISP:   drawOptionList(settings[MENU_BATTDISP], battDispDesc, 4, battDispIdx, x, y, sx); break;
     case CMD_BPAREA:     drawOptionList(settings[MENU_BPAREA], bandPlanAreaDesc, BP_AREA_COUNT, bandPlanArea, x, y, sx); break;
     case CMD_KNOB:       drawOptionList(settings[MENU_KNOB], knobDesc, 2, encoderHalfStep ? 1 : 0, x, y, sx); break;
     case CMD_FREQLOCK:   drawOptionList(settings[MENU_FREQLOCK], freqLockDesc, 2, freqLock, x, y, sx); break;
@@ -3199,6 +3208,7 @@ static const char *tileValueLabel(uint16_t cmd, int i)
     case CMD_SCROLL:    return(i ? "Reversed" : "Normal");
     case CMD_CWSTRIP:   return(cwStripDesc[i]);
     case CMD_UPDSET:    return(updNoticeDesc[i]);
+    case CMD_BATTDISP:  return(battDispDesc[i]);
     case CMD_KNOB:      return(knobDesc[i]);
     case CMD_FREQLOCK:  return(freqLockDesc[i]);
     case CMD_WIFIPOWER: return(wifiPowerDesc[i]);
@@ -3244,6 +3254,7 @@ static bool tileValueGet(uint16_t cmd, TileValue &v)
     case CMD_SCROLL:    v.count = 2; v.idx = scrollDirection > 0 ? 0 : 1; return(true);
     case CMD_CWSTRIP:   v.count = 2; v.idx = cwStripIdx; return(true);
     case CMD_UPDSET:    v.count = 2; v.idx = updNoticeIdx; return(true);
+    case CMD_BATTDISP:  v.count = 4; v.idx = battDispIdx; return(true);
     case CMD_BPAREA:    v.count = BP_AREA_COUNT; v.idx = bandPlanArea; return(true);
     case CMD_KNOB:      v.count = 2; v.idx = encoderHalfStep ? 1 : 0; return(true);
     case CMD_FREQLOCK:  v.count = 2; v.idx = freqLock; return(true);
@@ -3511,6 +3522,7 @@ void webMenuDef(String &j)
   wjItem(j, CMD_MENUSTYLE, "Display", "Menu style", "l"); j += ",\"o\":"; wjList(j, menuStyleDesc, ITEM_COUNT(menuStyleDesc)); j += '}';
   wjItem(j, CMD_ZOOM, "Display", "Zoom menu", "b"); j += '}';
   wjItem(j, CMD_SCROLL, "Display", "Reverse scrolling", "b"); j += '}';
+  wjItem(j, CMD_BATTDISP, "Display", "Battery shows", "l"); j += ",\"o\":"; wjList(j, battDispDesc, 4); j += '}';
   // Power and time
   wjItem(j, CMD_SLEEP, "Power and time", "Screen sleep", "n"); wjNum(j, 0, 255, 5, "s");
   wjItem(j, CMD_SLEEPMODE, "Power and time", "Sleep mode", "l"); j += ",\"o\":"; wjList(j, sleepModeDesc, ITEM_COUNT(sleepModeDesc)); j += '}';
@@ -3554,6 +3566,7 @@ void webMenuVals(String &j)
   kv(CMD_BPAREA, bandPlanArea);
   kv(CMD_CWSTRIP, cwStripIdx);
   kv(CMD_UPDSET, updNoticeIdx);
+  kv(CMD_BATTDISP, battDispIdx);
   kv(CMD_LOGGER, loggerIdx < LOG_CLEAR ? loggerIdx : 0);
   kv(CMD_BRT, currentBrt);
   kv(CMD_THEME, themeIdx);
@@ -3641,6 +3654,7 @@ bool webMenuSet(uint16_t cmd, int32_t v)
     case CMD_BPAREA:     if(v < 0 || v >= BP_AREA_COUNT) return(false); bandPlanArea = v; prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_CWSTRIP:    cwStripIdx = v ? 1 : 0; prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_UPDSET:     updNoticeIdx = v ? 1 : 0; prefsRequestSave(SAVE_SETTINGS); break;
+    case CMD_BATTDISP:   if(v < 0 || v > 3) return(false); battDispIdx = v; prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_LOGGER:     if(v < 0 || v >= LOG_CLEAR) return(false); loggerIdx = v; prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_BRT:        doBrt((constrain(v, 10, 255) - (int)currentBrt) / 5); break;
     case CMD_THEME:      if(v < 0 || v >= getTotalThemes()) return(false); doTheme(v - themeIdx); break;

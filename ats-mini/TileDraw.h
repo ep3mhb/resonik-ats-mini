@@ -18,7 +18,7 @@ enum TileIcon : uint8_t
   TI_RDS, TI_STEREO, TI_DIAL, TI_CHIP, TI_DOWNLOAD, TI_FIRMWARE, TI_USB, TI_NETWORK, TI_BT,
   TI_WIFI, TI_BANDPLAN, TI_ATT, TI_TILES, TI_LOG, TI_PROP, TI_INFO, TI_REGION,
   TI_BACK, TI_CLOSE, TI_SLEEPTIMER, TI_FORK, TI_KNOB, TI_CWDEC, TI_CWSTRIP, TI_SCANNER, TI_FT8,
-  TI_LOCK, TI_WIFIPOWER, TI_PERF,
+  TI_LOCK, TI_WIFIPOWER, TI_PERF, TI_BATTERY,
 };
 
 typedef struct
@@ -388,6 +388,11 @@ static void tileDrawIcon(S &s, TileIcon icon, int x, int y, uint16_t c, uint16_t
       s.fillTriangle(x + 3, y - 13, x - 8, y + 2, x + 1, y + 2, c);
       s.fillTriangle(x - 3, y + 13, x + 8, y - 2, x - 1, y - 2, c);
       break;
+    case TI_BATTERY:     // Battery, three quarters full (RESONIK R5)
+      s.drawRoundRect(x - 13, y - 7, 24, 14, 3, c);
+      s.fillRect(x + 11, y - 3, 3, 6, c);
+      s.fillRect(x - 10, y - 4, 14, 8, c);
+      break;
     case TI_WIFIPOWER:   // Wi-Fi arcs with a level bar
       s.fillCircle(x - 4, y + 9, 2, c);
       s.drawArc(x - 4, y + 9, 8, 6, 225, 315, c);
@@ -715,6 +720,11 @@ static void tileDrawIconColor(S &s, TileIcon icon, int x, int y, uint16_t bg)
     case TI_PERF:        // Yellow lightning bolt
       s.fillTriangle(x + 3, y - 13, x - 8, y + 2, x + 1, y + 2, TC_Y);
       s.fillTriangle(x - 3, y + 13, x + 8, y - 2, x - 1, y - 2, TC_Y);
+      break;
+    case TI_BATTERY:     // White battery, green charge (RESONIK R5)
+      s.drawRoundRect(x - 13, y - 7, 24, 14, 3, TC_W);
+      s.fillRect(x + 11, y - 3, 3, 6, TC_W);
+      s.fillRect(x - 10, y - 4, 14, 8, TC_G);
       break;
     case TI_WIFIPOWER:   // Wi-Fi arcs, green, yellow and empty level bars
       s.fillCircle(x - 4, y + 9, 2, TC_W);

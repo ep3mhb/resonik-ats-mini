@@ -233,6 +233,7 @@ void prefsSave(uint32_t items)
     prefs.putUChar("CwStrip",     cwStripIdx);     // CW decoder strip (RESONIK R3)
     prefs.putUChar("UpdNotice",   updNoticeIdx);   // New version notice (RESONIK R5)
     prefs.putUInt("UpdSkip",      updSkipVersion); // Release the user skipped (RESONIK R5)
+    prefs.putUChar("BattDisp",    battDispIdx);    // Battery text (RESONIK R5)
     prefs.putUChar("FreqLock",    freqLock);       // Frequency lock (RESONIK R3)
     prefs.putUChar("BcnNames",    beaconNames);    // Beacon names on beacon frequencies (RESONIK R4)
     prefs.putUChar("WifiPower",   wifiPowerIdx);   // Wi-Fi transmit power (RESONIK R3)
@@ -343,6 +344,7 @@ bool prefsLoad(uint32_t items)
     cwStripIdx     = prefs.getUChar("CwStrip", cwStripIdx) ? 1 : 0;   // Default Off (R3)
     updNoticeIdx   = prefs.getUChar("UpdNotice", updNoticeIdx) ? 1 : 0;   // Default On (R5)
     updSkipVersion = prefs.getUInt("UpdSkip", updSkipVersion);
+    battDispIdx    = prefs.getUChar("BattDisp", battDispIdx) % 4;
     freqLock       = prefs.getUChar("FreqLock", freqLock) ? 1 : 0;
     beaconNames    = prefs.getUChar("BcnNames", beaconNames) ? 1 : 0;
     wifiPowerIdx   = prefs.getUChar("WifiPower", wifiPowerIdx) % 3;
