@@ -10,6 +10,9 @@
 // level at GPIO11 does not depend on the user's volume (FT8 uses its own 50)
 #define AUDIO_LINE_VOLUME 45
 
+// R5: receiver volume on the CW page, at least: the FT8 page's level (Ft8.cpp)
+#define CW_PAGE_VOLUME 50
+
 extern uint8_t cwStripIdx;                 // Decoder strip in CW mode: 0 Off, 1 On
 extern const char *const cwStripDesc[2];
 
