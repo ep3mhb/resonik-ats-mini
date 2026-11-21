@@ -482,25 +482,44 @@ void drawDigiPage()
     return;
   }
 
-  // Text: the last characters, five lines of 32
+  // Text: the last five lines, broken between words. Lines of a fixed 32
+  // characters cut words in two ("V" / "ALID UNTIL"); a word wider than the
+  // screen, as a row of RYRY, is still cut where the line ends.
   char text[Digi::TEXT_MAX + 1];
   if(lock) { xSemaphoreTake(lock, portMAX_DELAY); strcpy(text, shownText); xSemaphoreGive(lock); }
   else text[0] = '\0';
-  int len = strlen(text);
-  const int per = 32, rows = 5;
-  int start = len > per * rows ? len - per * rows : 0;
-  start -= start % per;
+  const int rows = 5, maxW = 304;
+  static char lines[5][Digi::TEXT_MAX + 1];
+  char line[Digi::TEXT_MAX + 1] = "", trial[Digi::TEXT_MAX + 2], part[Digi::TEXT_MAX + 2];
+  int count = 0;
+  for(const char *p = text; *p; )
+  {
+    while(*p == ' ') p++;
+    const char *w = p;
+    while(*p && *p != ' ') p++;
+    int wl = (int)(p - w);
+    if(!wl) break;
+    snprintf(trial, sizeof(trial), "%s%s%.*s", line, line[0] ? " " : "", wl, w);
+    if(line[0] && spr.textWidth(trial, FONT_SMALL) > maxW)
+    {
+      strcpy(lines[count++ % rows], line);
+      snprintf(trial, sizeof(trial), "%.*s", wl, w);
+    }
+    while(spr.textWidth(trial, FONT_SMALL) > maxW)
+    {
+      int n = strlen(trial), k = n;
+      do { k--; memcpy(part, trial, k); part[k] = '\0'; } while(k > 1 && spr.textWidth(part, FONT_SMALL) > maxW);
+      strcpy(lines[count++ % rows], part);
+      memmove(trial, trial + k, n - k + 1);
+    }
+    strcpy(line, trial);
+  }
+  if(line[0]) strcpy(lines[count++ % rows], line);
+  int shown = count < rows ? count : rows;
   spr.setTextDatum(TL_DATUM);
   spr.setTextColor(DG_RGB(0xEEF5F7));
-  for(int r = 0; r < rows; r++)
-  {
-    int at = start + r * per;
-    if(at >= len) break;
-    char row[per + 1];
-    strncpy(row, text + at, per);
-    row[per] = '\0';
-    spr.drawString(row, 8, 64 + r * 17, FONT_SMALL);   // The fifth ends at 148, over the foot line
-  }
+  for(int r = 0; r < shown; r++)
+    spr.drawString(lines[(count - shown + r) % rows], 8, 64 + r * 17, FONT_SMALL);   // The fifth ends at 148, over the foot line
   spr.setTextDatum(BC_DATUM);
   spr.setTextColor(DG_RGB(0x8FB3C0));
   spr.drawString("Turn: tune  Click: mode  Press: leave", 160, 169, uiFont(true));
