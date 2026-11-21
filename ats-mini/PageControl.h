@@ -584,6 +584,10 @@ function status(j){
   'Radio: ADC failed '+j.adcErrors+', dropped '+j.late+', filled in '+j.caughtUp+', ring overrun '+j.overrun+
   ', read '+j.readUs+'/'+j.readMax+' &micro;s<br>'+
   'Network: busy '+j.waits+'<br>Browser: gaps '+gaps+' ('+gapMs+' ms)';}
+// R5: the Decodes map and its fields are set up with the page. They were
+// set up by the first decode, so the tab had an empty space where the map
+// belongs until a decoder had heard something (Mohammad, 21 Nov: no map).
+try{dInit();}catch(e){}
 connect();
 </script></body></html>)HTML";
 
