@@ -1,0 +1,1 @@
+**Enc. Accel.** (Menu → System, and Web Control → Settings → Power and time): switch off the speed-up of fast knob turns for one step per click. On by default. From ats-mini ([#378](https://github.com/esp32-si4732/ats-mini/discussions/378)).

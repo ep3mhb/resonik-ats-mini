@@ -43,48 +43,72 @@ int bandIdx = 0;
 // Do not forget to update the bands table in the manual.md
 Band bands[] =
 {
-  {"VHF",  FM_BAND_TYPE, FM,  64000000, 108000000, 103900000, 2, 0, 0, 0},
+  {"VHF",  FM_BAND_TYPE, FM, FM,  64000000, 108000000, 103900000, 2, 0, 0, 0},
   // All band. LW, MW and SW (from 150kHz to 30MHz)
-  {"ALL",  SW_BAND_TYPE, AM,    150000,  30000000,  15000000, 1, 4, 0, 0},
-  {"11M",  SW_BAND_TYPE, AM,  25600000,  26100000,  25850000, 1, 4, 0, 0},
-  {"13M",  SW_BAND_TYPE, AM,  21500000,  21900000,  21650000, 1, 4, 0, 0},
-  {"15M",  SW_BAND_TYPE, AM,  18900000,  19100000,  18950000, 1, 4, 0, 0},
-  {"16M",  SW_BAND_TYPE, AM,  17400000,  18100000,  17650000, 1, 4, 0, 0},
-  {"19M",  SW_BAND_TYPE, AM,  15100000,  15900000,  15450000, 1, 4, 0, 0},
-  {"22M",  SW_BAND_TYPE, AM,  13500000,  13900000,  13650000, 1, 4, 0, 0},
-  {"25M",  SW_BAND_TYPE, AM,  11000000,  13000000,  11850000, 1, 4, 0, 0},
-  {"31M",  SW_BAND_TYPE, AM,   9000000,  11000000,   9650000, 1, 4, 0, 0},
-  {"41M",  SW_BAND_TYPE, AM,   7000000,   9000000,   7300000, 1, 4, 0, 0},
-  {"49M",  SW_BAND_TYPE, AM,   5000000,   7000000,   6000000, 1, 4, 0, 0},
-  {"60M",  SW_BAND_TYPE, AM,   4000000,   5100000,   4950000, 1, 4, 0, 0},
-  {"75M",  SW_BAND_TYPE, AM,   3500000,   4000000,   3950000, 1, 4, 0, 0},
-  {"90M",  SW_BAND_TYPE, AM,   3000000,   3500000,   3300000, 1, 4, 0, 0},
-//  {"25M",  SW_BAND_TYPE, AM,  11600000,  12100000,  11850000, 1, 4, 0},
-//  {"31M",  SW_BAND_TYPE, AM,   9400000,   9900000,   9650000, 1, 4, 0},
-//  {"41M",  SW_BAND_TYPE, AM,   7200000,   7500000,   7300000, 1, 4, 0},
-//  {"49M",  SW_BAND_TYPE, AM,   5900000,   6200000,   6000000, 1, 4, 0},
-//  {"60M",  SW_BAND_TYPE, AM,   4700000,   5100000,   4950000, 1, 4, 0},
-//  {"75M",  SW_BAND_TYPE, AM,   3900000,   4000000,   3950000, 1, 4, 0},
-//  {"90M",  SW_BAND_TYPE, AM,   3200000,   3400000,   3300000, 1, 4, 0},
-  {"MW3",  MW_BAND_TYPE, AM,   1700000,   3500000,   2500000, 1, 4, 0, 0},
-  {"MW2",  MW_BAND_TYPE, AM,    495000,   1701000,    783000, 2, 4, 0, 0},
-  {"MW1",  MW_BAND_TYPE, AM,    150000,   1800000,    810000, 3, 4, 0, 0},
-  {"160M", MW_BAND_TYPE, LSB,   1800000,   2000000,   1900000, 5, 4, 0, 0},
-  {"80M",  SW_BAND_TYPE, LSB,   3500000,   4000000,   3800000, 5, 4, 0, 0},
-  {"40M",  SW_BAND_TYPE, LSB,   7000000,   7300000,   7150000, 5, 4, 0, 0},
-  {"30M",  SW_BAND_TYPE, LSB,  10000000,  10200000,  10125000, 5, 4, 0, 0},
-  {"20M",  SW_BAND_TYPE, USB,  14000000,  14400000,  14100000, 5, 4, 0, 0},
-  {"17M",  SW_BAND_TYPE, USB,  18000000,  18200000,  18115000, 5, 4, 0, 0},
-  {"15M",  SW_BAND_TYPE, USB,  21000000,  21500000,  21225000, 5, 4, 0, 0},
-  {"12M",  SW_BAND_TYPE, USB,  24800000,  25000000,  24940000, 5, 4, 0, 0},
-  {"10M",  SW_BAND_TYPE, USB,  28000000,  29700000,  28500000, 5, 4, 0, 0},
+  {"ALL",  SW_BAND_TYPE, AM, AM,    150000,  30000000,  15000000, 1, 4, 0, 0},
+  {"11M",  SW_BAND_TYPE, AM, AM,  25600000,  26100000,  25850000, 1, 4, 0, 0},
+  {"13M",  SW_BAND_TYPE, AM, AM,  21500000,  21900000,  21650000, 1, 4, 0, 0},
+  {"15M",  SW_BAND_TYPE, AM, AM,  18900000,  19100000,  18950000, 1, 4, 0, 0},
+  {"16M",  SW_BAND_TYPE, AM, AM,  17400000,  18100000,  17650000, 1, 4, 0, 0},
+  {"19M",  SW_BAND_TYPE, AM, AM,  15100000,  15900000,  15450000, 1, 4, 0, 0},
+  {"22M",  SW_BAND_TYPE, AM, AM,  13500000,  13900000,  13650000, 1, 4, 0, 0},
+  {"25M",  SW_BAND_TYPE, AM, AM,  11000000,  13000000,  11850000, 1, 4, 0, 0},
+  {"31M",  SW_BAND_TYPE, AM, AM,   9000000,  11000000,   9650000, 1, 4, 0, 0},
+  {"41M",  SW_BAND_TYPE, AM, AM,   7000000,   9000000,   7300000, 1, 4, 0, 0},
+  {"49M",  SW_BAND_TYPE, AM, AM,   5000000,   7000000,   6000000, 1, 4, 0, 0},
+  {"60M",  SW_BAND_TYPE, AM, AM,   4000000,   5100000,   4950000, 1, 4, 0, 0},
+  {"75M",  SW_BAND_TYPE, AM, AM,   3500000,   4000000,   3950000, 1, 4, 0, 0},
+  {"90M",  SW_BAND_TYPE, AM, AM,   3000000,   3500000,   3300000, 1, 4, 0, 0},
+//  {"25M",  SW_BAND_TYPE, AM, AM,  11600000,  12100000,  11850000, 1, 4, 0},
+//  {"31M",  SW_BAND_TYPE, AM, AM,   9400000,   9900000,   9650000, 1, 4, 0},
+//  {"41M",  SW_BAND_TYPE, AM, AM,   7200000,   7500000,   7300000, 1, 4, 0},
+//  {"49M",  SW_BAND_TYPE, AM, AM,   5900000,   6200000,   6000000, 1, 4, 0},
+//  {"60M",  SW_BAND_TYPE, AM, AM,   4700000,   5100000,   4950000, 1, 4, 0},
+//  {"75M",  SW_BAND_TYPE, AM, AM,   3900000,   4000000,   3950000, 1, 4, 0},
+//  {"90M",  SW_BAND_TYPE, AM, AM,   3200000,   3400000,   3300000, 1, 4, 0},
+  {"MW3",  MW_BAND_TYPE, AM, AM,   1700000,   3500000,   2500000, 1, 4, 0, 0},
+  {"MW2",  MW_BAND_TYPE, AM, AM,    495000,   1701000,    783000, 2, 4, 0, 0},
+  {"MW1",  MW_BAND_TYPE, AM, AM,    150000,   1800000,    810000, 3, 4, 0, 0},
+  {"160M", MW_BAND_TYPE, LSB, LSB,   1800000,   2000000,   1900000, 5, 4, 0, 0},
+  {"80M",  SW_BAND_TYPE, LSB, LSB,   3500000,   4000000,   3800000, 5, 4, 0, 0},
+  {"40M",  SW_BAND_TYPE, LSB, LSB,   7000000,   7300000,   7150000, 5, 4, 0, 0},
+  {"30M",  SW_BAND_TYPE, LSB, LSB,  10000000,  10200000,  10125000, 5, 4, 0, 0},
+  {"20M",  SW_BAND_TYPE, USB, USB,  14000000,  14400000,  14100000, 5, 4, 0, 0},
+  {"17M",  SW_BAND_TYPE, USB, USB,  18000000,  18200000,  18115000, 5, 4, 0, 0},
+  {"15M",  SW_BAND_TYPE, USB, USB,  21000000,  21500000,  21225000, 5, 4, 0, 0},
+  {"12M",  SW_BAND_TYPE, USB, USB,  24800000,  25000000,  24940000, 5, 4, 0, 0},
+  {"10M",  SW_BAND_TYPE, USB, USB,  28000000,  29700000,  28500000, 5, 4, 0, 0},
   // https://www.hfunderground.com/wiki/CB
   // Also see MIN_CB_FREQUENCY and MAX_CB_FREQUENCY
-  {"CB",   SW_BAND_TYPE, AM,  25000000,  28000000,  27135000, 0, 4, 0, 0},
+  {"CB",   SW_BAND_TYPE, AM, AM,  25000000,  28000000,  27135000, 0, 4, 0, 0},
 };
 
 int getTotalBands() { return(ITEM_COUNT(bands)); }
 Band *getCurrentBand() { return(&bands[bandIdx]); }
+
+static int findBand(uint32_t freq, uint8_t mode, int preferredBand)
+{
+  if(preferredBand >= 0 && preferredBand < getTotalBands() &&
+     isFreqInBand(&bands[preferredBand], freq)) return preferredBand;
+
+  int best = -1;
+  uint32_t bestWidth = UINT32_MAX;
+  // ALL is wider than every overlapping named band, so it is the fallback.
+  for(int i = 0; i < getTotalBands(); i++)
+  {
+    const Band &band = bands[i];
+    if(!isFreqInBand(&band, freq)) continue;
+    const uint32_t width = band.maximumFreq - band.minimumFreq;
+    // Equal widths prefer the default mode; otherwise keep table order.
+    if(best < 0 || width < bestWidth ||
+       (width == bestWidth && band.defaultMode == mode && bands[best].defaultMode != mode))
+    {
+      best = i;
+      bestWidth = width;
+    }
+  }
+  return best;
+}
 
 //
 // Main Menu
@@ -151,34 +175,36 @@ static const char *menu[] =
 #define MENU_UI           7
 #define MENU_ZOOM         8
 #define MENU_SCROLL       9
-#define MENU_RDS          10
-#define MENU_FM_STEREO    11
-#define MENU_FM_REGION    12
-#define MENU_CALIBRATION  13
-#define MENU_DSP_PATCHES  14
-#define MENU_LOADEIBI     15
-#define MENU_UPDATEFW     16
-#define MENU_USBMODE      17
-#define MENU_TCPMODE      18
-#define MENU_BLEMODE      19
-#define MENU_WIFIMODE     20
-#define MENU_BANDPLAN     21  // RESONIK
-#define MENU_AUTOATT      22  // RESONIK
-#define MENU_MENUSTYLE    23  // RESONIK
-#define MENU_LOGGER       24  // RESONIK
-#define MENU_PROPAG       25  // RESONIK
-#define MENU_KNOB         26  // RESONIK
-#define MENU_CWDEC        27  // RESONIK R3
-#define MENU_CWSTRIP      28  // RESONIK R3
-#define MENU_BPAREA       29  // RESONIK R3
-#define MENU_FT8          30  // RESONIK R3
-#define MENU_FREQLOCK     31  // RESONIK R3
-#define MENU_PERF         32  // RESONIK R3
-#define MENU_UPDNOTICE    33  // RESONIK R5
-#define MENU_BATTDISP     34  // RESONIK R5
-#define MENU_DIGI         35  // RESONIK R5
-#define MENU_DECAUDIO     36  // RESONIK R5
-#define MENU_ABOUT        37
+#define MENU_ENC_ACCEL    10
+#define MENU_RDS          11
+#define MENU_FM_STEREO    12
+#define MENU_FM_REGION    13
+#define MENU_ANTCAP       14
+#define MENU_CALIBRATION  15
+#define MENU_DSP_PATCHES  16
+#define MENU_LOADEIBI     17
+#define MENU_UPDATEFW     18
+#define MENU_USBMODE      19
+#define MENU_TCPMODE      20
+#define MENU_BLEMODE      21
+#define MENU_WIFIMODE     22
+#define MENU_BANDPLAN     23  // RESONIK
+#define MENU_AUTOATT      24  // RESONIK
+#define MENU_MENUSTYLE    25  // RESONIK
+#define MENU_LOGGER       26  // RESONIK
+#define MENU_PROPAG       27  // RESONIK
+#define MENU_KNOB         28  // RESONIK
+#define MENU_CWDEC        29  // RESONIK R3
+#define MENU_CWSTRIP      30  // RESONIK R3
+#define MENU_BPAREA       31  // RESONIK R3
+#define MENU_FT8          32  // RESONIK R3
+#define MENU_FREQLOCK     33  // RESONIK R3
+#define MENU_PERF         34  // RESONIK R3
+#define MENU_UPDNOTICE    35  // RESONIK R5
+#define MENU_BATTDISP     36  // RESONIK R5
+#define MENU_DIGI         37  // RESONIK R5
+#define MENU_DECAUDIO     38  // RESONIK R5
+#define MENU_ABOUT        39
 // RESONIK R4: Wi-Fi mode, Wi-Fi Power and joining a network are one item,
 // "Wi-Fi" (MENU_WIFIMODE), which opens the Wi-Fi page (WifiSetup.cpp)
 
@@ -200,9 +226,11 @@ static const char *settings[] =
   "UI Layout",
   "Zoom Menu",
   "Scroll Dir.",
+  "Enc. Accel.",
   "RDS",
   "FM Stereo",
   "FM Region",
+  "Capacitor",
   "Calibration",
   "DSP Patches",
   "Load EiBi",
@@ -259,6 +287,7 @@ static const TileEntry tileTuning[] =
   { TI_REGION, TILE_SET | MENU_FM_REGION }, { TI_RDS, TILE_SET | MENU_RDS },
   { TI_SCAN, MENU_SCAN }, { TI_SCANNER, MENU_SCANNER }, { TI_SEEK, MENU_SEEK }, { TI_STEP, MENU_STEP }, { TI_VFO, MENU_VFO },
   { TI_DIAL, MENU_FREQPAD }, { TI_FT8, MENU_BANDVIEW },
+  { TI_FORK, TILE_SET | MENU_ANTCAP },
 };
 static const TileEntry tileAudio[] =
 {
@@ -292,7 +321,7 @@ static const TileEntry tileSystem[] =
 {
   { TI_INFO, TILE_SET | MENU_ABOUT }, { TI_BT, TILE_SET | MENU_BLEMODE },
   { TI_CLOCK, TILE_SET | MENU_DATETIME }, { TI_CHIP, TILE_SET | MENU_DSP_PATCHES },
-  { TI_KNOB, TILE_SET | MENU_KNOB },
+  { TI_KNOB, TILE_SET | MENU_KNOB }, { TI_SEEK, TILE_SET | MENU_ENC_ACCEL },
   { TI_POWER, TILE_SET | MENU_OFFTIMER }, { TI_NETWORK, TILE_SET | MENU_TCPMODE },
   { TI_GLOBE, TILE_SET | MENU_UTCOFFSET }, { TI_FIRMWARE, TILE_SET | MENU_UPDATEFW },
   { TI_USB, TILE_SET | MENU_USBMODE }, { TI_WIFI, TILE_SET | MENU_WIFIMODE },
@@ -672,7 +701,7 @@ int getTotalUILayouts() { return(ITEM_COUNT(uiLayoutDesc)); }
 
 uint8_t usbModeIdx = USB_OFF;
 const char *const usbModeDesc[] =
-{ "Off", "Ad hoc", "CAT" };
+{ "Off", "Ad hoc", "CAT TS-480" };
 
 int getTotalUSBModes() { return(ITEM_COUNT(usbModeDesc)); }
 
@@ -682,7 +711,7 @@ int getTotalUSBModes() { return(ITEM_COUNT(usbModeDesc)); }
 
 uint8_t tcpModeIdx = TCP_OFF;
 const char *const tcpModeDesc[] =
-{ "Off", "Ad hoc" };
+{ "Off", "Ad hoc", "CAT TS-480" };
 
 int getTotalTCPModes() { return(ITEM_COUNT(tcpModeDesc)); }
 
@@ -693,7 +722,7 @@ int getTotalTCPModes() { return(ITEM_COUNT(tcpModeDesc)); }
 uint8_t bleModeIdx = BLE_OFF;
 static uint8_t bleModeMenuIdx = BLE_OFF;
 const char *const bleModeDesc[] =
-{ "Off", "Ad hoc", "HID", "Unpair All" };
+{ "Off", "Ad hoc", "CAT TS-480", "HID", "Unpair All" };
 
 int getTotalBluetoothModes() { return(ITEM_COUNT(bleModeDesc)); }
 
@@ -1188,6 +1217,13 @@ void doFmStereo(int16_t enc)
   if(enc) prefsRequestSave(SAVE_SETTINGS);
 }
 
+static void doAntennaCapacitor()
+{
+  autoAntennaCapacitor = !autoAntennaCapacitor;
+  if(currentMode != FM) selectBand(bandIdx, false);
+  prefsRequestSave(SAVE_SETTINGS);
+}
+
 static uint8_t dspPatchSlots(uint8_t slots[PATCH_SET_COUNT + 1], uint8_t &selected)
 {
   uint8_t count = 1;
@@ -1311,6 +1347,12 @@ static void doZoom(int16_t enc)
   prefsRequestSave(SAVE_SETTINGS);
 }
 
+static void doEncoderAcceleration()
+{
+  encoderAcceleration = !encoderAcceleration;
+  prefsRequestSave(SAVE_SETTINGS);
+}
+
 static void doScrollDir(int16_t enc)
 {
   scrollDirection = (scrollDirection == 1) ? -1 : 1;
@@ -1369,6 +1411,11 @@ VfoState captureVfo()
   };
 }
 
+VfoState getVfo(uint8_t index)
+{
+  return index == vfoIdx ? captureVfo() : vfos[index];
+}
+
 static bool validVfo(const VfoState &vfo)
 {
   if(vfo.band>=getTotalBands() || vfo.mode>=getTotalModes()) return(false);
@@ -1404,18 +1451,84 @@ void initVfo()
   vfoInitialized = true;
 }
 
-static void clickVfo(bool shortPress)
+bool selectVfo(uint8_t index)
+{
+  if(index > 1) return false;
+  if(index == vfoIdx) return true;
+  vfos[vfoIdx] = captureVfo();
+  vfoIdx = index;
+  restoreVfo();
+  prefsRequestSave(SAVE_SETTINGS | SAVE_BANDS);
+  return true;
+}
+
+bool setVfoFrequency(uint8_t index, uint32_t freq)
+{
+  if(index > 1) return false;
+  const VfoState previous = getVfo(index);
+  VfoState vfo = previous;
+  const int band = findBand(freq, vfo.mode, vfo.band);
+  if(band < 0) return false;
+  vfo.band = band;
+  if((vfo.mode == FM) != (bands[vfo.band].bandType == FM_BAND_TYPE))
+  {
+    vfo.mode = bands[vfo.band].defaultMode;
+    vfo.stepIdx = defaultStepIdx[vfo.mode];
+    vfo.bandwidthIdx = defaultBwIdx[vfo.mode];
+  }
+  // Match hardware resolution even when updating the inactive VFO.
+  const uint32_t resolution = vfo.mode == FM ? 10000 : vfo.mode == AM ? 1000 : 1;
+  vfo.freq = freq / resolution * resolution;
+  if(!validVfo(vfo)) return false;
+  if(vfo.freq == previous.freq && vfo.band == previous.band && vfo.mode == previous.mode &&
+     vfo.stepIdx == previous.stepIdx && vfo.bandwidthIdx == previous.bandwidthIdx) return true;
+
+  if(index != vfoIdx)
+  {
+    vfos[index] = vfo;
+    prefsRequestSave(SAVE_CUR_BAND);
+    return true;
+  }
+  if(vfo.band == bandIdx)
+  {
+    if(!updateFrequency(vfo.freq, false)) return false;
+    clearStationInfo();
+    identifyFrequency(currentFrequency);
+    vfos[index] = captureVfo();
+    prefsRequestSave(SAVE_CUR_BAND);
+    return true;
+  }
+
+  vfos[index] = vfo;
+  restoreVfo();
+  prefsRequestSave(SAVE_SETTINGS | SAVE_BANDS);
+  return true;
+}
+
+bool setMode(uint8_t mode)
+{
+  if(mode >= getTotalModes() || ((mode == FM) != (currentMode == FM))) return false;
+  if(mode == currentMode) return true;
+  bands[bandIdx].currentStepIdx = defaultStepIdx[mode];
+  bands[bandIdx].bandwidthIdx = defaultBwIdx[mode];
+  bands[bandIdx].bandMode = mode;
+  selectBand(bandIdx);
+  prefsRequestSave(SAVE_CUR_BAND);
+  return true;
+}
+
+void copyVfo()
 {
   vfos[vfoIdx] = captureVfo();
-  if(shortPress)
-    vfos[vfoIdx ^ 1] = vfos[vfoIdx];
-  else
-  {
-    vfoIdx ^= 1;
-    restoreVfo();
-  }
+  vfos[vfoIdx ^ 1] = vfos[vfoIdx];
   // Save both bands: they may contain pending edits from before the switch.
   prefsRequestSave(SAVE_SETTINGS | SAVE_BANDS);
+}
+
+static void clickVfo(bool shortPress)
+{
+  if(shortPress) copyVfo();
+  else selectVfo(vfoIdx ^ 1);
 }
 
 static void doMemory(int16_t enc)
@@ -1545,25 +1658,15 @@ void doAgc(int16_t enc)
 
 void doMode(int16_t enc)
 {
-  // This is our current mode for the current band
-  currentMode = bands[bandIdx].bandMode;
-
   // Cannot change away from FM mode
   if(currentMode==FM) return;
 
   // Change AM/LSB/USB/CW modes, do not allow FM mode
+  uint8_t mode = currentMode;
   do
-    currentMode = wrap_range(currentMode, enc, 0, LAST_ITEM(bandModeDesc));
-  while(currentMode==FM);
-
-  // Save current band settings
-  bands[bandIdx].currentStepIdx = defaultStepIdx[currentMode];
-  bands[bandIdx].bandwidthIdx = defaultBwIdx[currentMode];
-  bands[bandIdx].bandMode = currentMode;
-
-  // Enable the new band
-  selectBand(bandIdx);
-  prefsRequestSave(SAVE_CUR_BAND);
+    mode = wrap_range(mode, enc, 0, LAST_ITEM(bandModeDesc));
+  while(mode==FM);
+  setMode(mode);
 }
 
 void doSquelch(int16_t enc)
@@ -1779,6 +1882,7 @@ static void clickSettings(int cmd, bool shortPress)
       currentCmd = CMD_DATETIME;
       break;
     case MENU_ZOOM:       currentCmd = CMD_ZOOM;       break;
+    case MENU_ENC_ACCEL:  currentCmd = CMD_ENC_ACCEL;  break;
     case MENU_SCROLL:     currentCmd = CMD_SCROLL;     break;
     case MENU_OFFTIMER:
       if(shortPress) receiverShutdown();
@@ -1796,6 +1900,7 @@ static void clickSettings(int cmd, bool shortPress)
     case MENU_WIFIMODE:   wifiSetupOpen();             break;
     case MENU_FM_REGION:  currentCmd = CMD_FM_REGION; break;
     case MENU_FM_STEREO:  currentCmd = CMD_FM_STEREO; break;
+    case MENU_ANTCAP:     currentCmd = CMD_ANTCAP;    break;
     case MENU_DSP_PATCHES: currentCmd = CMD_DSP_PATCHES; break;
     case MENU_ABOUT:      currentCmd = CMD_ABOUT;     break;
     case MENU_KNOB:       currentCmd = CMD_KNOB;      break;
@@ -1872,6 +1977,7 @@ bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
     case CMD_AVC:        doAvc(enc);break;
     case CMD_FM_REGION:  doFmRegion(scrollDirection * enc);break;
     case CMD_FM_STEREO:  doFmStereo(scrollDirection * enc);break;
+    case CMD_ANTCAP:     doAntennaCapacitor();break;
     case CMD_DSP_PATCHES: doDspPatches(scrollDirection * enc);break;
     case CMD_SETTINGS:   doSettings(scrollDirection * enc);break;
     case CMD_BRT:        doBrt(enca);break;
@@ -1945,6 +2051,7 @@ bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
     case CMD_BLEMODE:    doBleMode(scrollDirection * enc);break;
     case CMD_WIFIMODE:   doWiFiMode(scrollDirection * enc);break;
     case CMD_ZOOM:       doZoom(enc);break;
+    case CMD_ENC_ACCEL:  doEncoderAcceleration();break;
     case CMD_SCROLL:     doScrollDir(enc);break;
     case CMD_UTCOFFSET:  doUTCOffset(scrollDirection * enc);break;
     case CMD_DATETIME:   doDateTime(enc);break;
@@ -2866,6 +2973,26 @@ static void drawZoom(int x, int y, int sx)
   spr.drawString(zoomMenu ? "On" : "Off", 40+x+(sx/2), 60+y, FONT_LARGE);
 }
 
+static void drawAntennaCapacitor(int x, int y, int sx)
+{
+  drawCommon(settings[MENU_ANTCAP], x, y, sx);
+  drawZoomedMenu(settings[MENU_ANTCAP]);
+  spr.setTextDatum(MC_DATUM);
+
+  spr.setTextColor(TH.menu_param);
+  spr.drawString(autoAntennaCapacitor ? "On" : "Off", 40+x+(sx/2), 60+y, FONT_LARGE);
+}
+
+static void drawEncoderAcceleration(int x, int y, int sx)
+{
+  drawCommon(settings[MENU_ENC_ACCEL], x, y, sx);
+  drawZoomedMenu(settings[MENU_ENC_ACCEL]);
+  spr.setTextDatum(MC_DATUM);
+
+  spr.setTextColor(TH.menu_param);
+  spr.drawString(encoderAcceleration ? "On" : "Off", 40+x+(sx/2), 60+y, FONT_LARGE);
+}
+
 static void drawScrollDir(int x, int y, int sx)
 {
   drawCommon(settings[MENU_SCROLL], x, y, sx);
@@ -3041,6 +3168,7 @@ void drawSideBar(uint16_t cmd, int x, int y, int sx)
     case CMD_AVC:        drawAvc(x, y, sx);        break;
     case CMD_FM_REGION:  drawFmRegion(x, y, sx);   break;
     case CMD_FM_STEREO:  drawFmStereo(x, y, sx);   break;
+    case CMD_ANTCAP:     drawAntennaCapacitor(x, y, sx);break;
     case CMD_DSP_PATCHES: drawDspPatches(x, y, sx); break;
     case CMD_BRT:        drawBrt(x, y, sx);        break;
     case CMD_RDS:        drawRDSMode(x, y, sx);    break;
@@ -3054,6 +3182,7 @@ void drawSideBar(uint16_t cmd, int x, int y, int sx)
     case CMD_WIFIMODE:   drawWiFiMode(x, y, sx);   break;
     case CMD_UPDATEFW:   drawUpdateFW(x, y, sx);   break;
     case CMD_ZOOM:       drawZoom(x, y, sx);       break;
+    case CMD_ENC_ACCEL:  drawEncoderAcceleration(x, y, sx);break;
     case CMD_SCROLL:     drawScrollDir(x, y, sx);  break;
     case CMD_UTCOFFSET:  drawUTCOffset(x, y, sx);  break;
     case CMD_DATETIME:   drawDateTime(x, y, sx);   break;
@@ -3257,7 +3386,9 @@ static const char *tileValueLabel(uint16_t cmd, int i)
     case CMD_WIFIMODE:  return(wifiModeDesc[i]);
     case CMD_UPDATEFW:  return(updateFwActions[i]);
     case CMD_UTCOFFSET: return(timeZones[i].desc);
-    case CMD_ZOOM:      return(i ? "On" : "Off");
+    case CMD_ZOOM:
+    case CMD_ANTCAP:
+    case CMD_ENC_ACCEL: return(i ? "On" : "Off");
     case CMD_SCROLL:    return(i ? "Reversed" : "Normal");
     case CMD_CWSTRIP:   return(cwStripDesc[i]);
     case CMD_UPDSET:    return(updNoticeDesc[i]);
@@ -3305,6 +3436,8 @@ static bool tileValueGet(uint16_t cmd, TileValue &v)
     case CMD_UPDATEFW:  v.count = ITEM_COUNT(updateFwActions); v.idx = updateFwIdx; return(true);
     case CMD_UTCOFFSET: v.count = ITEM_COUNT(timeZones); v.idx = utcOffsetIdx; return(true);
     case CMD_ZOOM:      v.count = 2; v.idx = zoomMenu ? 1 : 0; return(true);
+    case CMD_ANTCAP:    v.count = 2; v.idx = autoAntennaCapacitor ? 1 : 0; return(true);
+    case CMD_ENC_ACCEL: v.count = 2; v.idx = encoderAcceleration ? 1 : 0; return(true);
     case CMD_SCROLL:    v.count = 2; v.idx = scrollDirection > 0 ? 0 : 1; return(true);
     case CMD_CWSTRIP:   v.count = 2; v.idx = cwStripIdx; return(true);
     case CMD_UPDSET:    v.count = 2; v.idx = updNoticeIdx; return(true);
@@ -3563,6 +3696,8 @@ void webMenuDef(String &j)
   wjItem(j, CMD_RDS, "Receiver", "RDS", "l");
   n = 0; for(int i = 0; i < (int)ITEM_COUNT(rdsMode); i++) labels[n++] = rdsMode[i].desc;
   j += ",\"o\":"; wjList(j, labels, n); j += '}';
+  wjItem(j, CMD_ANTCAP, "Receiver", "Automatic antenna capacitor", "b");
+  j += ",\"h\":"; wjText(j, "For the MW1, MW2, MW3 and 160 m bands. Only works on a radio without a Hi-Z input circuit; leave it off if unsure."); j += '}';
   wjItem(j, CMD_BEACON, "Receiver", "Beacons", "l"); j += ",\"o\":"; wjList(j, beaconMenuLabels, BEACON_MENU_COUNT); j += '}';
   wjItem(j, CMD_BANDPLAN, "Receiver", "Band plan", "l"); j += ",\"o\":"; wjList(j, bandPlanDesc, ITEM_COUNT(bandPlanDesc)); j += '}';
   wjItem(j, CMD_BPAREA, "Receiver", "Plan area", "l"); j += ",\"o\":"; wjList(j, bandPlanAreaDesc, BP_AREA_COUNT); j += '}';
@@ -3590,6 +3725,7 @@ void webMenuDef(String &j)
   n = 0; for(int i = 0; i < (int)ITEM_COUNT(timeZones) && n < 128; i++) labels[n++] = timeZones[i].desc;
   j += ",\"o\":"; wjList(j, labels, n); j += '}';
   wjItem(j, CMD_KNOB, "Power and time", "Knob", "l"); j += ",\"o\":"; wjList(j, knobDesc, ITEM_COUNT(knobDesc)); j += '}';
+  wjItem(j, CMD_ENC_ACCEL, "Power and time", "Knob speeds up when turned quickly", "b"); j += '}';
   wjItem(j, CMD_UPDSET, "Power and time", "New version notice", "b"); j += '}';
   j += ']';
 }
@@ -3639,6 +3775,8 @@ void webMenuVals(String &j)
   kv(CMD_WIFIPOWER, wifiPowerIdx);
   kv(CMD_UTCOFFSET, utcOffsetIdx);
   kv(CMD_KNOB, encoderHalfStep ? 1 : 0);
+  kv(CMD_ENC_ACCEL, encoderAcceleration ? 1 : 0);
+  kv(CMD_ANTCAP, autoAntennaCapacitor ? 1 : 0);
   // Options and limits that depend on the band and mode; "x" lists the
   // items that do nothing in this mode (the page greys them out)
   j += "},\"d\":{\""; j += CMD_MODE; j += "\":";
@@ -3733,6 +3871,8 @@ bool webMenuSet(uint16_t cmd, int32_t v)
     case CMD_WIFIPOWER:  if(v < 0 || v > 2) return(false); wifiPowerIdx = v; wifiApplyTxPower(); prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_UTCOFFSET:  if(v < 0 || v >= (int)ITEM_COUNT(timeZones)) return(false); doUTCOffset(v - utcOffsetIdx); break;
     case CMD_KNOB:       setEncoderHalfStep(v != 0); prefsRequestSave(SAVE_SETTINGS); break;
+    case CMD_ENC_ACCEL:  if((v != 0) != encoderAcceleration) doEncoderAcceleration(); break;
+    case CMD_ANTCAP:     if((v != 0) != autoAntennaCapacitor) doAntennaCapacitor(); break;
     default:             return(false);
   }
   return(true);

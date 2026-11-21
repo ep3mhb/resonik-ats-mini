@@ -832,7 +832,7 @@ bool webControlTick()
     redraw = true;
   }
   for(int i = 0; i < 8 && (i == 0 || webInputPending()); i++)
-    redraw |= remoteLoop(&nullStream, &remoteState, webReadInput);
+    redraw |= remoteLoop(nullStream, remoteState, webReadInput);
 
   // Tune: the current band if it covers the frequency, otherwise the
   // narrowest band that does (so 7074 from FM goes to 40M, not ALL)

@@ -214,6 +214,7 @@ void prefsSave(uint32_t items)
     prefs.putUChar("SleepMode",   sleepModeIdx);   // Sleep mode
     prefs.putUChar("ZoomMenu",    zoomMenu);       // TRUE: Zoom menu
     prefs.putBool("ScrollDir", scrollDirection<0); // TRUE: Reverse scroll
+    prefs.putBool("EncAccel", encoderAcceleration); // TRUE: Encoder acceleration
     prefs.putBool("EncHalfStep", encoderHalfStep); // TRUE: Encoder half-step mode
     prefs.putUChar("TimeZone",    utcOffsetIdx);   // Time zone (RESONIK list)
     prefs.putUInt("Squelch",      ((uint32_t)currentSquelch[FM]) |
@@ -242,7 +243,7 @@ void prefsSave(uint32_t items)
     prefs.putUChar("Perf",        perfIdx);        // Processor speed (RESONIK R3)
     prefs.putUChar("MenuStyle2",  menuStyleIdx);   // Menu style (RESONIK); new key so the tile default reaches radios updated from r1
     prefs.putUChar("Logger",      loggerIdx < LOG_CLEAR ? loggerIdx : 0); // Signal logger (RESONIK)
-    prefs.putUChar("BLEMode",     bleModeIdx);     // Bluetooth mode
+    prefs.putUChar("BLEMode2",    bleModeIdx);     // Bluetooth mode; new key, see prefsLoad() (RESONIK R5)
     prefs.putUChar("USBMode",     usbModeIdx);     // USB mode
     prefs.putUChar("TCPMode",     tcpModeIdx);     // TCP mode
 
@@ -316,6 +317,7 @@ bool prefsLoad(uint32_t items)
     sleepModeIdx   = prefs.getUChar("SleepMode", sleepModeIdx); // Sleep mode
     zoomMenu       = prefs.getUChar("ZoomMenu", zoomMenu);      // TRUE: Zoom menu
     scrollDirection = prefs.getBool("ScrollDir", scrollDirection<0)? -1:1; // TRUE: Reverse scroll
+    encoderAcceleration = prefs.getBool("EncAccel", true); // Encoder acceleration
     setEncoderHalfStep(prefs.getBool("EncHalfStep", encoderHalfStep)); // Encoder half-step mode
     // Time zone: the RESONIK list replaced the upstream "UTCOffset" list
     if(prefs.isKey("TimeZone"))
@@ -357,7 +359,16 @@ bool prefsLoad(uint32_t items)
     menuStyleIdx   = prefs.getUChar("MenuStyle2", menuStyleIdx) ? MENU_STYLE_TILES : MENU_STYLE_CLASSIC;
     loggerIdx      = prefs.getUChar("Logger", 0);
     if(loggerIdx >= LOG_CLEAR) loggerIdx = 0;
-    bleModeIdx     = prefs.getUChar("BLEMode", bleModeIdx);     // Bluetooth mode
+    // Bluetooth mode. RESONIK R5: upstream put CAT TS-480 before HID in the
+    // list, which moved HID from 2 to 3. The new numbers have their own key;
+    // a radio (or a backup) from before reads the old key, and keeps HID.
+    if(prefs.isKey("BLEMode2"))
+      bleModeIdx = prefs.getUChar("BLEMode2", bleModeIdx);
+    else
+    {
+      uint8_t old = prefs.getUChar("BLEMode", bleModeIdx);
+      bleModeIdx = old == 2 ? BLE_HID : old == BLE_ADHOC ? BLE_ADHOC : BLE_OFF;
+    }
     usbModeIdx     = prefs.getUChar("USBMode", usbModeIdx);     // USB mode
     tcpModeIdx     = prefs.getUChar("TCPMode", TCP_OFF);        // TCP mode
 
