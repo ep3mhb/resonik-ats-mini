@@ -63,6 +63,23 @@ static uint32_t beaconFollowFreq = 0;
 static int beaconLastSlot = -1;
 static uint32_t beaconHoldUntil = 0;   // R5: no band change before this time
 
+// R5: where the radio was when following began. Stop on the page, and Off or
+// Names only in the menu, take it back there: starting a follow now moves the
+// radio at once, so stopping it has to be seen and heard too (Mohammad,
+// 21 Nov: "stop not working" - the radio stayed on 14.100 MHz).
+static bool beaconHomeSet = false;
+static uint8_t beaconHomeBand, beaconHomeMode;
+static uint32_t beaconHomeFreq;
+static uint32_t beaconReturnAt = 0;    // 0 = no return waiting
+
+// Following ends where the radio is: tuned away, a scan started
+static void beaconDrop()
+{
+  beaconFollowIdx = -1;
+  beaconHomeSet = false;
+  beaconReturnAt = 0;
+}
+
 uint8_t beaconNames = 1;
 
 // R4: "Off" now also hides the beacon names (GitHub: Off did not stop them);
@@ -92,7 +109,7 @@ void beaconMenuSet(int idx, bool now)
   if(idx <= 1)
   {
     beaconNames = idx == 1;
-    beaconFollow(-1);
+    beaconFollow(-1, now ? 0 : 1200);
     prefsRequestSave(SAVE_SETTINGS);
   }
   // Turning through the list on the radio passes every name: the band
@@ -126,12 +143,49 @@ void beaconFollow(int8_t idx, uint16_t holdMs)
   {
     beaconSay("Beacons need the clock set", "Wi-Fi Sync, RDS or Date/Time");
     beaconFollowIdx = -1;
+    return;
   }
+
+  if(beaconFollowIdx >= 0)
+  {
+    // The place to go back to; kept when one beacon is changed for another
+    if(!beaconHomeSet)
+    {
+      beaconHomeSet = true;
+      beaconHomeBand = bandIdx;
+      beaconHomeMode = currentMode;
+      beaconHomeFreq = currentFrequency;
+    }
+    beaconReturnAt = 0;
+  }
+  // Stopped: back to that place, after the same pause as before a band change
+  else if(beaconHomeSet) beaconReturnAt = (millis() + holdMs) | 1;
 }
 
 // Called from the main loop. Returns true when the screen should be redrawn.
 bool beaconTick()
 {
+  // R5: following was stopped: back to where the radio was before it
+  if(beaconReturnAt && beaconFollowIdx < 0 && (int32_t)(millis() - beaconReturnAt) >= 0)
+  {
+    bool go = beaconHomeSet;
+    beaconDrop();
+    if(go)
+    {
+      Memory home = {};
+      home.freq = beaconHomeFreq;
+      home.mode = beaconHomeMode;
+      home.band = beaconHomeBand;
+      bool moved = bandIdx != beaconHomeBand || currentMode != beaconHomeMode || currentFrequency != beaconHomeFreq;
+      if(moved) tuneToMemory(&home);
+      clearStationInfo();
+      identifyFrequency(currentFrequency);
+      statusShow("Beacon follow off");
+      webControlNote("Beacon follow off", moved ? "the radio is back where it was" : nullptr);
+      return(true);
+    }
+  }
+
   bool onBeacon = ibpBandAt(currentFrequency) >= 0 && currentMode != FM && (beaconNames || beaconFollowIdx >= 0);
   if(beaconFollowIdx < 0 && !onBeacon) return(false);
   if(!clockAvailable()) return(false);
@@ -154,7 +208,7 @@ bool beaconTick()
   if(currentFrequency != beaconFollowFreq)
   {
     beaconSay("Beacon follow off");
-    beaconFollowIdx = -1;
+    beaconDrop();
     return(true);
   }
 
@@ -172,7 +226,7 @@ bool beaconTick()
   if((currentFrequency != hz || currentMode != CW) && !tuneToFrequency(hz, CW))
   {
     beaconSay("No band for", "the beacon frequency");
-    beaconFollowIdx = -1;
+    beaconDrop();
     return(true);
   }
   beaconFollowFreq = currentFrequency;
@@ -213,7 +267,7 @@ void memScanStart()
   memScanSlot = memoryIdx;
   memScanState = MemScan::Tune;
   memScanTimer = millis();
-  beaconFollowIdx = -1;
+  beaconDrop();
 }
 
 void memScanStop(const char *why)
@@ -351,7 +405,7 @@ static void bandScanNext(uint32_t now)
 void bandScanStart()
 {
   memScanStop();
-  beaconFollowIdx = -1;
+  beaconDrop();
   bandScanDir = 1;
   bandScanSkip = 0;
   bandScanState = BandScan::Listen;
