@@ -151,7 +151,9 @@ section[data-tab]>:first-child{margin-top:0}
 <div id="dtxt" style="font-family:monospace;white-space:pre-wrap;word-break:break-all;min-height:1.2em;margin:8px 0"></div>
 <p style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><label>My locator <input id="dqth" size="6" maxlength="6" placeholder="LL58"></label>
 <label>DX alarm <input id="dalarm" size="14" placeholder="call or country"></label>
-<button id="dsave">Save log</button><button id="dclr">Clear</button></p>
+<button id="dsave">Save log</button><button id="dclr">Clear</button>
+<label>Decoder audio <select id="daud" onchange="setv(19712,this.value)"><option value="0">3 kHz (fast)</option><option value="1">6 kHz (full)</option></select></label></p>
+<p class="hint" style="margin-top:0"><b>Decoder audio.</b> <b>3 kHz</b> holds everything FT8, FT4, RTTY, NAVTEX, PSK31 and WEFAX use, and keeps the radio and this page quick: leave it there. <b>6 kHz</b> takes in twice as much of the radio's sound, as versions before R5 did; the radio works twice as hard and this page gets slower, so choose it only if you get fewer decodes than you expect, and compare. The change applies at once and the waterfall starts again. On the radio: Menu &rarr; Ham &amp; SWL &rarr; Decoder Audio.</p>
 <table id="dtab" style="width:100%;font-size:.9em"><thead><tr><th>UTC</th><th>Mode</th><th>dB</th><th>Call</th><th>Country</th><th>Message</th></tr></thead><tbody></tbody></table>
 </div></section>
 <section data-tab="set"><div id="sets"></div></section>
@@ -306,7 +308,7 @@ function buildSets(def){DEF=def;const box=$('sets');box.innerHTML='';
 function fmtN(d,v){if(d.c===8704&&v>0)return '+'+v+' Hz';if((d.c===10752||d.c===13824)&&!v)return 'Off';if(d.c===7168&&!v)return 'Off';return v+(d.u?' '+d.u:'');}
 ['q4096','q5120','q4864','q4608'].forEach(id=>{$(id).onchange=e=>setv(+id.slice(1),e.target.value);});
 {let t=0;const r=$('q4352');r.oninput=()=>{$('q4352v').textContent=r.value;clearTimeout(t);t=setTimeout(()=>setv(4352,r.value),100);};}
-function vals(j){V=j;const v=j.v,x=j.x||[];
+function vals(j){V=j;const v=j.v,x=j.x||[];if($('daud')&&v[19712]!==undefined&&document.activeElement!==$('daud'))$('daud').value=v[19712];
  // Quick
  opt($('q4096'),$('q4096').dataset.k?$('q4096').dataset.k.split('|'):[],v[4096]);
  $('bands').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.b===v[4096]));
@@ -379,7 +381,7 @@ function dInit(){if(dmapReady)return;dmapReady=true;const src=$('map');if(src){c
  $('dclr').onclick=()=>{DLOG.length=0;$('dtab').tBodies[0].innerHTML='';dDraw();};}
 function dBeep(){try{const c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=880;o.connect(g);g.connect(c.destination);g.gain.value=0.2;o.start();o.stop(c.currentTime+0.4);}catch(e){}}
 function dAlarm(call,ctry){const a=($('dalarm').value||'').trim().toUpperCase();if(!a)return false;return a.split(/[ ,]+/).some(x=>x&&((call&&call.toUpperCase().startsWith(x))||(ctry&&ctry.toUpperCase()===x)));}
-function dDecodes(d){dInit();$('dmode').textContent=d.m+' · '+d.r.length+' decoded';const utc=new Date().toISOString().substr(11,8);let ring=false;const tb=$('dtab').tBodies[0];
+function dDecodes(d){dInit();$('dmode').textContent=d.m+' · '+d.r.length+' decoded'+(d.k?' · '+d.k+' kHz audio':'');const utc=new Date().toISOString().substr(11,8);let ring=false;const tb=$('dtab').tBodies[0];
  d.r.forEach(r=>{const p=parseMsg(r[2]),c=country(p.call);const row=[utc,d.m,r[0],p.call||'',c?c[1]:'',r[2]];DLOG.unshift(row);if(DLOG.length>500)DLOG.pop();
   const al=dAlarm(p.call,c&&c[1]);if(al)ring=true;const tr=document.createElement('tr');if(al)tr.style.background='#5b1d2b';
   tr.innerHTML='<td>'+utc+'</td><td>'+d.m+'</td><td>'+r[0]+'</td><td><b>'+(p.call||'')+'</b></td><td>'+(c?FLAG(c[2])+' '+c[1]:'')+'</td><td>'+r[2].replace(/</g,'&lt;')+'</td>';
@@ -391,7 +393,7 @@ function dDraw(){const g=$('dpts');if(!g)return;const q=grid2ll(($('dqth').value
   if(q){const [qx,qy]=P(q);h+='<line x1="'+qx+'" y1="'+qy+'" x2="'+x+'" y2="'+y+'" stroke="#108AB1" stroke-width="1" opacity=".7"/>';}
   h+='<circle cx="'+x+'" cy="'+y+'" r="4" fill="#06D7A0"><title>'+tr.cells[3].textContent+' '+gr+'</title></circle>';});
  if(q){const [qx,qy]=P(q);h+='<circle cx="'+qx+'" cy="'+qy+'" r="5" fill="#F04770"/>';}g.innerHTML=h;}
-function dText(d){dInit();$('dmode').textContent=d.m+(d.m==='CW'?(d.c?' · '+d.c+' WPM':''):(d.c?' · '+d.c+' Hz':' · no signal'));$('dtxt').textContent=d.t;
+function dText(d){dInit();$('dmode').textContent=d.m+(d.m==='CW'?(d.c?' · '+d.c+' WPM':''):(d.c?' · '+d.c+' Hz':' · no signal'))+(d.k?' · '+d.k+' kHz audio':'');$('dtxt').textContent=d.t;
  const a=($('dalarm').value||'').trim().toUpperCase();if(a&&a.split(/[ ,]+/).some(x=>x&&d.t.toUpperCase().endsWith(x))&&!dText.rang){dText.rang=1;dBeep();setTimeout(()=>dText.rang=0,10000);}}
 function dSpec(s){const c=$('dwf');if(!c)return;const x=c.getContext('2d'),w=c.width,h=c.height;const im=x.getImageData(0,0,w,h-1);x.putImageData(im,0,1);
  const n=s.v.length;for(let i=0;i<n;i++){const v=s.v[i];x.fillStyle='rgb('+Math.min(255,v*1.6|0)+','+Math.min(255,v*1.2|0)+','+(80+v*0.6|0)+')';x.fillRect(Math.floor(i*w/n),0,Math.ceil(w/n),1);}}

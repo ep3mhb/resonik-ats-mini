@@ -80,22 +80,27 @@ public:
     return((int32_t)lroundf((med - 0.5f) * 1000.0f));
   }
 
-  static const int FS = 6000;   // R5: was 12000. FT8 and FT4 fit below 3 kHz; half the rate halves the sampling and decoding work
+  // R5: two sample rates. 6000 Hz (the default) hears the audio up to 3 kHz,
+  // which holds all of FT8 and FT4, at half the sampling and decoding work;
+  // 12000 Hz (as R3 and R4) hears up to 6 kHz. Chosen in begin().
+  static const int FS = 6000;
+  static const int FS_MAX = 12000;
   // Half-symbol time and half-bin frequency steps: real signals start and
   // sit anywhere, and a whole-step grid loses several dB on them
   static const int TIME_OSR = 2, FREQ_OSR = 2;
   static const int F_MIN = 200, F_MAX = 2900;
 
   // FT8 by default; begin(true) for FT4. Switching protocol starts afresh.
-  bool begin(bool ft4 = false)
+  bool begin(bool ft4 = false, int rate = FS)
   {
-    if(ready && isFt4 == ft4) return(true);
+    if(ready && isFt4 == ft4 && fs == rate) return(true);
     if(ready) end();
     isFt4 = ft4;
+    fs = rate;
     monitor_config_t cfg = {};
     cfg.f_min = F_MIN;
     cfg.f_max = F_MAX;
-    cfg.sample_rate = FS;
+    cfg.sample_rate = fs;
     cfg.time_osr = TIME_OSR;
     cfg.freq_osr = FREQ_OSR;
     cfg.protocol = ft4 ? FTX_PROTOCOL_FT4 : FTX_PROTOCOL_FT8;
@@ -157,6 +162,7 @@ public:
 
   bool isReady() const { return(ready); }
   bool ft4() const { return(isFt4); }
+  int rate() const { return(fs); }
   int slotMs() const { return(isFt4 ? 7500 : 15000); }
   int blocks() const { return(ready ? mon.wf.num_blocks : 0); }
   int maxBlocks() const { return(ready ? mon.wf.max_blocks : 0); }
@@ -216,6 +222,7 @@ private:
   monitor_t mon = {};
   bool ready = false;
   bool isFt4 = false;
+  int fs = FS;
 
   int symbols() const { return(isFt4 ? FT4_NN : FT8_NN); }
   float *frame = nullptr;

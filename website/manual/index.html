@@ -64,6 +64,11 @@
           <li><a href="#cat">CAT control <small>r2</small></a></li>
           <li><a href="#ft8">FT8 and FT4 decoder <small>r3</small></a></li>
           <li><a href="#cwdec">CW decoder <small>r3</small></a></li>
+          <li><a href="#wizard">Setup at first start <small>r5</small></a></li>
+          <li><a href="#bandview">Band View and Auto-Store <small>r5</small></a></li>
+          <li><a href="#decodes">Decodes in the browser <small>r5</small></a></li>
+          <li><a href="#digital">RTTY, NAVTEX, PSK31 and WEFAX <small>r5</small></a></li>
+          <li><a href="#decaudio">Decoder Audio: 3 kHz or 6 kHz <small>r5</small></a></li>
           <li><a href="#scanner">Band scanner <small>r3</small></a></li>
           <li><a href="#lock">Frequency lock and CPU speed <small>r3</small></a></li>
           <li><a href="#wifi">Wi-Fi on the radio <small>r4</small></a></li>
@@ -137,7 +142,7 @@
           <tr><td>Tuning</td><td>Band, Mode, Bandwidth, Freq Lock, FM Region, RDS, Scan, Scanner, Seek, Step, VFO A/B, Freq Entry, Band View</td></tr>
           <tr><td>Audio</td><td>Volume, AGC/ATTN, Auto Att., AVC, FM Stereo, SoftMute, Squelch</td></tr>
           <tr><td>Memory</td><td>Memory, Logger, Mem Scan, Auto-Store</td></tr>
-          <tr><td>Ham &amp; SWL</td><td>Band Plan, Beacons, Calibration, CW Decoder, CW Strip, FT8/FT4, Load EiBi, Plan Area, Propagation</td></tr>
+          <tr><td>Ham &amp; SWL</td><td>Band Plan, Beacons, Calibration, CW Decoder, CW Strip, FT8/FT4, Digital, Decoder Audio, Load EiBi, Plan Area, Propagation</td></tr>
           <tr><td>Display</td><td>Brightness, Menu Style, Scroll Dir., Sleep Mode, Sleep Timer, Theme, UI Layout, Zoom Menu, Battery</td></tr>
           <tr><td>System</td><td>About, Bluetooth, Date/Time, DSP Patches, Knob, Off Timer, TCP Port, Time Zone, Update FW, Update Notice, USB Port, Wi-Fi, CPU</td></tr>
         </table>
@@ -172,6 +177,7 @@
           <li><b>Turn</b> the encoder to change band: 160, 80, 40, 30, 20, 17, 15, 12 and 10 m, then the FT4 frequencies of 80 to 10 m (FT4 in yellow, 7.5 second slots).</li>
           <li><b>Click</b> clears the list; a <b>short press</b> leaves and puts the radio back exactly as it was.</li>
           <li>With the clock set (Wi-Fi time sync) it decodes from the first slot. <b>Without a clock it still decodes</b>: the header says <b>No clock: syncing</b> while it finds the slot timing from the stations it hears, usually within a minute or two, then <b>Synced to band</b>.</li>
+          <li>The page takes in the radio's sound up to 3 kHz, which is all FT8 and FT4 use; see <a href="#decaudio">Decoder Audio</a> for the 6 kHz choice.</li>
           <li>Bottom left, <b>In</b> is the audio level reaching the decoder (10 to 150 is fine), and <b>Last</b> the number of messages in the last slot.</li>
         </ul>
         <p>The page pauses Wi-Fi while it is open. It needs the <b>V4B</b> board, which wires the speaker line to the processor (<a href="../hardware/#versions">which board do I have?</a>); on other boards it shows <b>No audio on the decoder input</b>. On boards that take the audio after the speaker amplifier the speaker stays on (<b>Spk</b> next to the level).</p>
@@ -190,8 +196,21 @@
         <h2 id="decodes">Decodes in the browser <small style="font-size:.7em;color:var(--muted)">v2.46-r5</small></h2>
         <p>Open <b>Web Control</b> and its <b>Decodes</b> tab, then the FT8/FT4, CW Decoder or Digital page on the radio: Wi-Fi stays on while Web Control is open. The tab shows the band as a waterfall, every FT8 and FT4 message with the station's country and flag, a map of the stations that sent a locator (type your own locator to see lines from you), and the text of CW, RTTY, NAVTEX and PSK31. Type callsigns or countries in <b>DX alarm</b> to hear a tone when one is decoded; <b>Save log</b> downloads the list.</p>
 
-        <h2 id="digital">RTTY, NAVTEX and PSK31 <small style="font-size:.7em;color:var(--muted)">v2.46-r5</small></h2>
+        <h2 id="digital">RTTY, NAVTEX, PSK31 and WEFAX <small style="font-size:.7em;color:var(--muted)">v2.46-r5</small></h2>
         <p><span class="ui">Menu → Ham &amp; SWL → Digital</span> decodes <b>RTTY</b> (amateur, 45.45 baud and 170 Hz shift), <b>RTTY DWD</b> (the German weather service, 50 baud and 450 Hz), <b>NAVTEX</b> (maritime safety messages on 518 kHz), <b>PSK31</b> and <b>WEFAX</b> weather charts (tune 1.9 kHz below the published frequency; the chart is drawn on the screen and, larger, in the browser). The page switches the radio to USB with the 3.0k filter and shows the band's spectrum with the tones it listens to; it finds the signal by itself, so tune until it is in the picture. <b>Click</b> for the next mode (NAVTEX tunes 518 kHz), <b>turn</b> to tune, <b>short press</b> to leave. Like the FT8 page it needs the V4B board, and headphones must be unplugged.</p>
+
+        <h2 id="decaudio">Decoder Audio: 3 kHz or 6 kHz <small style="font-size:.7em;color:var(--muted)">v2.46-r5</small></h2>
+        <p>The FT8/FT4 and Digital pages listen to the radio's own sound. <b>Decoder Audio</b> sets how much of that sound they take in:</p>
+        <ul>
+          <li><b>3 kHz fast</b> (the default): the sound up to 3 kHz. That holds everything FT8, FT4, RTTY, NAVTEX, PSK31 and WEFAX use, and it is half the work for the radio, so the radio and Web Control stay quick. <b>Leave it here.</b></li>
+          <li><b>6 kHz full</b>: the sound up to 6 kHz, as versions before v2.46-r5 took in. The radio works twice as hard, and with Web Control open the browser can get slower. Choose it only if you get fewer decodes than you expect, and compare the two on the same band for a few minutes each.</li>
+        </ul>
+        <p>To change it:</p>
+        <ul>
+          <li><b>On the radio:</b> <span class="ui">Menu → Ham &amp; SWL → Decoder Audio</span>, before you open the FT8/FT4 or Digital page.</li>
+          <li><b>In Web Control:</b> the <b>Decoder audio</b> list on the <b>Decodes</b> tab (it is also under Settings → Receiver). There the change applies at once, even while the page is open on the radio; the waterfall and the slot start again.</li>
+        </ul>
+        <p>The Decodes tab shows which one is in use (<b>3 kHz audio</b> or <b>6 kHz audio</b>) beside the mode. The choice is kept when the radio is switched off. The CW decoder is not affected.</p>
 
         <h2 id="scanner">Band scanner <small style="font-size:.7em;color:var(--muted)">v2.45-r3</small></h2>
         <p><span class="ui">Menu → Tuning → Scanner</span> steps through the band from the current frequency and stops on signals (the mode's squelch level if set, otherwise an SNR of 6 dB or more), wrapping at the band edge.</p>

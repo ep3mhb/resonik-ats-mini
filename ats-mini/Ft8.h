@@ -15,6 +15,7 @@ void drawFt8Page();
 #include <Arduino.h>
 bool ft8WebBatch(uint32_t *seen, String &j);   // R5: new decodes for the browser
 bool ft8WebRow(uint32_t *seen, String &j);     // R5: newest waterfall row
+int ft8SampleRate();                           // R5: 6000 or 12000 Hz
 
 // In Menu.cpp: FT8 dial frequencies and the radio set-up around the page
 int ft8ChannelCount();
