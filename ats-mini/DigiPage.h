@@ -11,6 +11,10 @@ void drawDigiPage();
 
 #include <Arduino.h>
 bool digiWebState(uint32_t *seen, String &j);   // R5: for the browser
+void digiWebOpen(int m);           // R5: Web Control opens the page in a mode
+int digiWebMode();                 // R5: mode being decoded, -1 = page closed
+int digiModeCount();
+const char *digiModeName(int m);
 
 // In Menu.cpp: USB with the 3.0k filter, on hz (0: where the radio is)
 void digiSetUsb(uint32_t hz);

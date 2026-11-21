@@ -115,6 +115,11 @@ static void work(void *)
   for(int i = 0; i < NFFT; i++) window[i] = 0.5f - 0.5f * cosf(2 * (float)M_PI * i / (NFFT - 1));
   float avgPower[NFFT / 2 + 1] = { 0 };
   float lastCentre = 0;
+  // R5: RTTY and PSK31 read characters out of plain noise. The decoder gets
+  // the sound only while the two tones (or the carrier) stand out of the
+  // band, and for a second after, so that a fade does not cut a word
+  // (Mohammad, 21 Nov: "RTTY, no signal" above lines of random letters).
+  int quiet = 1000;                  // Spectra in a row without a signal
 
   for(;;)
   {
@@ -137,6 +142,7 @@ static void work(void *)
       memset(avgPower, 0, sizeof(avgPower));
       found = false;
       lastCentre = 0;
+      quiet = 1000;
     }
     if(written - pos > RING - 1024) pos = written - 1024;   // Fell behind: skip
 
@@ -153,13 +159,14 @@ static void work(void *)
         histPos = (histPos + 1) % NFFT;
       }
       sinceFft += n;
+      bool open = quiet < 6;         // Six spectra: about a second
       xSemaphoreTake(lock, portMAX_DELAY);
       switch(workMode)
       {
-        case DM_RTTY: case DM_DWD: rtty->push(buf, n); break;
+        case DM_RTTY: case DM_DWD: if(open) rtty->push(buf, n); break;
         case DM_NAVTEX: navtex->push(buf, n); break;
         case DM_WEFAX: { uint32_t was = fax->total(); fax->push(buf, n); if(fax->total() != was) changes++; break; }
-        default: psk->push(buf, n); break;
+        default: if(open) psk->push(buf, n); break;
       }
       Digi::Text *t = activeText();
       if(strcmp(shownText, t->buf)) { strcpy(shownText, t->buf); changes++; }
@@ -223,6 +230,8 @@ static void work(void *)
         bool sig = m == DM_WEFAX ? true : bestScore > floorP * 12;
         if(m == DM_WEFAX) bestHz = 1900;
         found = sig;
+        if(sig) quiet = 0;
+        else if(quiet < 1000) quiet++;
         // Follow the signal; PSK31 tracks its own carrier once it reads
         if(sig && fabsf(bestHz - lastCentre) > (m == DM_PSK31 ? 4.0f : 12.0f) &&
            !(m == DM_PSK31 && psk->quality > 0.8f && fabsf(psk->carrier() - bestHz) < 15))
@@ -353,10 +362,10 @@ bool digiWebState(uint32_t *seen, String &j)
   return(true);
 }
 
-void digiClick(bool shortPress)
+// The open page goes to another mode
+static void goMode(int m)
 {
-  if(shortPress) { currentCmd = CMD_NONE; return; }
-  mode = (mode + 1) % DM_COUNT;
+  mode = m;
   if(!pageActive) return;
   tuneForMode();
   audioOn();
@@ -364,6 +373,25 @@ void digiClick(bool shortPress)
   centre = mode == DM_PSK31 ? 1000 : mode == DM_WEFAX ? 1900 : 1500;
   generation++;
 }
+
+void digiClick(bool shortPress)
+{
+  if(shortPress) { currentCmd = CMD_NONE; return; }
+  goMode((mode + 1) % DM_COUNT);
+}
+
+// RESONIK R5: Web Control starts the page in a mode, or changes mode
+void digiWebOpen(int m)
+{
+  if(m < 0 || m >= DM_COUNT) return;
+  if(pageActive) { if(m != mode) goMode(m); return; }
+  mode = m;
+  currentCmd = CMD_DIGI;
+}
+
+int digiWebMode() { return(pageActive ? mode : -1); }   // -1 while the page is closed
+int digiModeCount() { return(DM_COUNT); }
+const char *digiModeName(int m) { return(m >= 0 && m < DM_COUNT ? modeName[m] : ""); }
 
 bool digiTick()
 {

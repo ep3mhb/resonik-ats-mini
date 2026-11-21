@@ -137,7 +137,14 @@ static void sampler(void *)
 
   for(;;)
   {
-    if(!want || !adc)
+    // R5: not while a web request (time, propagation, new version) is being
+    // made. Both run on this core and neither lets go of it: with Wi-Fi on,
+    // this task gives the others one tick in every 100 ms, and a TLS
+    // handshake wants the processor for seconds. Together the idle task did
+    // not run for 5 s and the task watchdog restarted the radio: three
+    // minutes after joining Wi-Fi, when the new version check came, with a
+    // decoder page open (Mohammad, 21 Nov, Digital page at 6 kHz audio).
+    if(!want || !adc || netJobsBusy())
     {
       sampling = false;
       webTimerRun(false, 0);
@@ -305,6 +312,7 @@ void audioWebStream(bool on)
 }
 
 bool audioWebStreaming() { return(webAudio && sampling); }
+bool audioSampling() { return(sampling); }   // R5: a decoder or Listen is reading the audio
 
 // Copy the samples written since *pos (at most max); the oldest are skipped
 // when the reader fell more than a ring behind

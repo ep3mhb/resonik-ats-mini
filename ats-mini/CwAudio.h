@@ -35,6 +35,7 @@ int decoderSampleRate();                   // 6000 or 12000 Hz
 uint32_t audioFt8Written();
 void audioWebStream(bool on);                          // Web Control audio (8 kHz) on or off
 bool audioWebStreaming();
+bool audioSampling();                      // R5: the sampler is running (decoders, Listen)
 void audioTimedStats(uint32_t *avgUs, uint32_t *maxUs, uint32_t *late, uint32_t *caughtUp, uint32_t *overrun);   // ADC read time, samples dropped
 uint32_t audioWebRead(int16_t *dst, uint32_t max, uint32_t *pos);
 uint32_t audioWebBacklog(uint32_t pos);                 // Samples written but not yet read                          // Samples written into the ring so far
