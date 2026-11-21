@@ -72,6 +72,8 @@
           <li><a href="#decaudio">Decoder Audio: 3 kHz or 6 kHz <small>r5</small></a></li>
           <li><a href="#scanner">Band scanner <small>r3</small></a></li>
           <li><a href="#lock">Frequency lock and CPU speed <small>r3</small></a></li>
+          <li><a href="#encaccel">Knob speed-up: Enc. Accel. <small>r5</small></a></li>
+          <li><a href="#capacitor">Antenna capacitor: Capacitor <small>r5</small></a></li>
           <li><a href="#wifi">Wi-Fi on the radio <small>r4</small></a></li>
           <li><a href="#control">Web Control <small>r4</small></a></li>
           <li><a href="#update">Updates</a></li>
@@ -145,11 +147,10 @@
           <tr><td>Memory</td><td>Memory, Logger, Mem Scan, Auto-Store</td></tr>
           <tr><td>Ham &amp; SWL</td><td>Band Plan, Beacons, Calibration, CW Decoder, CW Strip, FT8/FT4, Digital, Dec. Audio, Load EiBi, Plan Area, Propagation</td></tr>
           <tr><td>Display</td><td>Brightness, Menu Style, Scroll Dir., Sleep Mode, Sleep Timer, Theme, UI Layout, Zoom Menu, Battery</td></tr>
-          <tr><td>System</td><td>About, Bluetooth, Date/Time, DSP Patches, Enc. Accel., Knob, Off Timer, TCP Port, Time Zone, Update FW, USB Port, Wi-Fi, CPU, Upd. Notice</td></tr>
+          <tr><td>System</td><td>About, Bluetooth, Date/Time, DSP Patches, Knob, Off Timer, TCP Port, Time Zone, Update FW, USB Port, Wi-Fi, CPU, Upd. Notice, Enc. Accel.</td></tr>
         </table>
         <p><span class="ui">Menu → System → Knob</span>: <b>20 clicks</b> or <b>30 clicks</b> per turn, for the two kinds of encoder fitted to these radios. If the knob skips a step, or needs two clicks for one, choose the other value (the web page calls it Half-step Encoder).</p>
-        <p><span class="ui">Menu → System → Enc. Accel.</span> (v2.46-r5): <b>On</b>, the default, makes the knob tune and adjust faster when you turn it quickly; <b>Off</b> gives the same step for every click.</p>
-        <p><span class="ui">Menu → Tuning → Capacitor</span> (v2.46-r5): <b>On</b> lets the radio set its antenna tuning capacitor by itself on the MW1, MW2, MW3 and 160 m bands. It is off by default and only works on a radio without a Hi-Z input circuit; if you do not know which you have, leave it off.</p>
+        <p>From v2.46-r5 there are two more: <a href="#encaccel">Enc. Accel.</a> in System (the knob speeds up when turned quickly) and <a href="#capacitor">Capacitor</a> in Tuning (the antenna capacitor on medium wave). Each has its own section below.</p>
         <p><span class="ui">Menu → Display → Menu Style → Classic</span> brings back the small list menu of the official firmware. From v2.45-r4 it has the same six groups as the tiles: choose a group and click; the first row of each group is <b>&lt; Back</b>, and the box title names the group. After a setting is changed the menu returns to its group. <b>Tiles</b> switches back.</p>
 
         <h2 id="beacons">Beacons <small style="font-size:.7em;color:var(--muted)">v2.45-r2</small></h2>
@@ -173,7 +174,7 @@
 
         <h2 id="cat">CAT control <small style="font-size:.7em;color:var(--muted)">v2.45-r2</small></h2>
         <p><span class="ui">Menu → System → USB Port → CAT TS-480</span> makes the radio answer Kenwood TS-480 commands on its USB port, so programs can read and set frequency and mode and read the S-meter. In the program choose <b>Kenwood TS-480</b> (Hamlib rig 2028) on the radio's serial port, with split and CAT PTT off; the speed setting does not matter. Transmit commands are refused: this is a receiver. Switch back to <b>Ad hoc</b> for the ats-mini remote tools and screenshots.</p>
-        <p>From v2.46-r5 the choice is called <b>CAT TS-480</b> (it was CAT) and is also on two more ports: <span class="ui">Menu → System → TCP Port → CAT TS-480</span> for a program on the same Wi-Fi network (the radio's address, port 60000), and <span class="ui">Menu → System → Bluetooth → CAT TS-480</span>. New with it are VFO A and B, squelch, steps up and down and automatic status reports; the CW mode is mode 3, as on the TS-480. A program that asks for the frequency every second does not stop a seek or a scan; its answers come when the seek ends.</p>
+        <p>From v2.46-r5 the choice is called <b>CAT TS-480</b> (it was CAT) and is also on two more ports: <span class="ui">TCP Port → CAT TS-480</span> for a program on the same Wi-Fi network (the radio's address, port 60000), and <span class="ui">Bluetooth → CAT TS-480</span>, both in the same System group. New with it are VFO A and B, squelch, steps up and down and automatic status reports; the CW mode is mode 3, as on the TS-480. A program that asks for the frequency every second does not stop a seek or a scan; its answers come when the seek ends.</p>
 
         <h2 id="ft8">FT8 and FT4 decoder <small style="font-size:.7em;color:var(--muted)">v2.45-r3</small></h2>
         <p><span class="ui">Menu → Ham &amp; SWL → FT8/FT4</span> opens a full-screen page that decodes FT8 from the radio's own audio. It tunes the FT8 frequency of the band you are on (or 40 m) in USB with the 3.0 kHz filter. Under the header a waterfall scrolls; after each 15 second slot the messages appear with signal report (dB), audio frequency (Hz) and text, CQ calls in green.</p>
@@ -242,6 +243,49 @@
         <h2 id="lock">Frequency lock and CPU speed <small style="font-size:.7em;color:var(--muted)">v2.45-r3</small></h2>
         <p><span class="ui">Menu → Tuning → Freq Lock → On</span>: the encoder sets the volume instead of tuning, and press-and-turn digit tuning is off. A padlock after the band shows it; it is kept across restarts.</p>
         <p><span class="ui">Menu → System → CPU</span> (called Performance before v2.45-r4): <b>80 MHz</b> (as the official firmware, longest battery), <b>160 MHz</b> or <b>240 MHz</b>. Faster makes the screen and menus quicker and uses more battery; the battery estimate shows the difference. The FT8 and Digital pages always run at 240 MHz while they are open, and from v2.46-r5 so does the radio while a browser has Web Control open, so that the page answers quickly; your setting applies again when the page is closed. The Status page shows the speed you set.</p>
+
+        <h2 id="encaccel">Knob speed-up: Enc. Accel. <small style="font-size:.7em;color:var(--muted)">v2.46-r5</small></h2>
+        <p>The knob can count a quick turn as more than one step per click, so that you cross a band with a flick of the wrist and still stop exactly with slow clicks. <b>Enc. Accel.</b> (encoder acceleration) switches this on or off.</p>
+        <table>
+          <tr><th>Setting</th><th>What the knob does</th></tr>
+          <tr><td><b>On</b> (the default)</td><td>Turned slowly: one step per click. Turned faster: each click counts as 2, 4, 8 and, at full speed, 16 steps. Slow down and it is one step per click again.</td></tr>
+          <tr><td><b>Off</b></td><td>Always one step per click, however fast you turn.</td></tr>
+        </table>
+        <p>A step is whatever you are turning at the time: the tuning step on the main screen (1 kHz, say), one unit of Volume, Brightness, Squelch, Calibration, Sleep Timer or Off Timer, or one line of the Memory list. Lists of choices and the menu itself always move one item per click, with either setting.</p>
+        <ul>
+          <li><b>Leave it On</b> if you tune across wide ranges: the ALL band from 150 kHz to 30 MHz, the FM band, a shortwave broadcast band.</li>
+          <li><b>Choose Off</b> if the frequency jumps further than you meant when your hand moves quickly; if you go through a band channel by channel and count the clicks (9 kHz channels on medium wave, 5 kHz on shortwave); or if you fine-tune CW and SSB in 10 Hz steps and want every click to be the same.</li>
+        </ul>
+        <p>To change it:</p>
+        <ul>
+          <li><b>On the radio:</b> <span class="ui">Menu → System → Enc. Accel.</span>, the tile with the fast-forward arrows on the last System page. Turn to choose, click to keep.</li>
+          <li><b>In Web Control:</b> <b>Settings → Power and time → Knob speeds up when turned quickly</b>.</li>
+          <li><b>On the Config web page:</b> <b>Encoder Acceleration</b>.</li>
+        </ul>
+        <p>All three are the same setting, and it is kept when the radio is switched off. It is not the same as <span class="ui">Menu → System → Knob</span> (20 or 30 clicks: the kind of knob fitted) or <span class="ui">Menu → Display → Scroll Dir.</span> (which way the menu moves).</p>
+
+        <h2 id="capacitor">Antenna capacitor on medium wave: Capacitor <small style="font-size:.7em;color:var(--muted)">v2.46-r5</small></h2>
+        <p>Inside the receiver chip, at the antenna input, there is a small tuning capacitor for medium wave. The radio can keep it at one fixed value, or let the chip adjust it by itself every time you tune, to draw the most signal from the antenna. <b>Capacitor</b> chooses between the two.</p>
+        <table>
+          <tr><th>Setting</th><th>What the radio does</th></tr>
+          <tr><td><b>Off</b> (the default)</td><td>The capacitor stays at one fixed value. Right for almost every radio.</td></tr>
+          <tr><td><b>On</b></td><td>The chip adjusts the capacitor by itself each time the frequency changes.</td></tr>
+        </table>
+        <p><b>Where it acts:</b> only on the bands MW1, MW2, MW3 and 160M, that is from 150 kHz to 3.5 MHz. On FM, on the shortwave bands and on the ALL band nothing changes, whichever you choose.</p>
+        <p><b>Which radios it helps:</b> only a radio <i>without</i> the Hi-Z circuit, a small input stage added between the whip antenna and the chip. Most ATS Mini radios sold now have that circuit, and on them this setting does nothing useful; that is why it is off. If you do not know which radio you have, leave it Off, or try it:</p>
+        <ol>
+          <li>In the evening, tune a weak station on MW2 and look at the signal strength on the S-meter.</li>
+          <li><span class="ui">Menu → Tuning → Capacitor → On</span> and click. The radio tunes the station again.</li>
+          <li>Compare. Stronger or clearer: keep <b>On</b>. The same or weaker: go back to <b>Off</b>.</li>
+        </ol>
+        <p>Trying it harms nothing. With On, changing band or mode in SSB on these four bands takes a fraction of a second longer.</p>
+        <p>To change it:</p>
+        <ul>
+          <li><b>On the radio:</b> <span class="ui">Menu → Tuning → Capacitor</span>, the tile with the tuning fork on the last Tuning page.</li>
+          <li><b>In Web Control:</b> <b>Settings → Receiver → Automatic antenna capacitor</b>.</li>
+          <li><b>On the Config web page:</b> <b>Automatic Antenna Capacitor</b>.</li>
+        </ul>
+        <p>All three are the same setting, and it is kept when the radio is switched off.</p>
 
         <h2 id="wifi">Wi-Fi on the radio <small style="font-size:.7em;color:var(--muted)">v2.45-r4</small></h2>
         <p><span class="ui">Menu → System → Wi-Fi</span> is one page for everything Wi-Fi. The top says where to find the radio's web pages: its IP address on your network (or <b>atsmini.local</b>), or <b>10.1.1.1</b> after joining the radio's own network <b>ATS-Mini</b>. Below are three rows:</p>
