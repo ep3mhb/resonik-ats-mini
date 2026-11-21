@@ -265,7 +265,7 @@ bool drawBattery(int x, int y);
 void scanRun(uint32_t centerFreq, uint32_t step);
 float scanGetRSSI(uint32_t freq);
 // RESONIK R5 (Scan.cpp): step-by-step sweeps for Band View, peaks for Auto-Store
-bool scanAsyncStart(uint32_t centerFreq, uint32_t step);
+bool scanAsyncStart(uint32_t centerFreq, uint32_t step, int points = 200);
 bool scanAsyncTick();
 void scanAsyncStop();
 int scanLastSweep(uint32_t *start, uint32_t *step, uint8_t *rssiOut, int max);

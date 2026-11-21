@@ -18,11 +18,22 @@
 #include "BandView.h"
 #include <esp_heap_caps.h>
 
-#define BV_POINTS  160               // Points per sweep (the sweep has up to 200)
-#define BV_ROWS    40                // Sweeps kept
+#define BV_POINTS  160               // Points per sweep, 2 px each
+#define BV_ROWS    26                // Sweeps kept in the waterfall
 #define BV_RGB(c)  ((uint16_t)((((c) >> 8) & 0xF800) | (((c) >> 5) & 0x07E0) | (((c) >> 3) & 0x001F)))
 
-static uint8_t *rows = nullptr;      // BV_ROWS x BV_POINTS, RSSI dBuV
+// Screen: the spectrum of the sweep on top (bars, filled in as the sweep
+// goes), the sweeps before it as a waterfall under it. Until 21 Nov only
+// the waterfall, one 3 px line per finished sweep: nothing moved for the
+// 10 to 20 s a sweep took (Mohammad: very slow).
+#define BV_SPEC_Y  28
+#define BV_SPEC_H  40
+#define BV_FALL_Y  71                // 26 lines of 3 px end at 148, over the foot line
+
+// Readings are kept as dBuV + 1: 0 is "not measured" (past the band edge)
+static uint8_t *rows = nullptr;      // BV_ROWS x BV_POINTS
+static uint8_t live[BV_POINTS];      // The sweep in progress; beyond liveCount, the one before
+static int liveCount = 0;
 static int rowCount = 0, rowHead = 0;
 static uint32_t sweepStart = 0, sweepStep = 0;
 static int cursor = BV_POINTS / 2;
@@ -45,6 +56,8 @@ void bandViewOpen()
   memScanStop();
   bandScanStop();
   rowCount = rowHead = 0;
+  liveCount = 0;
+  memset(live, 0, sizeof(live));
   cursor = BV_POINTS / 2;
   sweepStep = 0;
   centreFreq = currentFrequency;
@@ -60,9 +73,7 @@ void bandViewTurn(int enc)
 
 static uint32_t cursorFreq()
 {
-  // The sweep has 200 points; the view shows its middle 160
-  int off = (200 - BV_POINTS) / 2;
-  return(sweepStart + sweepStep * (cursor + off));
+  return(sweepStart + sweepStep * cursor);
 }
 
 void bandViewClick(bool shortPress)
@@ -74,6 +85,7 @@ void bandViewClick(bool shortPress)
 
 bool bandViewTick()
 {
+  static uint32_t lastDraw = 0;
   bool want = currentCmd == CMD_BANDVIEW && !sleepOn();
   if(!want)
   {
@@ -83,38 +95,55 @@ bool bandViewTick()
   if(!active) { active = true; sweeping = false; }
   if(!sweeping)
   {
-    sweeping = scanAsyncStart(centreFreq, viewStep());
+    sweeping = scanAsyncStart(centreFreq, viewStep(), BV_POINTS);
     if(!sweeping) { currentCmd = CMD_NONE; return(true); }
+    liveCount = 0;
   }
-  // A few steps per loop: the knob and the screen stay responsive
-  for(int i = 0; i < 4; i++)
+  // Up to 15 ms of each pass of the main loop: a tune is complete within a
+  // few questions, and the knob and the screen still answer at once
+  bool done = false;
+  uint32_t t0 = millis();
+  do
   {
-    if(!scanAsyncTick())
-    {
-      static uint8_t full[200];
-      int n = scanLastSweep(&sweepStart, &sweepStep, full, 200);
-      uint8_t *row = rows + rowHead * BV_POINTS;
-      int off = (200 - BV_POINTS) / 2;
-      for(int x = 0; x < BV_POINTS; x++) row[x] = x + off < n ? full[x + off] : 0;
-      rowHead = (rowHead + 1) % BV_ROWS;
-      if(rowCount < BV_ROWS) rowCount++;
-      sweeping = false;
-      return(true);
-    }
+    if(!scanAsyncTick()) { done = true; break; }
     delay(1);
   }
+  while(millis() - t0 < 15);
+
+  // The points measured since the last pass replace those of the sweep before
+  static uint8_t pts[BV_POINTS];
+  int n = scanLastSweep(&sweepStart, &sweepStep, pts, BV_POINTS);
+  bool grew = n > liveCount;
+  for(int i = liveCount; i < n; i++) live[i] = pts[i] < 255 ? pts[i] + 1 : 255;
+  liveCount = n;
+
+  if(done)
+  {
+    // Past the band edge nothing was measured
+    for(int i = n; i < BV_POINTS; i++) live[i] = 0;
+    memcpy(rows + rowHead * BV_POINTS, live, BV_POINTS);
+    rowHead = (rowHead + 1) % BV_ROWS;
+    if(rowCount < BV_ROWS) rowCount++;
+    sweeping = false;
+    lastDraw = millis();
+    return(true);
+  }
+  // The bars grow five times a second
+  if(grew && millis() - lastDraw >= 200) { lastDraw = millis(); return(true); }
   return(false);
 }
 
-static uint16_t colour(int v, int lo, int hi)
+// Blue (weak) through green to yellow (strong); dim for the sweep before
+static uint16_t colour(int v, int lo, int hi, bool dim = false)
 {
-  // Blue (weak) through green to yellow (strong)
   int t = hi > lo ? (v - lo) * 255 / (hi - lo) : 0;
   if(t < 0) t = 0;
   if(t > 255) t = 255;
   int r = t < 128 ? 0 : (t - 128) * 2, g = t < 128 ? t * 2 : 255, b = t < 128 ? 160 - t : 0;
+  if(g > 255) g = 255;
   if(b < 0) b = 0;
-  return(spr.color565(r, g > 255 ? 255 : g, b));
+  if(dim) { r = r * 2 / 5; g = g * 2 / 5; b = b * 2 / 5 + 24; }
+  return(spr.color565(r, g, b));
 }
 
 void drawBandView()
@@ -136,20 +165,38 @@ void drawBandView()
   else snprintf(line, sizeof(line), "Sweeping...");
   spr.drawString(line, 310, 14, uiFont(true));
 
-  // Waterfall, newest on top, each sweep 3 px; colours from the whole view
+  // One scale for the bars and the waterfall: weakest to strongest reading
   int lo = 255, hi = 0;
+  for(int x = 0; x < BV_POINTS; x++) if(live[x]) { if(live[x] < lo) lo = live[x]; if(live[x] > hi) hi = live[x]; }
   for(int r = 0; r < rowCount; r++) for(int x = 0; x < BV_POINTS; x++)
   {
     int v = rows[r * BV_POINTS + x];
+    if(!v) continue;
     if(v < lo) lo = v;
     if(v > hi) hi = v;
   }
+  if(hi < lo + 10) hi = lo + 10;     // Noise alone does not fill the height
+
+  // Spectrum: this sweep bright up to where it has come, the one before dim
+  spr.drawFastHLine(0, BV_SPEC_Y + BV_SPEC_H, 320, BV_RGB(0x0E4A5E));
+  for(int x = 0; x < BV_POINTS; x++)
+  {
+    int v = live[x];
+    if(!v) continue;
+    int h = 2 + (v - lo) * (BV_SPEC_H - 2) / (hi - lo);
+    if(h > BV_SPEC_H) h = BV_SPEC_H;
+    spr.fillRect(x * 2, BV_SPEC_Y + BV_SPEC_H - h, 2, h, colour(v, lo, hi, x >= liveCount));
+  }
+  // Where the sweep is
+  if(sweeping && liveCount < BV_POINTS) spr.fillRect(liveCount * 2, BV_SPEC_Y + BV_SPEC_H + 1, 4, 2, BV_RGB(0xFFD167));
+
+  // Waterfall, newest on top, each sweep 3 px
   for(int r = 0; r < rowCount; r++)
   {
     const uint8_t *row = rows + ((rowHead - 1 - r + BV_ROWS) % BV_ROWS) * BV_POINTS;
-    for(int x = 0; x < BV_POINTS; x++) spr.fillRect(x * 2, 28 + r * 3, 2, 3, colour(row[x], lo, hi));
+    for(int x = 0; x < BV_POINTS; x++) if(row[x]) spr.fillRect(x * 2, BV_FALL_Y + r * 3, 2, 3, colour(row[x], lo, hi));
   }
-  spr.drawFastVLine(cursor * 2, 28, BV_ROWS * 3, BV_RGB(0xF04770));
+  spr.drawFastVLine(cursor * 2, BV_SPEC_Y, BV_FALL_Y + BV_ROWS * 3 - BV_SPEC_Y, BV_RGB(0xF04770));
   spr.setTextDatum(BC_DATUM);
   spr.setTextColor(BV_RGB(0x8FB3C0));
   spr.drawString("Turn: cursor  Click: tune there  Press: leave", 160, 169, uiFont(true));

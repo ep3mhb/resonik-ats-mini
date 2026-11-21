@@ -1125,14 +1125,18 @@ void loop()
     elapsedSleep = elapsedCommand = currentTime = millis();
   }
 
-  if((currentTime - elapsedRSSI) > MIN_ELAPSED_RSSI_TIME)
+  // R5: not while Band View sweeps: the readings would be of whatever
+  // frequency the sweep is on, and each one redrew the screen
+  bool sweeping = currentCmd == CMD_BANDVIEW;
+
+  if(!sweeping && (currentTime - elapsedRSSI) > MIN_ELAPSED_RSSI_TIME)
   {
     { DIAG_T0; needRedraw |= processRssiSnr(); DIAG_T1("rssi"); }
     elapsedRSSI = currentTime;
   }
 
   // Periodically check received RDS information
-  if((currentTime - lastRDSCheck) > RDS_CHECK_TIME)
+  if(!sweeping && (currentTime - lastRDSCheck) > RDS_CHECK_TIME)
   {
     { DIAG_T0; needRedraw |= (currentMode == FM) && checkRds(); DIAG_T1("rds"); }
     lastRDSCheck = currentTime;
