@@ -12,6 +12,10 @@ At every release:
 1. Add the new features to `manual-fa.html` (new sections get the `tag` label with
    the release, e.g. `R3`, and a line in the contents list). Keep menu names in
    English inside `<bdi>`, as on the radio; the knob is «ولوم»; avoid «کاشی».
+   A menu path runs right to left, each name in its own `<bdi>`:
+   `<bdi>Menu</bdi> ← <bdi>System</bdi> ← <bdi>Update FW</bdi>` (the build stops
+   on a `→`). A line that is wholly English, like the sign-off
+   `73 de resonik.mikroutik.com`, goes in one `<bdi>`. A callsign is «نشانه».
 2. If screens changed, replace the screenshots in `img/` (640×340 PNG, taken in
    the host simulator at 2×).
 3. `python3 tools/build_manual_fa.py`, check the PDF, commit it, rebuild the
