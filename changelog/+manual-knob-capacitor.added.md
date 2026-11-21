@@ -1,0 +1,1 @@
+Manual: full sections for the two new settings, **Enc. Accel.** (what the knob does with it on and off, when to choose which) and **Capacitor** (what it is, the bands it acts on, which radios it helps and how to try it), with their screens; the English manual's table of menu groups lists every R5 item.
