@@ -499,7 +499,7 @@ void drawDigiPage()
     char row[per + 1];
     strncpy(row, text + at, per);
     row[per] = '\0';
-    spr.drawString(row, 8, 66 + r * 18, FONT_SMALL);
+    spr.drawString(row, 8, 64 + r * 17, FONT_SMALL);   // The fifth ends at 148, over the foot line
   }
   spr.setTextDatum(BC_DATUM);
   spr.setTextColor(DG_RGB(0x8FB3C0));

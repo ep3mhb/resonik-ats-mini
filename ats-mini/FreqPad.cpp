@@ -48,16 +48,16 @@ void freqPadTurn(int enc)
 
 static bool padApply(double mult)
 {
-  if(!entryLen) { note = "Type a frequency first"; return(false); }
+  if(!entryLen) { note = "Type a number\nfirst"; return(false); }
   double v = atof(entry) * mult;
   if(v < 150000.0 || v > 108000000.0 || (v > 30000000.0 && v < 64000000.0))
   {
-    note = "Out of range: 0.15-30 MHz, 64-108 MHz";
+    note = "Out of range\n0.15-30 MHz\n64-108 MHz";
     return(false);
   }
   if(!resonikTuneHz((uint32_t)(v + 0.5)))
   {
-    note = "Cannot tune there";
+    note = "Cannot tune\nthere";
     return(false);
   }
   return(true);
@@ -87,6 +87,23 @@ void freqPadClick(bool shortPress)
   note = nullptr;
 }
 
+// Lines of a text one under the other. The column left of the keys is
+// 118 px wide: every line here is under that (measured with the font).
+// One long line ran over the first two columns of keys (Mohammad, 21 Nov).
+static void padLines(const char *text, int x, int y, int step)
+{
+  char line[24];
+  while(*text)
+  {
+    int n = 0;
+    while(*text && *text != '\n' && n < (int)sizeof(line) - 1) line[n++] = *text++;
+    line[n] = '\0';
+    if(*text == '\n') text++;
+    spr.drawString(line, x, y, uiFont(true));
+    y += step;
+  }
+}
+
 void drawFreqPad()
 {
   spr.fillSprite(TH.bg);
@@ -102,7 +119,7 @@ void drawFreqPad()
   spr.drawString(entryLen ? entry : "", 122, 44, uiFont(false));
   spr.setTextDatum(TL_DATUM);
   spr.setTextColor(note ? TH.text_warn : TH.text_muted);
-  spr.drawString(note ? note : "Type, then kHz or MHz", 12, 62, uiFont(true));
+  padLines(note ? note : "Type a number,\nthen kHz or MHz", 12, 61, 17);
 
   // Keys: four columns on the right, four rows
   for(int i = 0; i < 16; i++)
@@ -116,8 +133,7 @@ void drawFreqPad()
     spr.drawString(keys[i], x + 21, y + 15, uiFont(true));
   }
 
-  spr.setTextDatum(BL_DATUM);
+  spr.setTextDatum(TL_DATUM);
   spr.setTextColor(TH.text_muted);
-  spr.drawString("Turn: move", 12, 150, uiFont(true));
-  spr.drawString("Click: press", 12, 168, uiFont(true));
+  padLines("Turn: move\nClick: press\nPress: leave", 12, 116, 17);
 }

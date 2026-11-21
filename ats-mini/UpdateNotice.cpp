@@ -122,7 +122,7 @@ void drawUpdNotice()
 
   for(int i = 0; i < 3; i++)
   {
-    int y = 82 + i * 26;
+    int y = 76 + i * 24;     // The third ends at 146, clear of the line at the foot
     bool hl = i == choice;
     if(hl) spr.fillRoundRect(60, y, 200, 22, 6, TH.menu_hl_bg);
     else spr.drawRoundRect(60, y, 200, 22, 6, TH.menu_border);
