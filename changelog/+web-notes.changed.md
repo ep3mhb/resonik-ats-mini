@@ -1,0 +1,1 @@
+Web Control: the page's short notes (seek results, beacon follow) appear at the bottom of the window wherever the page is scrolled. They used to sit in the frequency panel at the top, out of sight from the lower tabs.

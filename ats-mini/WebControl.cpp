@@ -673,6 +673,17 @@ static void webBeaconTick()
   if(snr > maxQ) maxQ = snr;
 }
 
+// R5: a line from the radio for the page's note. Main loop only. The texts
+// are the firmware's own: no quotes or backslashes in them.
+void webControlNote(const char *line1, const char *line2)
+{
+  if(!ws.count()) return;
+  char j[200];
+  bool two = line2 && line2[0];
+  snprintf(j, sizeof(j), "{\"note\":\"%s%s%s\"}", line1 ? line1 : "", two ? ": " : "", two ? line2 : "");
+  wsSend(j);
+}
+
 // R5: a browser that drops off for a moment (Wi-Fi hiccup, phone screen
 // locked) still counts for a minute. Otherwise the FT8, CW and Digital pages
 // switched Wi-Fi off at once and the page could never reconnect: the radio
