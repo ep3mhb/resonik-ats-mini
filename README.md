@@ -48,7 +48,7 @@ What is coming in each release: [roadmap (PDF)](website/resonik-roadmap.pdf) · 
 - Memory scan, stopping on signals
 - Signal logger to a CSV file, downloadable from the radio's web page
 - Propagation data (solar flux, A and K index, band conditions) from hamqsl.com
-- Kenwood TS-480 CAT control over USB (flrig, Hamlib, WSJT-X receive, logging programs)
+- Kenwood TS-480 CAT control over USB, and from v2.46-r5 over Wi-Fi (TCP) and Bluetooth (flrig, Hamlib, WSJT-X receive, logging programs)
 - EiBi schedules with days of the week, language and target area
 - System → Knob: 20 or 30 clicks per turn, for the two kinds of encoder
 

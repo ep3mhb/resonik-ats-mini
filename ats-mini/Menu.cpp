@@ -251,10 +251,10 @@ static const char *settings[] =
   "FT8/FT4",
   "Freq Lock",
   "CPU",
-  "Update Notice",
+  "Upd. Notice",
   "Battery",
   "Digital",
-  "Decoder Audio",
+  "Dec. Audio",
   "About",
 };
 
@@ -321,7 +321,7 @@ static const TileEntry tileSystem[] =
 {
   { TI_INFO, TILE_SET | MENU_ABOUT }, { TI_BT, TILE_SET | MENU_BLEMODE },
   { TI_CLOCK, TILE_SET | MENU_DATETIME }, { TI_CHIP, TILE_SET | MENU_DSP_PATCHES },
-  { TI_KNOB, TILE_SET | MENU_KNOB }, { TI_SEEK, TILE_SET | MENU_ENC_ACCEL },
+  { TI_SEEK, TILE_SET | MENU_ENC_ACCEL }, { TI_KNOB, TILE_SET | MENU_KNOB },
   { TI_POWER, TILE_SET | MENU_OFFTIMER }, { TI_NETWORK, TILE_SET | MENU_TCPMODE },
   { TI_GLOBE, TILE_SET | MENU_UTCOFFSET }, { TI_FIRMWARE, TILE_SET | MENU_UPDATEFW },
   { TI_USB, TILE_SET | MENU_USBMODE }, { TI_WIFI, TILE_SET | MENU_WIFIMODE },

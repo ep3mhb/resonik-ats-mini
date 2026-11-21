@@ -1,0 +1,1 @@
+Two tile labels were wider than their tiles and touched the edges: **Decoder Audio** is now **Dec. Audio** and **Update Notice** is **Upd. Notice** (the settings are the same). `tools/tile_preview.py` draws the tile pages and value screens on a PC with the firmware's own code, and its `check` finds a label that does not fit.
