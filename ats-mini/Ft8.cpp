@@ -53,6 +53,7 @@ static volatile bool running = false;     // The worker should process audio
 static volatile uint32_t generation = 0;  // Bumped on every start and band change
 static uint32_t cpuSaved = 0;
 static int channel = 2;                   // 40 m until a band says otherwise
+static int wantChannel = -1;              // R5: channel asked for from Web Control
 static volatile bool wantFt4 = false;     // Protocol of the channel; the worker switches
 static volatile int wantRate = Ft8Rx::FS;  // R5: sample rate (Decoder Audio setting); the worker switches
 
@@ -358,7 +359,9 @@ static bool start()
 {
   if(!lock) lock = xSemaphoreCreateMutex();
   if(!ring) ring = (int16_t *)heap_caps_malloc(RING_SAMPLES * sizeof(int16_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
-  int ch = ft8ChannelOfCurrent();
+  // R5: the channel Web Control asked for, else the one of the band in use
+  int ch = wantChannel >= 0 ? wantChannel : ft8ChannelOfCurrent();
+  wantChannel = -1;
   if(ch >= 0) channel = ch;
   wantFt4 = ft8ChannelIsFt4(channel);
   wantRate = decoderSampleRate();
@@ -407,11 +410,10 @@ void ft8PageOpen()
   currentCmd = CMD_FT8;
 }
 
-void ft8Turn(int16_t enc)
+// The page goes to another FT8 or FT4 channel
+static void goChannel(int ch)
 {
-  if(!pageActive || !enc) return;
-  int n = ft8ChannelCount();
-  channel = (channel + (enc > 0 ? 1 : -1) + n) % n;
+  channel = ch;
   bool wasFt4 = wantFt4;
   wantFt4 = ft8ChannelIsFt4(channel);
   ft8SelectChannel(channel);
@@ -428,6 +430,25 @@ void ft8Turn(int16_t enc)
   xSemaphoreGive(lock);
   generation++;
 }
+
+void ft8Turn(int16_t enc)
+{
+  if(!pageActive || !enc) return;
+  int n = ft8ChannelCount();
+  goChannel((channel + (enc > 0 ? 1 : -1) + n) % n);
+}
+
+// RESONIK R5: Web Control starts the page on a channel, or changes channel
+void ft8WebOpen(int ch)
+{
+  if(ch < 0 || ch >= ft8ChannelCount()) return;
+  if(pageActive) { if(ch != channel) goChannel(ch); return; }
+  wantChannel = ch;
+  currentCmd = CMD_FT8;
+}
+
+// Channel the page is decoding, -1 while it is closed
+int ft8WebChannel() { return(pageActive ? channel : -1); }
 
 // RESONIK R5: the newest slot's messages for the browser, once each:
 // {"dec":{"m":"FT8","slot":N,"r":[[snr,hz,"text"],...]}}; false when none new
