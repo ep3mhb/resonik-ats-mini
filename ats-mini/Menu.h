@@ -71,6 +71,8 @@
 #define CMD_BANDVIEW   0x4B00 // RESONIK R5: Band View waterfall
 #define CMD_WIZARD     0x4C00 // RESONIK R5: setup wizard at first start
 #define CMD_DECAUDIO   0x4D00 // RESONIK R5: Decoder Audio setting (3 or 6 kHz)
+#define CMD_ANTCAP     0x4E00 // Upstream 0x3700: automatic antenna capacitor on MW/LW
+#define CMD_ENC_ACCEL  0x4F00 // Upstream 0x3800: encoder acceleration
 
 // RESONIK R5: setup wizard (Menu.cpp)
 extern uint8_t wizardDone;
@@ -152,6 +154,12 @@ extern bool vfoInitialized;
 
 void initVfo();
 VfoState captureVfo();
+// Index must be 0 or 1. The active VFO reflects live receiver settings.
+VfoState getVfo(uint8_t index);
+bool selectVfo(uint8_t index);
+void copyVfo();
+bool setVfoFrequency(uint8_t index, uint32_t freq);
+bool setMode(uint8_t mode);
 
 uint8_t seekMode(bool toggle = false);
 void drawSideBar(uint16_t cmd, int x, int y, int sx);
@@ -217,6 +225,7 @@ void doFmStereo(int16_t enc);
 void doRDSMode(int16_t enc);
 void doBandwidth(int16_t enc);
 void doVolume(int16_t enc);
+void doSquelch(int16_t enc);
 void doBrt(int16_t enc);
 void doCal(int16_t enc);
 void doStep(int16_t enc);

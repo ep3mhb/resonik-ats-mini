@@ -127,17 +127,19 @@ static constexpr const lgfx::IFont* FONT_DIGITS  = &lgfx::fonts::Font7;  // 48px
 // Bluetooth modes
 #define BLE_OFF        0 // Bluetooth is disabled
 #define BLE_ADHOC      1 // Ad hoc BLE serial protocol
-#define BLE_HID        2 // BLE HID central
-#define BLE_UNPAIR_ALL 3 // Clear all BLE bonds, then disable Bluetooth
+#define BLE_KENWOOD    2 // Kenwood CAT over BLE serial
+#define BLE_HID        3 // BLE HID central
+#define BLE_UNPAIR_ALL 4 // Clear all BLE bonds, then disable Bluetooth
 
 // USB modes
 #define USB_OFF        0 // USB is disabled
 #define USB_ADHOC      1 // Ad hoc serial protocol
-#define USB_CAT        2 // Kenwood TS-480 CAT (RESONIK)
+#define USB_KENWOOD    2 // Kenwood CAT protocol (was USB_CAT in RESONIK R1 to R4: same number)
 
 // TCP modes
 #define TCP_OFF        0 // TCP control is disabled
 #define TCP_ADHOC      1 // Ad hoc protocol over TCP
+#define TCP_KENWOOD    2 // Kenwood CAT over TCP
 
 //
 // Data Types
@@ -147,7 +149,8 @@ typedef struct
 {
   const char *bandName;   // Band description
   uint8_t bandType;       // Band type (FM, MW, or SW)
-  uint8_t bandMode;       // Band mode (FM, AM, LSB, or USB)
+  uint8_t bandMode;       // Current mode (FM, AM, LSB, or USB)
+  uint8_t defaultMode;    // Factory mode; not overwritten by preferences
   uint32_t minimumFreq;   // Minimum frequency of the band in Hz
   uint32_t maximumFreq;   // Maximum frequency of the band in Hz
   uint32_t currentFreq;   // Default or current frequency in Hz
@@ -207,6 +210,7 @@ extern uint8_t sleepModeIdx;
 extern bool zoomMenu;
 extern int8_t scrollDirection;
 extern bool encoderHalfStep;
+extern bool encoderAcceleration;
 extern uint8_t utcOffsetIdx;
 extern uint8_t uiLayoutIdx;
 

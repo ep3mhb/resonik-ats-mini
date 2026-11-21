@@ -1,6 +1,6 @@
 //
 // RESONIK Phase 2: beacon tracker, memory scanner, signal logger,
-// propagation data and Kenwood CAT.
+// propagation data.
 //
 #include "Common.h"
 #include "Themes.h"
@@ -11,7 +11,6 @@
 #include "Storage.h"
 #include "Resonik.h"
 #include "Beacons.h"
-#include "CatKenwood.h"
 
 #include <time.h>
 #include <LittleFS.h>
@@ -660,11 +659,9 @@ void drawPropagation()
 }
 
 //
-// Kenwood TS-480 CAT on the USB port (Settings > USB Port > CAT)
+// Tune anywhere, changing band if needed (number pad, Band View, the page)
 //
-static uint32_t catGetFreq() { return(currentFrequency); }
-
-static bool catSetFreq(uint32_t hz)
+bool resonikTuneHz(uint32_t hz)
 {
   if(updateFrequency(hz, false))
   {
@@ -676,60 +673,4 @@ static bool catSetFreq(uint32_t hz)
   // Another band: FM broadcast range in FM, otherwise keep the mode (AM if coming from FM)
   uint8_t mode = (hz >= 64000000 && hz <= 108000000) ? FM : (currentMode == FM ? AM : currentMode);
   return(tuneToFrequency(hz, mode));
-}
-
-static uint8_t catGetMode()
-{
-  switch(currentMode)
-  {
-    case LSB: return(KW_LSB);
-    case USB: return(KW_USB);
-    case CW:  return(KW_CW);
-    case FM:  return(KW_FM);
-    default:  return(KW_AM);
-  }
-}
-
-static bool catSetMode(uint8_t kw)
-{
-  uint8_t mode;
-  switch(kw)
-  {
-    case KW_LSB: mode = LSB; break;
-    case KW_USB: case KW_FSK: case KW_FSKR: mode = USB; break;   // Data modes on USB
-    case KW_CW:  case KW_CWR: mode = CW; break;
-    case KW_FM:  mode = FM; break;
-    case KW_AM:  mode = AM; break;
-    default: return(false);
-  }
-  if(mode == currentMode) return(true);
-  if((mode == FM) != (currentMode == FM)) return(false);   // FM only on the FM band
-  return(tuneToFrequency(currentFrequency, mode));
-}
-
-static uint8_t catGetSmeter() { return(catSmeterFromRssi(rssi)); }
-static uint8_t catGetVolume() { return((uint8_t)(volume * 255 / 63)); }
-static void catSetVolume(uint8_t v) { doVolume((int16_t)(v * 63 / 255) - (int16_t)volume); }
-
-bool resonikTuneHz(uint32_t hz) { return(catSetFreq(hz)); }
-
-static const CatRadio catRadio = { catGetFreq, catSetFreq, catGetMode, catSetMode, catGetSmeter, catGetVolume, catSetVolume };
-static CatKenwood cat;
-
-bool catSerialLoop()
-{
-  bool changed = false;
-  char out[48];
-  // Handle what has arrived, a bounded amount per loop
-  for(int i = 0 ; i < 64 && Serial.available() ; i++)
-  {
-    int c = Serial.read();
-    if(c < 0) break;
-    if(cat.feed((char)c, catRadio, out))
-    {
-      if(out[0]) Serial.print(out);
-      changed = true;
-    }
-  }
-  return(changed);
 }
