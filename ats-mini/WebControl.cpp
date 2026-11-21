@@ -32,6 +32,7 @@
 #include "DigiPage.h"
 #include "Resonik.h"
 #include "BandView.h"
+#include <time.h>
 #include <mutex>
 #include <atomic>
 
@@ -654,6 +655,10 @@ static void webSendPanel(bool force)
   // R5: the page open on the radio (0 none, 1 FT8/FT4, 2 CW, 3 Digital,
   // 4 Band View) and its channel or mode, -1 while it is still starting
   int dp = currentCmd == CMD_FT8 ? 1 : currentCmd == CMD_CWDEC ? 2 : currentCmd == CMD_DIGI ? 3 : currentCmd == CMD_BANDVIEW ? 4 : 0;
+  // R5: the radio's clock, as minutes of the UTC day (-1: not set), and its
+  // time zone in minutes: the page shows UTC and local time (Mohammad, 21 Nov)
+  j += ",\"ck\":"; j += clockAvailable() ? (int)((time(NULL) % 86400) / 60) : -1;
+  j += ",\"tz\":"; j += (int)getCurrentUTCOffset() * 15;
   j += ",\"dp\":"; j += dp;
   j += ",\"dc\":"; j += dp == 1 ? ft8WebChannel() : dp == 3 ? digiWebMode() : 0;
   j += '}';
