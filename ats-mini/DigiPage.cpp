@@ -490,7 +490,7 @@ void drawDigiPage()
   else text[0] = '\0';
   const int rows = 5, maxW = 304;
   static char lines[5][Digi::TEXT_MAX + 1];
-  char line[Digi::TEXT_MAX + 1] = "", trial[Digi::TEXT_MAX + 2], part[Digi::TEXT_MAX + 2];
+  char cur[Digi::TEXT_MAX + 1] = "", trial[Digi::TEXT_MAX + 2], part[Digi::TEXT_MAX + 2];
   int count = 0;
   for(const char *p = text; *p; )
   {
@@ -499,10 +499,10 @@ void drawDigiPage()
     while(*p && *p != ' ') p++;
     int wl = (int)(p - w);
     if(!wl) break;
-    snprintf(trial, sizeof(trial), "%s%s%.*s", line, line[0] ? " " : "", wl, w);
-    if(line[0] && spr.textWidth(trial, FONT_SMALL) > maxW)
+    snprintf(trial, sizeof(trial), "%s%s%.*s", cur, cur[0] ? " " : "", wl, w);
+    if(cur[0] && spr.textWidth(trial, FONT_SMALL) > maxW)
     {
-      strcpy(lines[count++ % rows], line);
+      strcpy(lines[count++ % rows], cur);
       snprintf(trial, sizeof(trial), "%.*s", wl, w);
     }
     while(spr.textWidth(trial, FONT_SMALL) > maxW)
@@ -512,9 +512,9 @@ void drawDigiPage()
       strcpy(lines[count++ % rows], part);
       memmove(trial, trial + k, n - k + 1);
     }
-    strcpy(line, trial);
+    strcpy(cur, trial);
   }
-  if(line[0]) strcpy(lines[count++ % rows], line);
+  if(cur[0]) strcpy(lines[count++ % rows], cur);
   int shown = count < rows ? count : rows;
   spr.setTextDatum(TL_DATUM);
   spr.setTextColor(DG_RGB(0xEEF5F7));
