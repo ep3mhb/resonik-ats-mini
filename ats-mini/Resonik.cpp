@@ -103,7 +103,12 @@ void beaconMenuSet(int idx)
 void beaconFollow(int8_t idx)
 {
   beaconFollowIdx = idx < 0 || idx > 17 ? -1 : idx;
-  beaconFollowFreq = 0;
+  // R5: where the radio is when following begins. Tuning away from there,
+  // or changing band, stops the follow also while it waits for the beacon's
+  // turn (up to 130 s of every 180). It used to start from 0, which the
+  // tuned-away check below ignores: the radio then left FM, or any other
+  // band the user had gone to, when the beacon came on (Mohammad, 21 Nov).
+  beaconFollowFreq = beaconFollowIdx >= 0 ? currentFrequency : 0;
   beaconLastSlot = -1;
   if(beaconFollowIdx >= 0 && !clockAvailable())
   {
@@ -133,8 +138,8 @@ bool beaconTick()
 
   if(beaconFollowIdx < 0) return(changed);
 
-  // Tuned away by hand: stop following
-  if(beaconFollowFreq && currentFrequency != beaconFollowFreq)
+  // Tuned away by hand, or another band or FM chosen: stop following
+  if(currentFrequency != beaconFollowFreq)
   {
     statusShow("Beacon follow off");
     beaconFollowIdx = -1;
