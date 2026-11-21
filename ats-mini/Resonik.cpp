@@ -61,6 +61,7 @@ bool tuneToFrequency(uint32_t hz, uint8_t mode)
 int8_t beaconFollowIdx = -1;
 static uint32_t beaconFollowFreq = 0;
 static int beaconLastSlot = -1;
+static uint32_t beaconHoldUntil = 0;   // R5: no band change before this time
 
 uint8_t beaconNames = 1;
 
@@ -86,7 +87,7 @@ const char *beaconLabel(uint32_t freq)
 
 int beaconMenuIdx() { return(beaconFollowIdx >= 0 ? beaconFollowIdx + 2 : beaconNames ? 1 : 0); }
 
-void beaconMenuSet(int idx)
+void beaconMenuSet(int idx, bool now)
 {
   if(idx <= 1)
   {
@@ -94,13 +95,23 @@ void beaconMenuSet(int idx)
     beaconFollow(-1);
     prefsRequestSave(SAVE_SETTINGS);
   }
-  else beaconFollow(idx - 2);
+  // Turning through the list on the radio passes every name: the band
+  // changes only for the one the knob rests on. The page's Start acts at once.
+  else beaconFollow(idx - 2, now ? 0 : 1200);
   // Take the name off (or put it on) at once
   clearStationInfo();
   identifyFrequency(currentFrequency);
 }
 
-void beaconFollow(int8_t idx)
+// R5: what ends or refuses a follow is said on the radio and on the Web
+// Control page (Mohammad, 21 Nov: Start on the page, and nothing was seen)
+static void beaconSay(const char *line1, const char *line2 = nullptr)
+{
+  statusShow(line1, line2);
+  webControlNote(line1, line2);
+}
+
+void beaconFollow(int8_t idx, uint16_t holdMs)
 {
   beaconFollowIdx = idx < 0 || idx > 17 ? -1 : idx;
   // R5: where the radio is when following begins. Tuning away from there,
@@ -110,9 +121,10 @@ void beaconFollow(int8_t idx)
   // band the user had gone to, when the beacon came on (Mohammad, 21 Nov).
   beaconFollowFreq = beaconFollowIdx >= 0 ? currentFrequency : 0;
   beaconLastSlot = -1;
+  beaconHoldUntil = millis() + holdMs;
   if(beaconFollowIdx >= 0 && !clockAvailable())
   {
-    statusShow("Beacons need the clock set", "Wi-Fi Sync, RDS or Date/Time");
+    beaconSay("Beacons need the clock set", "Wi-Fi Sync, RDS or Date/Time");
     beaconFollowIdx = -1;
   }
 }
@@ -141,30 +153,35 @@ bool beaconTick()
   // Tuned away by hand, or another band or FM chosen: stop following
   if(currentFrequency != beaconFollowFreq)
   {
-    statusShow("Beacon follow off");
+    beaconSay("Beacon follow off");
     beaconFollowIdx = -1;
     return(true);
   }
 
+  if((int32_t)(millis() - beaconHoldUntil) < 0) return(changed);
   if(slot == beaconLastSlot) return(changed);
   beaconLastSlot = slot;
 
+  // R5: while its beacon is silent (130 s of every 180) the radio waits on
+  // 14.100 MHz, where the next run begins. Starting a follow is then seen
+  // and heard at once, and the first of its five slots is not cut short by
+  // the band change from 28.200 MHz. It used to stay where it was.
   int band = ibpBandOf(beaconFollowIdx, utc);
+  uint32_t hz = ibpFreqs[band < 0 ? 0 : band];
   const IbpBeacon &b = ibpBeacons[beaconFollowIdx];
+  if((currentFrequency != hz || currentMode != CW) && !tuneToFrequency(hz, CW))
+  {
+    beaconSay("No band for", "the beacon frequency");
+    beaconFollowIdx = -1;
+    return(true);
+  }
+  beaconFollowFreq = currentFrequency;
+
   if(band < 0)
   {
     char line[40];
     snprintf(line, sizeof(line), "%s back in %d s", b.call, ibpSecondsToNext(beaconFollowIdx, utc));
     statusShow("Following beacon", line, 3000);
-    return(true);
-  }
-
-  if(tuneToFrequency(ibpFreqs[band], CW))
-    beaconFollowFreq = currentFrequency;
-  else
-  {
-    statusShow("No band for", "the beacon frequency");
-    beaconFollowIdx = -1;
   }
   return(true);
 }

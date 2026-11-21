@@ -286,6 +286,7 @@ bool identifyFrequency(uint32_t freq, bool periodic = false);
 int8_t getWiFiStatus();
 bool netJobsBusy();
 bool webControlActive();      // RESONIK R4: a Web Control page is connected
+void webControlNote(const char *line1, const char *line2 = nullptr);  // R5: a line for the page's note
 char *getWiFiIPAddress();
 void netInit(uint8_t netMode);
 void netStop();

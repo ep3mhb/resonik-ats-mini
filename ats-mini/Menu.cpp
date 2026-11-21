@@ -3706,7 +3706,7 @@ bool webMenuSet(uint16_t cmd, int32_t v)
       // R5: -1 from the page's "Stop following": the Names setting is kept
       if(v == -1) { beaconFollow(-1); clearStationInfo(); identifyFrequency(currentFrequency); break; }
       if(v < 0 || v >= BEACON_MENU_COUNT) return(false);
-      beaconMenuSet(v);
+      beaconMenuSet(v, true);
       break;
     case CMD_BPAREA:     if(v < 0 || v >= BP_AREA_COUNT) return(false); bandPlanArea = v; prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_CWSTRIP:    cwStripIdx = v ? 1 : 0; prefsRequestSave(SAVE_SETTINGS); break;
