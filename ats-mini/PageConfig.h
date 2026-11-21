@@ -43,14 +43,16 @@ static const char pageConfig[] PROGMEM = R"HTML(<H1>{{title}}</H1>
     </TR>
     <TR><TD CLASS="LABEL">Delete Image</TD><TD><INPUT TYPE="CHECKBOX" NAME="deletesplash" VALUE="on"></TD></TR>
     <TR><TH COLSPAN="2" CLASS="HEADING"><INPUT TYPE="SUBMIT" VALUE="Save"></TH></TR>
+    <!-- RESONIK R5: backup and restore. In the same table, so that it lines up
+         with the settings above; its two controls belong to the form below. -->
+    <TR><TD COLSPAN="2" STYLE="padding:0.6em"></TD></TR>
+    <TR><TH COLSPAN="2" CLASS="HEADING">Backup and Restore</TH></TR>
+    <TR><TD CLASS="LABEL">Backup</TD><TD><A HREF="/backup.txt">Download a backup</A><BR><SMALL>All the radio's settings, bands, memories and Wi-Fi networks in one file. It holds your Wi-Fi passwords: keep it private.</SMALL></TD></TR>
+    <TR><TD CLASS="LABEL">Restore</TD><TD><INPUT TYPE="FILE" NAME="backup" ACCEPT=".txt" FORM="restoreform" STYLE="max-width:100%" REQUIRED><BR><SMALL>A backup file from this or another radio. It replaces all settings, memories and Wi-Fi networks; the radio then restarts.</SMALL></TD></TR>
+    <TR><TH COLSPAN="2" CLASS="HEADING"><INPUT TYPE="SUBMIT" VALUE="Restore" FORM="restoreform"></TH></TR>
   </TABLE>
 </FORM>
-<H2>Backup and restore</H2>
-<P>Keep all the radio's settings, bands, memories and Wi-Fi networks in one file, and put them back later or on another radio. The file holds your Wi-Fi passwords: keep it private.</P>
-<P><A HREF="/backup.txt">Download a backup</A></P>
-<FORM ACTION="/restore" METHOD="POST" ENCTYPE="multipart/form-data" ONSUBMIT="return confirm('Replace all settings, memories and Wi-Fi networks with this backup? The radio restarts.')">
-<INPUT TYPE="file" NAME="backup" ACCEPT=".txt" REQUIRED> <INPUT TYPE="submit" VALUE="Restore">
-</FORM>
+<FORM ID="restoreform" ACTION="/restore" METHOD="POST" ENCTYPE="multipart/form-data" ONSUBMIT="return confirm('Replace all settings, memories and Wi-Fi networks with this backup? The radio restarts.')"></FORM>
 <SCRIPT>
 function browserDateTime(submit) {
   const enabled = document.getElementById('browserdatetime').checked;

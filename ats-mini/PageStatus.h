@@ -7,7 +7,7 @@ static const char pageStatusTitle[] PROGMEM = "ATS-Mini Status";
 
 static const char pageStatus[] PROGMEM = R"HTML(<H1>{{title}}</H1>
 {{{navigation}}}
-<STYLE>.v-good{color:#06D7A0}.v-fair{color:#FFD167}.v-bad{color:#FF6B6B}</STYLE>
+<STYLE>.v-good{color:#06D7A0}.v-fair{color:#FFD167}.v-bad{color:#FF6B6B}TD.LABEL{white-space:nowrap}</STYLE>
 <TABLE COLUMNS="2">
   <TR><TD CLASS="LABEL">IP Address</TD><TD><A HREF="http://{{ip}}">{{ip}}</A> ({{ssid}})</TD></TR>
   <TR><TD CLASS="LABEL">MAC Address</TD><TD>{{mac}}</TD></TR>
@@ -20,7 +20,7 @@ static const char pageStatus[] PROGMEM = R"HTML(<H1>{{title}}</H1>
   <TR><TD CLASS="LABEL">Battery Voltage</TD><TD>{{battery}} V &mdash; <SPAN CLASS="v-{{bat_c}}">{{bat_v}}</SPAN></TD></TR>
   <TR><TD CLASS="LABEL">Running for</TD><TD>{{uptime}}</TD></TR>
   <TR><TD CLASS="LABEL">Last restart</TD><TD>{{reset}} &mdash; <SPAN CLASS="v-{{rst_c}}">{{rst_v}}</SPAN></TD></TR>
-  <TR><TD CLASS="LABEL">Processor</TD><TD>{{temp}} &deg;C, {{cpu}} MHz &mdash; <SPAN CLASS="v-{{tmp_c}}">{{tmp_v}}</SPAN></TD></TR>
+  <TR><TD CLASS="LABEL">Processor</TD><TD>{{temp}} &deg;C, {{cpu}} MHz &mdash; <SPAN CLASS="v-{{tmp_c}}">{{tmp_v}}</SPAN><DIV><SMALL STYLE="color:var(--muted)">{{cpu_note}}</SMALL></DIV></TD></TR>
   <TR><TD CLASS="LABEL">Memory free</TD><TD>{{heap}} KiB internal, {{psram}} KiB PSRAM (lowest {{heapmin}} KiB) &mdash; <SPAN CLASS="v-{{mem_c}}">{{mem_v}}</SPAN></TD></TR>
   <TR><TD CLASS="LABEL">Wi-Fi signal</TD><TD>{{wrssi}} &mdash; <SPAN CLASS="v-{{wifi_c}}">{{wifi_v}}</SPAN></TD></TR>
 </TABLE>

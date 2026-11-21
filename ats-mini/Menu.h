@@ -197,6 +197,7 @@ extern uint8_t wifiPowerIdx;       // RESONIK R3: 0 Normal, 1 Low, 2 Lowest
 extern const char *const wifiPowerDesc[];
 extern uint8_t perfIdx;            // RESONIK R3: 0 Battery 80 MHz, 1 Balanced 160, 2 Fast 240
 void perfApply();                  // Set the processor speed from perfIdx
+int perfSetMhz();                  // R5: the speed of the setting, in MHz
 extern const char *const bandPlanAreaDesc[];
 bool drawTileMenu();
 void tileMenuOpen();
