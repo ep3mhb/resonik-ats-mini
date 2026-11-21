@@ -815,8 +815,12 @@ static const String webRadioPage()
   int wr = WiFi.status() == WL_CONNECTED ? WiFi.RSSI() : -200;
   const char *wifiC = wr == -200 ? "fair" : grade(wr, -70, -80);
   const char *wifiV = wr == -200 ? "off" : wr >= -60 ? "excellent" : wr >= -70 ? "good" : wr >= -80 ? "weak, pages may be slow" : "poor, may drop";
+  // R5: the speed now and the speed of the setting, when they differ
+  char cpuNote[100] = "";
+  if((int)getCpuFrequencyMhz() != perfSetMhz())
+    snprintf(cpuNote, sizeof(cpuNote), "Set to %d MHz; full speed while Web Control, FT8 or Digital is open.", perfSetMhz());
   return webPage(pageStatus, pageStatusTitle, {
-    {"title", pageStatusTitle},
+    {"title", pageStatusTitle}, {"cpu_note", String(cpuNote)},
     {"uptime", String(uptime)}, {"reset", String(reset)},
     {"temp", String(temperatureRead(), 0)}, {"cpu", String(getCpuFrequencyMhz())},
     {"heap", String(heap_caps_get_free_size(MALLOC_CAP_INTERNAL) / 1024)},

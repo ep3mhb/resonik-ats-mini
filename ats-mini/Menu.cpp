@@ -443,6 +443,11 @@ void perfApply()
   if(getCpuFrequencyMhz() != perfMhz[perfIdx]) setCpuFrequencyMhz(perfMhz[perfIdx]);
 }
 
+// R5: the speed chosen in the setting. The radio runs at 240 MHz while Web
+// Control is open in a browser or the FT8 or Digital page is open, whatever
+// the setting; the Status page then says both (Mohammad, 21 Nov).
+int perfSetMhz() { return(perfMhz[perfIdx > 2 ? 0 : perfIdx]); }
+
 //
 // FM Region Menu
 //
@@ -3578,7 +3583,8 @@ void webMenuDef(String &j)
   wjItem(j, CMD_SLEEP, "Power and time", "Screen sleep", "n"); wjNum(j, 0, 255, 5, "s");
   wjItem(j, CMD_SLEEPMODE, "Power and time", "Sleep mode", "l"); j += ",\"o\":"; wjList(j, sleepModeDesc, ITEM_COUNT(sleepModeDesc)); j += '}';
   wjItem(j, CMD_OFFTIMER, "Power and time", "Off timer", "n"); wjNum(j, 0, 240, 5, "min");
-  wjItem(j, CMD_PERF, "Power and time", "CPU speed (80 saves battery)", "l"); j += ",\"o\":"; wjList(j, perfDesc, ITEM_COUNT(perfDesc)); j += '}';
+  wjItem(j, CMD_PERF, "Power and time", "CPU speed (80 saves battery)", "l"); j += ",\"o\":"; wjList(j, perfDesc, ITEM_COUNT(perfDesc));
+  j += ",\"h\":"; wjText(j, "Always 240 MHz while this page is open, so it answers quickly; your choice applies when you close it."); j += '}';
   wjItem(j, CMD_WIFIPOWER, "Power and time", "Wi-Fi power", "l"); j += ",\"o\":"; wjList(j, wifiPowerDesc, ITEM_COUNT(wifiPowerDesc)); j += '}';
   wjItem(j, CMD_UTCOFFSET, "Power and time", "Time zone", "l");
   n = 0; for(int i = 0; i < (int)ITEM_COUNT(timeZones) && n < 128; i++) labels[n++] = timeZones[i].desc;
