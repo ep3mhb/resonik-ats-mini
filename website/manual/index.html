@@ -140,14 +140,16 @@
         <p>Listening controls such as Band, Mode, Step or Volume open their list as before; after your choice the menu closes, so the encoder tunes straight away. Settings open full screen as a list of values, or a number with a bar; a click keeps the value and returns to the category.</p>
         <table>
           <tr><th>Category</th><th>Items</th></tr>
-          <tr><td>Tuning</td><td>Band, Mode, Bandwidth, Freq Lock, FM Region, RDS, Scan, Scanner, Seek, Step, VFO A/B, Freq Entry, Band View</td></tr>
+          <tr><td>Tuning</td><td>Band, Mode, Bandwidth, Freq Lock, FM Region, RDS, Scan, Scanner, Seek, Step, VFO A/B, Freq Entry, Band View, Capacitor</td></tr>
           <tr><td>Audio</td><td>Volume, AGC/ATTN, Auto Att., AVC, FM Stereo, SoftMute, Squelch</td></tr>
           <tr><td>Memory</td><td>Memory, Logger, Mem Scan, Auto-Store</td></tr>
-          <tr><td>Ham &amp; SWL</td><td>Band Plan, Beacons, Calibration, CW Decoder, CW Strip, FT8/FT4, Digital, Decoder Audio, Load EiBi, Plan Area, Propagation</td></tr>
+          <tr><td>Ham &amp; SWL</td><td>Band Plan, Beacons, Calibration, CW Decoder, CW Strip, FT8/FT4, Digital, Dec. Audio, Load EiBi, Plan Area, Propagation</td></tr>
           <tr><td>Display</td><td>Brightness, Menu Style, Scroll Dir., Sleep Mode, Sleep Timer, Theme, UI Layout, Zoom Menu, Battery</td></tr>
-          <tr><td>System</td><td>About, Bluetooth, Date/Time, DSP Patches, Knob, Off Timer, TCP Port, Time Zone, Update FW, Update Notice, USB Port, Wi-Fi, CPU</td></tr>
+          <tr><td>System</td><td>About, Bluetooth, Date/Time, DSP Patches, Enc. Accel., Knob, Off Timer, TCP Port, Time Zone, Update FW, USB Port, Wi-Fi, CPU, Upd. Notice</td></tr>
         </table>
         <p><span class="ui">Menu → System → Knob</span>: <b>20 clicks</b> or <b>30 clicks</b> per turn, for the two kinds of encoder fitted to these radios. If the knob skips a step, or needs two clicks for one, choose the other value (the web page calls it Half-step Encoder).</p>
+        <p><span class="ui">Menu → System → Enc. Accel.</span> (v2.46-r5): <b>On</b>, the default, makes the knob tune and adjust faster when you turn it quickly; <b>Off</b> gives the same step for every click.</p>
+        <p><span class="ui">Menu → Tuning → Capacitor</span> (v2.46-r5): <b>On</b> lets the radio set its antenna tuning capacitor by itself on the MW1, MW2, MW3 and 160 m bands. It is off by default and only works on a radio without a Hi-Z input circuit; if you do not know which you have, leave it off.</p>
         <p><span class="ui">Menu → Display → Menu Style → Classic</span> brings back the small list menu of the official firmware. From v2.45-r4 it has the same six groups as the tiles: choose a group and click; the first row of each group is <b>&lt; Back</b>, and the box title names the group. After a setting is changed the menu returns to its group. <b>Tiles</b> switches back.</p>
 
         <h2 id="beacons">Beacons <small style="font-size:.7em;color:var(--muted)">v2.45-r2</small></h2>
@@ -170,7 +172,8 @@
         <p><span class="ui">Menu → Ham &amp; SWL → Load EiBi</span> now loads the season's schedule with its days of the week, so a station that is on air only at weekends is shown only then, and adds the language and target area after the name, for example <b>BBC World Service [E &gt; ME]</b> (English, to the Middle East). After updating from v2.45-r1, load the schedule once more.</p>
 
         <h2 id="cat">CAT control <small style="font-size:.7em;color:var(--muted)">v2.45-r2</small></h2>
-        <p><span class="ui">Menu → System → USB Port → CAT</span> makes the radio answer Kenwood TS-480 commands on its USB port, so programs can read and set frequency and mode and read the S-meter. In the program choose <b>Kenwood TS-480</b> (Hamlib rig 2028) on the radio's serial port; the speed setting does not matter. Transmit commands are refused: this is a receiver. Switch back to <b>Ad hoc</b> for the ats-mini remote tools and screenshots.</p>
+        <p><span class="ui">Menu → System → USB Port → CAT TS-480</span> makes the radio answer Kenwood TS-480 commands on its USB port, so programs can read and set frequency and mode and read the S-meter. In the program choose <b>Kenwood TS-480</b> (Hamlib rig 2028) on the radio's serial port, with split and CAT PTT off; the speed setting does not matter. Transmit commands are refused: this is a receiver. Switch back to <b>Ad hoc</b> for the ats-mini remote tools and screenshots.</p>
+        <p>From v2.46-r5 the choice is called <b>CAT TS-480</b> (it was CAT) and is also on two more ports: <span class="ui">Menu → System → TCP Port → CAT TS-480</span> for a program on the same Wi-Fi network (the radio's address, port 60000), and <span class="ui">Menu → System → Bluetooth → CAT TS-480</span>. New with it are VFO A and B, squelch, steps up and down and automatic status reports; the CW mode is mode 3, as on the TS-480. A program that asks for the frequency every second does not stop a seek or a scan; its answers come when the seek ends.</p>
 
         <h2 id="ft8">FT8 and FT4 decoder <small style="font-size:.7em;color:var(--muted)">v2.45-r3</small></h2>
         <p><span class="ui">Menu → Ham &amp; SWL → FT8/FT4</span> opens a full-screen page that decodes FT8 from the radio's own audio. It tunes the FT8 frequency of the band you are on (or 40 m) in USB with the 3.0 kHz filter. Under the header a waterfall scrolls; after each 15 second slot the messages appear with signal report (dB), audio frequency (Hz) and text, CQ calls in green.</p>
@@ -222,7 +225,7 @@
         </ul>
         <p>To change it:</p>
         <ul>
-          <li><b>On the radio:</b> <span class="ui">Menu → Ham &amp; SWL → Decoder Audio</span>, before you open the FT8/FT4 or Digital page.</li>
+          <li><b>On the radio:</b> <span class="ui">Menu → Ham &amp; SWL → Dec. Audio</span>, before you open the FT8/FT4 or Digital page.</li>
           <li><b>In Web Control:</b> the <b>Decoder audio</b> list on the <b>Decodes</b> tab (it is also under Settings → Receiver). There the change applies at once, even while the page is open on the radio; the waterfall and the slot start again.</li>
         </ul>
         <p>The Decodes tab shows which one is in use (<b>3 kHz audio</b> or <b>6 kHz audio</b>) beside the mode. The choice is kept when the radio is switched off. The CW decoder is not affected.</p>
@@ -260,7 +263,7 @@
         </ul>
 
         <h2 id="update">Updates</h2>
-        <p>With Wi-Fi connected, <span class="ui">Menu → System → Update FW → Check</span> looks for a newer RESONIK release on GitHub, and <b>Update</b> installs it. Settings are kept. The radio's <b>Config</b> web page has <b>Backup and restore</b> (v2.46-r5): one file with all settings, bands, memories and Wi-Fi networks, to keep or to put on another radio. From v2.46-r5 the radio also looks by itself, a few minutes after joining Wi-Fi and then once a day, and shows a page when there is a new release: <b>Update now</b>, <b>Later</b> or <b>Skip this version</b>. A small arrow beside the Wi-Fi icon, and a banner on the radio's web pages, show that an update is waiting. <span class="ui">Menu → System → Update Notice → Off</span> stops it. New versions are also announced on this site and on <a href="https://github.com/ep3mhb/resonik-ats-mini/releases" rel="noopener">GitHub</a>.</p>
+        <p>With Wi-Fi connected, <span class="ui">Menu → System → Update FW → Check</span> looks for a newer RESONIK release on GitHub, and <b>Update</b> installs it. Settings are kept. The radio's <b>Config</b> web page has <b>Backup and restore</b> (v2.46-r5): one file with all settings, bands, memories and Wi-Fi networks, to keep or to put on another radio. From v2.46-r5 the radio also looks by itself, a few minutes after joining Wi-Fi and then once a day, and shows a page when there is a new release: <b>Update now</b>, <b>Later</b> or <b>Skip this version</b>. A small arrow beside the Wi-Fi icon, and a banner on the radio's web pages, show that an update is waiting. <span class="ui">Menu → System → Upd. Notice → Off</span> stops it. New versions are also announced on this site and on <a href="https://github.com/ep3mhb/resonik-ats-mini/releases" rel="noopener">GitHub</a>.</p>
         <p>To return to the official firmware, install it by USB as described on the <a href="../#install">install</a> section, using the official files.</p>
       </div>
     </section>
