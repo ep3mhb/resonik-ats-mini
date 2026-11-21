@@ -31,6 +31,7 @@
 #include "Ft8.h"
 #include "DigiPage.h"
 #include "Resonik.h"
+#include "BandView.h"
 #include <mutex>
 #include <atomic>
 
@@ -162,7 +163,8 @@ static void webOnEvent(AsyncWebSocket *, AsyncWebSocketClient *client, AwsEventT
       return;
     }
     // R5: "!page <p> <arg>": a decoder page on the radio. p: 0 none, 1 FT8
-    // (arg: channel), 2 CW, 3 Digital (arg: mode). Done in the main loop.
+    // (arg: channel), 2 CW, 3 Digital (arg: mode), 4 Band View, 5 leave Band
+    // View and tune to arg (Hz). Done in the main loop.
     if(len >= 7 && !memcmp(data, "!page ", 6))
     {
       char text[24];
@@ -649,9 +651,9 @@ static void webSendPanel(bool force)
   j += ",\"hi\":"; j += (unsigned long)band->maximumFreq;
   jsonText(j, "ps", getStationName());
   jsonText(j, "rt", getRadioText());
-  // R5: the decoder page open on the radio (0 none, 1 FT8/FT4, 2 CW,
-  // 3 Digital) and its channel or mode, -1 while it is still starting
-  int dp = currentCmd == CMD_FT8 ? 1 : currentCmd == CMD_CWDEC ? 2 : currentCmd == CMD_DIGI ? 3 : 0;
+  // R5: the page open on the radio (0 none, 1 FT8/FT4, 2 CW, 3 Digital,
+  // 4 Band View) and its channel or mode, -1 while it is still starting
+  int dp = currentCmd == CMD_FT8 ? 1 : currentCmd == CMD_CWDEC ? 2 : currentCmd == CMD_DIGI ? 3 : currentCmd == CMD_BANDVIEW ? 4 : 0;
   j += ",\"dp\":"; j += dp;
   j += ",\"dc\":"; j += dp == 1 ? ft8WebChannel() : dp == 3 ? digiWebMode() : 0;
   j += '}';
@@ -706,7 +708,7 @@ static int32_t pendArg = 0;
 
 static bool decoderPageOpen()
 {
-  return(currentCmd == CMD_FT8 || currentCmd == CMD_DIGI || currentCmd == CMD_CWDEC);
+  return(currentCmd == CMD_FT8 || currentCmd == CMD_DIGI || currentCmd == CMD_CWDEC || currentCmd == CMD_BANDVIEW);
 }
 
 static void pageOpenNow(uint8_t page, int32_t arg)
@@ -719,13 +721,21 @@ static void pageOpenNow(uint8_t page, int32_t arg)
     case 1: ft8WebOpen(arg); break;
     case 2: cwPageOpen(); break;
     case 3: digiWebOpen(arg); break;
+    case 4: bandViewOpen(); break;
   }
 }
 
 static bool webPageAction(uint8_t page, int32_t arg)
 {
-  uint16_t want = page == 1 ? CMD_FT8 : page == 2 ? CMD_CWDEC : page == 3 ? CMD_DIGI : CMD_NONE;
+  uint16_t want = page == 1 ? CMD_FT8 : page == 2 ? CMD_CWDEC : page == 3 ? CMD_DIGI : page == 4 ? CMD_BANDVIEW : CMD_NONE;
   pendPage = -1;
+  // Band View: a click on the page's picture tunes there and ends the view
+  if(page == 5)
+  {
+    if(currentCmd != CMD_BANDVIEW) return(false);
+    bandViewLeaveTo(arg > 0 ? (uint32_t)arg : 0);
+    return(true);
+  }
   // The setup wizard and a firmware update are finished on the radio first
   if(currentCmd == CMD_WIZARD || currentCmd == CMD_UPDATEFW)
   {
@@ -822,6 +832,14 @@ bool webControlTick()
   // Tune: the current band if it covers the frequency, otherwise the
   // narrowest band that does (so 7074 from FM goes to 40M, not ALL)
   uint32_t hz = tuneWanted.exchange(0);
+  // R5: a frequency from the page while Band View sweeps ends the view and
+  // tunes there (the sweep would put the old frequency back when it ends)
+  if(hz && currentCmd == CMD_BANDVIEW)
+  {
+    bandViewLeaveTo(hz);
+    hz = 0;
+    redraw = true;
+  }
   if(hz)
   {
     const Band *cur = getCurrentBand();
@@ -852,6 +870,7 @@ bool webControlTick()
   int8_t sk = seekWanted.exchange(0);
   if(sk)
   {
+    bandViewLeaveTo(0);            // R5: one sweeper at a time
     webBusy = true;
     webAbort = false;
     if(isSSB()) webSeekSsb(sk);
@@ -873,6 +892,7 @@ bool webControlTick()
   }
   if(scopeWanted.exchange(false))
   {
+    bandViewLeaveTo(0);            // R5: one sweeper at a time
     webScope();
     redraw = true;
   }
@@ -999,6 +1019,17 @@ bool webControlTick()
         j += "\"}}";
         ws.textAll(j);
       }
+    }
+  }
+  // R5: Band View for the browser: the sweep as it goes, three times a second
+  {
+    static uint32_t lastBv = 0, bvSeen = 0, bvSweep = 0;
+    if(currentCmd == CMD_BANDVIEW && now - lastBv >= 300 && ws.availableForWriteAll())
+    {
+      lastBv = now;
+      String j;
+      j.reserve(1500);
+      if(bandViewWebState(&bvSeen, &bvSweep, j)) ws.textAll(j);
     }
   }
   if(now - lastPanel >= (quick ? 60u : 250u))

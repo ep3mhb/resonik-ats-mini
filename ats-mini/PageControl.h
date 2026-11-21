@@ -44,6 +44,10 @@ button.acc{background:#0c5a45}
 .scope{margin-top:12px;background:var(--card);border-radius:10px;padding:10px 12px}
 .scope h2{font-size:14px;margin:0 0 8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .scope h2 button{flex:0 0 auto;min-width:0;padding:6px 14px;font-size:13px}
+.scbt{display:flex;gap:8px}
+.scope h2 button:disabled{opacity:.45}
+#bvb{background:#06171e}#bvb.on{background:var(--blue)}
+#bvc{width:100%;border-radius:8px;background:#041f29;cursor:crosshair}
 #sc{width:100%;height:140px;aspect-ratio:auto;image-rendering:auto;background:#06171e;cursor:crosshair}
 #scl{font-size:12px;color:var(--muted);margin-top:6px}
 a{color:var(--accent)}
@@ -150,8 +154,9 @@ section[data-tab]>:first-child{margin-top:0}
  <div class="vol"><span style="min-width:0;font-weight:600;color:var(--muted)">Volume</span><input type="range" id="q4352" min="0" max="63"><span id="q4352v"></span></div>
 </div>
 <div class="card"><h2>Bands</h2><div class="chips" id="bands"></div></div>
-<div class="scope"><h2><span>Band scope</span><button id="scb" class="acc">Sweep</button></h2>
+<div class="scope"><h2><span>Band scope</span><span class="scbt"><button id="scb" class="acc">Sweep</button><button id="bvb">Band View</button></span></h2>
  <canvas id="sc" width="640" height="140"></canvas>
+ <canvas id="bvc" width="640" height="230" style="display:none"></canvas>
  <div id="scl">Sweep measures the signal at 41 points around the frequency (the sound is muted for 2&ndash;3 seconds).
  Click a peak to tune to it.</div></div>
 </section>
@@ -223,7 +228,7 @@ function connect(){
  ws.onclose=()=>{st.textContent='offline';st.className='';setTimeout(connect,2000);};
  ws.onmessage=e=>{lastMsg=Date.now();
   if(typeof e.data==='string'){const j=JSON.parse(e.data);
-   if(j.dec||j.dg||j.sp){if(j.dec)dDecodes(j.dec);if(j.dg)dText(j.dg);if(j.sp)dSpec(j.sp);if(j.fx)dFax(j.fx);}else if(j.p)panel(j);else if(j.bcn)beaconReport(j);else if(j.seekf)seekShow(j.seekf);else if(j.note)note(j.note);else if(j.scope)scope(j);else if(j.def){if(j.dl)dLists(j.dl);buildSets(j.def);}else if(j.v)vals(j);else if(j.mem)mems(j.mem);else status(j);return;}
+   if(j.dec||j.dg||j.sp){if(j.dec)dDecodes(j.dec);if(j.dg)dText(j.dg);if(j.sp)dSpec(j.sp);if(j.fx)dFax(j.fx);}else if(j.p)panel(j);else if(j.bcn)beaconReport(j);else if(j.bv)bview(j.bv);else if(j.seekf)seekShow(j.seekf);else if(j.note)note(j.note);else if(j.scope)scope(j);else if(j.def){if(j.dl)dLists(j.dl);buildSets(j.def);}else if(j.v)vals(j);else if(j.mem)mems(j.mem);else status(j);return;}
   const b=new Uint8Array(e.data);
   if(b[0]===1){const y=b[1],n=b[2];let o=3,p=y*320*4;
    for(let i=0;i<n*320;i++,o+=2,p+=4){const v=(b[o]<<8)|b[o+1];
@@ -259,7 +264,7 @@ function fmtF(f,m){if(m===0)return (f/1e6).toFixed(2)+'<small>MHz</small>';
 function esc(t){return t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
 // FM: stereo shown in the FM button (mono when the pilot is not received)
 function stereo(){const b=$('stb');if(!b||!P)return;b.className=P.st?'st on':'st';b.textContent=P.st?'Stereo':'Mono';}
-function panel(j){P=j;dpDraw();stereo();$('pfq').innerHTML=fmtF(j.f,j.m);
+function panel(j){P=j;dpDraw();bvUi();stereo();$('pfq').innerHTML=fmtF(j.f,j.m);
  $('tags').innerHTML=(j.band!==j.mode?'<span>'+esc(j.band)+'</span>':'')+'<span class="m">'+esc(j.mode)+'</span><span>Step '+esc(j.step)+
   '</span><span>BW '+esc(j.bw)+'</span>'+(j.mem?'<span class="m" title="Tuned to a saved memory">Memory '+j.mem+'</span>':'')+
   '<span'+(j.chg?' class="m" title="On USB power"':' title="'+(j.bmin>0?'About '+Math.floor(j.bmin/60)+' h '+(j.bmin%60)+' min left':'')+'"')+'>'+(j.chg?'USB power':j.bat.toFixed(2)+' V &middot; '+j.batp+'%')+'</span>';
@@ -382,6 +387,34 @@ function bOn(b,utc){return((Math.floor((utc%180)/10)-b+18)%18);}
  $('bsel').innerHTML=BC.map((c,i)=>'<option value="'+i+'">'+c[0]+' \u00b7 '+c[1]+'</option>').join('');$('bgo').onclick=()=>bStart(+$('bsel').value);$('bstop').onclick=()=>setv(15360,-1);
  $('bnds').innerHTML=BF.map((f,b)=>'<button data-b="'+b+'" style="color:'+BCOL[b]+'"><b></b><span></span></button>').join('');
  $('bnds').querySelectorAll('button').forEach(x=>x.onclick=()=>{bSel=+x.dataset.b;send('F'+BF[bSel]*1000+'\n');setTimeout(()=>{const m=V&&V.d&&V.d[5376];if(m&&m.indexOf('CW')>=0)setv(5376,m.indexOf('CW'));},600);drawBeacons();});})();
+// RESONIK R5: Band View of the radio in the Band scope box: the sweep as
+// bars as it goes (the sweep before it dim), finished sweeps as a waterfall
+let BVD=null,bvRows=[],bvHov=-1,bvWas=false;const bvc=$('bvc'),bx=bvc.getContext('2d');
+const SCL0=$('scl').innerHTML;
+function bvCol(v,lo,hi,dim){let t=hi>lo?(v-lo)*255/(hi-lo):0;t=Math.max(0,Math.min(255,t));let r=t<128?0:(t-128)*2,g=t<128?t*2:255,b=t<128?160-t:0;
+ if(dim){r*=.4;g*=.4;b=b*.4+24;}return 'rgb('+(r|0)+','+(g|0)+','+(b|0)+')';}
+function bvF(d,i){const u=d.fm?1e6:1e3;return ((d.f0+i*d.st)/u).toFixed(d.fm?1:0)+(d.fm?' MHz':' kHz');}
+function bview(d){if(d.row){bvRows.unshift(d.row);if(bvRows.length>30)bvRows.pop();}BVD=d;bvDraw();
+ $('scl').textContent=bvF(d,0)+' – '+bvF(d,d.pts-1)+', step '+(d.st/1000)+' kHz. The radio is silent while it sweeps. Click a peak to tune there: that ends Band View.';}
+function bvUi(){const on=!!(P&&P.dp===4),b=$('bvb');if(on===bvWas)return;bvWas=on;b.textContent=on?'Stop':'Band View';b.classList.toggle('on',on);
+ bvc.style.display=on?'':'none';sc.style.display=on?'none':'';$('scb').disabled=on;
+ if(on){bvRows=[];BVD=null;bx.clearRect(0,0,bvc.width,bvc.height);$('scl').textContent='Band View is starting…';}else $('scl').innerHTML=SCL0;}
+function bvDraw(){const d=BVD;if(!d)return;const W=bvc.width,H=bvc.height,n=d.v.length,bw=W/n;
+ // Text keeps its size on a narrow screen, where the picture is drawn smaller
+ const k=Math.max(1,W/(bvc.clientWidth||W)),fs=Math.round(14*k),SY=fs+10,SH=76,FY=SY+SH+8;bx.clearRect(0,0,W,H);
+ let lo=255,hi=0;[d.v].concat(bvRows).forEach(r=>r.forEach(v=>{if(v){if(v<lo)lo=v;if(v>hi)hi=v;}}));if(hi<lo+10)hi=lo+10;
+ bx.fillStyle='#8fb3c0';bx.font='600 '+fs+'px system-ui,sans-serif';bx.textBaseline='top';bx.textAlign='left';bx.fillText(bvF(d,0),2,3);
+ bx.textAlign='right';bx.fillText(bvF(d,d.pts-1),Math.max(d.pts*bw-2,W*.55),3);bx.textAlign='left';
+ for(let i=0;i<n;i++){const v=d.v[i];if(!v)continue;const h=Math.min(SH,2+(v-lo)*(SH-2)/(hi-lo));bx.fillStyle=bvCol(v,lo,hi,i>=d.n);bx.fillRect(i*bw,SY+SH-h,bw,h);}
+ bx.fillStyle='#0e4a5e';bx.fillRect(0,SY+SH,W,1);if(d.n<n){bx.fillStyle='#ffd167';bx.fillRect(d.n*bw,SY+SH+2,8,3);}
+ bvRows.forEach((r,k)=>{for(let i=0;i<n;i++)if(r[i]){bx.fillStyle=bvCol(r[i],lo,hi);bx.fillRect(i*bw,FY+k*4,bw,4);}});
+ if(P){const k=(P.f-d.f0)/d.st;if(k>=0&&k<d.pts){bx.fillStyle='#ff6b6b';bx.fillRect((k+.5)*bw-1,SY,2,H-SY);}}
+ if(bvHov>=0&&bvHov<d.pts){bx.fillStyle='rgba(255,255,255,.15)';bx.fillRect(bvHov*bw,SY,bw,H-SY);const t=bvF(d,bvHov),hs=Math.round(18*k);bx.font='bold '+hs+'px system-ui,sans-serif';
+  const tw=bx.measureText(t).width+16;let x=Math.max(2,Math.min(W-tw-2,bvHov*bw+bw/2-tw/2));bx.fillStyle='rgba(6,23,30,.9)';bx.fillRect(x,SY+2,tw,hs+10);bx.fillStyle='#fff';bx.fillText(t,x+8,SY+6);}}
+function bvAt(e){const r=bvc.getBoundingClientRect();return BVD?Math.floor((e.clientX-r.left)/r.width*BVD.v.length):-1;}
+bvc.addEventListener('mousemove',e=>{bvHov=bvAt(e);bvDraw();});bvc.addEventListener('mouseleave',()=>{bvHov=-1;bvDraw();});
+bvc.addEventListener('click',e=>{const i=bvAt(e);if(BVD&&i>=0&&i<BVD.pts)send('!page 5 '+(BVD.f0+i*BVD.st));});
+$('bvb').onclick=()=>send(P&&P.dp===4?'!page 0 0':'!page 4 0');
 // RESONIK R5: the decoder pages of the radio, started and stopped from here.
 // DL: what there is (FT8/FT4 channels, Digital modes); P.dp, P.dc: what runs
 let DL=null,dpWait=0,dpMsg='',dpMsgT=0,dpLast='';
@@ -398,11 +431,12 @@ function dpDraw(){const e=$('dpst');if(!e)return;const p=P&&P.dp||0,c=P&&P.dp?P.
  if(p===1)t=c>=0&&DL&&DL.ft[c]?(DL.ft[c][1]?'FT4':'FT8')+' on '+DL.ft[c][0]+' is running':'FT8 is starting\u2026';
  else if(p===2)t='CW is running';
  else if(p===3)t=c>=0&&DL&&DL.dg[c]?DL.dg[c]+' is running':'Digital is starting\u2026';
+ else if(p===4)t='Band View is running';
  else if(dpMsg&&now-dpMsgT<8000){t=dpMsg;hot=true;}
  else if(dpWait&&now-dpWait<3000)t='Starting\u2026';
  e.textContent=t;e.style.color=hot?'var(--accent)':'';$('dpstop').disabled=!p;
  // The two lists follow the radio when what runs there changes, not while you choose
- const key=p+':'+c;if(key===dpLast||!DL||(p&&p!==2&&c<0))return;dpLast=key;
+ const key=p+':'+c;if(key===dpLast||!DL||p===4||(p&&p!==2&&c<0))return;dpLast=key;
  if(p===1){$('dpsel').value=DL.ft[c][1]?'4':'f';dpBands();$('dpch').value=c;}
  else if(p===2){$('dpsel').value='c';dpBands();}
  else if(p===3){$('dpsel').value='d'+c;dpBands();}

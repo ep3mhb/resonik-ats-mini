@@ -19,16 +19,18 @@
 #include <esp_heap_caps.h>
 
 #define BV_POINTS  160               // Points per sweep, 2 px each
-#define BV_ROWS    26                // Sweeps kept in the waterfall
+#define BV_ROWS    22                // Sweeps kept in the waterfall
 #define BV_RGB(c)  ((uint16_t)((((c) >> 8) & 0xF800) | (((c) >> 5) & 0x07E0) | (((c) >> 3) & 0x001F)))
 
 // Screen: the spectrum of the sweep on top (bars, filled in as the sweep
 // goes), the sweeps before it as a waterfall under it. Until 21 Nov only
 // the waterfall, one 3 px line per finished sweep: nothing moved for the
-// 10 to 20 s a sweep took (Mohammad: very slow).
-#define BV_SPEC_Y  28
-#define BV_SPEC_H  40
-#define BV_FALL_Y  71                // 26 lines of 3 px end at 148, over the foot line
+// 10 to 20 s a sweep took (Mohammad: very slow). Over the spectrum, the
+// frequencies the view starts and ends at (his request).
+#define BV_EDGE_Y  26                // Start and end of the view, one line of text
+#define BV_SPEC_Y  46
+#define BV_SPEC_H  32
+#define BV_FALL_Y  81                // 22 lines of 3 px end at 147, over the foot line
 
 // Readings are kept as dBuV + 1: 0 is "not measured" (past the band edge)
 static uint8_t *rows = nullptr;      // BV_ROWS x BV_POINTS
@@ -39,6 +41,8 @@ static uint32_t sweepStart = 0, sweepStep = 0;
 static int cursor = BV_POINTS / 2;
 static bool active = false, sweeping = false;
 static uint32_t centreFreq = 0;
+static uint32_t webChanges = 0;      // For the browser: something new to show
+static uint32_t sweepsDone = 0;      // ...and how many sweeps are complete
 
 static uint32_t viewStep()
 {
@@ -76,11 +80,56 @@ static uint32_t cursorFreq()
   return(sweepStart + sweepStep * cursor);
 }
 
+// Points of the view inside the band: fewer than BV_POINTS on a short band
+static int pointsInBand()
+{
+  if(!sweepStep) return(BV_POINTS);
+  const Band *band = getCurrentBand();
+  if(sweepStart + sweepStep * (uint32_t)(BV_POINTS - 1) <= band->maximumFreq) return(BV_POINTS);
+  return((int)((band->maximumFreq - sweepStart) / sweepStep) + 1);
+}
+
 void bandViewClick(bool shortPress)
 {
   uint32_t f = sweepStep ? cursorFreq() : 0;
   currentCmd = CMD_NONE;   // bandViewTick stops the sweep and restores the sound
   if(!shortPress && f) { bandViewTick(); resonikTuneHz(f); }
+}
+
+// Web Control: leave the page and tune to a frequency (0: only leave)
+void bandViewLeaveTo(uint32_t hz)
+{
+  if(currentCmd != CMD_BANDVIEW) return;
+  currentCmd = CMD_NONE;
+  bandViewTick();
+  if(hz) resonikTuneHz(hz);
+}
+
+// Web Control: the sweep in progress, and each finished sweep once.
+// {"bv":{"f0":Hz,"st":Hz,"fm":0|1,"pts":points in the band,"n":points of
+// this sweep so far,"v":[dBuV + 1, 0 = not measured],"row":[finished sweep]}}
+bool bandViewWebState(uint32_t *seen, uint32_t *seenSweep, String &j)
+{
+  if(!active || !sweepStep || *seen == webChanges) return(false);
+  *seen = webChanges;
+  j = "{\"bv\":{\"f0\":"; j += (unsigned long)sweepStart;
+  j += ",\"st\":"; j += (unsigned long)sweepStep;
+  j += ",\"fm\":"; j += currentMode == FM ? 1 : 0;
+  j += ",\"pts\":"; j += pointsInBand();
+  j += ",\"n\":"; j += liveCount;
+  j += ",\"v\":[";
+  for(int x = 0; x < BV_POINTS; x++) { if(x) j += ','; j += live[x]; }
+  j += ']';
+  if(*seenSweep != sweepsDone && rowCount)
+  {
+    *seenSweep = sweepsDone;
+    const uint8_t *row = rows + ((rowHead - 1 + BV_ROWS) % BV_ROWS) * BV_POINTS;
+    j += ",\"row\":[";
+    for(int x = 0; x < BV_POINTS; x++) { if(x) j += ','; j += row[x]; }
+    j += ']';
+  }
+  j += "}}";
+  return(true);
 }
 
 bool bandViewTick()
@@ -126,8 +175,11 @@ bool bandViewTick()
     if(rowCount < BV_ROWS) rowCount++;
     sweeping = false;
     lastDraw = millis();
+    sweepsDone++;
+    webChanges++;
     return(true);
   }
+  if(grew) webChanges++;
   // The bars grow five times a second
   if(grew && millis() - lastDraw >= 200) { lastDraw = millis(); return(true); }
   return(false);
@@ -146,6 +198,12 @@ static uint16_t colour(int v, int lo, int hi, bool dim = false)
   return(spr.color565(r, g, b));
 }
 
+static void freqText(char *text, size_t size, uint32_t hz)
+{
+  if(currentMode == FM) snprintf(text, size, "%.1f MHz", hz / 1e6);
+  else snprintf(text, size, "%.0f kHz", hz / 1e3);
+}
+
 void drawBandView()
 {
   char line[40];
@@ -156,14 +214,24 @@ void drawBandView()
   spr.drawString("Band View", 10, 14, uiFont(false));
   spr.setTextDatum(MR_DATUM);
   spr.setTextColor(BV_RGB(0xEEF5F7));
-  if(sweepStep)
-  {
-    uint32_t f = cursorFreq();
-    if(currentMode == FM) snprintf(line, sizeof(line), "%.1f MHz", f / 1e6);
-    else snprintf(line, sizeof(line), "%.0f kHz", f / 1e3);
-  }
+  if(sweepStep) freqText(line, sizeof(line), cursorFreq());
   else snprintf(line, sizeof(line), "Sweeping...");
   spr.drawString(line, 310, 14, uiFont(true));
+
+  // The band in view: where it starts, at the left, and where it ends. On a
+  // band shorter than the view the end stands where the band ends.
+  if(sweepStep)
+  {
+    int points = pointsInBand();
+    int endX = points * 2 > 316 ? 316 : points * 2 < 170 ? 170 : points * 2;
+    spr.setTextColor(BV_RGB(0x8FB3C0));
+    spr.setTextDatum(TL_DATUM);
+    freqText(line, sizeof(line), sweepStart);
+    spr.drawString(line, 4, BV_EDGE_Y, uiFont(true));
+    spr.setTextDatum(TR_DATUM);
+    freqText(line, sizeof(line), sweepStart + sweepStep * (uint32_t)(points - 1));
+    spr.drawString(line, endX, BV_EDGE_Y, uiFont(true));
+  }
 
   // One scale for the bars and the waterfall: weakest to strongest reading
   int lo = 255, hi = 0;
