@@ -289,10 +289,11 @@ bool netTickTime()
         httpTimeTried++;
         netJobStart(NET_JOB_TIME);
       }
-      // RESONIK R5: new version notice, in the background, not while the
-      // browser is streaming the radio's sound
+      // RESONIK R5: new version notice, in the background. Not while the
+      // audio is being sampled (a decoder page, the CW strip, Listen in the
+      // browser): it waits until that ends. See the sampler in CwAudio.cpp.
       if(activeNetMode != NET_SYNC && !netJobBusy && clockAvailable() &&
-         !audioWebStreaming() && updNoticeDue(now))
+         !audioSampling() && updNoticeDue(now))
         netJobStart(NET_JOB_REL);
       if(activeNetMode == NET_SYNC && now - attemptStarted >= NTP_TIMEOUT)
       {
