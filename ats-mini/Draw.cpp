@@ -538,10 +538,16 @@ void drawScreen()
     return;
   }
 
+  // RESONIK R5 pages. Each draws into the screen buffer; it is sent to the
+  // display here. Until 21 Nov none of the five was sent: the display kept
+  // the menu it showed last while the knob worked the page behind it, and
+  // the radio looked hung (Mohammad: Band View, Freq Entry).
+
   // Setup wizard (RESONIK R5)
   if(currentCmd==CMD_WIZARD)
   {
     drawWizard();
+    spr.pushSprite(0, 0);
     return;
   }
 
@@ -549,6 +555,7 @@ void drawScreen()
   if(currentCmd==CMD_BANDVIEW)
   {
     drawBandView();
+    spr.pushSprite(0, 0);
     return;
   }
 
@@ -556,6 +563,7 @@ void drawScreen()
   if(currentCmd==CMD_DIGI)
   {
     drawDigiPage();
+    spr.pushSprite(0, 0);
     return;
   }
 
@@ -563,6 +571,7 @@ void drawScreen()
   if(currentCmd==CMD_FREQPAD)
   {
     drawFreqPad();
+    spr.pushSprite(0, 0);
     return;
   }
 
@@ -570,6 +579,7 @@ void drawScreen()
   if(currentCmd==CMD_UPDNOTICE)
   {
     drawUpdNotice();
+    spr.pushSprite(0, 0);
     return;
   }
 

@@ -82,12 +82,17 @@ static void scanInit(uint32_t centerFreq, uint32_t step)
   rx.setFrequency(freqFromHz(scanStartFreq, currentMode));
 }
 
-static bool scanTickTime()
+// RESONIK R5: abortable = false for the Band View page, which sweeps from
+// the main loop. consumeAbortPending() is for blocking scans: it takes the
+// knob's button (and waits for its release) and the remote commands for
+// itself, so on the Band View page no click or press ever reached the page
+// and it could not be left: the radio looked hung (Mohammad, 21 Nov).
+static bool scanTickTime(bool abortable = true)
 {
   // Scan must be on
   if((scanStatus!=SCAN_RUN) || (scanCount>=SCAN_POINTS)) return(false);
 
-  if(consumeAbortPending() || millis() - scanTuneStarted >= TUNE_TIMEOUT_MS)
+  if(abortable && consumeAbortPending())
   {
     scanStatus = SCAN_DONE;
     return(false);
@@ -99,9 +104,16 @@ static bool scanTickTime()
   // This is our current frequency to scan
   uint32_t freq = scanStartFreq + scanStep * scanCount;
 
-  // Poll for the tuning status
+  // Poll for the tuning status. The deadline counts only while the tune is
+  // not complete: from the main loop a pass can take longer than the
+  // deadline (a screen redraw, the web page), with the tune long done.
   if(!rx.pollTuneStatus())
   {
+    if(millis() - scanTuneStarted >= TUNE_TIMEOUT_MS)
+    {
+      scanStatus = SCAN_DONE;
+      return(false);
+    }
     scanTime = millis();
     return(true);
   }
@@ -128,7 +140,7 @@ static bool scanTickTime()
   freq += scanStep;
 
   // Set next frequency to scan or expire scan
-  if((++scanCount >= SCAN_POINTS) || !isFreqInBand(getCurrentBand(), freq) || consumeAbortPending())
+  if((++scanCount >= SCAN_POINTS) || !isFreqInBand(getCurrentBand(), freq) || (abortable && consumeAbortPending()))
     scanStatus = SCAN_DONE;
   else
   {
@@ -201,7 +213,7 @@ bool scanAsyncStart(uint32_t centerFreq, uint32_t step)
 // One step; false when the sweep is complete
 bool scanAsyncTick()
 {
-  return(scanTickTime());
+  return(scanTickTime(false));
 }
 
 void scanAsyncStop()

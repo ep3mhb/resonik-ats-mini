@@ -40,8 +40,13 @@ void bandViewOpen()
 {
   if(!rows) rows = (uint8_t *)heap_caps_calloc(BV_ROWS * BV_POINTS, 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
   if(!rows) { statusShow("Band View", "Not enough memory"); return; }
+  // The sweep has the receiver to itself
+  beaconEndHere();
+  memScanStop();
+  bandScanStop();
   rowCount = rowHead = 0;
   cursor = BV_POINTS / 2;
+  sweepStep = 0;
   centreFreq = currentFrequency;
   currentCmd = CMD_BANDVIEW;
 }

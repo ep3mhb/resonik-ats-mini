@@ -21,6 +21,7 @@ void beaconFollow(int8_t idx, uint16_t holdMs = 0);  // R5: holdMs before the fi
 int beaconMenuIdx();                         // R4: menu position (0 Off, 1 Names only, 2.. following)
 void beaconMenuSet(int idx, bool now = false);        // R5: now = from the page, no hold
 bool beaconTick();
+void beaconEndHere();                        // R5: end a follow without going back
 
 // Memory scanner
 bool memScanActive();

@@ -80,6 +80,8 @@ static void beaconDrop()
   beaconReturnAt = 0;
 }
 
+void beaconEndHere() { beaconDrop(); }   // For pages that take the receiver over
+
 uint8_t beaconNames = 1;
 
 // R4: "Off" now also hides the beacon names (GitHub: Off did not stop them);
