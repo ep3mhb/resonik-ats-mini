@@ -235,6 +235,7 @@ void prefsSave(uint32_t items)
     prefs.putUInt("UpdSkip",      updSkipVersion); // Release the user skipped (RESONIK R5)
     prefs.putUChar("BattDisp",    battDispIdx);    // Battery text (RESONIK R5)
     prefs.putUChar("Wizard",      wizardDone);     // Setup wizard done (RESONIK R5)
+    prefs.putUChar("DecAudio",    decAudioIdx);    // Decoder Audio: 0 3 kHz, 1 6 kHz (RESONIK R5)
     prefs.putUChar("FreqLock",    freqLock);       // Frequency lock (RESONIK R3)
     prefs.putUChar("BcnNames",    beaconNames);    // Beacon names on beacon frequencies (RESONIK R4)
     prefs.putUChar("WifiPower",   wifiPowerIdx);   // Wi-Fi transmit power (RESONIK R3)
@@ -346,6 +347,7 @@ bool prefsLoad(uint32_t items)
     updNoticeIdx   = prefs.getUChar("UpdNotice", updNoticeIdx) ? 1 : 0;   // Default On (R5)
     updSkipVersion = prefs.getUInt("UpdSkip", updSkipVersion);
     battDispIdx    = prefs.getUChar("BattDisp", battDispIdx) % 4;
+    decAudioIdx    = prefs.getUChar("DecAudio", decAudioIdx) ? 1 : 0;   // Default 3 kHz (R5)
     // Radios that already had settings before R5 never see the wizard
     wizardDone     = prefs.isKey("Wizard") ? prefs.getUChar("Wizard", 1) : 1;
     freqLock       = prefs.getUChar("FreqLock", freqLock) ? 1 : 0;

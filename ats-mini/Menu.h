@@ -70,6 +70,7 @@
 #define CMD_DIGI       0x4A00 // RESONIK R5: RTTY / NAVTEX / PSK31 page
 #define CMD_BANDVIEW   0x4B00 // RESONIK R5: Band View waterfall
 #define CMD_WIZARD     0x4C00 // RESONIK R5: setup wizard at first start
+#define CMD_DECAUDIO   0x4D00 // RESONIK R5: Decoder Audio setting (3 or 6 kHz)
 
 // RESONIK R5: setup wizard (Menu.cpp)
 extern uint8_t wizardDone;

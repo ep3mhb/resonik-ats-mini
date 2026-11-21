@@ -26,9 +26,11 @@
 #include <freertos/semphr.h>
 #include <new>
 
-#define IN_FS        6000             // R5: the sampler gives 6 kHz (was 12, halved here)
-#define FS           6000
-#define RING         (IN_FS * 4)
+#define FS           6000             // The decoders always run at 6 kHz
+#define RING         (12000 * 4)      // Room for 4 s at the higher input rate
+// Input rate from the Decoder Audio setting: 6000 (3 kHz of audio, used as
+// it is) or 12000 (6 kHz of audio, two samples averaged into one)
+static volatile int inRate = FS;
 #define NFFT         1024
 #define LINE_VOLUME  50
 #define SPEC_LO      300              // Spectrum shown and searched, Hz
@@ -108,6 +110,7 @@ static void work(void *)
   kiss_fftr_cfg cfg = mem ? kiss_fftr_alloc(NFFT, 0, mem, &memNeeded) : nullptr;
   int histPos = 0, sinceFft = 0;
   uint32_t pos = 0, gen = 0;
+  uint32_t step = 1;                 // Input samples per decoder sample
   float window[NFFT];
   for(int i = 0; i < NFFT; i++) window[i] = 0.5f - 0.5f * cosf(2 * (float)M_PI * i / (NFFT - 1));
   float avgPower[NFFT / 2 + 1] = { 0 };
@@ -126,6 +129,7 @@ static void work(void *)
     {
       gen = generation;
       pos = written;
+      step = inRate >= 2 * FS ? 2 : 1;
       xSemaphoreTake(lock, portMAX_DELAY);
       beginDecoder(workMode, centre);
       shownText[0] = '\0';
@@ -136,13 +140,14 @@ static void work(void *)
     }
     if(written - pos > RING - 1024) pos = written - 1024;   // Fell behind: skip
 
-    while(written - pos >= 1)
+    while(written - pos >= step)
     {
       int n = 0;
-      while(n < 512 && written - pos >= 1)
+      while(n < 512 && written - pos >= step)
       {
         int16_t s = ring[pos % RING];
-        pos++;
+        if(step == 2) s = (int16_t)(((int32_t)s + ring[(pos + 1) % RING]) / 2);
+        pos += step;
         buf[n++] = s;
         hist[histPos] = s;
         histPos = (histPos + 1) % NFFT;
@@ -283,7 +288,8 @@ static bool start()
   if(cpuSaved < 240) setCpuFrequencyMhz(240);
   workMode = mode;
   centre = mode == DM_PSK31 ? 1000 : mode == DM_WEFAX ? 1900 : 1500;
-  audioFt8Ring(ring, RING);
+  inRate = decoderSampleRate();
+  audioFt8Ring(ring, RING, inRate);
   openedAt = millis();
   generation++;
   running = true;
@@ -311,6 +317,7 @@ bool digiWebState(uint32_t *seen, String &j)
   j = "{\"dg\":{\"m\":\"";
   j += modeName[mode];
   j += "\",\"c\":"; j += found ? (int)centre : 0;
+  j += ",\"k\":"; j += inRate / 2000;
   j += ",\"t\":\"";
   xSemaphoreTake(lock, portMAX_DELAY);
   for(const char *c = shownText; *c; c++) if(*c >= 32 && *c != '"' && *c != '\\') j += *c;
@@ -374,6 +381,13 @@ bool digiTick()
     return(true);
   }
   if(!pageActive) return(false);
+  // Decoder Audio changed (from Web Control) while the page is open
+  if(inRate != decoderSampleRate())
+  {
+    inRate = decoderSampleRate();
+    audioFt8Ring(ring, RING, inRate);
+    generation++;
+  }
   // Silent input with the amplifier off: this board taps after it (as FT8)
   if(!ampNeeded && PIN_AMP_EN >= 0 && millis() - openedAt > 1500 && audioInputLevel() < 2)
   {

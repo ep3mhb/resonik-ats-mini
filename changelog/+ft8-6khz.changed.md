@@ -1,1 +1,0 @@
-The FT8/FT4 and Digital pages sample the radio's sound at 6 kHz instead of 12 kHz. FT8 and FT4 lie below 3 kHz, so they decode as well as before (tested with simulated signals), but the radio does half the work: the browser stays much quicker while these pages are open with Web Control.

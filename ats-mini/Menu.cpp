@@ -177,7 +177,8 @@ static const char *menu[] =
 #define MENU_UPDNOTICE    33  // RESONIK R5
 #define MENU_BATTDISP     34  // RESONIK R5
 #define MENU_DIGI         35  // RESONIK R5
-#define MENU_ABOUT        36
+#define MENU_DECAUDIO     36  // RESONIK R5
+#define MENU_ABOUT        37
 // RESONIK R4: Wi-Fi mode, Wi-Fi Power and joining a network are one item,
 // "Wi-Fi" (MENU_WIFIMODE), which opens the Wi-Fi page (WifiSetup.cpp)
 
@@ -225,6 +226,7 @@ static const char *settings[] =
   "Update Notice",
   "Battery",
   "Digital",
+  "Decoder Audio",
   "About",
 };
 
@@ -274,7 +276,7 @@ static const TileEntry tileHam[] =
   { TI_BANDPLAN, TILE_SET | MENU_BANDPLAN }, { TI_BEACON, MENU_BEACONS },
   { TI_FORK, TILE_SET | MENU_CALIBRATION }, { TI_CWDEC, TILE_SET | MENU_CWDEC },
   { TI_CWSTRIP, TILE_SET | MENU_CWSTRIP }, { TI_FT8, TILE_SET | MENU_FT8 },
-  { TI_LOG, TILE_SET | MENU_DIGI },
+  { TI_LOG, TILE_SET | MENU_DIGI }, { TI_PERF, TILE_SET | MENU_DECAUDIO },
   { TI_DOWNLOAD, TILE_SET | MENU_LOADEIBI },
   { TI_GLOBE, TILE_SET | MENU_BPAREA }, { TI_PROP, TILE_SET | MENU_PROPAG },
 };
@@ -1797,6 +1799,7 @@ static void clickSettings(int cmd, bool shortPress)
     case MENU_UPDNOTICE:  currentCmd = CMD_UPDSET;    break;
     case MENU_BATTDISP:   currentCmd = CMD_BATTDISP;  break;
     case MENU_DIGI:       digiPageOpen();             break;
+    case MENU_DECAUDIO:   currentCmd = CMD_DECAUDIO;  break;
     case MENU_BANDPLAN:   currentCmd = CMD_BANDPLAN;  break;
     case MENU_BPAREA:     currentCmd = CMD_BPAREA;    break;
     case MENU_AUTOATT:    currentCmd = CMD_AUTOATT;   break;
@@ -1887,6 +1890,10 @@ bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
     case CMD_WIZARD:     wizardTurn(scrollDirection * enc); break;
     case CMD_BATTDISP:
       battDispIdx = wrap_range(battDispIdx, scrollDirection * enc, 0, 3);
+      prefsRequestSave(SAVE_SETTINGS);
+      break;
+    case CMD_DECAUDIO:
+      decAudioIdx = wrap_range(decAudioIdx, scrollDirection * enc, 0, 1);
       prefsRequestSave(SAVE_SETTINGS);
       break;
     case CMD_BPAREA:
@@ -3015,6 +3022,7 @@ void drawSideBar(uint16_t cmd, int x, int y, int sx)
     case CMD_CWSTRIP:    drawOptionList(settings[MENU_CWSTRIP], cwStripDesc, 2, cwStripIdx, x, y, sx); break;
     case CMD_UPDSET:     drawOptionList(settings[MENU_UPDNOTICE], updNoticeDesc, 2, updNoticeIdx, x, y, sx); break;
     case CMD_BATTDISP:   drawOptionList(settings[MENU_BATTDISP], battDispDesc, 4, battDispIdx, x, y, sx); break;
+    case CMD_DECAUDIO:   drawOptionList(settings[MENU_DECAUDIO], decAudioDesc, 2, decAudioIdx, x, y, sx); break;
     case CMD_BPAREA:     drawOptionList(settings[MENU_BPAREA], bandPlanAreaDesc, BP_AREA_COUNT, bandPlanArea, x, y, sx); break;
     case CMD_KNOB:       drawOptionList(settings[MENU_KNOB], knobDesc, 2, encoderHalfStep ? 1 : 0, x, y, sx); break;
     case CMD_FREQLOCK:   drawOptionList(settings[MENU_FREQLOCK], freqLockDesc, 2, freqLock, x, y, sx); break;
@@ -3249,6 +3257,7 @@ static const char *tileValueLabel(uint16_t cmd, int i)
     case CMD_CWSTRIP:   return(cwStripDesc[i]);
     case CMD_UPDSET:    return(updNoticeDesc[i]);
     case CMD_BATTDISP:  return(battDispDesc[i]);
+    case CMD_DECAUDIO:  return(decAudioDesc[i]);
     case CMD_KNOB:      return(knobDesc[i]);
     case CMD_FREQLOCK:  return(freqLockDesc[i]);
     case CMD_WIFIPOWER: return(wifiPowerDesc[i]);
@@ -3295,6 +3304,7 @@ static bool tileValueGet(uint16_t cmd, TileValue &v)
     case CMD_CWSTRIP:   v.count = 2; v.idx = cwStripIdx; return(true);
     case CMD_UPDSET:    v.count = 2; v.idx = updNoticeIdx; return(true);
     case CMD_BATTDISP:  v.count = 4; v.idx = battDispIdx; return(true);
+    case CMD_DECAUDIO:  v.count = 2; v.idx = decAudioIdx; return(true);
     case CMD_BPAREA:    v.count = BP_AREA_COUNT; v.idx = bandPlanArea; return(true);
     case CMD_KNOB:      v.count = 2; v.idx = encoderHalfStep ? 1 : 0; return(true);
     case CMD_FREQLOCK:  v.count = 2; v.idx = freqLock; return(true);
@@ -3552,6 +3562,7 @@ void webMenuDef(String &j)
   wjItem(j, CMD_BANDPLAN, "Receiver", "Band plan", "l"); j += ",\"o\":"; wjList(j, bandPlanDesc, ITEM_COUNT(bandPlanDesc)); j += '}';
   wjItem(j, CMD_BPAREA, "Receiver", "Plan area", "l"); j += ",\"o\":"; wjList(j, bandPlanAreaDesc, BP_AREA_COUNT); j += '}';
   wjItem(j, CMD_CWSTRIP, "Receiver", "CW decoder strip", "b"); j += '}';
+  wjItem(j, CMD_DECAUDIO, "Receiver", "Decoder audio for FT8, FT4 and Digital. 3 kHz: fast, leave it there. 6 kHz: twice the input and the work, slower page; only if decoding seems weak", "l"); j += ",\"o\":"; wjList(j, decAudioDesc, 2); j += '}';
   wjItem(j, CMD_LOGGER, "Receiver", "Signal logger", "l"); j += ",\"o\":"; wjList(j, loggerDesc, LOG_CLEAR); j += '}';
   // Display
   wjItem(j, CMD_BRT, "Display", "Brightness", "n"); wjNum(j, 10, 255, 5, nullptr);
@@ -3607,6 +3618,7 @@ void webMenuVals(String &j)
   kv(CMD_CWSTRIP, cwStripIdx);
   kv(CMD_UPDSET, updNoticeIdx);
   kv(CMD_BATTDISP, battDispIdx);
+  kv(CMD_DECAUDIO, decAudioIdx);
   kv(CMD_LOGGER, loggerIdx < LOG_CLEAR ? loggerIdx : 0);
   kv(CMD_BRT, currentBrt);
   kv(CMD_THEME, themeIdx);
@@ -3695,6 +3707,7 @@ bool webMenuSet(uint16_t cmd, int32_t v)
     case CMD_CWSTRIP:    cwStripIdx = v ? 1 : 0; prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_UPDSET:     updNoticeIdx = v ? 1 : 0; prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_BATTDISP:   if(v < 0 || v > 3) return(false); battDispIdx = v; prefsRequestSave(SAVE_SETTINGS); break;
+    case CMD_DECAUDIO:   if(v < 0 || v > 1) return(false); decAudioIdx = v; prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_LOGGER:     if(v < 0 || v >= LOG_CLEAR) return(false); loggerIdx = v; prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_BRT:        doBrt((constrain(v, 10, 255) - (int)currentBrt) / 5); break;
     case CMD_THEME:      if(v < 0 || v >= getTotalThemes()) return(false); doTheme(v - themeIdx); break;

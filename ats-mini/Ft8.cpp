@@ -37,7 +37,7 @@
 #include <esp_heap_caps.h>
 #include <freertos/semphr.h>
 
-#define RING_SAMPLES  (Ft8Rx::FS * 8)   // 8 s of audio: room for a slow decode
+#define RING_SAMPLES  (Ft8Rx::FS_MAX * 8)   // 8 s of audio at 12 kHz, 16 s at 6 kHz: room for a slow decode
 #define LINE_VOLUME   50                // SI4732 volume while decoding (speaker is off)
 #define LOG_MAX       30                // Decoded messages kept
 #define WF_W          320               // Waterfall on screen: 200..2900 Hz
@@ -54,6 +54,7 @@ static volatile uint32_t generation = 0;  // Bumped on every start and band chan
 static uint32_t cpuSaved = 0;
 static int channel = 2;                   // 40 m until a band says otherwise
 static volatile bool wantFt4 = false;     // Protocol of the channel; the worker switches
+static volatile int wantRate = Ft8Rx::FS;  // R5: sample rate (Decoder Audio setting); the worker switches
 
 // Timing without a clock: our timer plus an offset found from the signals
 static Ft8Sync slotSync;
@@ -63,7 +64,7 @@ static Ft8Sync slotSync;
 // as /ft8.wav after the page is closed, with the sample rate measured
 // against the CPU timer, so a slot that does not decode can be checked on a
 // computer. Two buffers: one filling, one done.
-#define CAP_MAX (Ft8Rx::FS * 16)
+#define CAP_MAX (Ft8Rx::FS_MAX * 16)
 static int16_t *capBuf[2] = { nullptr, nullptr };
 static uint32_t capN[2] = { 0, 0 };
 static int capFill = 0;
@@ -212,7 +213,7 @@ static void feed(uint32_t *pos, uint32_t end)
 {
   if((int32_t)(end - *pos) <= 0) { if((int32_t)(end - *pos) < 0) *pos = end; return; }
   // Fell too far behind: skip ahead (the slot will not decode, the next will)
-  if(end - *pos > RING_SAMPLES - Ft8Rx::FS) *pos = end - (RING_SAMPLES - Ft8Rx::FS);
+  if(end - *pos > RING_SAMPLES - Ft8Rx::FS_MAX) *pos = end - (RING_SAMPLES - Ft8Rx::FS_MAX);
   while(*pos != end)
   {
     uint32_t idx = *pos % RING_SAMPLES;
@@ -276,7 +277,7 @@ static void work(void *)
 
     uint32_t written = audioFt8Written();
 
-    if(gen != generation && ft8.ft4() != wantFt4 && !ft8.begin(wantFt4))
+    if(gen != generation && (ft8.ft4() != wantFt4 || ft8.rate() != wantRate) && !ft8.begin(wantFt4, wantRate))
     {
       // Out of memory switching protocol: try again shortly
       vTaskDelay(pdMS_TO_TICKS(200));
@@ -300,7 +301,7 @@ static void work(void *)
     else if(now != slot)
     {
       // Slot edge: the sample that matches it, by the clock
-      uint32_t back = msInSlot * (Ft8Rx::FS / 1000);
+      uint32_t back = msInSlot * (ft8.rate() / 1000);
       uint32_t edge = back < written ? written - back : 0;
       if((int32_t)(edge - pos) < 0) edge = pos;
       feed(&pos, edge);
@@ -360,7 +361,8 @@ static bool start()
   int ch = ft8ChannelOfCurrent();
   if(ch >= 0) channel = ch;
   wantFt4 = ft8ChannelIsFt4(channel);
-  if(!ring || !ft8.begin(wantFt4))
+  wantRate = decoderSampleRate();
+  if(!ring || !ft8.begin(wantFt4, wantRate))
   {
     statusShow("FT8", "Not enough memory");
     return(false);
@@ -380,7 +382,7 @@ static bool start()
   xSemaphoreGive(lock);
   slotSync.state = clockAvailable() ? Ft8Sync::UTC : Ft8Sync::SEARCH;
 
-  audioFt8Ring(ring, RING_SAMPLES);
+  audioFt8Ring(ring, RING_SAMPLES, wantRate);
   openedAt = millis();
   generation++;
   running = true;
@@ -397,6 +399,8 @@ static void stop()
   ft8RestoreRadio();
   audioRestore();
 }
+
+int ft8SampleRate() { return(wantRate); }
 
 void ft8PageOpen()
 {
@@ -434,7 +438,9 @@ bool ft8WebBatch(uint32_t *seen, String &j)
   *seen = batchSerial;
   j = "{\"dec\":{\"m\":\"";
   j += wantFt4 ? "FT4" : "FT8";
-  j += "\",\"slot\":";
+  j += "\",\"k\":";
+  j += wantRate / 2000;
+  j += ",\"slot\":";
   j += batchCount ? logBuf[0].slot : 0;
   j += ",\"r\":[";
   for(int i = 0; i < batchCount && i < logCount; i++)
@@ -488,6 +494,19 @@ bool ft8Tick()
     return(true);
   }
   if(!pageActive) return(false);
+
+  // R5: Decoder Audio changed (from Web Control) while the page is open:
+  // start afresh at the new rate, as on a band change
+  if(wantRate != decoderSampleRate())
+  {
+    wantRate = decoderSampleRate();
+    audioFt8Ring(ring, RING_SAMPLES, wantRate);
+    xSemaphoreTake(lock, portMAX_DELAY);
+    wfHead = wfCount = 0;
+    lastDecoded = -1;
+    xSemaphoreGive(lock);
+    generation++;
+  }
 
   // Silent input with the amplifier off: this board taps after it
   if(!ampNeeded && PIN_AMP_EN >= 0 && millis() - openedAt > 1500 && audioInputLevel() < 2)

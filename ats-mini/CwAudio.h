@@ -26,7 +26,12 @@ void drawCwPage();
 void cwWebText(char *buf, int size, int *wpm);   // R5: decoded text for the browser
 
 // Sampler shared with the FT8 page (Ft8.cpp)
-void audioFt8Ring(int16_t *ring, uint32_t size);   // nullptr gives it back to CW
+void audioFt8Ring(int16_t *ring, uint32_t size, int fs = 6000);   // nullptr gives it back to CW; fs 6000 or 12000
+
+// RESONIK R5: Decoder Audio setting (CwAudio.cpp)
+extern uint8_t decAudioIdx;                // 0: 3 kHz (default), 1: 6 kHz
+extern const char *const decAudioDesc[2];
+int decoderSampleRate();                   // 6000 or 12000 Hz
 uint32_t audioFt8Written();
 void audioWebStream(bool on);                          // Web Control audio (8 kHz) on or off
 bool audioWebStreaming();

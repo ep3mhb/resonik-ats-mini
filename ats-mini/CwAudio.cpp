@@ -47,7 +47,16 @@ static bool shownKey = false;
 static int shownWpm = 0;
 
 // FT8 (Ft8.cpp) borrows the sampler: at 6 kHz (R5) the samples go into its ring
-#define FT8_FS        6000      // R5: was 12000 (Ft8Rx::FS); the Digital page uses it too
+static volatile int ft8Fs = 6000;          // R5: 6000 or 12000, from the Decoder Audio setting
+
+// RESONIK R5: Decoder Audio (Menu -> Ham & SWL): how much of the radio's
+// sound the FT8/FT4 and Digital pages take in. 3 kHz (sampled at 6 kHz) holds
+// everything these modes use and is half the work, so the radio and Web
+// Control stay quick; 6 kHz (sampled at 12 kHz, as R3 and R4) is the fuller
+// input, at twice the work.
+uint8_t decAudioIdx = 0;
+const char *const decAudioDesc[2] = { "3 kHz fast", "6 kHz full" };
+int decoderSampleRate() { return(decAudioIdx ? 12000 : 6000); }
 static int16_t *volatile ft8Ring = nullptr;
 static uint32_t ft8RingSize = 0;
 static volatile uint32_t ft8Written = 0;   // Samples written since the start
@@ -138,7 +147,7 @@ static void sampler(void *)
     int16_t *ring = ft8Ring;
     bool web = !ring && webAudio && webRing;
     bool timed = timedSampling;
-    int fs = ring ? FT8_FS : web ? WEB_FS : CW_FS;
+    int fs = ring ? (int)ft8Fs : web ? WEB_FS : CW_FS;
     if(!sampling || fs != lastFs)
     {
       sampling = true;
@@ -278,9 +287,9 @@ static bool wifiOn() { return(WiFi.getMode() != WIFI_MODE_NULL); }
 static bool pageOpen() { return(currentCmd == CMD_CWDEC || currentCmd == CMD_FT8 || currentCmd == CMD_DIGI); }
 
 // FT8 page (Ft8.cpp): hand the sampler a ring, or nullptr to give it back
-void audioFt8Ring(int16_t *ring, uint32_t size)
+void audioFt8Ring(int16_t *ring, uint32_t size, int fs)
 {
-  if(ring) { ft8RingSize = size; ft8Written = 0; }
+  if(ring) { ft8Fs = fs; ft8RingSize = size; ft8Written = 0; }
   ft8Ring = ring;
   // Let a sample in flight land before the caller frees the old ring
   if(!ring) { int64_t t = esp_timer_get_time(); while(esp_timer_get_time() - t < 300); }

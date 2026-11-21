@@ -15,6 +15,7 @@
 #include "PageTemplate.h"
 #include "UpdateNotice.h"
 #include "Backup.h"
+#include "Ft8.h"
 #include "BatteryTime.h"
 #include "PageCommon.h"
 #include "PageStatus.h"
@@ -308,7 +309,7 @@ void webInit()
     auto le32 = [](uint8_t *p, uint32_t v) { p[0] = v; p[1] = v >> 8; p[2] = v >> 16; p[3] = v >> 24; };
     memcpy(hdr, "RIFF", 4); le32(hdr + 4, 36 + bytes); memcpy(hdr + 8, "WAVEfmt ", 8);
     le32(hdr + 16, 16); hdr[20] = 1; hdr[21] = 0; hdr[22] = 1; hdr[23] = 0;
-    le32(hdr + 24, 6000); le32(hdr + 28, 12000);   // R5: the FT8 page samples at 6 kHz hdr[32] = 2; hdr[33] = 0; hdr[34] = 16; hdr[35] = 0;
+    le32(hdr + 24, ft8SampleRate()); le32(hdr + 28, ft8SampleRate() * 2);   // R5: 6 or 12 kHz hdr[32] = 2; hdr[33] = 0; hdr[34] = 16; hdr[35] = 0;
     memcpy(hdr + 36, "data", 4); le32(hdr + 40, bytes);
     AsyncWebServerResponse *response = request->beginResponse("audio/wav", 44 + bytes,
       [](uint8_t *buf, size_t maxLen, size_t index) -> size_t {
