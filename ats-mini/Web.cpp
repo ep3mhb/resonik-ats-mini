@@ -815,14 +815,18 @@ static const String webRadioPage()
   int wr = WiFi.status() == WL_CONNECTED ? WiFi.RSSI() : -200;
   const char *wifiC = wr == -200 ? "fair" : grade(wr, -70, -80);
   const char *wifiV = wr == -200 ? "off" : wr >= -60 ? "excellent" : wr >= -70 ? "good" : wr >= -80 ? "weak, pages may be slow" : "poor, may drop";
-  // R5: the speed now and the speed of the setting, when they differ
-  char cpuNote[100] = "";
-  if((int)getCpuFrequencyMhz() != perfSetMhz())
-    snprintf(cpuNote, sizeof(cpuNote), "Set to %d MHz; full speed while Web Control, FT8 or Digital is open.", perfSetMhz());
+  // R5: the Processor line gives the CPU setting, the figure the menu and
+  // the Web Control settings show. The speed of the moment differs from it
+  // while a browser has Web Control open (240 MHz), and the Status page is
+  // nearly always asked for from that page: it showed 240 MHz whatever was
+  // set (Mohammad, 21 Nov). Only a decoder page open on the radio is said.
+  char cpuNote[80] = "";
+  if((currentCmd == CMD_FT8 || currentCmd == CMD_DIGI) && perfSetMhz() < 240)
+    strlcpy(cpuNote, "Running at 240 MHz while the FT8 or Digital page is open.", sizeof(cpuNote));
   return webPage(pageStatus, pageStatusTitle, {
     {"title", pageStatusTitle}, {"cpu_note", String(cpuNote)},
     {"uptime", String(uptime)}, {"reset", String(reset)},
-    {"temp", String(temperatureRead(), 0)}, {"cpu", String(getCpuFrequencyMhz())},
+    {"temp", String(temperatureRead(), 0)}, {"cpu", String(perfSetMhz())},
     {"heap", String(heap_caps_get_free_size(MALLOC_CAP_INTERNAL) / 1024)},
     {"psram", String(heap_caps_get_free_size(MALLOC_CAP_SPIRAM) / 1024)},
     {"heapmin", String(heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL) / 1024)},
