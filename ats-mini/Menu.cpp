@@ -3702,7 +3702,12 @@ bool webMenuSet(uint16_t cmd, int32_t v)
     case CMD_AUTOATT:    if(v < 0 || v >= (int)ITEM_COUNT(autoAttDesc)) return(false); doAutoAtt(v - autoAttIdx); break;
     case CMD_RDS:        if(v < 0 || v >= (int)ITEM_COUNT(rdsMode)) return(false); doRDSMode(v - rdsModeIdx); break;
     case CMD_BANDPLAN:   if(v < 0 || v >= (int)ITEM_COUNT(bandPlanDesc)) return(false); doBandPlan(v - bandPlanIdx); break;
-    case CMD_BEACON:     if(v < 0 || v >= BEACON_MENU_COUNT) return(false); beaconMenuSet(v); break;
+    case CMD_BEACON:
+      // R5: -1 from the page's "Stop following": the Names setting is kept
+      if(v == -1) { beaconFollow(-1); clearStationInfo(); identifyFrequency(currentFrequency); break; }
+      if(v < 0 || v >= BEACON_MENU_COUNT) return(false);
+      beaconMenuSet(v);
+      break;
     case CMD_BPAREA:     if(v < 0 || v >= BP_AREA_COUNT) return(false); bandPlanArea = v; prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_CWSTRIP:    cwStripIdx = v ? 1 : 0; prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_UPDSET:     updNoticeIdx = v ? 1 : 0; prefsRequestSave(SAVE_SETTINGS); break;
