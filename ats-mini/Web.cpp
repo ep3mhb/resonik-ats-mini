@@ -71,6 +71,18 @@ static String webTimeZoneLabel(int i)
   return(String(text));
 }
 
+// RESONIK R5: the Firmware row of the Status page. The row names itself, so
+// no "F/W:" in front; the version as in the page header and the release
+// names (v2.46-r5), then the day it was built, as "21 Nov 2026"
+static String webFirmwareText()
+{
+  const char *d = __DATE__;   // "Nov 21 2026", the day space-padded
+  char text[48];
+  snprintf(text, sizeof(text), "v%d.%02d-r%d, built %d %.3s %s",
+           VER_APP / 100, VER_APP % 100, VER_RESONIK, atoi(d + 4), d, d + 7);
+  return(String(text));
+}
+
 static String webPage(const char *body, const char *title, std::initializer_list<PageValue> values,
                       std::initializer_list<PageFragment> fragments = {});
 static const String webRadioPage();
@@ -838,7 +850,7 @@ static const String webRadioPage()
     {"tmp_c", String(tmpC)}, {"tmp_v", String(tmpV)}, {"mem_c", String(memC)}, {"mem_v", String(memV)},
     {"wifi_c", String(wifiC)}, {"wifi_v", String(wifiV)},
     {"ip", ip}, {"ssid", ssid},
-    {"mac", String(getMACAddress())}, {"version", String(getVersion(true))},
+    {"mac", String(getMACAddress())}, {"version", webFirmwareText()},
     {"time", receiverTime}, {"band", getCurrentBand()->bandName},
     {"frequency", freq}, {"mode", bandModeDesc[currentMode]},
     {"rssi", String(rssi)}, {"snr", String(snr)}, {"battery", String(batteryMonitor())}
