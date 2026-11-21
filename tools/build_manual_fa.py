@@ -65,6 +65,13 @@ def main():
     d = release_date(ver)
     jy, jm, jd = jalali(d)
     html = SRC.read_text()
+    # A menu path runs right to left in Persian, each name in its own <bdi>:
+    # <bdi>Menu</bdi> ← <bdi>System</bdi>. One left-to-right run "A → B" inside
+    # a Persian line reads in the wrong order.
+    bad = [n for n, line in enumerate(html.splitlines(), 1) if "→" in line]
+    if bad:
+        sys.exit(f"{SRC.name}: '→' on line(s) {', '.join(map(str, bad))}: "
+                 "write menu paths right to left, <bdi>Menu</bdi> ← <bdi>System</bdi>")
     html = html.replace("{{VERSION}}", "v" + ver)
     html = html.replace("{{DATE_FA}}", f"{jd} {FA_MONTHS[jm - 1]} {jy}".translate(FA_DIGITS))
     html = html.replace("{{DATE_EN}}", f"{d.day} {EN_MONTHS[d.month - 1]} {d.year}")
