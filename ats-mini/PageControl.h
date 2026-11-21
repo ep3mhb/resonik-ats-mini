@@ -187,7 +187,7 @@ section[data-tab]>:first-child{margin-top:0}
 <label>DX alarm<input id="dalarm" placeholder="call or country"></label>
 <label>Decoder audio<select id="daud" onchange="setv(19712,this.value)"><option value="0">3 kHz (fast)</option><option value="1">6 kHz (full)</option></select></label>
 <div class="dbtn"><button id="dsave">Save log</button><button id="dclr">Clear</button></div></div>
-<p class="hint"><b>Decoder audio.</b> <b>3 kHz</b> holds everything FT8, FT4, RTTY, NAVTEX, PSK31 and WEFAX use, and keeps the radio and this page quick: leave it there. <b>6 kHz</b> takes in twice as much of the radio's sound, as versions before R5 did; the radio works twice as hard and this page gets slower, so choose it only if you get fewer decodes than you expect, and compare. The change applies at once and the waterfall starts again. On the radio: Menu &rarr; Ham &amp; SWL &rarr; Decoder Audio.</p>
+<p class="hint"><b>Decoder audio.</b> <b>3 kHz</b> holds everything FT8, FT4, RTTY, NAVTEX, PSK31 and WEFAX use, and keeps the radio and this page quick: leave it there. <b>6 kHz</b> takes in twice as much of the radio's sound, as versions before R5 did; the radio works twice as hard and this page gets slower, so choose it only if you get fewer decodes than you expect, and compare. The change applies at once and the waterfall starts again. On the radio: Menu &rarr; Ham &amp; SWL &rarr; Dec. Audio.</p>
 <div style="overflow-x:auto"><table id="dtab"><thead><tr><th>UTC</th><th>Mode</th><th>dB</th><th>Call</th><th>Country</th><th>Message</th></tr></thead><tbody></tbody></table></div>
 </div></section>
 <section data-tab="set"><div id="sets"></div></section>

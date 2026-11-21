@@ -16,13 +16,15 @@ body { margin: 0; }
 h1, h2, h3 { color: var(--navy); line-height: 1.4; }
 h2 { font-size: 17pt; font-weight: 800; margin: 0 0 4mm; padding-bottom: 2mm; border-bottom: 2.5px solid var(--navy); break-after: avoid; }
 h2 .num { color: var(--blue); margin-right: 3mm; }
-h2 .tag.r3, .toc small.r3 { background: #108AB1; }
-h2 .tag.r4, h3 .tag.r4, .toc small.r4 { background: #C77700; }
-h2 .tag.r5, h3 .tag.r5, .toc small.r5 { background: #0A8F6B; }
+.tag { font-weight: 600; color: #fff; background: var(--pink); border-radius: 3px; padding: 0 1.5mm; vertical-align: middle; }
+.tag.r3 { background: #108AB1; }
+.tag.r4 { background: #C77700; }
+.tag.r5 { background: #0A8F6B; }
+figure img.web { width: 118mm; border-radius: 2mm; box-shadow: 0 0 0 0.4mm #555; }
 figure img.phone { width: 58mm; border-radius: 3mm; border: 1.5mm solid #111; box-shadow: 0 0 0 0.4mm #555; }
-h2 .tag { font-size: 9pt; font-weight: 600; color: #fff; background: var(--pink); border-radius: 3px; padding: 0 2mm; margin-left: 3mm; vertical-align: middle; }
+h2 .tag { font-size: 9pt; padding: 0 2mm; margin-left: 3mm; }
 h3 { font-size: 12pt; font-weight: 700; margin: 5mm 0 1.5mm; break-after: avoid; }
-h3 .tag { font-weight: 600; color: #fff; border-radius: 3px; padding: 0 1.5mm; margin-left: 2.5mm; vertical-align: middle; }
+h3 .tag { margin-left: 2.5mm; }
 p { margin: 0 0 2.6mm; }
 section.chapter { break-before: page; }
 section.chapter.cont { break-before: auto; margin-top: 9mm; }
@@ -70,6 +72,9 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
 .toc li { break-inside: avoid; border-bottom: 1px dotted var(--line); padding: 1mm 0; margin: 0; }
 .toc .n { color: var(--blue); font-weight: 700; margin-right: 2mm; }
 .toc small { color: var(--pink); font-weight: 700; margin: 0 2mm; }
+.toc small.r3 { color: #108AB1; }
+.toc small.r4 { color: #C77700; }
+.toc small.r5 { color: #0A8F6B; }
 .small { font-size: 9pt; color: var(--muted); }
 .ui { white-space: normal; }
 </style>
@@ -117,8 +122,14 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
     <li><span class="n">19</span>Frequency lock and CPU speed<small class="r3">R3</small></li>
     <li><span class="n">20</span>Wi-Fi and the radio's web pages<small class="r4">R4</small></li>
     <li><span class="n">21</span>Web Control<small class="r4">R4</small></li>
-    <li><span class="n">22</span>Feedback and troubleshooting</li>
-    <li><span class="n">23</span>Credits and licence</li>
+    <li><span class="n">22</span>Setup at first start<small class="r5">R5</small></li>
+    <li><span class="n">23</span>Freq Entry, Band View and Auto-Store<small class="r5">R5</small></li>
+    <li><span class="n">24</span>RTTY, NAVTEX, PSK31 and WEFAX<small class="r5">R5</small></li>
+    <li><span class="n">25</span>Decodes in the browser<small class="r5">R5</small></li>
+    <li><span class="n">26</span>Signals to try the decoders with<small class="r5">R5</small></li>
+    <li><span class="n">27</span>Update notice, backup and Status page<small class="r5">R5</small></li>
+    <li><span class="n">28</span>Feedback and troubleshooting</li>
+    <li><span class="n">29</span>Credits and licence</li>
   </ol>
   <div class="note">This manual is written for firmware {{VERSION}} and is updated with every release. The latest version is always at resonik.mikroutik.com. Your radio's firmware version is shown in <span class="ui">Menu → System → About</span>.</div>
   <p class="small">Sections marked <b style="color:var(--pink)">R2</b> are available from v2.45-r2, <b style="color:#108AB1">R3</b> from v2.45-r3 and <b style="color:#C77700">R4</b> from v2.45-r4 and <b style="color:#0A8F6B">R5</b> from v2.46-r5. Menu items are written as they appear on the radio's screen.</p>
@@ -314,6 +325,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
 <section class="chapter">
   <h2><span class="num">8</span>Battery time left</h2>
   <p>On battery, the voltage at the top alternates with an estimate of the listening time left, for example <b>~8h20</b> (eight hours twenty minutes). The <b>~</b> means a typical consumption is assumed; after about ten minutes the radio uses its own measured drain and the ~ disappears. Screen brightness, volume and Wi-Fi all change the result. When charging over USB, the charging symbol is shown.</p>
+  <p><span class="tag r5" style="font-size:8pt;margin:0 2mm 0 0">R5</span><span class="ui">Menu → Display → Battery</span> chooses what is shown beside the battery icon: <b>Volts + time</b> (as described above), <b>Volts</b>, <b>Percent</b> or <b>Icon only</b>.</p>
 </section>
 <section class="chapter cont">
   <h2><span class="num">9</span>Automatic attenuation</h2>
@@ -327,6 +339,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
   <figure><img class="screen" src="../manual-fa/img/screen-beacon.png" alt=""><figcaption>On 14100: the beacon on the air and the seconds left</figcaption></figure>
   <p>On one of these five frequencies (CW or USB), the station line shows the beacon on the air and the seconds left, for example <b>Beacon 4S7B Sri Lanka 6s</b>. The radio's clock must be set.</p>
   <p><span class="ui">Menu → Ham &amp; SWL → Beacons</span> and a callsign makes the radio <b>follow</b> that beacon: every ten seconds it changes band with the beacon, from 20 m to 10 m, and waits while it is silent. Tuning by hand ends it.</p>
+  <p><span class="tag r5" style="font-size:8pt;margin:0 2mm 0 0">R5</span>A beacon is on the air for 50 seconds of every three minutes. While it is silent the radio waits on 14.100 MHz in CW, where its next run begins, and it goes there as soon as following starts, so you see at once that it has begun. Tuning by hand, another band or FM ends the follow where you are. <b>Off</b> or <b>Names only</b> in the list, or <b>Stop</b> in Web Control, ends it and takes the radio back to the band, frequency and mode it was on before. In Web Control the top of the Beacons tab has <b>Follow a beacon</b>: choose the beacon, press <b>Start</b>, and <b>Stop</b> to end it; the line beside the buttons says what is being followed and why following did not start or ended (the clock is not set, you tuned away).</p>
   <p><span class="tag r4" style="font-size:8pt;margin:0 2mm 0 0">R4</span>The first two choices of the list: <b>Off</b> also hides the beacon names, and <b>Names only</b> names the beacon on the air on these five frequencies without following one. The choice is kept across restarts. A live world map of the beacons is on the Web Control page (section 21).</p>
 </section>
 
@@ -366,6 +379,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
     <li><b>Click:</b> clear the list. <b>Short press:</b> leave; the radio goes back exactly as it was.</li>
     <li>With the clock set (Wi-Fi sync) it decodes from the first slot. <b>Without a clock it still decodes:</b> the header shows <b>No clock: syncing</b> while it finds the slot timing from the stations it hears (usually a minute or two), then <b>Synced to band</b>.</li>
     <li>Bottom left: <b>In</b> is the audio level reaching the decoder (10 to 150 is good) and <b>Last</b> the number of messages in the last slot.</li>
+    <li><span class="tag r5" style="font-size:8pt;margin:0 2mm 0 0">R5</span>The page can also be started and watched from a browser, with the stations' countries and a map (section 25). It takes in the radio's sound up to 3 kHz, which is all FT8 and FT4 use; the 6 kHz choice is in section 25. Signals to check it with are in section 26.</li>
   </ul>
   <div class="note">This page needs the V4B board, which wires the speaker line to the processor; other boards show <b>No audio on the decoder input</b>. Wi-Fi is paused while the page is open. On boards that take the audio after the speaker amplifier the speaker stays on (<b>Spk</b> next to the level). Headphones plugged into the radio cut this line: unplug them to decode.</div>
   <div class="tip">FT8 signals are often 15 to 20 dB below the noise. The telescopic antenna indoors hears few of them: by a window or on a balcony, or with a few metres of wire clipped to the antenna, it makes a big difference. Keep chargers, LED lamps and laptops away from the radio and run it on battery.</div>
@@ -396,7 +410,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
     <figure><img class="screen" src="../manual-fa/img/screen-lock.png" alt=""><figcaption>The padlock next to the mode</figcaption></figure>
     <figure><img class="screen" src="../manual-fa/img/screen-cpu.png" alt=""><figcaption>The CPU page</figcaption></figure>
   </div>
-  <p><span class="ui">Menu → System → CPU</span> (called Performance up to R3): <b>80 MHz</b> (as the official firmware, longest battery), <b>160 MHz</b> or <b>240 MHz</b>. Faster makes the screen and menus quicker and uses more battery; the battery estimate shows the difference. The FT8 page always runs at 240 MHz while it is open.</p>
+  <p><span class="ui">Menu → System → CPU</span> (called Performance up to R3): <b>80 MHz</b> (as the official firmware, longest battery), <b>160 MHz</b> or <b>240 MHz</b>. Faster makes the screen and menus quicker and uses more battery; the battery estimate shows the difference. The FT8 page always runs at 240 MHz while it is open. <span class="tag r5" style="font-size:8pt;margin:0 2mm 0 0">R5</span>So does the Digital page, and so does the radio while a browser has Web Control open, so that the page answers quickly; your setting applies again when it is closed. The Status web page shows the speed you set.</p>
 </section>
 
 <!-- 20 -->
@@ -435,20 +449,128 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
   </div>
   <table>
     <tr><th style="width:18%">Tab</th><th>What it does</th></tr>
-    <tr><td>Receiver</td><td>Step tuning, Seek, a frequency box (kHz; MHz on FM), mode buttons (with Stereo or Mono on FM), Band, Step, Filter and AGC lists, volume, a button for every band, and the <b>band scope</b>: Sweep measures the signal at 41 points around the frequency; tap a bar to tune there</td></tr>
+    <tr><td>Receiver</td><td>Step tuning, Seek, a frequency box (kHz; MHz on FM), mode buttons (with Stereo or Mono on FM), Band, Step, Filter and AGC lists, volume, a button for every band, and the <b>band scope</b>: Sweep measures the signal at 41 points around the frequency; tap a bar to tune there. From R5, <b>Band View</b> starts the radio's Band View and shows it in the browser (section 23)</td></tr>
     <tr><td>Memory</td><td>Tune to a memory, save the current station, delete one</td></tr>
-    <tr><td>Beacons</td><td>A map of the eighteen NCDXF/IARU beacons. The five on the air pulse in their band's colour. Tap a frequency to tune there in CW: in every ten second slot the radio measures the signal and colours that beacon green (heard well), yellow (weak) or grey (not heard). After one three minute cycle you see which parts of the world the band is open to. Tap a beacon to follow it across the bands</td></tr>
+    <tr><td>Beacons</td><td>A map of the eighteen NCDXF/IARU beacons. The five on the air pulse in their band's colour. Tap a frequency to tune there in CW: in every ten second slot the radio measures the signal and colours that beacon green (heard well), yellow (weak) or grey (not heard). After one three minute cycle you see which parts of the world the band is open to. Tap a beacon to follow it across the bands, or use <b>Follow a beacon</b> with Start and Stop at the top (R5, section 10)</td></tr>
+    <tr><td>Decodes <span class="tag r5" style="font-size:8pt">R5</span></td><td>Starts and stops the decoders on the radio and shows what they decode: waterfall, FT8 and FT4 messages with country and flag, a map, CW, RTTY, NAVTEX and PSK31 text and WEFAX charts (section 25)</td></tr>
     <tr><td>Settings</td><td>Every setting of the radio's menus, in five groups. Bluetooth, USB and Wi-Fi modes and firmware updates stay on the radio itself, so the connection cannot be cut</td></tr>
     <tr><td>More</td><td>The radio's own screen with its knob and buttons (for its menus and the FT8 and CW pages; sent only while shown), and <b>Listen</b></td></tr>
   </table>
+  <p><span class="tag r5" style="font-size:8pt;margin:0 2mm 0 0">R5</span>Beside the station name the page shows the radio's clock: <b>UTC</b> and, when the radio's time zone is not UTC, <b>Local</b>; <b>Clock not set</b> until the radio has the time. Short notes from the radio (a seek that found nothing, a beacon being followed) appear at the bottom of the window. While a browser has the page open the radio runs its processor at full speed so that the page answers quickly; this uses a little more battery.</p>
   <h3>Listening in the browser (experimental)</h3>
   <p><b>Listen</b> plays the radio's sound in the browser. It works on V4B boards only, and the quality is about that of a telephone: the sound is sampled from the speaker line at 8 kHz, and Wi-Fi and the receiver share one converter. <b>Hiss filter</b> reduces hiss. <b>Radio speaker while listening</b> makes the radio's speaker quieter, but on the V4B that also weakens the browser sound, so <b>Normal</b> gives the best sound. It works best in Chrome.</p>
   <div class="note">On V4B boards the decoders and Listen take their audio from the speaker line. With headphones plugged into the radio this line is cut: the FT8, FT4 and CW decoders and the browser sound do not work. Unplug the headphones to decode.</div>
 </section>
 
-<!-- 22, 23 -->
+<!-- 22 -->
 <section class="chapter">
-  <h2><span class="num">22</span>Feedback and troubleshooting</h2>
+  <h2><span class="num">22</span>Setup at first start<span class="tag r5">R5</span></h2>
+  <p>A newly installed radio, or one after a factory reset, asks four things in turn: the <b>time zone</b>, the <b>knob</b> (20 or 30 clicks per turn), the <b>band plan</b> for your licence, and whether to set up <b>Wi-Fi</b> now. <b>Turn</b> to choose, <b>click</b> for the next question, <b>short press</b> to skip. Everything can be changed later in the menu. A radio updated from an earlier version keeps its settings and does not show these pages.</p>
+  <figure><img class="screen" src="../manual-fa/img/screen-wizard.png" alt=""><figcaption>The first of the four questions</figcaption></figure>
+  <p>To see it again, do a factory reset: switch the radio off, hold the knob pressed, switch it on and keep holding until <b>Resetting Preferences</b> shows.</p>
+  <div class="note">A factory reset erases the settings, the memories, the Wi-Fi networks and the files on the radio (schedule, signal log, start picture, DSP patches). Save a backup first on the Config web page (section 27) and restore it afterwards.</div>
+</section>
+
+<!-- 23 -->
+<section class="chapter cont">
+  <h2><span class="num">23</span>Freq Entry, Band View and Auto-Store<span class="tag r5">R5</span></h2>
+  <h3>Typing a frequency: Tuning → Freq Entry</h3>
+  <p>A number pad to go straight to a frequency. Turn the knob to move over the keys and click to press one: type the number, then <b>kHz</b> or <b>MHz</b>. So 14074 and kHz, or 14.074 and MHz, both tune 14.074 MHz. When the frequency is outside the band you are on, the radio changes band, and goes to or from FM as needed. <b>Del</b> removes the last digit, <b>Clear</b> all of them, and <b>Back</b> or a short press leaves without tuning. It takes 150 kHz to 30 MHz and 64 to 108 MHz.</p>
+  <h3>Seeing the band: Tuning → Band View</h3>
+  <p>Band View sweeps 160 frequencies around the one you are on, again and again. The top of the page is the sweep in progress as bars, filled in from the left as it goes; under it the finished sweeps form a waterfall, the newest on top. Weak signals are blue, strong ones yellow. The line under the title gives the frequencies the view starts and ends at, and the title line the frequency under the cursor. The sound is off meanwhile, and a sweep takes some seconds, since the receiver has to settle on every frequency. <b>Turn:</b> move the cursor, <b>click:</b> tune there, <b>short press:</b> leave.</p>
+  <div class="pair">
+    <figure><img class="screen" src="../manual-fa/img/screen-freqpad.png" alt=""><figcaption>Freq Entry: 14074, then kHz</figcaption></figure>
+    <figure><img class="screen" src="../manual-fa/img/screen-bandview.png" alt=""><figcaption>Band View on the FM band</figcaption></figure>
+  </div>
+  <p>In Web Control, <b>Band View</b> in the Band scope box starts the same on the radio and shows it in the browser; click a peak to tune there, which ends it, or press <b>Stop</b>.</p>
+  <h3>Filling the memories: Memory → Auto-Store</h3>
+  <p>Auto-Store sweeps once around the frequency you are on and puts the strongest stations in free memory slots, named <b>Auto</b>. Stations that are already stored are skipped.</p>
+</section>
+
+<!-- 24 -->
+<section class="chapter">
+  <h2><span class="num">24</span>RTTY, NAVTEX, PSK31 and WEFAX<span class="tag r5">R5</span></h2>
+  <p><span class="ui">Menu → Ham &amp; SWL → Digital</span> opens a full-screen page that decodes five kinds of signal from the radio's own sound. It switches the radio to USB with the 3.0k filter, draws the spectrum of what it hears with marks on the tones it listens to, and writes the text under it. The decoder finds the signal by itself: tune until the signal is in the picture.</p>
+  <figure><img class="screen" src="../manual-fa/img/screen-digital.png" alt=""><figcaption>RTTY DWD: the two tones in the spectrum, the tone frequency in green, the text</figcaption></figure>
+  <table>
+    <tr><th style="width:20%">Mode</th><th>What it decodes</th></tr>
+    <tr><td><b>RTTY</b></td><td>Amateur radioteletype: 45.45 baud, 170 Hz shift. Normal and reversed stations are read alike.</td></tr>
+    <tr><td><b>RTTY DWD</b></td><td>The German weather service: 50 baud, 450 Hz shift. Weather for shipping, mainly in English.</td></tr>
+    <tr><td><b>NAVTEX</b></td><td>Safety messages for ships on 518 kHz. The page tunes there by itself.</td></tr>
+    <tr><td><b>PSK31</b></td><td>An amateur mode typed by hand, 31 baud, a few hertz wide.</td></tr>
+    <tr><td><b>WEFAX</b></td><td>Weather charts (radiofax), 120 lines a minute. Tune 1.9 kHz below the published frequency. The chart is drawn on the screen and, larger, in the browser (section 25), where <b>Save picture</b> downloads it.</td></tr>
+  </table>
+  <ul>
+    <li><b>Click:</b> the next mode. <b>Turn:</b> tune. <b>Short press:</b> leave; the radio goes back exactly as it was.</li>
+    <li>Top right is the tone frequency the decoder has found, in green, or <b>No signal</b>. With no signal nothing is written, so noise does not fill the screen with letters.</li>
+    <li>The screen holds the last five lines; the browser keeps all of the text.</li>
+  </ul>
+  <div class="note">Like the FT8 page, this page needs the V4B board and the headphones unplugged. Wi-Fi is paused while it is open, unless a browser has Web Control open.</div>
+  <p><b>No signal</b> means that nothing is being received on that frequency, not that something is broken. Stations to check each mode with are in section 26.</p>
+</section>
+
+<!-- 25 -->
+<section class="chapter">
+  <h2><span class="num">25</span>Decodes in the browser<span class="tag r5">R5</span></h2>
+  <p>Open <b>Web Control</b> (section 21) and its <b>Decodes</b> tab. Wi-Fi stays on while Web Control is open, and with a decoder running on the radio the tab shows:</p>
+  <ul>
+    <li>the band as a waterfall;</li>
+    <li>every FT8 and FT4 message with the station's country and flag;</li>
+    <li>a map of the stations that sent a locator; type your own locator in <b>My locator</b> to see lines from you;</li>
+    <li>the text of CW, RTTY, NAVTEX and PSK31, and the WEFAX chart with <b>Save picture</b>;</li>
+    <li><b>DX alarm</b>: type callsigns or countries to hear a tone when one is decoded; <b>Save log</b> downloads the list.</li>
+  </ul>
+  <div class="pair">
+    <figure><img class="phone" src="../manual-fa/img/web-decodes.jpg" alt=""><figcaption>The Decodes tab: decoder row and waterfall</figcaption></figure>
+    <figure><img class="phone" src="../manual-fa/img/web-decodes-list.jpg" alt=""><figcaption>Further down: locator, DX alarm, the messages</figcaption></figure>
+  </div>
+  <h3 style="break-before:page;margin-top:0">Starting a decoder from the browser</h3>
+  <p>The row <b>Decoder on the radio</b> starts and stops the decoders without touching the radio. Choose FT8 or FT4 and a band, or CW, RTTY, RTTY DWD, NAVTEX, PSK31 or WEFAX, and press <b>Start</b>. FT8 and FT4 go to the band you choose and NAVTEX to 518 kHz; the others decode where the radio is, so tune first. <b>Stop</b> closes the decoder and the radio goes back to where it was. The line beside the buttons says what is running.</p>
+  <h3>Decoder audio: 3 kHz or 6 kHz</h3>
+  <p>The FT8/FT4 and Digital pages listen to the radio's own sound, and this setting says how much of it they take in.</p>
+  <table>
+    <tr><th style="width:24%">Setting</th><th>What it does</th></tr>
+    <tr><td><b>3 kHz fast</b> (the default)</td><td>The sound up to 3 kHz. That holds everything FT8, FT4, RTTY, NAVTEX, PSK31 and WEFAX use, at half the work, so the radio and Web Control stay quick. <b>Leave it here.</b></td></tr>
+    <tr><td><b>6 kHz full</b></td><td>The sound up to 6 kHz, as versions before R5 took in. The radio works twice as hard and the browser can get slower. Choose it only if you get fewer decodes than you expect, and compare the two on the same band for a few minutes each.</td></tr>
+  </table>
+  <p>On the radio it is <span class="ui">Menu → Ham &amp; SWL → Dec. Audio</span>, set before you open the FT8/FT4 or Digital page. In Web Control it is the <b>Decoder audio</b> list on the Decodes tab; there the change applies at once, and the waterfall starts again. The tab shows which is in use (<b>3 kHz audio</b> or <b>6 kHz audio</b>). The CW decoder is not affected.</p>
+</section>
+
+<!-- 26 -->
+<section class="chapter">
+  <h2><span class="num">26</span>Signals to try the decoders with<span class="tag r5">R5</span></h2>
+  <p>A decoder that shows nothing is usually listening to an empty frequency. These signals are on the air often enough to check each decoder, on the radio's own page or from the Decodes tab of Web Control. <b>No signal</b> or <b>Nothing decoded yet</b> means that nothing was received, not that something is broken. Frequencies and times change: look them up again if a station is not there.</p>
+  <p><b>Start with FT8 on 20 m by day.</b> If that fills the list, the radio, the antenna and the decoder input are all working, and an empty page in another mode only means that the station is not there or is too weak. By a window, or with a few metres of wire on the antenna, far more is heard.</p>
+  <table style="font-size:9pt;line-height:1.5">
+    <tr><th style="width:13%">Decoder</th><th style="width:44%">Where to tune</th><th>What to expect</th></tr>
+    <tr><td><b>FT8</b></td><td>20M, 14.074 MHz (the page tunes it). By day also 15M and 10M, at night 40M and 80M.</td><td>The busiest signals on short wave: a list of callsigns within a minute on an open band. Check this first: if FT8 decodes, the antenna, the band and the clock are in order.</td></tr>
+    <tr><td><b>FT4</b></td><td>20M, 14.080 MHz. Far fewer stations than FT8, most of them at weekends and in contests.</td><td>Short blocks of about 4.5 seconds in the waterfall. Compare with FT8 on the same band: with FT8 full and the FT4 waterfall empty, nobody is on FT4.</td></tr>
+    <tr><td><b>CW</b></td><td>The beacons on 14.100 MHz (section 10), or the low end of 40M and 20M: 7.000 to 7.040 and 14.000 to 14.070 MHz.</td><td>Callsigns and CQ calls. A beacon sends its callsign, then four long dashes.</td></tr>
+    <tr><td><b>RTTY DWD</b></td><td>The German weather service, day and night on 4583, 7646 and 10100.8 kHz. Tune 1.5 kHz below in USB: <b>10099.3 kHz</b>, or <b>7644.5</b> and <b>4581.5 kHz</b> at night.</td><td>Lines of RYRYRY between the bulletins, then weather reports and forecasts, mainly in English. The tone frequency shows in green in place of No signal. It comes from Germany: far away it is weak, and best in the evening.</td></tr>
+    <tr><td><b>RTTY</b></td><td>Amateur RTTY, 14.080 to 14.099 MHz, mostly at weekends and in contests.</td><td>CQ calls and contest exchanges in capitals.</td></tr>
+    <tr><td><b>NAVTEX</b></td><td>518 kHz (the page tunes it). Every coast station sends for about ten minutes every four hours, each at its own time; night is best. Look up the times of the stations of your sea area.</td><td>Navigational warnings and weather for ships, starting with ZCZC and ending with NNNN.</td></tr>
+    <tr><td><b>PSK31</b></td><td>14.070 MHz USB, also 7.040 MHz. Few stations these days.</td><td>Narrow steady lines in the spectrum; small and capital letters, typed by hand.</td></tr>
+    <tr><td><b>WEFAX</b></td><td>Northwood (United Kingdom): 4610, 8040 and 11086.5 kHz. Tune 1.9 kHz below in USB: <b>8038.1</b> or <b>11084.6 kHz</b> by day, <b>4608.1 kHz</b> at night.</td><td>A weather chart, drawn line by line: a whole chart takes 10 to 20 minutes. A slanted picture still shows that the signal is being read.</td></tr>
+  </table>
+</section>
+
+<!-- 27 -->
+<section class="chapter">
+  <h2><span class="num">27</span>Update notice, backup and Status page<span class="tag r5">R5</span></h2>
+  <h3>New version notice</h3>
+  <p>With Wi-Fi connected, the radio looks for a newer RESONIK release a few minutes after joining the network and then once a day. When there is one it shows a page with <b>Update now</b>, <b>Later</b> and <b>Skip this version</b>; settings and memories are kept by an update. A small arrow beside the Wi-Fi icon, and a banner on the radio's web pages, show that an update is waiting. <span class="ui">Menu → System → Upd. Notice → Off</span> stops the radio looking; <span class="ui">Menu → System → Update FW</span> still checks and updates when you ask.</p>
+  <figure><img class="screen" style="width:64mm" src="../manual-fa/img/screen-newversion.png" alt=""><figcaption>The page shown when a newer version is out</figcaption></figure>
+  <h3>Backup and restore</h3>
+  <p>The radio's <b>Config</b> web page has <b>Backup and Restore</b> at the bottom. <b>Download a backup</b> saves one file with all the settings, bands, memories and Wi-Fi networks. <b>Restore</b> takes such a file, from this or another radio, replaces everything with it and restarts the radio. Make a backup before a factory reset, and to set up a second radio like the first.</p>
+  <div class="note">The backup file holds your Wi-Fi passwords. Keep it private.</div>
+  <h3>Status page</h3>
+  <p>The first of the radio's web pages, <b>Status</b>, shows the address, firmware, clock, band and frequency, and from R5 also how long the radio has been running, why it last restarted (switched on, update, crash, watchdog, low voltage), the processor's temperature and the speed you set, free memory and the Wi-Fi signal. Each figure says in a word whether it is good, fair or bad, in green, yellow or red. If the radio ever restarts by itself, read <b>Last restart</b> here before switching it off, and send it with your report.</p>
+  <figure><img class="web" style="width:92mm" src="../manual-fa/img/web-status.jpg" alt=""><figcaption>The Status page: each figure with its verdict</figcaption></figure>
+</section>
+
+<!-- 28, 29 -->
+<section class="chapter">
+  <h2><span class="num">28</span>Feedback and troubleshooting</h2>
   <p>Every report, a small bug or a suggestion, helps the next version. Write in the Telegram group or open an Issue on GitHub: github.com/ep3mhb/resonik-ats-mini/issues. Please include:</p>
   <ol class="steps">
     <li>The radio model (V3, V4 or V4B)</li>
@@ -465,12 +587,14 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
     <tr><td>The Install button shows no port</td><td>Try another USB cable (a data cable); Chrome or Edge on a computer</td></tr>
     <tr><td>You want the old menu</td><td><span class="ui">Menu → Display → Menu Style → Classic</span></td></tr>
     <tr><td>The EiBi schedule does not show the days</td><td>Load EiBi once more</td></tr>
-    <tr><td>FT8 or CW page: No audio, or In 0</td><td>These pages need the V4B board (Hardware page of the site), and the headphones unplugged</td></tr>
+    <tr><td>FT8, CW or Digital page: No audio, or In 0</td><td>These pages need the V4B board (Hardware page of the site), and the headphones unplugged</td></tr>
+    <tr><td>A decoder shows No signal</td><td>Nothing is received there: try the signals of section 26, FT8 first</td></tr>
+    <tr><td>The radio restarted by itself</td><td>Note <b>Last restart</b> on the Status web page (section 27)</td></tr>
     <tr><td>FT8 decodes nothing</td><td>Try another band (20 or 10 m by day, 40 m at night); take the radio to a window and unplug the charger</td></tr>
     <tr><td>The radio's web page does not open</td><td>The address is at the top of <span class="ui">Menu → System → Wi-Fi</span>; the phone or computer must be on the same network</td></tr>
   </table>
 
-  <h2 style="margin-top:9mm"><span class="num">23</span>Credits and licence</h2>
+  <h2 style="break-before:page"><span class="num">29</span>Credits and licence</h2>
   <p>RESONIK edition: EP2MHB (Mohammad Bahrololoum). Based on ats-mini by PU2CLR (Ricardo Caratti), Volos Projects, Ralph Xavier, Sunnygold, Goshante, G8PTN (Dave), R9UCL (Max Arnold), Marat Fayzullin and all contributors. The FT8 decoder uses ft8_lib by Karlis Goba, following the epiHATR fork; some fixes come from the jokubasver and mattafaak forks. The source code is on GitHub under the MIT licence.</p>
   <p class="small">RESONIK is not affiliated with the makers of ATS Mini radios. Installing unofficial firmware is at your own risk; a backup lets you go back. <b>73 · resonik.mikroutik.com</b></p>
 </section>
