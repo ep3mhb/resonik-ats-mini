@@ -30,6 +30,7 @@
 #include <ESPAsyncWebServer.h>
 #include "Ft8.h"
 #include "DigiPage.h"
+#include "Resonik.h"
 #include <mutex>
 #include <atomic>
 
@@ -158,6 +159,23 @@ static void webOnEvent(AsyncWebSocket *, AsyncWebSocketClient *client, AwsEventT
     {
       screenWanted = len > 7 && data[7] == '1';
       if(screenWanted) fullFrame = true;
+      return;
+    }
+    // R5: "!page <p> <arg>": a decoder page on the radio. p: 0 none, 1 FT8
+    // (arg: channel), 2 CW, 3 Digital (arg: mode). Done in the main loop.
+    if(len >= 7 && !memcmp(data, "!page ", 6))
+    {
+      char text[24];
+      size_t n = len < sizeof(text) - 1 ? len : sizeof(text) - 1;
+      memcpy(text, data, n);
+      text[n] = 0;
+      char *end;
+      WebSet w;
+      w.cmd = 0xFE00 | (uint8_t)strtoul(text + 6, &end, 10);
+      w.value = strtol(end, nullptr, 10);
+      std::lock_guard<std::mutex> lock(inMutex);
+      uint8_t next = (setHead + 1) % 16;
+      if(next != setTail) { setQueue[setHead] = w; setHead = next; }
       return;
     }
     // "!set <cmd> <value>", "!mem t|d <slot>", "!mem s"
@@ -631,6 +649,11 @@ static void webSendPanel(bool force)
   j += ",\"hi\":"; j += (unsigned long)band->maximumFreq;
   jsonText(j, "ps", getStationName());
   jsonText(j, "rt", getRadioText());
+  // R5: the decoder page open on the radio (0 none, 1 FT8/FT4, 2 CW,
+  // 3 Digital) and its channel or mode, -1 while it is still starting
+  int dp = currentCmd == CMD_FT8 ? 1 : currentCmd == CMD_CWDEC ? 2 : currentCmd == CMD_DIGI ? 3 : 0;
+  j += ",\"dp\":"; j += dp;
+  j += ",\"dc\":"; j += dp == 1 ? ft8WebChannel() : dp == 3 ? digiWebMode() : 0;
   j += '}';
   if(!force && j == last) return;
   last = j;
@@ -671,6 +694,59 @@ static void webBeaconTick()
   if(band < 0 || utc % 10 == 0) return;
   if(rssi > maxR) maxR = rssi;
   if(snr > maxQ) maxQ = snr;
+}
+
+// R5: decoder pages from the Decodes tab of the page (Mohammad, 21 Nov:
+// FT8 could only be started on the radio). Each page saves the radio's
+// band and puts it back when it closes, so going from one page to another
+// closes the first in this pass of the main loop and opens the other in
+// the next: the second then saves what the first has put back.
+static int8_t pendPage = -1;
+static int32_t pendArg = 0;
+
+static bool decoderPageOpen()
+{
+  return(currentCmd == CMD_FT8 || currentCmd == CMD_DIGI || currentCmd == CMD_CWDEC);
+}
+
+static void pageOpenNow(uint8_t page, int32_t arg)
+{
+  if(sleepOn()) sleepOn(false);          // The pages do not run with the screen asleep
+  memScanStop();
+  bandScanStop();
+  switch(page)
+  {
+    case 1: ft8WebOpen(arg); break;
+    case 2: cwPageOpen(); break;
+    case 3: digiWebOpen(arg); break;
+  }
+}
+
+static bool webPageAction(uint8_t page, int32_t arg)
+{
+  uint16_t want = page == 1 ? CMD_FT8 : page == 2 ? CMD_CWDEC : page == 3 ? CMD_DIGI : CMD_NONE;
+  pendPage = -1;
+  // The setup wizard and a firmware update are finished on the radio first
+  if(currentCmd == CMD_WIZARD || currentCmd == CMD_UPDATEFW)
+  {
+    wsSend("{\"note\":\"Decoder: Finish what is open on the radio first\"}");
+    return(false);
+  }
+  if(want == CMD_NONE)
+  {
+    if(!decoderPageOpen()) return(false);
+    currentCmd = CMD_NONE;
+    return(true);
+  }
+  if(decoderPageOpen() && currentCmd != want)
+  {
+    currentCmd = CMD_NONE;
+    pendPage = page;
+    pendArg = arg;
+    return(true);
+  }
+  pageOpenNow(page, arg);
+  return(true);
 }
 
 // R5: a line from the radio for the page's note. Main loop only. The texts
@@ -733,6 +809,13 @@ bool webControlTick()
 
   // Commands, at most a few per loop pass
   bool redraw = false;
+  // R5: the decoder page asked for while another one was open
+  if(pendPage >= 0 && !decoderPageOpen())
+  {
+    pageOpenNow(pendPage, pendArg);
+    pendPage = -1;
+    redraw = true;
+  }
   for(int i = 0; i < 8 && (i == 0 || webInputPending()); i++)
     redraw |= remoteLoop(&nullStream, &remoteState, webReadInput);
 
@@ -804,7 +887,8 @@ bool webControlTick()
       w = setQueue[setTail];
       setTail = (setTail + 1) % 16;
     }
-    if((w.cmd & 0xFF00) == 0xFF00)
+    if((w.cmd & 0xFF00) == 0xFE00) redraw |= webPageAction(w.cmd & 0xFF, w.value);
+    else if((w.cmd & 0xFF00) == 0xFF00)
     {
       redraw |= webMemoryAction((char)(w.cmd & 0xFF), w.value);
       memWanted = true;
@@ -850,7 +934,18 @@ bool webControlTick()
       String j;
       j.reserve(6000);
       webMenuDef(j);
-      ws.textAll(String("{\"def\":") + j + "}");
+      // R5: with it, what the Decodes tab can start: FT8 and FT4 channels
+      // (name, 1 = FT4) and the Digital modes
+      String dl = ",\"dl\":{\"ft\":[";
+      for(int i = 0; i < ft8ChannelCount(); i++)
+      {
+        if(i) dl += ',';
+        dl += "[\""; dl += ft8ChannelName(i); dl += "\","; dl += ft8ChannelIsFt4(i) ? 1 : 0; dl += ']';
+      }
+      dl += "],\"dg\":[";
+      for(int i = 0; i < digiModeCount(); i++) { if(i) dl += ','; dl += '"'; dl += digiModeName(i); dl += '"'; }
+      dl += "]}";
+      ws.textAll(String("{\"def\":") + j + dl + "}");
       lastVals = 0;
     }
     else if(memWanted.exchange(false))

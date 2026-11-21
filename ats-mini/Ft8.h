@@ -16,6 +16,8 @@ void drawFt8Page();
 bool ft8WebBatch(uint32_t *seen, String &j);   // R5: new decodes for the browser
 bool ft8WebRow(uint32_t *seen, String &j);     // R5: newest waterfall row
 int ft8SampleRate();                           // R5: 6000 or 12000 Hz
+void ft8WebOpen(int ch);                       // R5: Web Control opens the page on a channel
+int ft8WebChannel();                           // R5: channel being decoded, -1 = page closed
 
 // In Menu.cpp: FT8 dial frequencies and the radio set-up around the page
 int ft8ChannelCount();
