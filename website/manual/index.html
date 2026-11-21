@@ -68,6 +68,7 @@
           <li><a href="#bandview">Band View and Auto-Store <small>r5</small></a></li>
           <li><a href="#decodes">Decodes in the browser <small>r5</small></a></li>
           <li><a href="#digital">RTTY, NAVTEX, PSK31 and WEFAX <small>r5</small></a></li>
+          <li><a href="#try">Signals to try the decoders with <small>r5</small></a></li>
           <li><a href="#decaudio">Decoder Audio: 3 kHz or 6 kHz <small>r5</small></a></li>
           <li><a href="#scanner">Band scanner <small>r3</small></a></li>
           <li><a href="#lock">Frequency lock and CPU speed <small>r3</small></a></li>
@@ -188,7 +189,7 @@
         <p><span class="ui">Menu → Ham &amp; SWL → CW Strip → On</span> shows the decoded text along the bottom of the normal screen while in CW mode. Like the FT8 page it needs the V4B board, and it works while Wi-Fi is off.</p>
 
         <h2 id="wizard">Setup at first start <small style="font-size:.7em;color:var(--muted)">v2.46-r5</small></h2>
-        <p>A newly installed radio, or one after a factory reset, asks four things in turn: the <b>time zone</b>, the <b>knob</b> (20 or 30 clicks per turn), the <b>band plan</b> for your licence, and whether to set up <b>Wi-Fi</b> now. <b>Turn</b> to choose, <b>click</b> for the next, <b>short press</b> to skip. Everything can be changed later in the menu.</p>
+        <p>A newly installed radio, or one after a factory reset, asks four things in turn: the <b>time zone</b>, the <b>knob</b> (20 or 30 clicks per turn), the <b>band plan</b> for your licence, and whether to set up <b>Wi-Fi</b> now. <b>Turn</b> to choose, <b>click</b> for the next, <b>short press</b> to skip. Everything can be changed later in the menu. To see it again, do a factory reset: switch the radio off, hold the knob pressed, switch it on and keep holding until <b>Resetting Preferences</b> shows. The reset erases the settings, memories, Wi-Fi networks and the files on the radio (schedule, signal log, start picture, DSP patches); save a backup first on the <b>Config</b> web page and restore it afterwards.</p>
 
         <h2 id="bandview">Band View and Auto-Store <small style="font-size:.7em;color:var(--muted)">v2.46-r5</small></h2>
         <p><span class="ui">Menu → Tuning → Band View</span> sweeps 160 frequencies around the one you are on, again and again. The top of the page is the sweep in progress as bars, filled in from the left as it goes, with the sweep before it dimmer ahead of it; under it the finished sweeps form a waterfall, the newest on top. Weak signals are blue, strong ones yellow. The line under the title gives the frequencies the view starts and ends at; the title line gives the frequency under the cursor. The sound is off meanwhile. A sweep takes some seconds, since the receiver has to settle on every frequency. <b>Turn</b> to move the cursor, <b>click</b> to tune there, <b>short press</b> to leave. In Web Control, <b>Band View</b> in the Band scope box starts the same on the radio and shows it in the browser; click a peak to tune there, which ends it, or press <b>Stop</b>. <span class="ui">Menu → Memory → Auto-Store</span> sweeps once and puts the strongest stations in free memory slots, named <b>Auto</b>; stations already stored are skipped.</p>
@@ -198,6 +199,20 @@
 
         <h2 id="digital">RTTY, NAVTEX, PSK31 and WEFAX <small style="font-size:.7em;color:var(--muted)">v2.46-r5</small></h2>
         <p><span class="ui">Menu → Ham &amp; SWL → Digital</span> decodes <b>RTTY</b> (amateur, 45.45 baud and 170 Hz shift), <b>RTTY DWD</b> (the German weather service, 50 baud and 450 Hz), <b>NAVTEX</b> (maritime safety messages on 518 kHz), <b>PSK31</b> and <b>WEFAX</b> weather charts (tune 1.9 kHz below the published frequency; the chart is drawn on the screen and, larger, in the browser). The page switches the radio to USB with the 3.0k filter and shows the band's spectrum with the tones it listens to; it finds the signal by itself, so tune until it is in the picture. <b>Click</b> for the next mode (NAVTEX tunes 518 kHz), <b>turn</b> to tune, <b>short press</b> to leave. Like the FT8 page it needs the V4B board, and headphones must be unplugged.</p>
+
+        <h2 id="try">Signals to try the decoders with <small style="font-size:.7em;color:var(--muted)">v2.46-r5</small></h2>
+        <p>A decoder that shows nothing is usually listening to an empty frequency. These are signals that are on the air often enough to check each decoder, on the radio's own page or from the <b>Decodes</b> tab of Web Control. Frequencies and times change: look them up again if a station is not there. <b>No signal</b> or <b>Nothing decoded yet</b> means nothing was received, not that something is broken.</p>
+        <table>
+          <tr><th>Decoder</th><th>Where</th><th>What to expect</th></tr>
+          <tr><td><b>FT8</b></td><td>20M, 14.074 MHz (the page tunes it). By day also 15M and 10M, at night 40M and 80M.</td><td>The busiest signals on short wave: a list of callsigns within a minute on an open band. Check this first: if FT8 decodes, the antenna, the band and the clock are in order.</td></tr>
+          <tr><td><b>FT4</b></td><td>20M, 14.080 MHz. Far fewer stations than FT8, most at weekends and in contests.</td><td>Short blocks of about 4.5 seconds in the waterfall. Compare with FT8 on the same band: with FT8 full and the FT4 waterfall empty, nobody is on FT4.</td></tr>
+          <tr><td><b>CW</b></td><td>The beacons on 14.100 MHz (see <a href="#beacons">Beacons</a>), or the low end of 40M and 20M (7.000 to 7.040 and 14.000 to 14.070 MHz).</td><td>Callsigns and CQ calls. A beacon sends its callsign, then four long dashes.</td></tr>
+          <tr><td><b>RTTY DWD</b></td><td>The German weather service, day and night on 4583, 7646 and 10100.8 kHz, 50 baud with 450 Hz shift. Tune 1.5 kHz below in USB: <b>10099.3 kHz</b> (or 7644.5 and 4581.5 kHz at night).</td><td>Lines of RYRYRY between the bulletins, then weather reports and forecasts, mainly in English. The page shows the tone frequency in green in place of <b>No signal</b>. It comes from Germany: far away it is weak and best in the evening.</td></tr>
+          <tr><td><b>RTTY</b></td><td>Amateur RTTY, 14.080 to 14.099 MHz, mostly at weekends and in contests.</td><td>CQ calls and contest exchanges in capitals.</td></tr>
+          <tr><td><b>NAVTEX</b></td><td>518 kHz (the page tunes it). Every coast station sends for about ten minutes every four hours, each at its own time; night is best. Look up the times of the stations of your sea area.</td><td>Navigational warnings and weather for ships, starting with ZCZC and ending with NNNN.</td></tr>
+          <tr><td><b>PSK31</b></td><td>14.070 MHz USB, also 7.040 MHz. Few stations these days.</td><td>Narrow steady lines in the spectrum; small and capital letters, typed by hand.</td></tr>
+          <tr><td><b>WEFAX</b></td><td>Northwood (United Kingdom), with charts of the North Atlantic, Europe and the Persian Gulf: 4610, 8040 and 11086.5 kHz. Tune 1.9 kHz below in USB: <b>8038.1</b> or <b>11084.6 kHz</b> by day, 4608.1 kHz at night.</td><td>A weather chart, drawn line by line: a whole chart takes 10 to 20 minutes. A slanted picture still shows that the signal is read.</td></tr>
+        </table>
 
         <h2 id="decaudio">Decoder Audio: 3 kHz or 6 kHz <small style="font-size:.7em;color:var(--muted)">v2.46-r5</small></h2>
         <p>The FT8/FT4 and Digital pages listen to the radio's own sound. <b>Decoder Audio</b> sets how much of that sound they take in:</p>

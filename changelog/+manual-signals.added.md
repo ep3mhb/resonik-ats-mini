@@ -1,0 +1,1 @@
+Manual: **Signals to try the decoders with**, a table of stations and frequencies to check FT8, FT4, CW, RTTY, NAVTEX, PSK31 and WEFAX with, how to tune each and what to expect; and how to see the setup wizard again.

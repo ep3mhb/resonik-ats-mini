@@ -39,7 +39,10 @@ button.acc{background:#0c5a45}
 .sm .bar{flex:1;height:10px;border-radius:5px;background:#06171e;overflow:hidden}
 .sm .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#f5c542 70%,#ff6b6b);transition:width .2s}
 #ps,#rt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#ps{font-size:22px;line-height:30px;height:30px;font-weight:700;margin-top:6px;color:var(--accent)}
+.psr{display:flex;align-items:center;gap:10px;margin-top:6px}
+#ps{flex:1;min-width:0;font-size:22px;line-height:30px;height:30px;font-weight:700;color:var(--accent)}
+#clk{flex:0 0 auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+#clk b{color:var(--text);font-weight:600}
 #rt{font-size:14px;line-height:20px;height:20px;color:var(--text);margin-top:2px}
 .scope{margin-top:12px;background:var(--card);border-radius:10px;padding:10px 12px}
 .scope h2{font-size:14px;margin:0 0 8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -131,7 +134,7 @@ section[data-tab]>:first-child{margin-top:0}
 <div class="panel">
  <div class="pf"><div id="pfq">&mdash;</div><div class="tags" id="tags"></div></div>
  <div class="sm"><span id="sv" style="min-width:64px">S&ndash;</span><div class="bar"><i id="sb"></i></div><span id="sn"></span></div>
- <div id="ps"></div><div id="rt"></div>
+ <div class="psr"><div id="ps"></div><div id="clk" title="The radio's clock"></div></div><div id="rt"></div>
  <div id="note" style="display:none;position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:30;width:max-content;max-width:92vw;box-sizing:border-box;padding:8px 14px;border-radius:10px;background:#06171e;color:var(--accent);font-size:13px;text-align:center;box-shadow:0 0 0 1px var(--line),0 6px 18px rgba(0,0,0,.5)"></div>
 </div>
 <nav class="tabs" id="tabs"><button data-t="rx" class="on">Receiver</button><button data-t="mem">Memory</button><button data-t="bcn">Beacons</button><button data-t="dec">Decodes</button><button data-t="set">Settings</button><button data-t="more">More</button></nav>
@@ -264,7 +267,7 @@ function fmtF(f,m){if(m===0)return (f/1e6).toFixed(2)+'<small>MHz</small>';
 function esc(t){return t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
 // FM: stereo shown in the FM button (mono when the pilot is not received)
 function stereo(){const b=$('stb');if(!b||!P)return;b.className=P.st?'st on':'st';b.textContent=P.st?'Stereo':'Mono';}
-function panel(j){P=j;dpDraw();bvUi();stereo();$('pfq').innerHTML=fmtF(j.f,j.m);
+function panel(j){P=j;dpDraw();bvUi();clk(j);stereo();$('pfq').innerHTML=fmtF(j.f,j.m);
  $('tags').innerHTML=(j.band!==j.mode?'<span>'+esc(j.band)+'</span>':'')+'<span class="m">'+esc(j.mode)+'</span><span>Step '+esc(j.step)+
   '</span><span>BW '+esc(j.bw)+'</span>'+(j.mem?'<span class="m" title="Tuned to a saved memory">Memory '+j.mem+'</span>':'')+
   '<span'+(j.chg?' class="m" title="On USB power"':' title="'+(j.bmin>0?'About '+Math.floor(j.bmin/60)+' h '+(j.bmin%60)+' min left':'')+'"')+'>'+(j.chg?'USB power':j.bat.toFixed(2)+' V &middot; '+j.batp+'%')+'</span>';
@@ -387,6 +390,10 @@ function bOn(b,utc){return((Math.floor((utc%180)/10)-b+18)%18);}
  $('bsel').innerHTML=BC.map((c,i)=>'<option value="'+i+'">'+c[0]+' \u00b7 '+c[1]+'</option>').join('');$('bgo').onclick=()=>bStart(+$('bsel').value);$('bstop').onclick=()=>setv(15360,-1);
  $('bnds').innerHTML=BF.map((f,b)=>'<button data-b="'+b+'" style="color:'+BCOL[b]+'"><b></b><span></span></button>').join('');
  $('bnds').querySelectorAll('button').forEach(x=>x.onclick=()=>{bSel=+x.dataset.b;send('F'+BF[bSel]*1000+'\n');setTimeout(()=>{const m=V&&V.d&&V.d[5376];if(m&&m.indexOf('CW')>=0)setv(5376,m.indexOf('CW'));},600);drawBeacons();});})();
+// The radio's clock: UTC and, when its time zone is not UTC, local time
+function clk(j){const e=$('clk');if(j.ck===undefined)return;if(j.ck<0){e.textContent='Clock not set';return;}
+ const hm=m=>{m=((m%1440)+1440)%1440;return ('0'+Math.floor(m/60)).slice(-2)+':'+('0'+m%60).slice(-2);};
+ e.innerHTML='UTC <b>'+hm(j.ck)+'</b>'+(j.tz?' \u00b7 Local <b>'+hm(j.ck+j.tz)+'</b>':'');}
 // RESONIK R5: Band View of the radio in the Band scope box: the sweep as
 // bars as it goes (the sweep before it dim), finished sweeps as a waterfall
 let BVD=null,bvRows=[],bvHov=-1,bvWas=false;const bvc=$('bvc'),bx=bvc.getContext('2d');
