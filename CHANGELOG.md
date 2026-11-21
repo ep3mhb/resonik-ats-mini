@@ -11,12 +11,12 @@ RESONIK edition R4.1: R4 brought up to upstream ats-mini v2.46, with a fix for t
 
 ### Changed
 
-- The CW decoder page plays at least at the FT8 page's level and never quieter than your own volume, so the sound no longer drops when the page opens. 
+- The CW decoder page plays at least at the FT8 page's level and never quieter than your own volume, so the sound no longer drops when the page opens.
 
 
 ### Fixed
 
-- Mute and squelch stay as they were across band and mode changes; before, a band or mode change could let sound through while the screen still showed Muted or the squelch closed (from upstream ats-mini v2.46). 
+- Mute and squelch stay as they were across band and mode changes; before, a band or mode change could let sound through while the screen still showed Muted or the squelch closed (from upstream ats-mini v2.46).
 
 ## 2.45-r4 (2026-11-15)
 

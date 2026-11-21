@@ -1,3 +1,5 @@
+# RESONIK: the FT8 library (ft8_lib, KISS FFT) is kept as its authors wrote it
+exclude: ^ats-mini/src/ft8/
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
