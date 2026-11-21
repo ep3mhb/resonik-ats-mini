@@ -20,6 +20,7 @@ static uint32_t scanTime = millis();
 static uint32_t scanTuneStarted;
 static uint8_t  scanStatus = SCAN_OFF;
 
+static uint16_t scanPoints = SCAN_POINTS;   // R5: points of this sweep (Band View asks for fewer)
 static uint32_t scanStartFreq; // Hz
 static uint32_t scanStep;      // Hz
 static uint16_t scanCount;
@@ -63,8 +64,8 @@ static void scanInit(uint32_t centerFreq, uint32_t step)
   scanTime    = millis();
 
   const Band *band = getCurrentBand();
-  int64_t freq = ((int64_t)(centerFreq / scanStep) - SCAN_POINTS / 2) * scanStep;
-  int64_t span = (int64_t)scanStep * (SCAN_POINTS - 1);
+  int64_t freq = ((int64_t)(centerFreq / scanStep) - scanPoints / 2) * scanStep;
+  int64_t span = (int64_t)scanStep * (scanPoints - 1);
 
   // Adjust to band boundaries
   if(freq + span > band->maximumFreq)
@@ -90,7 +91,7 @@ static void scanInit(uint32_t centerFreq, uint32_t step)
 static bool scanTickTime(bool abortable = true)
 {
   // Scan must be on
-  if((scanStatus!=SCAN_RUN) || (scanCount>=SCAN_POINTS)) return(false);
+  if((scanStatus!=SCAN_RUN) || (scanCount>=scanPoints)) return(false);
 
   if(abortable && consumeAbortPending())
   {
@@ -140,7 +141,7 @@ static bool scanTickTime(bool abortable = true)
   freq += scanStep;
 
   // Set next frequency to scan or expire scan
-  if((++scanCount >= SCAN_POINTS) || !isFreqInBand(getCurrentBand(), freq) || (abortable && consumeAbortPending()))
+  if((++scanCount >= scanPoints) || !isFreqInBand(getCurrentBand(), freq) || (abortable && consumeAbortPending()))
     scanStatus = SCAN_DONE;
   else
   {
@@ -177,6 +178,7 @@ void scanRun(uint32_t centerFreq, uint32_t step)
   // Scan receiver frequencies without the SSB tuning or calibration offset.
   if(isSSB()) rx.setSSBBfo(0);
   // Scan the whole range
+  scanPoints = SCAN_POINTS;
   for(scanInit(centerFreq, step) ; scanTickTime();) delay(1);
   // Restore current frequency
   if(isSSB()) rx.setFrequencyConfirmed(getReceiverFrequency(curFreq));
@@ -192,7 +194,7 @@ void scanRun(uint32_t centerFreq, uint32_t step)
 //
 static uint32_t asyncFreq = 0;
 
-bool scanAsyncStart(uint32_t centerFreq, uint32_t step)
+bool scanAsyncStart(uint32_t centerFreq, uint32_t step, int points)
 {
   if(!scanData)
   {
@@ -204,8 +206,17 @@ bool scanAsyncStart(uint32_t centerFreq, uint32_t step)
     asyncFreq = currentFrequency;
     muteOn(MUTE_TEMP, true);
     if(isSSB()) rx.setSSBBfo(0);
+    // The library waits 30 ms after every tune before it returns; the tune
+    // itself is then asked about until it is complete. Here the wait is
+    // 8 ms: it was a third or more of the time of every point of the sweep
+    // (Mohammad, 21 Nov: Band View very slow). Not with the automatic
+    // antenna capacitor on MW and LW, which early questions disturb.
+    const Band *band = getCurrentBand();
+    bool automatic = autoAntennaCapacitor && (band->bandType == MW_BAND_TYPE || band->bandType == LW_BAND_TYPE);
+    rx.setMaxDelaySetFrequency(automatic ? MAX_DELAY_AFTER_SET_FREQUENCY : 8);
   }
   seekStop = false;
+  scanPoints = points < 10 ? 10 : points > SCAN_POINTS ? SCAN_POINTS : points;
   scanInit(centerFreq, step);
   return(true);
 }
@@ -220,6 +231,7 @@ void scanAsyncStop()
 {
   if(!asyncFreq) return;
   scanStatus = SCAN_DONE;
+  rx.setMaxDelaySetFrequency(MAX_DELAY_AFTER_SET_FREQUENCY);
   if(isSSB()) rx.setFrequencyConfirmed(getReceiverFrequency(asyncFreq));
   updateFrequency(asyncFreq, false);
   muteOn(MUTE_TEMP, false);
