@@ -262,7 +262,7 @@ function stereo(){const b=$('stb');if(!b||!P)return;b.className=P.st?'st on':'st
 function panel(j){P=j;dpDraw();stereo();$('pfq').innerHTML=fmtF(j.f,j.m);
  $('tags').innerHTML=(j.band!==j.mode?'<span>'+esc(j.band)+'</span>':'')+'<span class="m">'+esc(j.mode)+'</span><span>Step '+esc(j.step)+
   '</span><span>BW '+esc(j.bw)+'</span>'+(j.mem?'<span class="m" title="Tuned to a saved memory">Memory '+j.mem+'</span>':'')+
-  '<span title="'+(j.bmin>0?'About '+Math.floor(j.bmin/60)+' h '+(j.bmin%60)+' min left':'')+'">'+(j.chg?'USB power':j.bat.toFixed(2)+' V &middot; '+j.batp+'%')+'</span>';
+  '<span'+(j.chg?' class="m" title="On USB power"':' title="'+(j.bmin>0?'About '+Math.floor(j.bmin/60)+' h '+(j.bmin%60)+' min left':'')+'"')+'>'+(j.chg?'USB power':j.bat.toFixed(2)+' V &middot; '+j.batp+'%')+'</span>';
  if(j.lo!==undefined){const fm=j.m===0,u=fm?1e6:1e3,d=fm?1:0;$('f').placeholder=(fm?'MHz':'kHz')+' '+(j.lo/u).toFixed(d)+'\u2013'+(j.hi/u).toFixed(d);}
  // S-meter: S9 = 34 dBuV (50 ohm), 6 dB per S unit; FM in dBuV
  let lab;if(j.m===0)lab=j.rssi+' dB&micro;V';else{const s=(j.rssi-34)/6+9;
