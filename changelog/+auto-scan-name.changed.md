@@ -1,0 +1,1 @@
+The **Scanner** tile (Menu → Tuning) is now called **Auto Scan**: it was taken for **Scan**, the band graph, which sits next to it. Its status line says Auto Scan too. While it moves, the name of the station it left no longer stays on the screen.

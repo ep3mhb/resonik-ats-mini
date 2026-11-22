@@ -351,7 +351,8 @@ bool memScanTick()
 }
 
 //
-// Band scanner (R3): steps through the band at the tuning step and holds on
+// Band scanner (R3; the tile is "Auto Scan" since R5, it was "Scanner",
+// too close to "Scan", the band graph): steps through the band at the tuning step and holds on
 // any signal (the same test as the memory scanner: the mode's squelch, or SNR
 // of 6 dB or more), wrapping at the band edge. In SSB and CW it moves on 4 s
 // after the signal goes. Broadcast stations (AM, FM) never go quiet, so there
@@ -392,13 +393,17 @@ static void bandScanShow(const char *what)
                                  (unsigned long)(currentFrequency / 1000000), (unsigned long)(currentFrequency / 10000 % 100));
   else snprintf(line, sizeof(line), "%s %lu.%lu kHz", what,
                 (unsigned long)(currentFrequency / 1000), (unsigned long)(currentFrequency % 1000 / 100));
-  statusShow("Scanner  (turn: up/down, click: stop)", line, 0);
+  statusShow("Auto Scan  (turn: up/down, click: stop)", line, 0);
 }
 
 static void bandScanNext(uint32_t now)
 {
   bandScanState = BandScan::Listen;
   updateFrequency((int64_t)currentFrequency + bandScanDir * (int64_t)bandScanStep(), true);
+  // The name of the station it left must not stay on the screen (RDS name
+  // "97.8MHz" still shown on 98.30 MHz: Mohammad, 22 Nov)
+  clearStationInfo();
+  identifyFrequency(currentFrequency);
   bandScanTimer = now + (currentMode == FM ? BSCAN_SETTLE_FM : BSCAN_SETTLE_AM);
   bandScanShow(nullptr);
 }
@@ -428,7 +433,7 @@ void bandScanStop(const char *why)
 {
   if(bandScanState == BandScan::Off) return;
   bandScanState = BandScan::Off;
-  statusShow(why ? why : "Scanner stopped");
+  statusShow(why ? why : "Auto Scan stopped");
   prefsRequestSave(SAVE_CUR_BAND);
 }
 

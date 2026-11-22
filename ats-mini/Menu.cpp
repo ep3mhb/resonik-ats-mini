@@ -154,7 +154,7 @@ static const char *menu[] =
   "SoftMute",
   "Beacons",
   "Mem Scan",
-  "Scanner",
+  "Auto Scan",
   "Freq Entry",
   "Band View",
   "Auto-Store",
