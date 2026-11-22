@@ -85,6 +85,54 @@ static void tileFillGradient(S &s, int x, int y, int w, int h, int r, uint16_t t
   }
 }
 
+// The Ham & SWL picture, after the international amateur radio symbol: an
+// aerial (a triangle, point down, on the wire), a coil of two turns drawn
+// with the symbol's own curves, and earth. Two masks, one bit per pixel, 31
+// wide and 59 high: the wire and the coil.
+// tools/ham_icon.py writes the next two tables
+static const uint32_t tileHamWire[59] =
+{
+  0x00000000, 0x00008040, 0x01FFFFE0, 0x01FFFFC0, 0x00C18380, 0x00618300,
+  0x00318600, 0x00198C00, 0x000D9800, 0x000FF000, 0x0007F000, 0x0003E000,
+  0x0001C000, 0x00018000, 0x00018000, 0x00018000, 0x0001C000, 0x00008000,
+  0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+  0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+  0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+  0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x0001C000,
+  0x00018000, 0x00018000, 0x00018000, 0x07FFFFF0, 0x07FFFFF0, 0x00000000,
+  0x00FFFF80, 0x00FFFF80, 0x00000000, 0x001FFC00, 0x001FFC00, 0x00000000,
+  0x0003E000, 0x0003E000, 0x00000000, 0x00000000, 0x00000000,
+};
+static const uint32_t tileHamCoil[59] =
+{
+  0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+  0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+  0x00000000, 0x00000000, 0x00000000, 0x00007000, 0x0000FF00, 0x00007FC0,
+  0x000000E0, 0x00000060, 0x00000060, 0x007C00E0, 0x01FFC1C0, 0x03C7FF80,
+  0x03007F00, 0x0381FF80, 0x01FFE3C0, 0x00FE00E0, 0x00000060, 0x00000060,
+  0x007C00E0, 0x01FFC1C0, 0x03C7FF80, 0x03007F00, 0x0381FF80, 0x01FFE3C0,
+  0x00FE00E0, 0x00000060, 0x00000060, 0x000000E0, 0x000007C0, 0x0000FF80,
+  0x0000F800, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+  0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+  0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+};
+// End of the tables of tools/ham_icon.py
+
+// One of those masks, centred on (x, y), in colour c
+template<typename S>
+static void tileDrawMask(S &s, const uint32_t *rows, int x, int y, uint16_t c)
+{
+  for(int r = 0 ; r < 59 ; r++)
+    for(int b = 0 ; b < 31 ; )
+    {
+      if(!(rows[r] >> b & 1)) { b++; continue; }
+      int e = b;
+      while(e < 31 && (rows[r] >> e & 1)) e++;
+      s.drawFastHLine(x - 15 + b, y - 29 + r, e - b, c);
+      b = e;
+    }
+}
+
 // Icons are drawn in a 26x26 box centred on (x, y), in colour c
 template<typename S>
 static void tileDrawIcon(S &s, TileIcon icon, int x, int y, uint16_t c, uint16_t bg)
@@ -187,27 +235,9 @@ static void tileDrawIcon(S &s, TileIcon icon, int x, int y, uint16_t c, uint16_t
       s.drawWideLine(x - 2, y - 6, x + 13, y - 6, 1.5f, c);
       s.drawWideLine(x - 13, y + 10, x + 13, y + 10, 1.0f, c);
       break;
-    case TI_HAM:         // A station as a circuit diagram draws it: aerial, coil, earth. As tall as the tile: it stands at the tile's side
-      s.drawWideLine(x, y - 27, x, y - 14, 1.3f, c);
-      s.drawWideLine(x, y - 18, x - 10, y - 27, 1.3f, c);
-      s.drawWideLine(x, y - 18, x + 10, y - 27, 1.3f, c);
-      {
-        // The coil: one wire going round on its way down. It leaves the
-        // aerial's wire at the coil's highest point and meets the earth's wire
-        // at its lowest, both on the line of the wire
-        float px = x, py = y - 14;
-        for(int i = 1 ; i <= 40 ; i++)
-        {
-          float t = -1.5707963f + i * 0.3926991f;
-          float nx = x + 6.0f * cosf(t), ny = y - 14 + 1.2732f * (t + 1.5707963f) + 3.0f * (sinf(t) + 1.0f);
-          s.drawWideLine(px, py, nx, ny, 0.8f, c);
-          px = nx; py = ny;
-        }
-      }
-      s.drawWideLine(x, y + 12, x, y + 17, 1.3f, c);
-      s.fillRect(x - 11, y + 17, 23, 3, c);
-      s.fillRect(x - 7, y + 22, 15, 2, c);
-      s.fillRect(x - 3, y + 26, 7, 2, c);
+    case TI_HAM:         // Aerial, coil and earth, as tall as the tile: it stands at the tile's side
+      tileDrawMask(s, tileHamWire, x, y, c);
+      tileDrawMask(s, tileHamCoil, x, y, c);
       break;
     case TI_BEACON:      // Mast with waves
       s.drawWideLine(x, y - 4, x - 6, y + 12, 1.2f, c);
@@ -614,26 +644,8 @@ static void tileDrawIconColor(S &s, TileIcon icon, int x, int y, uint16_t bg)
       s.drawWideLine(x - 13, y + 10, x + 13, y + 10, 1.0f, TC_W);
       break;
     case TI_HAM:         // Aerial, coil and earth: white wire, orange coil
-      s.drawWideLine(x, y - 27, x, y - 14, 1.3f, TC_W);
-      s.drawWideLine(x, y - 18, x - 10, y - 27, 1.3f, TC_W);
-      s.drawWideLine(x, y - 18, x + 10, y - 27, 1.3f, TC_W);
-      {
-        // The coil: one wire going round on its way down. It leaves the
-        // aerial's wire at the coil's highest point and meets the earth's wire
-        // at its lowest, both on the line of the wire
-        float px = x, py = y - 14;
-        for(int i = 1 ; i <= 40 ; i++)
-        {
-          float t = -1.5707963f + i * 0.3926991f;
-          float nx = x + 6.0f * cosf(t), ny = y - 14 + 1.2732f * (t + 1.5707963f) + 3.0f * (sinf(t) + 1.0f);
-          s.drawWideLine(px, py, nx, ny, 0.8f, TC_O);
-          px = nx; py = ny;
-        }
-      }
-      s.drawWideLine(x, y + 12, x, y + 17, 1.3f, TC_W);
-      s.fillRect(x - 11, y + 17, 23, 3, TC_W);
-      s.fillRect(x - 7, y + 22, 15, 2, TC_W);
-      s.fillRect(x - 3, y + 26, 7, 2, TC_W);
+      tileDrawMask(s, tileHamCoil, x, y, TC_O);
+      tileDrawMask(s, tileHamWire, x, y, TC_W);
       break;
     case TI_BEACON:      // Mast with orange waves
       s.drawWideLine(x, y - 4, x - 6, y + 12, 1.2f, TC_W);
