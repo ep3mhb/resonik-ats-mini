@@ -77,9 +77,11 @@ static String webTimeZoneLabel(int i)
 static String webFirmwareText()
 {
   const char *d = __DATE__;   // "Nov 21 2026", the day space-padded
-  char text[48];
-  snprintf(text, sizeof(text), "v%d.%02d-r%d, built %d %.3s %s",
-           VER_APP / 100, VER_APP % 100, VER_RESONIK, atoi(d + 4), d, d + 7);
+  char text[64];
+  // R5: and the commit it was built from, so a radio can be matched with its build
+  snprintf(text, sizeof(text), "v%d.%02d-r%d, built %d %.3s %s%s%s%s",
+           VER_APP / 100, VER_APP % 100, VER_RESONIK, atoi(d + 4), d, d + 7,
+           VER_BUILD[0] ? " (" : "", VER_BUILD, VER_BUILD[0] ? ")" : "");
   return(String(text));
 }
 

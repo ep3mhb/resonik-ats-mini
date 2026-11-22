@@ -130,6 +130,14 @@ jobs:
                          grep -q '^#define VER_PRERELEASE   1' ats-mini/Common.h ;;
           esac
 
+      # RESONIK: the firmware says which commit it was built from (Status page
+      # and About screen), so that a radio can be matched with its build
+      - name: Mark the build
+        run: |
+          BUILD=$(git rev-parse --short=7 HEAD)
+          sed -i "s/^#define VER_BUILD        \"\"/#define VER_BUILD        \"$BUILD\"/" ats-mini/Common.h
+          grep -q "^#define VER_BUILD        \"$BUILD\"" ats-mini/Common.h
+
       - name: Compile firmware
         uses: arduino/compile-sketches@v1
         with:

@@ -35,6 +35,7 @@ static constexpr const lgfx::IFont* FONT_DIGITS  = &lgfx::fonts::Font7;  // 48px
 #define VER_RESONIK      5  // RESONIK release number on top of VER_APP (v2.46-r5)
 #define VER_FULL       (VER_APP * 100 + VER_RESONIK)  // Used for OTA version comparison
 #define VER_PRERELEASE   0  // 1 in beta/rc builds (set by the build workflow): the release with the same number is newer (GitHub #3)
+#define VER_BUILD        ""  // The commit a build was made from, seven characters (set by the build workflow); empty when built by hand
 #define VER_OTA          1  // OTA compatibility; bump when a full USB flash is required
 #define VER_SETTINGS    71  // Settings version
 #define VER_MEMORIES    71  // Memories version

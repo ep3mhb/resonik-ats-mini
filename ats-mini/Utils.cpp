@@ -118,15 +118,18 @@ bool statusTick(uint32_t now)
 //
 const char *getVersion(bool shorter)
 {
-  static char versionString[48] = "\0";
+  static char versionString[72] = "\0";
 
-  snprintf(versionString, sizeof(versionString), "%s%sF/W: v%1.1d.%2.2d-R%d %s",
+  // R5: the commit the build was made from follows the date
+  snprintf(versionString, sizeof(versionString), "%s%sF/W: v%1.1d.%2.2d-R%d %s%s%s",
     shorter ? "" : RECEIVER_NAME,
     shorter ? "" : " ",
     VER_APP / 100,
     VER_APP % 100,
     VER_RESONIK,
-    __DATE__
+    __DATE__,
+    VER_BUILD[0] ? " " : "",
+    VER_BUILD
   );
 
   return(versionString);
