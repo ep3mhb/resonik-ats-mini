@@ -85,51 +85,92 @@ static void tileFillGradient(S &s, int x, int y, int w, int h, int r, uint16_t t
   }
 }
 
-// The Ham & SWL picture, after the international amateur radio symbol: an
-// aerial (a triangle, point down, on the wire), a coil of two turns drawn
-// with the symbol's own curves, and earth. Two masks, one bit per pixel, 31
-// wide and 59 high: the wire and the coil.
-// tools/ham_icon.py writes the next two tables
-static const uint32_t tileHamWire[59] =
+// The Ham & SWL picture: the drawing inside the international amateur radio
+// symbol (aerial, coil, earth), line for line from tools/ham-symbol.svg. It
+// is a table of how much ink each pixel has, blended into the tile, so that
+// its thin lines keep their soft edges.
+// tools/ham_icon.py writes the next table
+#define TILE_HAM_W 13
+#define TILE_HAM_H 63
+static const uint8_t tileHamInk[TILE_HAM_W * TILE_HAM_H] =
 {
-  0x00000000, 0x00008040, 0x01FFFFE0, 0x01FFFFC0, 0x00C18380, 0x00618300,
-  0x00318600, 0x00198C00, 0x000D9800, 0x000FF000, 0x0007F000, 0x0003E000,
-  0x0001C000, 0x00018000, 0x00018000, 0x00018000, 0x0001C000, 0x00008000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x0001C000,
-  0x00018000, 0x00018000, 0x00018000, 0x07FFFFF0, 0x07FFFFF0, 0x00000000,
-  0x00FFFF80, 0x00FFFF80, 0x00000000, 0x001FFC00, 0x001FFC00, 0x00000000,
-  0x0003E000, 0x0003E000, 0x00000000, 0x00000000, 0x00000000,
+    0, 120, 223, 223, 223, 223, 223, 223, 223, 223, 223, 147,   0,
+    0, 112, 251, 112,  96, 116, 255, 116,  96, 100, 247, 108,   0,
+    0,   4, 219, 128,   0,  32, 255,  32,   0, 108, 215,   4,   0,
+    0,   0,  88, 247,  24,  32, 255,  32,  16, 235,  76,   0,   0,
+    0,   0,   0, 199, 159,  32, 255,  32, 140, 187,   0,   0,   0,
+    0,   0,   0,  60, 251,  80, 255,  68, 247,  44,   0,   0,   0,
+    0,   0,   0,   0, 171, 215, 255, 207, 152,   0,   0,   0,   0,
+    0,   0,   0,   0,  36, 251, 255, 239,  24,   0,   0,   0,   0,
+    0,   0,   0,   0,   0, 148, 255, 120,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,  40, 255,  32,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,  32, 255,  32,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,  32, 255,  32,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,  32, 255,  32,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,  32, 255,  32,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,  32, 255,  32,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,  32, 255,  32,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,  32, 255,  32,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,  32, 255,  32,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,  32, 255,  32,   0,   0,   0,   0,   0,
+    0,   0,   4,  68, 116, 144, 255,  32,   0,   0,   0,   0,   0,
+    0,  64, 219, 247, 207, 191, 171,   8,   0,   0,   0,   0,   0,
+    0, 215, 167,  16,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0, 187, 171,   4,   0,   0,  28,  64,  92,  96,  76,   8,   0,
+    0,  56, 215, 231, 144, 203, 255, 251, 223, 223, 243, 175,   0,
+    0,   4, 140, 255, 231, 255, 239, 163, 128, 128, 199, 199,   0,
+    0, 159, 211,  52,   0,  40,  88, 144, 187, 187, 155,  40,   0,
+    0, 191, 152,   4,   0,   0,   4,  48,  76,  92,  48,   0,   0,
+    0,  48, 215, 207, 124, 191, 243, 255, 239, 223, 255, 155,   0,
+    0,   4, 140, 255, 251, 255, 239, 144, 112,  96, 191, 215,   0,
+    0, 163, 211,  76,   0,  64, 120, 175, 203, 219, 175,  60,   0,
+    0, 211, 132,   0,   0,   0,   4,  48,  76,  92,  48,   0,   0,
+    0,  68, 235, 203, 124, 191, 243, 255, 239, 223, 255, 159,   0,
+    0,   0, 120, 255, 251, 255, 239, 144, 112,  96, 191, 211,   0,
+    0, 136, 227,  84,   0,  64, 120, 175, 203, 219, 175,  60,   0,
+    0, 199, 136,   0,   0,   0,   0,  16,  60,  60,  28,   0,   0,
+    0,  68, 235, 179,  96, 159, 215, 255, 255, 255, 255, 127,   0,
+    0,   0, 124, 255, 255, 255, 239, 159,  96,  96, 187, 219,   0,
+    0, 116, 251, 116,  16,  76, 155, 191, 219, 223, 203,  76,   0,
+    0, 227, 104,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0, 159, 243, 132,  80,  64,  44,   0,   0,   0,   0,   0,   0,
+    0,   4, 108, 195, 243, 255, 255,  24,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,  32, 255,  32,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,  32, 255,  32,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,  32, 255,  32,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,  32, 255,  32,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,  32, 255,  32,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,  32, 255,  32,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,  32, 255,  32,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,  32, 255,  32,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,  32, 255,  32,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,  32, 255,  32,   0,   0,   0,   0,   0,
+   32, 128, 128, 128, 128, 144, 255, 144, 128, 128, 128, 128,  60,
+  131, 223, 223, 223, 223, 223, 223, 223, 223, 223, 223, 223, 131,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,  60, 255, 255, 255, 255, 255, 255, 255, 255, 255,  88,   0,
+    0,  16,  96,  96,  96,  96,  96,  96,  96,  96,  96,  16,   0,
+    0,   0,   0,  84,  96,  96,  96,  96,  96,  92,   8,   0,   0,
+    0,   0,  52, 247, 255, 255, 255, 255, 255, 251,  60,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,  24, 191, 223, 223, 223, 211,  32,   0,   0,   0,
+    0,   0,   0,   8, 116, 128, 128, 128, 116,   8,   0,   0,   0,
+    0,   0,   0,   0,   0,  72,  96,  84,   4,   0,   0,   0,   0,
+    0,   0,   0,   0,  32, 235, 255, 243,  36,   0,   0,   0,   0,
 };
-static const uint32_t tileHamCoil[59] =
-{
-  0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00007000, 0x0000FF00, 0x00007FC0,
-  0x000000E0, 0x00000060, 0x00000060, 0x007C00E0, 0x01FFC1C0, 0x03C7FF80,
-  0x03007F00, 0x0381FF80, 0x01FFE3C0, 0x00FE00E0, 0x00000060, 0x00000060,
-  0x007C00E0, 0x01FFC1C0, 0x03C7FF80, 0x03007F00, 0x0381FF80, 0x01FFE3C0,
-  0x00FE00E0, 0x00000060, 0x00000060, 0x000000E0, 0x000007C0, 0x0000FF80,
-  0x0000F800, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-  0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-};
-// End of the tables of tools/ham_icon.py
+// End of the table of tools/ham_icon.py
 
-// One of those masks, centred on (x, y), in colour c
+// That picture centred on (x, y), in colour c, over whatever the tile shows
 template<typename S>
-static void tileDrawMask(S &s, const uint32_t *rows, int x, int y, uint16_t c)
+static void tileDrawHam(S &s, int x, int y, uint16_t c)
 {
-  for(int r = 0 ; r < 59 ; r++)
-    for(int b = 0 ; b < 31 ; )
+  for(int r = 0 ; r < TILE_HAM_H ; r++)
+    for(int k = 0 ; k < TILE_HAM_W ; k++)
     {
-      if(!(rows[r] >> b & 1)) { b++; continue; }
-      int e = b;
-      while(e < 31 && (rows[r] >> e & 1)) e++;
-      s.drawFastHLine(x - 15 + b, y - 29 + r, e - b, c);
-      b = e;
+      uint8_t ink = tileHamInk[r * TILE_HAM_W + k];
+      if(!ink) continue;
+      int px = x - TILE_HAM_W / 2 + k, py = y - TILE_HAM_H / 2 + r;
+      s.drawPixel(px, py, ink > 250 ? c : tileBlend(s.readPixel(px, py), c, ink));
     }
 }
 
@@ -234,10 +275,6 @@ static void tileDrawIcon(S &s, TileIcon icon, int x, int y, uint16_t c, uint16_t
       s.drawWideLine(x - 13, y + 8, x - 2, y - 6, 1.5f, c);
       s.drawWideLine(x - 2, y - 6, x + 13, y - 6, 1.5f, c);
       s.drawWideLine(x - 13, y + 10, x + 13, y + 10, 1.0f, c);
-      break;
-    case TI_HAM:         // Aerial, coil and earth, as tall as the tile: it stands at the tile's side
-      tileDrawMask(s, tileHamWire, x, y, c);
-      tileDrawMask(s, tileHamCoil, x, y, c);
       break;
     case TI_BEACON:      // Mast with waves
       s.drawWideLine(x, y - 4, x - 6, y + 12, 1.2f, c);
@@ -643,10 +680,6 @@ static void tileDrawIconColor(S &s, TileIcon icon, int x, int y, uint16_t bg)
       s.drawWideLine(x - 2, y - 6, x + 13, y - 6, 1.6f, TC_C);
       s.drawWideLine(x - 13, y + 10, x + 13, y + 10, 1.0f, TC_W);
       break;
-    case TI_HAM:         // Aerial, coil and earth: white wire, orange coil
-      tileDrawMask(s, tileHamCoil, x, y, TC_O);
-      tileDrawMask(s, tileHamWire, x, y, TC_W);
-      break;
     case TI_BEACON:      // Mast with orange waves
       s.drawWideLine(x, y - 4, x - 6, y + 12, 1.2f, TC_W);
       s.drawWideLine(x, y - 4, x + 6, y + 12, 1.2f, TC_W);
@@ -994,10 +1027,12 @@ static void tileDrawPage(S &s, const TileItem *items, int count, int sel, uint16
       // Icon colours that belong to the tile: a light tint of its own top
       // colour, optionally with a deep shadow, or engraved into the tile
       uint16_t topC = gradient ? fill2 : fill;
-      // A tall icon stands at the left of its tile, the label's words beside it
+      // The Ham & SWL picture stands at the left of its tile, as tall as the
+      // tile and in the colour of the name, whose words stand beside it
       bool side = items[i].icon == TI_HAM;
       int cx = side ? x + 22 : x + tw / 2, cy = side ? y + th / 2 : y + 25;
-      switch(st.iconMode)
+      if(side) tileDrawHam(s, cx, cy, items[i].text ? items[i].text : 0xFFFF);
+      else switch(st.iconMode)
       {
         case 1:
           tileDrawIcon(s, items[i].icon, cx, cy, tileBlend(topC, 0xFFFF, 165), iconBg);
