@@ -334,7 +334,7 @@ static const TileCategory tileCategories[] =
   { "Tuning",    TI_DIAL,     tileTuning,  ITEM_COUNT(tileTuning)  },
   { "Audio",     TI_VOLUME,   tileAudio,   ITEM_COUNT(tileAudio)   },
   { "Memory",    TI_MEMORY,   tileMemory,  ITEM_COUNT(tileMemory)  },
-  { "Ham & SWL", TI_BEACON,   tileHam,     ITEM_COUNT(tileHam)     },
+  { "Ham & SWL", TI_HAM,        tileHam,     ITEM_COUNT(tileHam)     },
   { "Display",   TI_BRIGHT,   tileDisplay, ITEM_COUNT(tileDisplay) },
   { "System",    TI_SETTINGS, tileSystem,  ITEM_COUNT(tileSystem)  },
 };

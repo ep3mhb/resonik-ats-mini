@@ -84,6 +84,18 @@ int main(int argc, char **argv)
     printf("%d tile label%s too wide\n", wide, wide == 1 ? "" : "s");
     return wide ? 1 : 0;
   }
+  if(argc == 4 && !strcmp(argv[1], "groups"))
+  {
+    // The first page of the menu: the groups, one of them chosen
+    tileCat = -1;
+    TileItem items[6];
+    int count = 0;
+    for(int k = 0; k < (int)ITEM_COUNT(tileCategories) && count < 6; k++)
+      items[count++] = tileMake(tileCategories[k].label, tileCategories[k].icon, k);
+    tileDrawPage(spr, items, count, atoi(argv[3]), 0x0000, 0x7BEF, tileFont(false), false, &tileStyle, 0, 1, tileFont(true));
+    save(argv[2]);
+    return 0;
+  }
   if(argc == 4 && !strcmp(argv[1], "page"))
   {
     if(!find(argv[3], c, i)) return 1;

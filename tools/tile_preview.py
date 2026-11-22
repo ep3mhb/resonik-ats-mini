@@ -4,6 +4,7 @@
     tools/tile_preview.py check
     tools/tile_preview.py page out.png "Capacitor"
     tools/tile_preview.py value out.png "USB Port" 2 Off "Ad hoc" "CAT TS-480"
+    tools/tile_preview.py groups out.png 3        (the first page; 3: the fourth group chosen)
 
 The first run fetches LovyanGFX (the version in ats-mini/sketch.yaml) and
 builds it for the PC; that and the preview program are kept in the cache
@@ -82,7 +83,7 @@ def main():
     exe = CACHE / "preview"
     run("g++", "-std=c++17", *FLAGS, f"-I{inc}", f"-I{SRC}", f"-I{CACHE}", ROOT / "tools" / "tile_preview.cpp", lib, "-o", exe)
     png = None
-    if args[0] in ("page", "value") and len(args) > 1 and args[1].lower().endswith(".png"):
+    if args[0] in ("page", "value", "groups") and len(args) > 1 and args[1].lower().endswith(".png"):
         png = Path(args[1])
         args[1] = str(CACHE / "out.ppm")
     code = subprocess.run([str(exe), *args]).returncode

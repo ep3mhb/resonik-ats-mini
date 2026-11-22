@@ -18,7 +18,7 @@ enum TileIcon : uint8_t
   TI_RDS, TI_STEREO, TI_DIAL, TI_CHIP, TI_DOWNLOAD, TI_FIRMWARE, TI_USB, TI_NETWORK, TI_BT,
   TI_WIFI, TI_BANDPLAN, TI_ATT, TI_TILES, TI_LOG, TI_PROP, TI_INFO, TI_REGION,
   TI_BACK, TI_CLOSE, TI_SLEEPTIMER, TI_FORK, TI_KNOB, TI_CWDEC, TI_CWSTRIP, TI_SCANNER, TI_FT8,
-  TI_LOCK, TI_WIFIPOWER, TI_PERF, TI_BATTERY, TI_CAP,
+  TI_LOCK, TI_WIFIPOWER, TI_PERF, TI_BATTERY, TI_CAP, TI_HAM,
 };
 
 typedef struct
@@ -186,6 +186,17 @@ static void tileDrawIcon(S &s, TileIcon icon, int x, int y, uint16_t c, uint16_t
       s.drawWideLine(x - 13, y + 8, x - 2, y - 6, 1.5f, c);
       s.drawWideLine(x - 2, y - 6, x + 13, y - 6, 1.5f, c);
       s.drawWideLine(x - 13, y + 10, x + 13, y + 10, 1.0f, c);
+      break;
+    case TI_HAM:         // A station as a circuit diagram draws it: aerial, coil, earth. As tall as the tile: it stands at the tile's side
+      s.drawWideLine(x, y - 27, x, y - 13, 1.3f, c);
+      s.drawWideLine(x, y - 18, x - 10, y - 27, 1.3f, c);
+      s.drawWideLine(x, y - 18, x + 10, y - 27, 1.3f, c);
+      for(int k = 0 ; k < 4 ; k++)             // The turns of the coil, seen a little from above
+        s.drawEllipseArc(x, y - 10 + k * 6, 6, 5, 3, 2, 0, 360, c);
+      s.drawWideLine(x, y + 11, x, y + 17, 1.3f, c);
+      s.fillRect(x - 11, y + 17, 23, 3, c);
+      s.fillRect(x - 7, y + 22, 15, 2, c);
+      s.fillRect(x - 3, y + 26, 7, 2, c);
       break;
     case TI_BEACON:      // Mast with waves
       s.drawWideLine(x, y - 4, x - 6, y + 12, 1.2f, c);
@@ -591,6 +602,17 @@ static void tileDrawIconColor(S &s, TileIcon icon, int x, int y, uint16_t bg)
       s.drawWideLine(x - 2, y - 6, x + 13, y - 6, 1.6f, TC_C);
       s.drawWideLine(x - 13, y + 10, x + 13, y + 10, 1.0f, TC_W);
       break;
+    case TI_HAM:         // Aerial, coil and earth: white wire, orange coil
+      s.drawWideLine(x, y - 27, x, y - 13, 1.3f, TC_W);
+      s.drawWideLine(x, y - 18, x - 10, y - 27, 1.3f, TC_W);
+      s.drawWideLine(x, y - 18, x + 10, y - 27, 1.3f, TC_W);
+      for(int k = 0 ; k < 4 ; k++)             // The turns of the coil, seen a little from above
+        s.drawEllipseArc(x, y - 10 + k * 6, 6, 5, 3, 2, 0, 360, TC_O);
+      s.drawWideLine(x, y + 11, x, y + 17, 1.3f, TC_W);
+      s.fillRect(x - 11, y + 17, 23, 3, TC_W);
+      s.fillRect(x - 7, y + 22, 15, 2, TC_W);
+      s.fillRect(x - 3, y + 26, 7, 2, TC_W);
+      break;
     case TI_BEACON:      // Mast with orange waves
       s.drawWideLine(x, y - 4, x - 6, y + 12, 1.2f, TC_W);
       s.drawWideLine(x, y - 4, x + 6, y + 12, 1.2f, TC_W);
@@ -938,7 +960,9 @@ static void tileDrawPage(S &s, const TileItem *items, int count, int sel, uint16
       // Icon colours that belong to the tile: a light tint of its own top
       // colour, optionally with a deep shadow, or engraved into the tile
       uint16_t topC = gradient ? fill2 : fill;
-      int cx = x + tw / 2, cy = y + 25;
+      // A tall icon stands at the left of its tile, the label's words beside it
+      bool side = items[i].icon == TI_HAM;
+      int cx = side ? x + 22 : x + tw / 2, cy = side ? y + th / 2 : y + 25;
       switch(st.iconMode)
       {
         case 1:
@@ -993,10 +1017,20 @@ static void tileDrawPage(S &s, const TileItem *items, int count, int sel, uint16
       {
         // A dark shadow keeps white text readable on lighter tiles
         s.setTextColor(tileBlend(fill, 0x0000, st.labelShadow));
-        s.drawString(label, x + tw / 2 + 1, y + th - 13, lf);
+        if(items[i].icon != TI_HAM) s.drawString(label, x + tw / 2 + 1, y + th - 13, lf);
         s.setTextColor(0xFFFF);
       }
-      s.drawString(label, x + tw / 2, y + th - 14, lf);
+      if(items[i].icon == TI_HAM)
+      {
+        // The words of the label one under the other, beside the tall icon
+        int lines = 1;
+        for(char *q = label ; *q ; q++) if(*q == ' ') { *q = '\0'; lines++; }
+        const char *w = label;
+        for(int k = 0 ; k < lines ; k++, w += strlen(w) + 1)
+          s.drawString(w, x + 22 + (tw - 22) / 2 + 2, y + th / 2 + (2 * k - lines + 1) * 9, labelFont);
+      }
+      else
+        s.drawString(label, x + tw / 2, y + th - 14, lf);
     }
     else
     {

@@ -1,0 +1,1 @@
+The **Ham & SWL** tile of the menu has a picture of its own: an aerial, a coil and earth, as a circuit diagram draws them, standing at the side of the tile with the name beside it. It had shared the mast of the Beacons tile.
