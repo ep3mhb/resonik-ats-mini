@@ -70,7 +70,7 @@
           <li><a href="#digital">RTTY, NAVTEX, PSK31 and WEFAX <small>r5</small></a></li>
           <li><a href="#try">Signals to try the decoders with <small>r5</small></a></li>
           <li><a href="#decaudio">Decoder Audio: 3 kHz or 6 kHz <small>r5</small></a></li>
-          <li><a href="#scanner">Band scanner <small>r3</small></a></li>
+          <li><a href="#scanner">Scan, Auto Scan and Seek <small>r3</small></a></li>
           <li><a href="#lock">Frequency lock and CPU speed <small>r3</small></a></li>
           <li><a href="#encaccel">Knob speed-up: Enc. Accel. <small>r5</small></a></li>
           <li><a href="#capacitor">Antenna capacitor: Capacitor <small>r5</small></a></li>
@@ -143,7 +143,7 @@
         <p>Listening controls such as Band, Mode, Step or Volume open their list as before; after your choice the menu closes, so the encoder tunes straight away. Settings open full screen as a list of values, or a number with a bar; a click keeps the value and returns to the category.</p>
         <table>
           <tr><th>Category</th><th>Items</th></tr>
-          <tr><td>Tuning</td><td>Band, Mode, Bandwidth, Freq Lock, FM Region, RDS, Scan, Scanner, Seek, Step, VFO A/B, Freq Entry, Band View, Capacitor</td></tr>
+          <tr><td>Tuning</td><td>Band, Mode, Bandwidth, Freq Lock, FM Region, RDS, Scan, Auto Scan, Seek, Step, VFO A/B, Freq Entry, Band View, Capacitor</td></tr>
           <tr><td>Audio</td><td>Volume, AGC/ATTN, Auto Att., AVC, FM Stereo, SoftMute, Squelch</td></tr>
           <tr><td>Memory</td><td>Memory, Logger, Mem Scan, Auto-Store</td></tr>
           <tr><td>Ham &amp; SWL</td><td>Band Plan, Beacons, Calibration, CW Decoder, CW Strip, FT8/FT4, Digital, Dec. Audio, Load EiBi, Plan Area, Propagation</td></tr>
@@ -245,14 +245,17 @@
         </ul>
         <p>The Decodes tab shows which one is in use (<b>3 kHz audio</b> or <b>6 kHz audio</b>) beside the mode. The choice is kept when the radio is switched off. The CW decoder is not affected.</p>
 
-        <h2 id="scanner">Band scanner <small style="font-size:.7em;color:var(--muted)">v2.45-r3</small></h2>
-        <p><span class="ui">Menu → Tuning → Scanner</span> steps through the band from the current frequency and stops on signals (the mode's squelch level if set, otherwise an SNR of 6 dB or more), wrapping at the band edge.</p>
-        <ul>
-          <li><b>Turn</b> the encoder to set the direction: right scans up, left scans down. It moves on at once.</li>
-          <li><b>Click</b> stops the scanner on the frequency.</li>
-          <li>In SSB and CW it holds while the station is heard and moves on four seconds after it goes. On AM and FM broadcasts, which never go quiet, it stays five seconds on each station; in FM it skips the next 200 kHz so a strong station does not stop it twice.</li>
-        </ul>
-        <p>The step is the tuning step, at least 1 kHz in SSB, 500 Hz in CW and 100 kHz in FM. Set a squelch level first if it stops on noise too often.</p>
+        <h2 id="scanner">Scan, Auto Scan and Seek <small style="font-size:.7em;color:var(--muted)">v2.45-r3</small></h2>
+        <p>Three items in <span class="ui">Menu → Tuning</span> look for stations. Their names are alike and they do different things: <b>Scan</b> shows you the band, <b>Auto Scan</b> goes through the band for you, and <b>Seek</b> takes you to the next station. (Auto Scan was called Scanner until R4.)</p>
+        <table>
+          <tr><th></th><th>Scan</th><th>Auto Scan</th><th>Seek</th></tr>
+          <tr><td><b>What it is</b></td><td>A picture of the band. You see at a glance where the signals are, then tune to a peak.</td><td>A search that keeps going. You listen through a band without touching the knob.</td><td>A jump to the next station, once. You go from station to station at your own pace.</td></tr>
+          <tr><td><b>What happens</b></td><td>The radio measures 200 points around your frequency once, with the sound off, comes back and draws the graph under the frequency: 2 MHz wide, 20 MHz on FM. S (green) is the signal strength, N (blue) the signal-to-noise ratio. The red mark is your frequency.</td><td>The radio steps along the band from your frequency. On a signal it stops and you hear it (the line says Hold), then it goes on. At the band edge it carries on from the other end.</td><td>At every turn of the knob the radio searches in that direction with the sound off and stops on the first station. It stays there until you turn again.</td></tr>
+          <tr><td><b>Turn</b></td><td>Tunes as usual, and the graph slides under the red mark. It does not stop on stations.</td><td>Sets the direction, right up and left down, and goes on at once.</td><td>Right: the next station up. Left: the next one down. Press and turn tunes by hand.</td></tr>
+          <tr><td><b>Click</b></td><td>Closes Scan. A short press measures again.</td><td>Stops on the current frequency.</td><td>Closes Seek. A short press changes to the schedule (below).</td></tr>
+        </table>
+        <p><b>Auto Scan</b> stops on a signal at the mode's squelch level if one is set, otherwise at an SNR of 6 dB or more. In SSB and CW it holds while the station is heard and moves on four seconds after it goes. On AM and FM broadcasts, which never go quiet, it stays five seconds on each station; in FM it skips the next 200 kHz so a strong station does not stop it twice. The step is the tuning step, at least 1 kHz in SSB, 500 Hz in CW and 100 kHz in FM. Set a squelch level first if it stops on noise too often.</p>
+        <p><b>Seek</b> uses the receiver chip's own search in AM and FM. In SSB and CW (from R4) it searches the band 1 kHz at a time and stops on the first signal, at most 200 kHz per turn; if it finds nothing it says so and goes back to where it started. A short press in Seek puts a clock in its box: every turn then goes to the next frequency on which the EiBi schedule lists a station at this hour. That needs the schedule loaded and the clock set, and it is not there on FM.</p>
 
         <h2 id="lock">Frequency lock and CPU speed <small style="font-size:.7em;color:var(--muted)">v2.45-r3</small></h2>
         <p><span class="ui">Menu → Tuning → Freq Lock → On</span>: the encoder sets the volume instead of tuning, and press-and-turn digit tuning is off. A padlock after the band shows it; it is kept across restarts.</p>

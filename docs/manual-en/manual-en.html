@@ -42,6 +42,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
 .pair { display: flex; gap: 6mm; justify-content: center; break-inside: avoid; }
 .pair figure { flex: 1; margin: 2mm 0 3mm; }
 .pair img.screen { width: 100%; }
+table.three td, table.three th { font-size: 8.5pt; vertical-align: top; }
   .side { display: flex; gap: 6mm; align-items: flex-start; break-inside: avoid; }
   .side > div { flex: 1; min-width: 0; }
   .side > div > :first-child { margin-top: 0; }
@@ -124,7 +125,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
     <li><span class="n">15</span>CAT control from a computer<small>R2</small></li>
     <li><span class="n">16</span>FT8 and FT4 decoder<small class="r3">R3</small></li>
     <li><span class="n">17</span>CW decoder<small class="r3">R3</small></li>
-    <li><span class="n">18</span>Band scanner<small class="r3">R3</small></li>
+    <li><span class="n">18</span>Scan, Auto Scan and Seek<small class="r3">R3</small></li>
     <li><span class="n">19</span>Frequency lock and CPU speed<small class="r3">R3</small></li>
     <li><span class="n">20</span>Wi-Fi and the radio's web pages<small class="r4">R4</small></li>
     <li><span class="n">21</span>Web Control<small class="r4">R4</small></li>
@@ -152,7 +153,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
     <li>Battery time left, and automatic attenuation for very strong signals</li>
     <li>A new menu with six groups and full-screen settings pages <small>(R2)</small></li>
     <li>Beacon tracker, memory scan, signal logger, propagation data, EiBi schedules with days, and CAT control <small>(R2)</small></li>
-    <li>FT8/FT4 and CW decoders, band scanner, automatic band plan for Regions 1, 2 and 3, frequency lock and CPU speed <small>(R3)</small></li>
+    <li>FT8/FT4 and CW decoders, band scanner (Auto Scan), automatic band plan for Regions 1, 2 and 3, frequency lock and CPU speed <small>(R3)</small></li>
     <li>Web Control: the whole radio in a browser on a phone or computer, with a band scope and a live beacon map; Wi-Fi set up on the radio itself; Seek in SSB and CW <small>(R4)</small></li>
   </ul>
   <p>Bands, modes, memories, RDS, Wi-Fi and Bluetooth work as in the official firmware. The official firmware's full manual: esp32-si4732.github.io/ats-mini/manual.html</p>
@@ -209,7 +210,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
   </div>
   <table>
     <tr><th style="width:20%">Group</th><th>Items</th></tr>
-    <tr><td>Tuning</td><td>Band, Mode, Bandwidth, Freq Lock, FM Region, RDS, Scan, Scanner, Seek, Step, VFO A/B, Freq Entry, Band View, Capacitor</td></tr>
+    <tr><td>Tuning</td><td>Band, Mode, Bandwidth, Freq Lock, FM Region, RDS, Scan, Auto Scan, Seek, Step, VFO A/B, Freq Entry, Band View, Capacitor</td></tr>
     <tr><td>Audio</td><td>Volume, AGC/ATTN, Auto Att., AVC, FM Stereo, SoftMute, Squelch</td></tr>
     <tr><td>Memory</td><td>Memory, Logger, Mem Scan, Auto-Store</td></tr>
     <tr><td>Ham &amp; SWL</td><td>Band Plan, Beacons, Calibration, CW Decoder, CW Strip, FT8/FT4, Digital, Dec. Audio, Load EiBi, Plan Area, Propagation</td></tr>
@@ -255,7 +256,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
   </div>
   <h3>Classic menu<span class="tag r4" style="font-size:8pt">R4</span></h3>
   <p><span class="ui">Menu → Display → Menu Style → Classic</span> brings back the small list menu of the official firmware, in the corner of the screen. From R4 it has the same six groups as the table above: choose a group and click; the first row of each group is <b>&lt; Back</b>, and the box title names the group. After a setting is changed the menu returns to its group. <b>Tiles</b> switches back to the tile menu.</p>
-  <div class="tip"><b>Scan</b> in Tuning draws the signal strength across the band (a snapshot of the band); the radio does not stop on stations. <b>Seek</b> goes to the next station; from R4 it also works in SSB and CW: it searches the band 1 kHz at a time with the sound muted and stops on the first signal (at most 200 kHz per press; if it finds nothing it says so and goes back to where it started). To stop on stations as you go, use <b>Scanner</b> (section 18).</div>
+  <div class="tip">Three items in Tuning look for stations, each in its own way: <b>Scan</b>, <b>Auto Scan</b> and <b>Seek</b>. Section 18 sets them side by side.</div>
 </section>
 
 <!-- 5 -->
@@ -397,19 +398,27 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
   <p><span class="ui">Menu → Ham &amp; SWL → CW Decoder</span> turns Morse code into text on a full-screen page, with speed (WPM), tone frequency, a level bar and a key indicator. Tune so the tone is in the middle of the CW filter. <b>Turn:</b> tune, <b>click:</b> clear the text, <b>short press:</b> leave. The speed is followed automatically from about 5 to 40 words per minute. Static crashes and clicks are ignored; characters that cannot be read are shown as <b>*</b>. From R4 the page uses a steady receiver level, so decoding does not depend on the volume setting.</p>
   <p><span class="ui">Menu → Ham &amp; SWL → CW Strip → On</span> shows the decoded text at the bottom of the main screen in CW mode. Like the FT8 page it needs the V4B board, and it works while Wi-Fi is off.</p>
 
-  <h2 style="margin-top:9mm"><span class="num">18</span>Band scanner<span class="tag r3">R3</span></h2>
-  <p><span class="ui">Menu → Tuning → Scanner</span> moves along the band from the current frequency and stops on signals (the Squelch level if set, otherwise an SNR of 6 dB or more). At the band edge it carries on from the other end.</p>
-  <figure><img class="screen" src="../manual-fa/img/screen-scanner.png" alt=""><figcaption>The scanner moving down on 40 m</figcaption></figure>
-  <ul>
-    <li><b>Turn:</b> sets the direction: right up, left down, and it carries on at once.</li>
-    <li><b>Click:</b> stops the scanner on the current frequency.</li>
-    <li>In SSB and CW it holds while the station is heard and moves on four seconds after it goes. On AM and FM broadcasts, which never go quiet, it stays five seconds on each station; in FM it skips the next 200 kHz after each station so a strong station does not stop it twice.</li>
-  </ul>
-  <p class="small">It moves by the tuning step, at least 1 kHz in SSB, 500 Hz in CW and 100 kHz in FM. If it stops on noise too often, set a Squelch level first.</p>
+  <h2 style="margin-top:9mm"><span class="num">18</span>Scan, Auto Scan and Seek<span class="tag r3">R3</span></h2>
+  <p>Three items in <span class="ui">Menu → Tuning</span> look for stations. Their names are alike and they do different things: <b>Scan</b> shows you the band, <b>Auto Scan</b> goes through the band for you, and <b>Seek</b> takes you to the next station. <span class="small">(Auto Scan was called Scanner until R4.)</span></p>
+  <table class="three">
+    <tr><th style="width:13%"></th><th style="width:31%">Scan</th><th style="width:28%">Auto Scan</th><th>Seek</th></tr>
+    <tr><td><b>What it is</b></td><td>A picture of the band. You see at a glance where the signals are, then tune to a peak.</td><td>A search that keeps going. You listen through a band without touching the knob.</td><td>A jump to the next station, once. You go from station to station at your own pace.</td></tr>
+    <tr><td><b>What happens</b></td><td>The radio measures 200 points around your frequency once, with the sound off, comes back and draws the graph: 2 MHz wide, 20 MHz on FM. The red mark is your frequency.</td><td>The radio steps along the band from your frequency. On a signal it stops and you hear it (the line says Hold), then it goes on. At the band edge it carries on from the other end.</td><td>At every turn of the knob the radio searches in that direction with the sound off and stops on the first station. It stays there until you turn again.</td></tr>
+    <tr><td><b>Turn</b></td><td>Tunes as usual, and the graph slides under the red mark. It does not stop on stations.</td><td>Sets the direction, right up and left down, and goes on at once.</td><td>Right: the next station up. Left: the next one down. Press and turn tunes by hand.</td></tr>
+    <tr><td><b>Click</b></td><td>Closes Scan. A short press measures again.</td><td>Stops on the current frequency.</td><td>Closes Seek. A short press changes to the schedule (below).</td></tr>
+  </table>
+  <div class="pair">
+    <figure><img class="screen" src="../manual-fa/img/screen-tuning2.png" alt=""><figcaption>The three in Tuning, second page</figcaption></figure>
+    <figure><img class="screen" src="../manual-fa/img/screen-scan.png" alt=""><figcaption>Scan: signal (S, green) and signal to noise (N, blue)</figcaption></figure>
+    <figure><img class="screen" src="../manual-fa/img/screen-scanner.png" alt=""><figcaption>Auto Scan moving down on 40 m</figcaption></figure>
+  </div>
+  <p><b>Auto Scan</b> stops on a signal at the Squelch level if one is set, otherwise at an SNR of 6 dB or more. In SSB and CW it holds while the station is heard and moves on four seconds after it goes. On AM and FM broadcasts, which never go quiet, it stays five seconds on each station; in FM it skips the next 200 kHz after each station so a strong station does not stop it twice. It moves by the tuning step, at least 1 kHz in SSB, 500 Hz in CW and 100 kHz in FM. If it stops on noise too often, set a Squelch level first.</p>
+  <p><b>Seek</b> uses the receiver chip's own search in AM and FM. In SSB and CW (from R4) it searches the band 1 kHz at a time and stops on the first signal, at most 200 kHz per turn; if it finds nothing it says so and goes back to where it started. A short press in Seek puts a clock in its box: every turn then goes to the next frequency on which the EiBi schedule (section 14) lists a station at this hour. That needs the schedule loaded and the clock set, and it is not there on FM.</p>
+  <p class="small">For a whole band on a full screen, with its strongest signals listed, see Band View in section 23.</p>
 </section>
 
 <!-- 19 -->
-<section class="chapter">
+<section class="chapter cont">
   <h2><span class="num">19</span>Frequency lock and CPU speed<span class="tag r3">R3</span></h2>
   <p><span class="ui">Menu → Tuning → Freq Lock → On</span>: the knob sets the volume instead of tuning, and digit tuning (press and turn) is off. A padlock next to the mode shows the lock is on; it is kept across restarts.</p>
   <div class="pair">

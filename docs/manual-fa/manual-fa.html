@@ -42,6 +42,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
 .pair { display: flex; gap: 6mm; justify-content: center; break-inside: avoid; }
 .pair figure { flex: 1; margin: 2mm 0 3mm; }
 .pair img.screen { width: 100%; }
+table.three td, table.three th { font-size: 9pt; vertical-align: top; }
   .side { display: flex; gap: 6mm; align-items: flex-start; break-inside: avoid; }
   .side > div { flex: 1; min-width: 0; }
   .side > div > :first-child { margin-top: 0; }
@@ -122,7 +123,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
     <li><span class="n">۱۵</span>کنترل <bdi>CAT</bdi> از کامپیوتر<small>R2</small></li>
     <li><span class="n">۱۶</span>دیکودر <bdi>FT8</bdi> و <bdi>FT4</bdi><small class="r3">R3</small></li>
     <li><span class="n">۱۷</span>دیکودر <bdi>CW</bdi><small class="r3">R3</small></li>
-    <li><span class="n">۱۸</span>اسکنر باند<small class="r3">R3</small></li>
+    <li><span class="n">۱۸</span><bdi>Scan</bdi>، <bdi>Auto Scan</bdi> و <bdi>Seek</bdi><small class="r3">R3</small></li>
     <li><span class="n">۱۹</span>قفل فرکانس و سرعت پردازنده<small class="r3">R3</small></li>
     <li><span class="n">۲۰</span><bdi>Wi-Fi</bdi> و صفحه‌ی وب رادیو<small class="r4">R4</small></li>
     <li><span class="n">۲۱</span>کنترل از مرورگر (<bdi>Web Control</bdi>)<small class="r4">R4</small></li>
@@ -206,7 +207,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
   </div>
   <table>
     <tr><th style="width:20%">دسته</th><th>گزینه‌ها</th></tr>
-    <tr><td><bdi>Tuning</bdi><br><span class="small">تنظیم</span></td><td><bdi>Band, Mode, Bandwidth, Freq Lock, FM Region, RDS, Scan, Scanner, Seek, Step, VFO A/B, Freq Entry, Band View, Capacitor</bdi></td></tr>
+    <tr><td><bdi>Tuning</bdi><br><span class="small">تنظیم</span></td><td><bdi>Band, Mode, Bandwidth, Freq Lock, FM Region, RDS, Scan, Auto Scan, Seek, Step, VFO A/B, Freq Entry, Band View, Capacitor</bdi></td></tr>
     <tr><td><bdi>Audio</bdi><br><span class="small">صدا</span></td><td><bdi>Volume, AGC/ATTN, Auto Att., AVC, FM Stereo, SoftMute, Squelch</bdi></td></tr>
     <tr><td><bdi>Memory</bdi><br><span class="small">حافظه</span></td><td><bdi>Memory, Logger, Mem Scan, Auto-Store</bdi></td></tr>
     <tr><td><bdi>Ham &amp; SWL</bdi><br><span class="small">آماتوری و موج کوتاه</span></td><td><bdi>Band Plan, Beacons, Calibration, CW Decoder, CW Strip, FT8/FT4, Digital, Dec. Audio, Load EiBi, Plan Area, Propagation</bdi></td></tr>
@@ -252,7 +253,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
   </div>
   <h3>منوی کلاسیک<span class="tag r4" style="font-size:8pt">R4</span></h3>
   <p><span class="ui"><bdi>Menu</bdi> ← <bdi>Display</bdi> ← <bdi>Menu Style</bdi> ← <bdi>Classic</bdi></span> منوی فهرستی و کوچک فریم‌ور رسمی را در گوشه‌ی صفحه برمی‌گرداند. از نسخه‌ی <bdi>R4</bdi> این منو همان شش دسته‌ی جدول بالا را دارد: ابتدا دسته را انتخاب کنید و با کلیک باز کنید؛ اولین ردیف هر دسته <bdi>&lt; Back</bdi> است و عنوان کادر نام دسته را نشان می‌دهد. پس از تغییر یک تنظیم، منو به همان دسته برمی‌گردد. گزینه‌ی <bdi>Tiles</bdi> منوی کاشی‌ای را برمی‌گرداند.</p>
-  <div class="tip">گزینه‌ی <bdi>Scan</bdi> در <bdi>Tuning</bdi> نمودار قدرت سیگنال در طول باند را رسم می‌کند (تصویری لحظه‌ای از باند)؛ رادیو روی ایستگاه‌ها توقف نمی‌کند. <bdi>Seek</bdi> به ایستگاه بعدی می‌رود؛ از نسخه‌ی <bdi>R4</bdi> در <bdi>SSB</bdi> و <bdi>CW</bdi> هم کار می‌کند: باند را کیلوهرتز به کیلوهرتز با صدای بسته می‌گردد و روی اولین سیگنال می‌ایستد (هر بار حداکثر <bdi>200 kHz</bdi>؛ اگر چیزی پیدا نکند پیام می‌دهد و به نقطه‌ی شروع برمی‌گردد). برای ایستادن روی ایستگاه‌ها از <bdi>Scanner</bdi> استفاده کنید (بخش ۱۸).</div>
+  <div class="tip">سه گزینه در <bdi>Tuning</bdi> ایستگاه پیدا می‌کنند و هر کدام به شیوه‌ی خود: <bdi>Scan</bdi>، <bdi>Auto Scan</bdi> و <bdi>Seek</bdi>. بخش ۱۸ آن‌ها را کنار هم می‌گذارد.</div>
 </section>
 
 <!-- 5 -->
@@ -395,19 +396,27 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
   <p><span class="ui"><bdi>Menu</bdi> ← <bdi>Ham &amp; SWL</bdi> ← <bdi>CW Decoder</bdi></span> کد مورس را در صفحه‌ای تمام‌صفحه به متن تبدیل می‌کند، همراه با سرعت (<bdi>WPM</bdi>)، فرکانس تن، نوار سطح و نشانگر کلید. طوری تنظیم کنید که تن در وسط فیلتر <bdi>CW</bdi> باشد. <b>چرخاندن:</b> تنظیم فرکانس، <b>کلیک:</b> پاک کردن متن، <b>فشار کوتاه:</b> خروج. سرعت خودبه‌خود از حدود ۵ تا ۴۰ کلمه در دقیقه دنبال می‌شود. صداهای ناگهانی جوّی و تق‌تق‌ها نادیده گرفته می‌شوند؛ حرف‌هایی که خوانده نمی‌شوند با <bdi>*</bdi> نشان داده می‌شوند.</p>
   <p><span class="ui"><bdi>Menu</bdi> ← <bdi>Ham &amp; SWL</bdi> ← <bdi>CW Strip</bdi> ← <bdi>On</bdi></span> متن دیکودشده را در حالت <bdi>CW</bdi> در پایین صفحه‌ی اصلی نشان می‌دهد. مانند صفحه‌ی <bdi>FT8</bdi> به برد <bdi>V4B</bdi> نیاز دارد و وقتی <bdi>Wi-Fi</bdi> خاموش است کار می‌کند.</p>
 
-  <h2 style="margin-top:9mm"><span class="num">۱۸</span>اسکنر باند<span class="tag r3">R3</span></h2>
-  <p><span class="ui"><bdi>Menu</bdi> ← <bdi>Tuning</bdi> ← <bdi>Scanner</bdi></span> از فرکانس فعلی در طول باند حرکت می‌کند و روی سیگنال‌ها می‌ایستد (سطح <bdi>Squelch</bdi> اگر تنظیم شده باشد، وگرنه <bdi>SNR</bdi> برابر <bdi>6 dB</bdi> یا بیشتر). در لبه‌ی باند از سر دیگر ادامه می‌دهد.</p>
-  <figure><img class="screen" src="img/screen-scanner.png" alt=""><figcaption>اسکنر در حال حرکت به پایین روی ۴۰ متر</figcaption></figure>
-  <ul>
-    <li><b>چرخاندن:</b> جهت را تعیین می‌کند: راست به بالا، چپ به پایین، و فوراً ادامه می‌دهد.</li>
-    <li><b>کلیک:</b> اسکنر را روی همان فرکانس متوقف می‌کند.</li>
-    <li>در <bdi>SSB</bdi> و <bdi>CW</bdi> تا وقتی ایستگاه شنیده می‌شود می‌ماند و چهار ثانیه پس از قطع آن ادامه می‌دهد. روی ایستگاه‌های پخش <bdi>AM</bdi> و <bdi>FM</bdi> که هیچ‌وقت ساکت نمی‌شوند، روی هر ایستگاه پنج ثانیه می‌ماند؛ در <bdi>FM</bdi> پس از هر ایستگاه ۲۰۰ کیلوهرتز بعدی را رد می‌کند تا یک ایستگاه قوی دو بار آن را متوقف نکند.</li>
-  </ul>
-  <p class="small">گام حرکت همان گام تنظیم است، دست‌کم <bdi>1 kHz</bdi> در <bdi>SSB</bdi>، <bdi>500 Hz</bdi> در <bdi>CW</bdi> و <bdi>100 kHz</bdi> در <bdi>FM</bdi>. اگر روی نویز زیاد می‌ایستد، اول سطح <bdi>Squelch</bdi> را تنظیم کنید.</p>
+  <h2 style="margin-top:9mm"><span class="num">۱۸</span><bdi>Scan</bdi>، <bdi>Auto Scan</bdi> و <bdi>Seek</bdi><span class="tag r3">R3</span></h2>
+  <p>سه گزینه در <span class="ui"><bdi>Menu</bdi> ← <bdi>Tuning</bdi></span> ایستگاه پیدا می‌کنند. نامشان شبیه است ولی کارشان فرق دارد: <bdi>Scan</bdi> باند را به شما نشان می‌دهد، <bdi>Auto Scan</bdi> خودش باند را می‌گردد، و <bdi>Seek</bdi> شما را به ایستگاه بعدی می‌برد. <span class="small">(نام <bdi>Auto Scan</bdi> تا <bdi>R4</bdi>، <bdi>Scanner</bdi> بود.)</span></p>
+  <table class="three">
+    <tr><th style="width:13%"></th><th style="width:31%"><bdi>Scan</bdi></th><th style="width:28%"><bdi>Auto Scan</bdi></th><th><bdi>Seek</bdi></th></tr>
+    <tr><td><b>چیست</b></td><td>تصویری از باند. با یک نگاه می‌بینید سیگنال‌ها کجا هستند و روی یک قله تنظیم می‌کنید.</td><td>جست‌وجویی که ادامه دارد. بدون دست‌زدن به ولوم به سراسر یک باند گوش می‌دهید.</td><td>پرش به ایستگاه بعدی، یک بار. با سرعت دلخواه خودتان از ایستگاهی به ایستگاه دیگر می‌روید.</td></tr>
+    <tr><td><b>چه می‌شود</b></td><td>رادیو یک بار با صدای بسته ۲۰۰ نقطه را دور فرکانس شما اندازه می‌گیرد، برمی‌گردد و نمودار را رسم می‌کند: پهنای آن <bdi>2&nbsp;MHz</bdi> و در <bdi>FM</bdi> <bdi>20&nbsp;MHz</bdi> است. علامت قرمز فرکانس شماست.</td><td>رادیو از فرکانس شما گام‌به‌گام در باند حرکت می‌کند. روی سیگنال می‌ایستد و آن را می‌شنوید (نوشته‌ی <bdi>Hold</bdi>)، سپس ادامه می‌دهد. در لبه‌ی باند از سر دیگر ادامه می‌دهد.</td><td>با هر چرخش ولوم، رادیو با صدای بسته در همان جهت می‌گردد و روی اولین ایستگاه می‌ایستد. تا وقتی دوباره نچرخانید همان‌جا می‌ماند.</td></tr>
+    <tr><td><b>چرخاندن</b></td><td>مثل همیشه تنظیم می‌کند و نمودار زیر علامت قرمز جابه‌جا می‌شود. روی ایستگاه‌ها نمی‌ایستد.</td><td>جهت را تعیین می‌کند، راست به بالا و چپ به پایین، و فوراً ادامه می‌دهد.</td><td>راست: ایستگاه بعدی بالاتر. چپ: ایستگاه بعدی پایین‌تر. فشردن و چرخاندن، تنظیم دستی است.</td></tr>
+    <tr><td><b>کلیک</b></td><td><bdi>Scan</bdi> را می‌بندد. فشار کوتاه دوباره اندازه می‌گیرد.</td><td>روی همان فرکانس می‌ایستد.</td><td><bdi>Seek</bdi> را می‌بندد. فشار کوتاه به برنامه‌ی <bdi>EiBi</bdi> می‌رود (پایین‌تر).</td></tr>
+  </table>
+  <div class="pair">
+    <figure><img class="screen" src="img/screen-tuning2.png" alt=""><figcaption>هر سه در برگه‌ی دوم <bdi>Tuning</bdi></figcaption></figure>
+    <figure><img class="screen" src="img/screen-scan.png" alt=""><figcaption><bdi>Scan</bdi>: سیگنال (<bdi>S</bdi>، سبز) و سیگنال به نویز (<bdi>N</bdi>، آبی)</figcaption></figure>
+    <figure><img class="screen" src="img/screen-scanner.png" alt=""><figcaption><bdi>Auto Scan</bdi> در حال حرکت به پایین روی ۴۰ متر</figcaption></figure>
+  </div>
+  <p><b><bdi>Auto Scan</bdi></b> روی سیگنال می‌ایستد: در سطح <bdi>Squelch</bdi> اگر تنظیم شده باشد، وگرنه با <bdi>SNR</bdi> برابر <bdi>6&nbsp;dB</bdi> یا بیشتر. در <bdi>SSB</bdi> و <bdi>CW</bdi> تا وقتی ایستگاه شنیده می‌شود می‌ماند و چهار ثانیه پس از قطع آن ادامه می‌دهد. روی ایستگاه‌های پخش <bdi>AM</bdi> و <bdi>FM</bdi> که هیچ‌وقت ساکت نمی‌شوند، روی هر ایستگاه پنج ثانیه می‌ماند؛ در <bdi>FM</bdi> پس از هر ایستگاه ۲۰۰ کیلوهرتز بعدی را رد می‌کند تا یک ایستگاه قوی دو بار آن را متوقف نکند. گام حرکت همان گام تنظیم است، دست‌کم <bdi>1&nbsp;kHz</bdi> در <bdi>SSB</bdi>، <bdi>500&nbsp;Hz</bdi> در <bdi>CW</bdi> و <bdi>100&nbsp;kHz</bdi> در <bdi>FM</bdi>. اگر روی نویز زیاد می‌ایستد، اول سطح <bdi>Squelch</bdi> را تنظیم کنید.</p>
+  <p><b><bdi>Seek</bdi></b> در <bdi>AM</bdi> و <bdi>FM</bdi> از جست‌وجوی خود تراشه‌ی گیرنده استفاده می‌کند. در <bdi>SSB</bdi> و <bdi>CW</bdi> (از <bdi>R4</bdi>) باند را کیلوهرتز به کیلوهرتز می‌گردد و روی اولین سیگنال می‌ایستد، با هر چرخش حداکثر <bdi>200&nbsp;kHz</bdi>؛ اگر چیزی پیدا نکند پیام می‌دهد و به نقطه‌ی شروع برمی‌گردد. با فشار کوتاه در <bdi>Seek</bdi> یک ساعت در کادر آن دیده می‌شود: از آن پس هر چرخش به فرکانس بعدی‌ای می‌رود که برنامه‌ی <bdi>EiBi</bdi> (بخش ۱۴) در این ساعت برای آن ایستگاهی دارد. این حالت به برنامه‌ی بارگذاری‌شده و ساعت تنظیم‌شده نیاز دارد و در <bdi>FM</bdi> نیست.</p>
+  <p class="small">برای دیدن یک باند کامل در تمام صفحه، همراه با قوی‌ترین سیگنال‌هایش، <bdi>Band View</bdi> در بخش ۲۳ را ببینید.</p>
 </section>
 
 <!-- 19 -->
-<section class="chapter">
+<section class="chapter cont">
   <h2><span class="num">۱۹</span>قفل فرکانس و سرعت پردازنده<span class="tag r3">R3</span></h2>
   <p><span class="ui"><bdi>Menu</bdi> ← <bdi>Tuning</bdi> ← <bdi>Freq Lock</bdi> ← <bdi>On</bdi></span>: ولوم به جای تنظیم فرکانس، بلندی صدا را تنظیم می‌کند و تنظیم رقم‌به‌رقم (فشار و چرخاندن) غیرفعال می‌شود. علامت قفل کنار مد نشان می‌دهد قفل روشن است؛ پس از خاموش و روشن کردن هم می‌ماند.</p>
   <div class="pair">
