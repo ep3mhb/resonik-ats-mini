@@ -8,5 +8,6 @@ constexpr uint16_t TCP_CONTROL_PORT = 60000;
 void tcpStop();
 bool tcpLoop(uint8_t tcpMode);
 bool tcpConsumeAbortPending(uint8_t tcpMode);
+bool tcpClientActive();        // RESONIK R5: a program is on the TCP port
 
 #endif

@@ -46,6 +46,17 @@ static InputEvent tcpReadInput(uint8_t& byte)
   return InputEvent::Byte;
 }
 
+// RESONIK R5: a program holds the TCP port, or did within the last minute.
+// The FT8, CW and Digital pages keep Wi-Fi on for it, as they do for a Web
+// Control page; without this a CAT program on Wi-Fi lost the radio whenever
+// such a page was opened (Mohammad, 22 Nov: "during FT8 wifi will not stop").
+static uint32_t lastTcpClientMs = 0;
+bool tcpClientActive()
+{
+  if(tcpClient.fd() >= 0) { lastTcpClientMs = millis(); return(true); }
+  return(lastTcpClientMs && millis() - lastTcpClientMs < 60000);
+}
+
 void tcpStop()
 {
   tcpClient.stop();

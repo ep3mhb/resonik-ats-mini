@@ -7,6 +7,7 @@
 // screen simply waits until Wi-Fi is off (for instance after the time sync).
 
 #include "Common.h"
+#include "TcpMode.h"
 #include "Themes.h"
 #include "Utils.h"
 #include "Menu.h"
@@ -293,6 +294,11 @@ static bool wifiOn() { return(WiFi.getMode() != WIFI_MODE_NULL); }
 // The CW decoder page, or the FT8 page, which uses the same sampler
 static bool pageOpen() { return(currentCmd == CMD_CWDEC || currentCmd == CMD_FT8 || currentCmd == CMD_DIGI); }
 
+// Somebody is using the radio over Wi-Fi: a Web Control page in a browser, or
+// a program on the TCP port (CAT TS-480 or the ad hoc remote). The pages then
+// run with Wi-Fi on instead of switching it off for themselves.
+static bool wifiInUse() { return(webControlActive() || tcpClientActive()); }
+
 // FT8 page (Ft8.cpp): hand the sampler a ring, or nullptr to give it back
 void audioFt8Ring(int16_t *ring, uint32_t size, int fs)
 {
@@ -387,8 +393,9 @@ bool cwAudioTick()
   // The page owns Wi-Fi while it is open and gives it back afterwards
   // (not while a web request runs: Wi-Fi off under it crashes the radio)
   // Not while Web Control is open: then the page runs with Wi-Fi on, so it
-  // can be watched and used from the browser (R4 test)
-  if(page && wifiOn() && !wifiPaused && !netJobsBusy() && !webControlActive())
+  // can be watched and used from the browser (R4 test). R5: nor while a
+  // program is on the TCP port
+  if(page && wifiOn() && !wifiPaused && !netJobsBusy() && !wifiInUse())
   {
     netStop();
     wifiPaused = true;
@@ -400,7 +407,7 @@ bool cwAudioTick()
   }
 
   timedSampling = wifiOn();
-  bool need = (page && (!wifiOn() || webControlActive())) || (cwStripShown() && !wifiOn()) || (webAudio && !page);
+  bool need = (page && (!wifiOn() || wifiInUse())) || (cwStripShown() && !wifiOn()) || (webAudio && !page);
   if(need && !want)
   {
     // Connect the pad to the ADC again (it is detached while idle)
@@ -531,7 +538,7 @@ static void drawLines(int x, int y, int width, int lineH, int maxLines, uint16_t
 
 static const char *waitReason()
 {
-  if(wifiOn() && !(pageOpen() && webControlActive()))
+  if(wifiOn() && !(pageOpen() && wifiInUse()))
     return(pageOpen() ? "Pausing Wi-Fi..." : "Wi-Fi on: open CW Decoder");
   if(!adc) return("Audio input not available");
   return(nullptr);
