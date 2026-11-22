@@ -580,8 +580,8 @@ table.tight td { padding: 1mm 2mm; }
     <figure><img class="phone" src="img/web-decodes.jpg" alt=""><figcaption>زبانه‌ی <bdi>Decodes</bdi>: ردیف دیکودر و آبشار طیف</figcaption></figure>
     <figure><img class="phone" src="img/web-decodes-list.jpg" alt=""><figcaption>پایین‌تر: لوکیتور، <bdi>DX alarm</bdi> و پیام‌ها</figcaption></figure>
   </div>
-  <h3 style="break-before:page;margin-top:0">شروع دیکودر از مرورگر</h3>
-  <p>ردیف <b><bdi>Decoder on the radio</bdi></b> دیکودرها را بدون دست زدن به رادیو شروع و متوقف می‌کند. <bdi>FT8</bdi> یا <bdi>FT4</bdi> و یک باند، یا <bdi>CW</bdi>، <bdi>RTTY</bdi>، <bdi>RTTY DWD</bdi>، <bdi>NAVTEX</bdi>، <bdi>PSK31</bdi> یا <bdi>WEFAX</bdi> را انتخاب کنید و <bdi>Start</bdi> را بزنید. <bdi>FT8</bdi> و <bdi>FT4</bdi> به باندی که انتخاب کرده‌اید می‌روند و <bdi>NAVTEX</bdi> به کانالی که در فهرست دوم انتخاب کرده‌اید؛ بقیه همان‌جا که رادیو هست دیکود می‌کنند، پس اول فرکانس را تنظیم کنید. <bdi>Stop</bdi> دیکودر را می‌بندد و رادیو به جای قبلی برمی‌گردد. خط کنار دکمه‌ها می‌گوید چه چیزی در حال کار است.</p>
+  <h3>شروع دیکودر از مرورگر</h3>
+  <p>ردیف <b><bdi>Decoder on the radio</bdi></b> دیکودرها را بدون دست زدن به رادیو شروع و متوقف می‌کند. <bdi>FT8</bdi> یا <bdi>FT4</bdi> و یک باند، یا <bdi>CW</bdi>، <bdi>RTTY</bdi>، <bdi>RTTY DWD</bdi>، <bdi>NAVTEX</bdi>، <bdi>PSK31</bdi> یا <bdi>WEFAX</bdi> را انتخاب کنید و <bdi>Start</bdi> را بزنید. <bdi>FT8</bdi> و <bdi>FT4</bdi> به باندی که انتخاب کرده‌اید می‌روند و <bdi>NAVTEX</bdi> به کانالی که در فهرست دوم انتخاب کرده‌اید. برای <bdi>RTTY</bdi>، <bdi>RTTY DWD</bdi>، <bdi>PSK31</bdi> و <bdi>WEFAX</bdi> فهرست دوم فرکانس‌هایی را دارد که هر کدام در آن‌ها شنیده می‌شود (سرویس هواشناسی آلمان، <bdi>Northwood</bdi>، بخش‌های <bdi>RTTY</bdi> و <bdi>PSK31</bdi> باندها)، یا <b><bdi>As tuned</bdi></b> تا رادیو همان‌جا که هست بماند؛ <bdi>CW</bdi> همان‌جا که رادیو هست دیکود می‌کند. هنگام کار <bdi>CW</bdi> یا یک مد دیجیتال، ردیف زیر دکمه‌ها فرکانس رادیو را نشان می‌دهد: <b><bdi>◀ ▶</bdi></b> مانند ولوم رادیو عمل می‌کنند (تنظیم فرکانس، یا کانال بعدی <bdi>NAVTEX</bdi>) و <b><bdi>Tune</bdi></b> به فرکانسی که وارد می‌کنید می‌رود و در <bdi>USB</bdi> می‌ماند. <bdi>Stop</bdi> دیکودر را می‌بندد و رادیو به جای قبلی برمی‌گردد. خط کنار دکمه‌ها می‌گوید چه چیزی در حال کار است.</p>
   <h3>همه‌ی متن، و ذخیره‌ی آن</h3>
   <div class="side">
     <div>
@@ -594,6 +594,8 @@ table.tight td { padding: 1mm 2mm; }
     <figure><img class="phone" src="img/web-navtext.jpg" alt=""><figcaption>آبشار طیف با دو تن، همه‌ی متن، و <bdi>Save text</bdi></figcaption></figure>
   </div>
   <h3>جدول زمانی <bdi>NAVTEX</bdi></h3>
+  <div class="side">
+    <div>
   <p><bdi>NAVTEX</bdi> را انتخاب کنید تا جدول زمانی زیر دکمه‌ها باز شود، برای کانالی که در فهرست دوم است. هر ایستگاه <bdi>NAVTEX</bdi> هر چهار ساعت ده دقیقه می‌فرستد، در نوبتی که حرف آن تعیین می‌کند: <bdi>A</bdi> در <bdi>00:00 UTC</bdi>، <bdi>B</bdi> در <bdi>00:10</bdi>، تا <bdi>X</bdi> در <bdi>03:50</bdi>. همان حرف در آغاز هر پیام می‌آید: <bdi>ZCZC FA12</bdi> از ایستگاه <bdi>F</bdi> است.</p>
   <ul>
     <li><bdi>now</bdi>، به رنگ سبز، ایستگاهی است که الان روی آنتن است، با دقیقه‌های باقی‌مانده. بقیه به ترتیب نوبت می‌آیند.</li>
@@ -601,8 +603,10 @@ table.tight td { padding: 1mm 2mm; }
     <li>کلیک روی هر خط، <bdi>NAVTEX</bdi> را روی همان کانال شروع می‌کند. <bdi>Show all</bdi> همه‌ی فهرست را باز می‌کند.</li>
     <li><bdi>518&nbsp;kHz</bdi> به انگلیسی است، <bdi>490&nbsp;kHz</bdi> به زبان همان کشور، و <bdi>4209.5&nbsp;kHz</bdi> روی موج کوتاه تا دوردست می‌رسد. برای <bdi>518&nbsp;kHz</bdi> و <bdi>490&nbsp;kHz</bdi> شب بهترین زمان است. هشت کانال موج کوتاه پایین‌تر در فهرست، اطلاعات ایمنی دریای آزاد را می‌فرستند؛ ایستگاه‌های کمی آن‌جا کار می‌کنند و جدول زمانی ندارند.</li>
   </ul>
+    </div>
+    <figure><img class="phone" src="img/web-navtex.jpg" alt=""><figcaption><bdi>NAVTEX</bdi> انتخاب شده: جدول زمانی، نزدیک‌ترین ایستگاه‌ها برای شنونده‌ای در دبی</figcaption></figure>
+  </div>
   <div class="note">جدول ۲۳۸ ایستگاه دارد و در ۱ آذر ۱۴۰۵ با فهرست‌های عمومی ایستگاه‌ها مقایسه شده است (بخش ۲۹). ایستگاه‌ها تغییر می‌کنند، و دیکودر یک رادیوی جیبی برای ناوبری نیست.</div>
-  <figure style="break-before:page;width:62mm;margin:0 auto 4mm"><img class="phone" style="width:62mm" src="img/web-navtex.jpg" alt=""><figcaption><bdi>NAVTEX</bdi> انتخاب شده: جدول زمانی، نزدیک‌ترین ایستگاه‌ها برای شنونده‌ای در دبی</figcaption></figure>
   <h3>صدای دیکودر: <bdi>3&nbsp;kHz</bdi> یا <bdi>6&nbsp;kHz</bdi></h3>
   <p>صفحه‌های <bdi>FT8/FT4</bdi> و <bdi>Digital</bdi> به صدای خود رادیو گوش می‌دهند و این تنظیم می‌گوید چه مقدار از آن را بگیرند.</p>
   <table>
