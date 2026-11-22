@@ -587,9 +587,6 @@ bool digiWebTune(uint32_t hz)
   generation++;
   return(true);
 }
-  mode = m;
-  currentCmd = CMD_DIGI;
-}
 
 // -1 while the page is closed; else the mode, plus 256 times the NAVTEX channel
 int digiWebMode() { return(!pageActive ? -1 : mode == DM_NAVTEX ? mode | (nav << 8) : mode); }
