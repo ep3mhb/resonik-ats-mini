@@ -177,7 +177,8 @@ static void webOnEvent(AsyncWebSocket *, AsyncWebSocketClient *client, AwsEventT
       return;
     }
     // R5: "!page <p> <arg>": a decoder page on the radio. p: 0 none, 1 FT8
-    // (arg: channel), 2 CW, 3 Digital (arg: mode), 4 Band View, 5 leave Band
+    // (arg: channel), 2 CW, 3 Digital (arg: mode, plus 256 x the NAVTEX
+    // channel or 256 x a frequency in tens of Hz), 4 Band View, 5 leave Band
     // View and tune to arg (Hz). Done in the main loop.
     if(len >= 7 && !memcmp(data, "!page ", 6))
     {
@@ -855,6 +856,12 @@ bool webControlTick()
   if(hz && currentCmd == CMD_BANDVIEW)
   {
     bandViewLeaveTo(hz);
+    hz = 0;
+    redraw = true;
+  }
+  // R5: on the Digital page the page tunes it, staying in USB
+  if(hz && digiWebTune(hz))
+  {
     hz = 0;
     redraw = true;
   }

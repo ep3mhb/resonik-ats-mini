@@ -109,7 +109,10 @@ section[data-tab]>:first-child{margin-top:0}
 .dpr{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 110px 110px;gap:8px}
 .bfr select,.dpr select{width:100%;min-width:0}
 .bfr button,.dpr button{padding:9px 6px;font-size:14px;background:#06171e}
-@media(max-width:520px){.bfr{grid-template-columns:minmax(0,1fr) 68px 68px}.dpr{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.dtr{display:grid;grid-template-columns:56px minmax(0,1fr) 56px minmax(0,1fr) 110px;gap:8px;align-items:center;margin-top:8px}
+.dtr button{padding:9px 6px;font-size:14px;background:#06171e}#dtf{text-align:center;font-weight:700;color:var(--text);white-space:nowrap}
+.dtr input{min-width:0;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:#06171e;color:var(--text);font:600 15px system-ui}
+@media(max-width:520px){.bfr{grid-template-columns:minmax(0,1fr) 68px 68px}.dpr{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.dtr{grid-template-columns:56px minmax(0,1fr) 56px}.dtr input{grid-column:1/3}}
 .bfr button:disabled,.dpr button:disabled,.dpr select:disabled{opacity:.45}
 .bfw .hint{margin:8px 0 0}
 .dctl{display:grid;grid-template-columns:1fr 2fr 1.4fr auto;gap:8px;align-items:end;margin:10px 0 0}
@@ -191,7 +194,8 @@ section[data-tab]>:first-child{margin-top:0}
 <section data-tab="dec"><div class="card"><h2 style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 12px">Decodes <span id="dmode" style="color:var(--muted);font-weight:600">Choose a decoder and press Start</span></h2>
 <div class="bfw"><div class="bfh"><b>Decoder on the radio</b><span id="dpst"></span></div>
  <div class="dpr"><select id="dpsel" aria-label="Decoder"></select><select id="dpch" aria-label="Band"></select><button id="dpgo">Start</button><button id="dpstop">Stop</button></div>
- <p class="hint"><b>Start</b> opens the decoder on the radio, as its menu does. FT8 and FT4 go to the band you choose, NAVTEX to the channel you choose; CW, RTTY, PSK31 and WEFAX decode where the radio is, so tune first. <b>Stop</b> closes it and the radio goes back to where it was.</p>
+ <div id="dtune" class="dtr" style="display:none"><button class="big" data-hold="r" title="As the radio's knob">&#9664;</button><span id="dtf"></span><button class="big" data-hold="R" title="As the radio's knob">&#9654;</button><input id="dtin" inputmode="decimal" placeholder="kHz, e.g. 10099.3" aria-label="Frequency in kHz"><button id="dtgo">Tune</button></div>
+ <p class="hint"><b>Start</b> opens the decoder on the radio, as its menu does. FT8 and FT4 go to the band you choose, NAVTEX to the channel you choose. RTTY, RTTY DWD, PSK31 and WEFAX go to the frequency you choose, or stay where the radio is tuned (<b>As tuned</b>); each keeps its own frequency, and none works on FM. CW decodes where the radio is. While one runs, <b>&#9664; &#9654;</b> turn the radio's knob (tune, or the next NAVTEX channel) and <b>Tune</b> goes to the frequency you type, staying in USB. <b>Stop</b> closes it and the radio goes back to where it was.</p>
  <div id="nvb" style="display:none"><div class="bfh"><b>NAVTEX timetable</b><span id="nvst"></span></div>
   <p id="nvsw" class="hint" style="display:none;margin:0">No timetable for this channel. It is one of the eight short-wave channels for safety information on the high seas, beyond the reach of NAVTEX: the same kind of signal and the same decoder, from far away when the band is open. Few stations send there, each at its own times. The timetable covers 518, 490 and 4209.5 kHz.</p>
   <div id="nvin"><div class="nvc"><label>Order<select id="nvord"><option value="t">Next on the air</option><option value="d">Nearest first</option></select></label>
@@ -448,26 +452,39 @@ $('bvb').onclick=()=>send(P&&P.dp===4?'!page 0 0':'!page 4 0');
 // RESONIK R5: the decoder pages of the radio, started and stopped from here.
 // DL: what there is (FT8/FT4 channels, Digital modes); P.dp, P.dc: what runs
 let DL=null,dpWait=0,dpMsg='',dpMsgT=0,dpLast='';
+// Where each Digital mode is heard (the manual's chapter 26); the radio's own
+// first frequency for each mode is the first of its list
+const DFQ={'RTTY':[[14080000,'20M'],[21080000,'15M'],[28080000,'10M'],[7040000,'40M'],[3580000,'80M']],
+ 'RTTY DWD':[[10099300,'day'],[7644500,'night'],[4581500,'night']],
+ 'PSK31':[[14070000,'20M'],[7040000,'40M'],[3580000,'80M'],[21070000,'15M'],[28120000,'10M']],
+ 'WEFAX':[[8038100,'Northwood'],[4608100,'Northwood, night'],[11084600,'Northwood, 06-20 UTC']]};
 function dLists(l){DL=l;$('dpsel').innerHTML='<option value="f">FT8</option><option value="4">FT4</option><option value="c">CW</option>'+l.dg.map((n,i)=>'<option value="d'+i+'">'+esc(n)+'</option>').join('');dpBands();dpLast='';dpDraw();}
 function dpBands(){if(!DL)return;const k=$('dpsel').value,c=$('dpch');
  if(k==='f'||k==='4'){const ft4=k==='4'?1:0,keep=!c.disabled&&c.selectedIndex>=0?c.options[c.selectedIndex].text:'20M';
   c.innerHTML=DL.ft.map((x,i)=>x[1]===ft4?'<option value="'+i+'">'+esc(x[0])+'</option>':'').join('');c.disabled=false;
   const o=[...c.options].find(o=>o.text===keep)||[...c.options].find(o=>o.text==='20M');if(o)c.value=o.value;}
  else if(dpNav()){const keep=c.dataset.nv&&c.selectedIndex>=0?c.selectedIndex:0;c.innerHTML=DL.nv.map((x,i)=>'<option value="'+i+'">'+esc(x)+'</option>').join('');c.disabled=false;c.selectedIndex=keep;}
+ else if(k[0]==='d'){const n=DL.dg[+k.slice(1)],l=DFQ[n]||[],keep=c.dataset.k===n?c.selectedIndex:0;
+  c.innerHTML='<option value="0">As tuned</option>'+l.map(x=>'<option value="'+x[0]+'">'+(x[0]/1000).toFixed(2)+' kHz \u00b7 '+esc(x[1])+'</option>').join('');
+  c.disabled=false;c.selectedIndex=keep>=0&&keep<c.options.length?keep:0;}
  else{c.innerHTML="<option>radio's frequency</option>";c.disabled=true;}
- c.dataset.nv=dpNav()?'1':'';nvDraw();}
+ c.dataset.nv=dpNav()?'1':'';c.dataset.k=k[0]==='d'&&!dpNav()?DL.dg[+k.slice(1)]:'';nvDraw();}
 function dpNav(){const k=$('dpsel').value;return !!(DL&&DL.nv&&k[0]==='d'&&DL.dg[+k.slice(1)]==='NAVTEX');}
 function dpStart(){const k=$('dpsel').value;if(!k)return;dpMsg='';dpWait=Date.now();
- send(k==='f'||k==='4'?'!page 1 '+$('dpch').value:k==='c'?'!page 2 0':'!page 3 '+(+k.slice(1)+(dpNav()?256*(+$('dpch').value||0):0)));dpDraw();
+ send(k==='f'||k==='4'?'!page 1 '+$('dpch').value:k==='c'?'!page 2 0':'!page 3 '+(+k.slice(1)+256*(dpNav()?(+$('dpch').value||0):Math.round((+$('dpch').value||0)/10))));dpDraw();
  setTimeout(()=>{if(!(P&&P.dp)&&!dpMsg){dpMsg=ws&&ws.readyState===1?'No answer from the radio: press Start again':'Not connected to the radio';dpMsgT=Date.now();}dpDraw();},3000);}
 function dpDraw(){const e=$('dpst');if(!e)return;const p=P&&P.dp||0,c=P&&P.dp?P.dc:-1,now=Date.now();let t='Not running',hot=false;
  if(p===1)t=c>=0&&DL&&DL.ft[c]?(DL.ft[c][1]?'FT4':'FT8')+' on '+DL.ft[c][0]+' is running':'FT8 is starting\u2026';
  else if(p===2)t='CW is running';
- else if(p===3)t=c>=0&&DL&&DL.dg[c&255]?DL.dg[c&255]+(DL.nv&&DL.dg[c&255]==='NAVTEX'?' '+DL.nv[c>>8]:'')+' is running':'Digital is starting\u2026';
+ else if(p===3)t=c>=0&&DL&&DL.dg[c&255]?DL.dg[c&255]+(DL.nv&&DL.dg[c&255]==='NAVTEX'?' '+DL.nv[c>>8]:' on '+(P.f/1000).toFixed(2)+' kHz')+' is running':'Digital is starting\u2026';
  else if(p===4)t='Band View is running';
  else if(dpMsg&&now-dpMsgT<8000){t=dpMsg;hot=true;}
  else if(dpWait&&now-dpWait<3000)t='Starting\u2026';
  e.textContent=t;e.style.color=hot?'var(--accent)':'';$('dpstop').disabled=!p;
+ // The radio's knob and frequency, as on its page: CW and Digital
+ {const nav=p===3&&c>=0&&DL&&DL.nv&&DL.dg[c&255]==='NAVTEX',on=p===2||p===3;$('dtune').style.display=on?'':'none';
+  if(on)$('dtf').textContent=nav?'NAVTEX '+DL.nv[c>>8]:(P.f/1000).toFixed(2)+' kHz '+(['FM','LSB','USB','AM','CW'][P.m]||'');
+  const box=p===3&&!nav;$('dtin').style.display=$('dtgo').style.display=box?'':'none';}
  // The two lists follow the radio when what runs there changes, not while you choose
  const key=p+':'+c;if(key===dpLast||!DL||p===4||(p&&p!==2&&c<0))return;dpLast=key;
  if(p===1){$('dpsel').value=DL.ft[c][1]?'4':'f';dpBands();$('dpch').value=c;}
@@ -596,6 +613,8 @@ let noteT=0;function note(t){const n=$('note');n.textContent=t;n.style.display='
 function tune(){const v=parseFloat(document.getElementById('f').value.replace(',','.'));
  if(v>0)send('F'+Math.round(P&&P.m===0&&v<200?v*1e6:v*1000)+'\n');}
 document.getElementById('go').onclick=tune;
+function dTune(){const v=parseFloat($('dtin').value.replace(',','.'));if(v>0)send('F'+Math.round(v*1000)+'\n');}
+$('dtgo').onclick=dTune;$('dtin').addEventListener('keydown',e=>{if(e.key==='Enter')dTune();});
 document.getElementById('f').addEventListener('keydown',e=>{if(e.key==='Enter')tune();});
 // Audio: 8 kHz samples scheduled with a small buffer
 let ac=null,next=0,listening=false,gain=null,gaps=0,gapMs=0,reserve=0.35,lastS=0;

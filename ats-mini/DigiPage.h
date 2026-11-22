@@ -12,7 +12,8 @@ void drawDigiPage();
 
 #include <Arduino.h>
 bool digiWebState(uint32_t *seen, String &j);   // R5: for the browser
-void digiWebOpen(int m);           // R5: Web Control opens the page in a mode
+void digiWebOpen(int a);            // R5: Web Control opens the page in a mode (and channel or frequency)
+bool digiWebTune(uint32_t hz);      // R5: a frequency typed in Web Control while the page is open
 int digiWebMode();                 // R5: mode being decoded (+ 256 x NAVTEX channel), -1 = page closed
 void digiWebText(uint32_t from, String &j);   // R5: the whole text from a character on
 int digiNavCount();                // NAVTEX channels

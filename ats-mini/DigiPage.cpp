@@ -338,6 +338,9 @@ static void audioOff()
 // is heard most often (chapter 26 of the manual).
 static uint32_t modeFreq[DM_COUNT] = { 14080000, 10099300, 0, 14070000, 8038100 };
 
+// The browser started the page on a frequency of its list (digiWebOpen)
+static bool openAtModeFreq = false;
+
 static bool usableFreq(uint32_t hz) { return(currentMode != FM && hz >= 100000 && hz <= 30000000); }
 
 // keep: on opening the page, stay where the radio is if it can work there
@@ -378,7 +381,8 @@ static bool start()
   reading = false;
   if(!worker) xTaskCreatePinnedToCore(work, "digi", 16384, nullptr, 1, &worker, 1);
   ft8SaveRadio();
-  tuneForMode(true);
+  tuneForMode(!openAtModeFreq);
+  openAtModeFreq = false;
   audioOn();
   cpuSaved = getCpuFrequencyMhz();
   if(cpuSaved < 240) setCpuFrequencyMhz(240);
@@ -491,7 +495,7 @@ void digiWebText(uint32_t from, String &j)
 }
 
 // The open page goes to another mode (or NAVTEX to another channel)
-static void goMode(int m);
+static void goMode(int m, uint32_t hz = 0);
 
 // Push and turn begins reading the text back; the knob then scrolls it.
 // In NAVTEX the knob steps through the channels. False: the knob tunes.
@@ -518,10 +522,11 @@ bool digiTurn(int16_t enc, bool pressed)
 }
 
 // The open page goes to another mode
-static void goMode(int m)
+static void goMode(int m, uint32_t hz)
 {
   if(pageActive) keepModeFreq();
   mode = m;
+  if(hz && m != DM_NAVTEX) modeFreq[m] = hz;
   if(!pageActive) return;
   tuneForMode();
   audioOn();
@@ -538,15 +543,50 @@ void digiClick(bool shortPress)
 }
 
 // RESONIK R5: Web Control starts the page in a mode, or changes mode.
-// m: the mode, plus 256 times the NAVTEX channel
-void digiWebOpen(int m)
+// a: the mode, plus 256 times the NAVTEX channel, or for the other modes
+// 256 times a frequency in tens of hertz (0: where the radio is)
+void digiWebOpen(int a)
 {
-  int ch = m >> 8;
-  m &= 0xFF;
-  if(m < 0 || m >= DM_COUNT || ch < 0 || ch >= NAV_COUNT) return;
-  bool same = m == mode && (m != DM_NAVTEX || ch == nav);
-  if(m == DM_NAVTEX) nav = ch;
-  if(pageActive) { if(!same) goMode(m); return; }
+  int hi = a >> 8, m = a & 0xFF;
+  if(m < 0 || m >= DM_COUNT || hi < 0) return;
+  uint32_t hz = 0;
+  if(m == DM_NAVTEX) { if(hi >= NAV_COUNT) return; }
+  else if(hi)
+  {
+    hz = (uint32_t)hi * 10;
+    if(hz < 100000 || hz > 30000000) return;
+  }
+  bool same = m == mode && (m != DM_NAVTEX || hi == nav);
+  if(m == DM_NAVTEX) nav = hi;
+  if(pageActive) { if(!same || hz) goMode(m, hz); return; }
+  mode = m;
+  if(hz) { modeFreq[m] = hz; openAtModeFreq = true; }
+  currentCmd = CMD_DIGI;
+}
+
+// RESONIK R5: a frequency typed in Web Control while the page is open. The
+// page stays in USB with its filter, as when the knob tunes; the Receiver
+// tab's own way changed band and could change the mode (AM, LSB). NAVTEX
+// has channels, not a frequency. True: taken here.
+bool digiWebTune(uint32_t hz)
+{
+  if(currentCmd != CMD_DIGI) return(false);
+  if(mode == DM_NAVTEX)
+  {
+    statusShow("NAVTEX", "Choose a channel, not a frequency");
+    return(true);
+  }
+  if(hz < 100000 || hz > 30000000)
+  {
+    statusShow("Digital", "100 kHz to 30 MHz only");
+    return(true);
+  }
+  if(!pageActive) { modeFreq[mode] = hz; openAtModeFreq = true; return(true); }
+  digiSetUsb(hz);
+  keepModeFreq();
+  generation++;
+  return(true);
+}
   mode = m;
   currentCmd = CMD_DIGI;
 }

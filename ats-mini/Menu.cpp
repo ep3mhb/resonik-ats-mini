@@ -3214,6 +3214,9 @@ bool bandPlanAutoSideband()
   bool fromOutside = entered && !bandPlanLastSeg;
   bandPlanLastSeg = seg;
 
+  // R5: the Digital page needs USB with its filter wherever it is tuned:
+  // turning into a CW or phone segment must not change the mode under it
+  if(currentCmd == CMD_DIGI) return(false);
   if(bandPlanIdx != BANDPLAN_AUTO_SSB || !entered) return(false);
   if(seg->use == BP_BLOCKED)
   {
