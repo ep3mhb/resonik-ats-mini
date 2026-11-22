@@ -873,6 +873,10 @@ bool handleRotation(int16_t enc, int16_t accelerated, bool pressed)
         changed = doTune(enc);
         prefsRequestSave(SAVE_CUR_BAND);
         break;
+      case CMD_DIGI:
+        // RESONIK R5: push and turn reads the decoded text back
+        changed = digiTurn(enc, true);
+        break;
     }
   }
   else
@@ -898,6 +902,9 @@ bool handleRotation(int16_t enc, int16_t accelerated, bool pressed)
         prefsRequestSave(SAVE_CUR_BAND);
         break;
       case CMD_DIGI:
+        // While the text is read back the knob scrolls it
+        if(digiTurn(enc, false)) { changed = true; break; }
+        // fall through
       case CMD_CWDEC:
         // CW decoder and digital pages: the knob keeps tuning
         changed = doTune(accelerated);

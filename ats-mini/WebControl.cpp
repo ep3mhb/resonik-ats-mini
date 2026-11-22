@@ -152,6 +152,19 @@ static void webOnEvent(AsyncWebSocket *, AsyncWebSocketClient *client, AwsEventT
       scopeWanted = true;
       return;
     }
+    // R5: "!dtext <from>": the decoded text from that character on (this
+    // browser only; it asks again until it has it all)
+    if(len >= 7 && !memcmp(data, "!dtext ", 7))
+    {
+      char text[20];
+      size_t n = len - 7 < sizeof(text) - 1 ? len - 7 : sizeof(text) - 1;
+      memcpy(text, data + 7, n);
+      text[n] = 0;
+      String j;
+      digiWebText(strtoul(text, nullptr, 10), j);
+      client->text(j);
+      return;
+    }
     if(len >= 5 && !memcmp(data, "!dec", 4))
     {
       decWanted = data[4] == '1';
@@ -969,6 +982,8 @@ bool webControlTick()
       }
       dl += "],\"dg\":[";
       for(int i = 0; i < digiModeCount(); i++) { if(i) dl += ','; dl += '"'; dl += digiModeName(i); dl += '"'; }
+      dl += "],\"nv\":[";
+      for(int i = 0; i < digiNavCount(); i++) { if(i) dl += ','; dl += '"'; dl += digiNavName(i); dl += '"'; }
       dl += "]}";
       ws.textAll(String("{\"def\":") + j + dl + "}");
       lastVals = 0;

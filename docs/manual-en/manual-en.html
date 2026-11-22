@@ -42,6 +42,12 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
 .pair { display: flex; gap: 6mm; justify-content: center; break-inside: avoid; }
 .pair figure { flex: 1; margin: 2mm 0 3mm; }
 .pair img.screen { width: 100%; }
+  .side { display: flex; gap: 6mm; align-items: flex-start; break-inside: avoid; }
+  .side > div { flex: 1; min-width: 0; }
+  .side > div > :first-child { margin-top: 0; }
+  .side figure { flex: 0 0 58mm; margin: 1mm 0 0; }
+  .side img.screen { width: 72mm; }
+  .side img.phone { width: 54mm; }
 .note { background: #fff7e0; border-left: 4px solid var(--yellow); padding: 2.5mm 4mm; border-radius: 2mm; margin: 3mm 0 4mm; break-inside: avoid; }
 .tip { background: #e6faf4; border-left: 4px solid var(--green); padding: 2.5mm 4mm; border-radius: 2mm; margin: 3mm 0 4mm; break-inside: avoid; }
 .steps { counter-reset: s; list-style: none; padding: 0; }
@@ -496,15 +502,27 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
     <tr><th style="width:20%">Mode</th><th>What it decodes</th></tr>
     <tr><td><b>RTTY</b></td><td>Amateur radioteletype: 45.45 baud, 170 Hz shift. Normal and reversed stations are read alike.</td></tr>
     <tr><td><b>RTTY DWD</b></td><td>The German weather service: 50 baud, 450 Hz shift. Weather for shipping, mainly in English.</td></tr>
-    <tr><td><b>NAVTEX</b></td><td>Safety messages for ships on 518 kHz. The page tunes there by itself.</td></tr>
+    <tr><td><b>NAVTEX</b></td><td>Safety messages for ships: navigational warnings and weather. Here <b>turn</b> the knob to step through its channels, and the page tunes each one by itself: 518 kHz (in English), 490 kHz (in the country's language), 4209.5 kHz, and eight short-wave channels for the high seas, from 4210 to 26100.5 kHz. <b>sync</b> beside the tone frequency means the decoder is locked to the station.</td></tr>
     <tr><td><b>PSK31</b></td><td>An amateur mode typed by hand, 31 baud, a few hertz wide.</td></tr>
     <tr><td><b>WEFAX</b></td><td>Weather charts (radiofax), 120 lines a minute. Tune 1.9 kHz below the published frequency. The chart is drawn on the screen and, larger, in the browser (section 25), where <b>Save picture</b> downloads it.</td></tr>
   </table>
   <ul>
-    <li><b>Click:</b> the next mode. <b>Turn:</b> tune. <b>Short press:</b> leave; the radio goes back exactly as it was.</li>
+    <li><b>Click:</b> the next mode. <b>Turn:</b> tune (in NAVTEX: the next channel). <b>Short press:</b> leave; the radio goes back exactly as it was.</li>
     <li>Top right is the tone frequency the decoder has found, in green, or <b>No signal</b>. With no signal nothing is written, so noise does not fill the screen with letters.</li>
-    <li>The screen holds the last five lines; the browser keeps all of the text.</li>
+    <li>The screen shows the last five lines as they arrive. The radio keeps the whole text.</li>
   </ul>
+  <h3>Reading the text back</h3>
+  <p>A NAVTEX message or a weather bulletin is longer than five lines. The radio keeps everything it has decoded since it was switched on, about 16 000 characters, with the line breaks as the station sent them.</p>
+  <ul>
+    <li><b>Push the knob and turn it:</b> the spectrum makes room for seven lines of the whole text. Top right is the line you are on and how many there are; the bar on the right shows the place.</li>
+    <li><b>Turn:</b> scroll. <b>Click:</b> back to the live text. <b>Short press:</b> leave the page.</li>
+    <li>Every start of a decoder that receives something writes a head line in yellow: the mode, the frequency and the UTC time.</li>
+    <li>The browser shows the same text in a box and saves it to a file (section 25).</li>
+  </ul>
+  <div class="pair">
+    <figure><img class="screen" src="../manual-fa/img/screen-navtex.png" alt=""><figcaption>NAVTEX on 518 kHz, locked to a station</figcaption></figure>
+    <figure><img class="screen" src="../manual-fa/img/screen-readback.png" alt=""><figcaption>Reading back: the first of 17 lines</figcaption></figure>
+  </div>
   <div class="note">Like the FT8 page, this page needs the V4B board and the headphones unplugged. Wi-Fi is paused while it is open, unless a browser has Web Control open.</div>
   <p><b>No signal</b> means that nothing is being received on that frequency, not that something is broken. Stations to check each mode with are in section 26.</p>
 </section>
@@ -517,7 +535,8 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
     <li>the band as a waterfall;</li>
     <li>every FT8 and FT4 message with the station's country and flag;</li>
     <li>a map of the stations that sent a locator; type your own locator in <b>My locator</b> to see lines from you;</li>
-    <li>the text of CW, RTTY, NAVTEX and PSK31, and the WEFAX chart with <b>Save picture</b>;</li>
+    <li>the whole text of RTTY, NAVTEX and PSK31 in a box that scrolls, with <b>Save text</b>; the text of CW; the WEFAX chart with <b>Save picture</b>;</li>
+    <li>the NAVTEX timetable: which station is on the air now and which comes next;</li>
     <li><b>DX alarm</b>: type callsigns or countries to hear a tone when one is decoded; <b>Save log</b> downloads the list.</li>
   </ul>
   <div class="pair">
@@ -525,7 +544,32 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
     <figure><img class="phone" src="../manual-fa/img/web-decodes-list.jpg" alt=""><figcaption>Further down: locator, DX alarm, the messages</figcaption></figure>
   </div>
   <h3 style="break-before:page;margin-top:0">Starting a decoder from the browser</h3>
-  <p>The row <b>Decoder on the radio</b> starts and stops the decoders without touching the radio. Choose FT8 or FT4 and a band, or CW, RTTY, RTTY DWD, NAVTEX, PSK31 or WEFAX, and press <b>Start</b>. FT8 and FT4 go to the band you choose and NAVTEX to 518 kHz; the others decode where the radio is, so tune first. <b>Stop</b> closes the decoder and the radio goes back to where it was. The line beside the buttons says what is running.</p>
+  <p>The row <b>Decoder on the radio</b> starts and stops the decoders without touching the radio. Choose FT8 or FT4 and a band, or CW, RTTY, RTTY DWD, NAVTEX, PSK31 or WEFAX, and press <b>Start</b>. FT8 and FT4 go to the band you choose and NAVTEX to the channel you choose in the second list; the others decode where the radio is, so tune first. <b>Stop</b> closes the decoder and the radio goes back to where it was. The line beside the buttons says what is running.</p>
+  <h3>The whole text, and saving it</h3>
+  <div class="side">
+    <div>
+      <p>For RTTY, NAVTEX and PSK31 the box under the waterfall holds the whole text the radio has decoded, with its line breaks, and follows it as it grows. Scroll up to read; it stays where you leave it. The browser fetches from the radio whatever it has not got yet, so text decoded before you opened the page is there too.</p>
+      <ul>
+        <li><b>Save text</b> downloads it as a text file. <b>Clear text</b> empties the box on this page only.</li>
+        <li>The two red lines on the waterfall are the tones the decoder listens to, as on the radio. Beside the mode, top right, <b>sync</b> means NAVTEX is locked to the station.</li>
+      </ul>
+    </div>
+    <figure><img class="phone" src="../manual-fa/img/web-navtext.jpg" alt=""><figcaption>The waterfall with the two tones, the whole text, Save text</figcaption></figure>
+  </div>
+  <h3>NAVTEX timetable</h3>
+  <div class="side">
+    <div>
+      <p>Choose <b>NAVTEX</b> and a timetable opens under the buttons, for the channel in the second list. Every NAVTEX station sends for ten minutes every four hours, at the turn its letter gives it: A at 00:00 UTC, B at 00:10, and so on to X at 03:50. The same letter opens each of its messages: ZCZC <b>F</b>A12 comes from station F.</p>
+      <ul>
+    <li><b>now</b>, in green, marks a station that is on the air, with the minutes it has left. The others follow in the order they come.</li>
+    <li>Type <b>My locator</b> (further down the tab) and the table shows the distance to each station. <b>Order</b> then sorts by time or <b>Nearest first</b>, and <b>Range</b> keeps the stations within 1500, 3000 or 6000 km.</li>
+    <li>A click on a line starts NAVTEX on that channel. <b>Show all</b> opens the whole list.</li>
+    <li>518 kHz is in English, 490 kHz in the country's own language, 4209.5 kHz reaches far on short wave. Night is best on 518 and 490 kHz. The eight short-wave channels further down the list carry safety information for the high seas; few stations send there and they have no timetable.</li>
+  </ul>
+    </div>
+    <figure><img class="phone" src="../manual-fa/img/web-navtex.jpg" alt=""><figcaption>NAVTEX chosen: the timetable, nearest stations of a listener in Dubai</figcaption></figure>
+  </div>
+  <div class="note">The table holds 238 stations, compared on 22 Nov 2026 with public station lists (section 29). Stations change, and a decoder on a pocket radio is not for navigation.</div>
   <h3>Decoder audio: 3 kHz or 6 kHz</h3>
   <p>The FT8/FT4 and Digital pages listen to the radio's own sound, and this setting says how much of it they take in.</p>
   <table>
@@ -548,7 +592,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
     <tr><td><b>CW</b></td><td>The beacons on 14.100 MHz (section 10), or the low end of 40M and 20M: 7.000 to 7.040 and 14.000 to 14.070 MHz.</td><td>Callsigns and CQ calls. A beacon sends its callsign, then four long dashes.</td></tr>
     <tr><td><b>RTTY DWD</b></td><td>The German weather service, day and night on 4583, 7646 and 10100.8 kHz. Tune 1.5 kHz below in USB: <b>10099.3 kHz</b>, or <b>7644.5</b> and <b>4581.5 kHz</b> at night.</td><td>Lines of RYRYRY between the bulletins, then weather reports and forecasts, mainly in English. The tone frequency shows in green in place of No signal. It comes from Germany: far away it is weak, and best in the evening.</td></tr>
     <tr><td><b>RTTY</b></td><td>Amateur RTTY, 14.080 to 14.099 MHz, mostly at weekends and in contests.</td><td>CQ calls and contest exchanges in capitals.</td></tr>
-    <tr><td><b>NAVTEX</b></td><td>518 kHz (the page tunes it). Every coast station sends for about ten minutes every four hours, each at its own time; night is best. Look up the times of the stations of your sea area.</td><td>Navigational warnings and weather for ships, starting with ZCZC and ending with NNNN.</td></tr>
+    <tr><td><b>NAVTEX</b></td><td>518 kHz (the page tunes it; the knob steps to 490 and 4209.5 kHz). Every coast station sends for ten minutes every four hours, each at its own time: the <b>NAVTEX timetable</b> of the Decodes tab (section 25) shows who is on the air and who comes next. Night is best.</td><td>Navigational warnings and weather for ships, starting with ZCZC and ending with NNNN.</td></tr>
     <tr><td><b>PSK31</b></td><td>14.070 MHz USB, also 7.040 MHz. Few stations these days.</td><td>Narrow steady lines in the spectrum; small and capital letters, typed by hand.</td></tr>
     <tr><td><b>WEFAX</b></td><td>Northwood (United Kingdom): 4610, 8040 and 11086.5 kHz. Tune 1.9 kHz below in USB: <b>8038.1</b> or <b>11084.6 kHz</b> by day, <b>4608.1 kHz</b> at night.</td><td>A weather chart, drawn line by line: a whole chart takes 10 to 20 minutes. A slanted picture still shows that the signal is being read.</td></tr>
   </table>
@@ -596,6 +640,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
 
   <h2 style="break-before:page"><span class="num">29</span>Credits and licence</h2>
   <p>RESONIK edition: EP2MHB (Mohammad Bahrololoum). Based on ats-mini by PU2CLR (Ricardo Caratti), Volos Projects, Ralph Xavier, Sunnygold, Goshante, G8PTN (Dave), R9UCL (Max Arnold), Marat Fayzullin and all contributors. The FT8 decoder uses ft8_lib by Karlis Goba, following the epiHATR fork; some fixes come from the jokubasver and mattafaak forks. The source code is on GitHub under the MIT licence.</p>
+  <p>The NAVTEX station table was compared with Alan Gale G4TMV's World NAVTEX Database for DXers (ndblist.info), with Wikipedia's List of Navtex stations and with the station file of fldigi.</p>
   <p class="small">RESONIK is not affiliated with the makers of ATS Mini radios. Installing unofficial firmware is at your own risk; a backup lets you go back. <b>73 de resonik.mikroutik.com</b></p>
 </section>
 

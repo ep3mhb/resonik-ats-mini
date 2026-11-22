@@ -1,0 +1,255 @@
+# NAVTEX stations for the timetable on the Decodes tab of Web Control.
+#
+# One line per station and channel that is on the air:
+#   kHz NAVAREA letter | name | country | latitude | longitude | extra
+# Positions in degrees and whole minutes. A station sends for ten minutes
+# every four hours, at the turn its letter gives it (A at 00:00 UTC, B at
+# 00:10 ... X at 03:50), so the times are not written here. Extra, when a
+# station differs: t=HHMM,HHMM its own start times; f=HHMM its first start
+# (then every four hours); n=text a note shown beside the name.
+#
+# Compared on 22 Nov 2026 with three public lists: Alan Gale G4TMV's World
+# NAVTEX Database for DXers v16.9 of 13 Oct 2026 (ndblist.info), which says
+# what is on the air today and is followed here; Wikipedia's List of Navtex
+# stations; and the station file of fldigi. Stations marked inactive,
+# planned or unknown there are left out. Not for navigation.
+#
+# After changing this file: python3 tools/navtex_table.py
+518 1 D|Torshavn|Faroe Islands|62 00 N|006 47 W
+518 1 E|Niton|England|50 35 N|001 15 W
+518 1 F|Tallinn|Estonia|59 27 N|024 21 E
+518 1 G|Cullercoats|England|55 04 N|001 27 W
+518 1 H|Bjuroklubb|Sweden|64 27 N|021 35 E
+518 1 I|Grimeton|Sweden|57 06 N|012 23 E
+518 1 J|Gislovshammar|Sweden|55 29 N|014 18 E
+518 1 K|Niton|England|50 35 N|001 15 W
+518 1 L|Rogaland|Norway|58 38 N|005 36 E
+518 1 M|Jeloya|Norway|59 26 N|010 35 E
+518 1 N|Orlandet|Norway|63 39 N|009 32 E
+518 1 O|Portpatrick|Scotland|54 50 N|005 07 W
+518 1 P|Den Helder|Netherlands|52 55 N|004 44 E
+518 1 Q|Malin Head|Ireland|55 21 N|007 20 W
+518 1 R|Saudanes|Iceland|66 11 N|018 57 W
+518 1 S|Pinneberg|Germany|53 40 N|009 48 E
+518 1 T|Oostende|Belgium|51 10 N|002 48 E
+518 1 V|Oostende|Belgium|51 10 N|002 48 E
+518 1 W|Valentia|Ireland|51 56 N|010 21 W
+518 1 X|Grindavik|Iceland|63 49 N|022 27 W
+490 1 A|Malin Head|Ireland|55 21 N|007 20 W
+490 1 B|Oostende|Belgium|51 10 N|002 48 E
+490 1 C|Portpatrick|Scotland|54 50 N|005 07 W
+490 1 E|Saudanes|Iceland|66 11 N|018 57 W
+490 1 I|Niton|England|50 35 N|001 15 W
+490 1 K|Grindavik|Iceland|63 49 N|022 27 W
+490 1 L|Pinneberg|Germany|53 40 N|009 48 E
+490 1 T|Niton|England|50 35 N|001 15 W
+490 1 U|Cullercoats|England|55 04 N|001 27 W
+518 2 A|Corsen|France|48 28 N|005 03 W
+518 2 D|Coruna|Spain|43 22 N|008 27 W
+518 2 F|Sao Miguel|Azores|37 48 N|025 33 W
+518 2 G|Tarifa|Spain|36 02 N|005 33 W
+518 2 I|Las Palmas|Canary Islands|28 25 N|016 20 W
+518 2 P|Porto Santo|Madeira|33 05 N|016 20 W
+518 2 R|Penalva|Portugal|38 36 N|009 01 W
+490 2 A|Las Palmas|Canary Islands|28 25 N|016 20 W
+490 2 E|Corsen|France|48 28 N|005 03 W
+490 2 G|Penalva|Portugal|38 36 N|009 01 W
+490 2 J|Sao Miguel|Azores|37 48 N|025 33 W
+490 2 M|Porto Santo|Madeira|33 05 N|016 20 W
+490 2 P|Sao Vicente|Cape Verde|16 51 N|025 00 W
+490 2 T|Tarifa|Spain|36 02 N|005 33 W
+490 2 W|Coruna|Spain|43 22 N|008 27 W
+518 3 A|Novorossiysk|Russia|44 36 N|037 58 E
+518 3 B|Ain Taya|Algeria|36 48 N|003 15 E
+518 3 C|Odesa|Ukraine|46 22 N|030 44 E
+518 3 D|Istanbul|Turkey|41 04 N|028 57 E
+518 3 E|Samsun|Turkey|41 23 N|036 11 E
+518 3 F|Antalya|Turkey|36 09 N|030 26 E
+518 3 G|Berdiansk|Ukraine|46 38 N|036 45 E
+518 3 G|Fereydoon Kenar|Iran|36 42 N|052 33 E
+518 3 H|Iraklio|Greece|35 19 N|025 44 E
+518 3 I|Izmir|Turkey|38 16 N|026 16 E
+518 3 J|Varna|Bulgaria|43 04 N|027 47 E
+518 3 K|Kerkyra|Greece|39 36 N|019 53 E
+518 3 L|Limnos|Greece|39 54 N|025 10 E
+518 3 M|Cyprus|Cyprus|34 44 N|032 39 E
+518 3 N|Alexandria|Egypt|31 12 N|029 52 E
+518 3 O|Malta|Malta|35 50 N|014 29 E
+518 3 P|Haifa|Israel|32 54 N|035 07 E
+518 3 Q|Split|Croatia|43 10 N|016 25 E
+518 3 R|La Maddalena|Italy|41 13 N|009 23 E
+518 3 R|Baku|Azerbaijan|40 19 N|050 36 E
+518 3 U|Mondolfo|Italy|43 44 N|013 08 E
+518 3 V|Sellia Marina|Italy|38 52 N|016 43 E
+518 3 W|La Garde|France|43 06 N|005 59 E
+518 3 W|Astrakhan|Russia|45 47 N|047 33 E
+518 3 X|Cabo de la Nao|Spain|38 43 N|000 10 E
+490 3 A|Samsun|Turkey|41 23 N|036 11 E
+490 3 B|Istanbul|Turkey|41 04 N|028 57 E
+490 3 C|Izmir|Turkey|38 16 N|026 16 E
+490 3 D|Antalya|Turkey|36 09 N|030 26 E
+490 3 E|Mondolfo|Italy|43 44 N|013 08 E
+490 3 F|Split|Croatia|43 10 N|016 25 E
+490 3 G|Poti|Georgia|42 08 N|041 40 E
+490 3 I|La Maddalena|Italy|41 13 N|009 23 E
+490 3 J|Fereydoon Kenar|Iran|36 42 N|052 33 E
+490 3 K|Ain Taya|Algeria|36 48 N|003 15 E
+490 3 L|Constanta|Romania|44 06 N|028 37 E
+490 3 M|Cabo de la Nao|Spain|38 43 N|000 10 E
+490 3 M|Baku|Azerbaijan|40 19 N|050 36 E
+490 3 N|Piombino|Italy|42 55 N|010 32 E
+490 3 O|Taganrog|Russia|47 08 N|038 19 E
+490 3 P|Kerkyra|Greece|39 36 N|019 53 E
+490 3 Q|Iraklio|Greece|35 19 N|025 44 E
+490 3 R|Limnos|Greece|39 54 N|025 10 E
+490 3 S|La Garde|France|43 06 N|005 59 E
+490 3 U|Berdiansk|Ukraine|46 38 N|036 45 E
+490 3 W|Sellia Marina|Italy|38 52 N|016 43 E
+490 3 X|Odesa|Ukraine|46 22 N|030 44 E
+4209.5 3 M|Istanbul|Turkey|41 04 N|028 57 E
+4209.5 3 S|Iraklio|Greece|35 19 N|025 44 E
+518 4 A|Miami|USA|25 37 N|080 23 W
+518 4 B|Bermuda|Bermuda|32 21 N|064 39 W
+518 4 C|Moisie|Canada|50 11 N|066 06 W
+518 4 C|Santa Marta|Colombia|11 03 N|074 13 W
+518 4 E|Charleston|USA|32 50 N|079 57 W
+518 4 F|Boston|USA|41 42 N|070 30 W
+518 4 G|New Orleans|USA|29 53 N|089 56 W
+518 4 H|Curacao|Curacao|12 10 N|068 51 W
+518 4 M|Simiutaq|Greenland|60 41 N|046 35 W
+518 4 N|Portsmouth|USA|36 43 N|076 00 W
+518 4 O|Robin Hood Bay|Canada|47 36 N|052 40 W
+518 4 Q|Port Caledonia|Canada|46 11 N|059 53 W
+518 4 R|San Juan|Puerto Rico|18 28 N|067 04 W
+518 4 T|Iqaluit|Canada|63 43 N|068 32 W|n=May to December
+518 4 U|Chebogue|Canada|43 44 N|066 07 W
+518 4 W|Nuuk|Greenland|64 04 N|052 01 W
+518 4 X|Cartwright|Canada|53 42 N|057 01 W
+490 4 D|Moisie|Canada|50 11 N|066 06 W
+490 4 J|Port Caledonia|Canada|46 11 N|059 53 W
+490 4 K|Santa Marta|Colombia|11 03 N|074 13 W
+490 4 S|Iqaluit|Canada|63 43 N|068 32 W|n=May to December
+490 4 V|Chebogue|Canada|43 44 N|066 07 W|f=0335
+518 6 M|Ushuaia|Argentina|54 48 S|068 18 W
+518 6 N|Rio Gallegos|Argentina|51 37 S|069 12 W
+518 6 O|Comodoro Rivadavia|Argentina|45 50 S|067 28 W
+518 6 P|Bahia Blanca|Argentina|38 52 S|062 06 W
+518 6 Q|Mar del Plata|Argentina|38 03 S|057 32 W
+518 6 R|Buenos Aires|Argentina|35 29 S|058 10 W
+490 6 A|Ushuaia|Argentina|54 48 S|068 18 W
+490 6 B|Rio Gallegos|Argentina|51 37 S|069 12 W
+490 6 C|Comodoro Rivadavia|Argentina|45 50 S|067 28 W
+490 6 D|Bahia Blanca|Argentina|38 52 S|062 06 W
+490 6 E|Mar del Plata|Argentina|38 03 S|057 32 W
+490 6 F|Buenos Aires|Argentina|35 29 S|058 10 W
+518 7 C|Cape Town|South Africa|33 40 S|018 43 E
+518 7 I|Port Elizabeth|South Africa|34 02 S|025 33 E
+518 7 O|Durban|South Africa|29 48 S|030 48 E
+518 7 U|Cape Columbine|South Africa|32 49 S|017 51 E
+518 8 C|Mauritius|Mauritius|20 10 S|057 28 E
+518 8 G|Myeik|Myanmar|12 25 N|098 35 E
+518 8 H|Veraval|India|20 54 N|070 23 E
+518 8 I|Kyaukpyu|Myanmar|19 16 N|093 31 E
+518 8 J|Vengurla|India|15 51 N|073 37 E
+518 8 L|Muttam Point|India|08 07 N|077 19 E
+518 8 O|Porto Novo|India|11 30 N|079 46 E
+518 8 Q|Vakalpudi|India|17 00 N|082 17 E
+518 8 S|Balasore|India|21 29 N|086 55 E
+518 8 T|Mahe|Seychelles|04 39 S|055 28 E
+518 8 V|Keating Point|India|09 15 N|092 46 E
+490 8 M|Mahe|Seychelles|04 39 S|055 28 E
+490 8 Q|Yangon|Myanmar|16 42 N|096 17 E
+490 8 R|Myeik|Myanmar|12 25 N|098 35 E
+518 9 A|Bushehr|Iran|28 59 N|050 49 E
+518 9 B|Hamala|Bahrain|26 09 N|050 28 E
+518 9 F|Bandar Abbas|Iran|27 06 N|056 03 E
+518 9 H|Jeddah|Saudi Arabia|20 39 N|039 32 E
+518 9 V|Quseir|Egypt|26 06 N|034 17 E
+518 9 X|Ismailia|Egypt|30 28 N|032 22 E
+490 9 D|Bushehr|Iran|28 59 N|050 49 E
+490 9 I|Bandar Abbas|Iran|27 06 N|056 03 E
+490 9 W|Umm Qasr|Iraq|30 01 N|047 56 E
+4209.5 9 X|Ismailia|Egypt|30 28 N|032 22 E|t=0750,1150
+518 11 A|Jayapura|Indonesia|02 31 S|140 43 E
+518 11 B|Ambon|Indonesia|03 41 S|128 11 E
+518 11 C|Singapore|Singapore|01 20 N|103 58 E
+518 11 D|Makassar|Indonesia|05 04 S|119 29 E
+518 11 D|Pyongyang|North Korea|38 59 N|125 42 E
+518 11 E|Jakarta|Indonesia|06 07 S|106 51 E
+518 11 E|Hamhung|North Korea|39 50 N|127 41 E
+518 11 F|Phetchaburi|Thailand|13 01 N|100 01 E
+518 11 G|Naha|Japan|26 05 N|127 40 E
+518 11 H|Moji|Japan|34 00 N|130 56 E
+518 11 I|Puerto Princesa|Philippines|09 44 N|118 43 E
+518 11 I|Yokohama|Japan|35 14 N|139 55 E
+518 11 J|Manila|Philippines|14 33 N|121 03 E
+518 11 J|Otaru|Japan|43 19 N|140 26 E
+518 11 K|Da Nang|Vietnam|16 03 N|108 09 E
+518 11 K|Kushiro|Japan|42 57 N|144 23 E
+518 11 L|Hong Kong|Hong Kong|22 12 N|114 15 E
+518 11 M|Sanya|China|18 17 N|109 21 E
+518 11 N|Guangzhou|China|23 09 N|113 30 E
+518 11 O|Fuzhou|China|25 59 N|119 26 E
+518 11 P|Keelung|Taiwan|25 07 N|121 44 E|t=0630,1430,2230
+518 11 P|Linyuan|Taiwan|22 28 N|120 25 E|t=0230,1030,1830
+518 11 Q|Shanghai|China|31 06 N|121 32 E
+518 11 R|Dalian|China|38 50 N|121 31 E
+518 11 S|Sandakan|Malaysia|05 53 N|118 00 E
+518 11 S|Tianjin|China|39 02 N|117 26 E
+518 11 T|Miri|Malaysia|04 26 N|114 01 E
+518 11 U|Penang|Malaysia|05 25 N|100 24 E
+518 11 V|Jukbyeon|South Korea|37 03 N|129 25 E
+518 11 W|Byeonsan|South Korea|35 35 N|126 29 E
+518 11 W|Donsak|Thailand|09 18 N|099 42 E
+518 11 X|Ho Chi Minh City|Vietnam|10 23 N|107 08 E
+490 11 A|Pyongyang|North Korea|38 59 N|125 42 E
+490 11 B|Hamhung|North Korea|39 50 N|127 41 E
+490 11 F|Da Nang|Vietnam|16 03 N|108 09 E
+490 11 J|Jukbyeon|South Korea|37 03 N|129 25 E
+490 11 K|Byeonsan|South Korea|35 35 N|126 29 E
+490 11 M|Hai Phong|Vietnam|20 50 N|106 41 E
+490 11 O|Donsak|Thailand|09 18 N|099 42 E
+490 11 S|Phetchaburi|Thailand|13 01 N|100 01 E
+490 11 V|Vung Tau|Vietnam|10 23 N|107 08 E
+490 11 X|Yenliaoken|Taiwan|23 54 N|121 36 E
+4209.5 11 C|Nha Trang|Vietnam|12 13 N|109 10 E
+4209.5 11 G|Guangzhou|China|23 09 N|113 30 E
+4209.5 11 M|Hai Phong|Vietnam|20 50 N|106 41 E
+4209.5 11 Q|Shanghai|China|31 06 N|121 32 E
+4209.5 11 S|Tianjin|China|39 02 N|117 26 E
+4209.5 11 V|Guam|Guam|13 28 N|144 50 E
+518 12 C|San Francisco|USA|37 55 N|122 43 W
+518 12 D|Prince Rupert|Canada|54 18 N|130 24 W
+518 12 H|Tofino|Canada|48 55 N|125 32 W
+518 12 J|Kodiak|Alaska|57 46 N|152 31 W
+518 12 O|Buenaventura|Colombia|03 54 N|077 03 W
+518 12 Q|Cambria|USA|35 31 N|121 03 W
+518 12 W|Astoria|USA|46 12 N|123 57 W
+518 12 X|Kodiak|Alaska|57 46 N|152 31 W
+490 12 C|Buenaventura|Colombia|03 54 N|077 03 W
+518 13 A|Vladivostok|Russia|43 23 N|131 54 E
+518 13 B|Kholmsk|Russia|47 02 N|142 03 E
+518 13 C|Petropavlovsk|Russia|53 15 N|158 25 E
+518 13 D|Magadan|Russia|59 41 N|150 09 E
+518 13 G|Okhotsk|Russia|59 22 N|143 12 E
+518 15 A|Antofagasta|Chile|23 29 S|070 25 W
+518 15 B|Valparaiso|Chile|32 48 S|071 29 W
+518 15 C|Talcahuano|Chile|36 37 S|073 07 W
+518 15 D|Puerto Montt|Chile|41 47 S|072 52 W
+518 15 E|Punta Arenas|Chile|52 55 S|070 53 W
+490 15 G|Antofagasta|Chile|23 29 S|070 25 W
+490 15 H|Valparaiso|Chile|32 48 S|071 29 W
+490 15 I|Talcahuano|Chile|36 37 S|073 07 W
+490 15 J|Puerto Montt|Chile|41 47 S|072 52 W
+490 15 K|Punta Arenas|Chile|52 55 S|070 53 W
+518 16 S|Paita|Peru|05 06 S|081 07 W
+518 16 U|Callao|Peru|12 01 S|077 07 W
+518 16 W|Mollendo|Peru|17 01 S|072 01 W
+518 18 I|Upernavik|Greenland|72 47 N|056 09 W
+518 19 A|Svalbard|Norway|78 03 N|013 36 E
+518 19 B|Bodo|Norway|67 16 N|014 25 E
+518 19 C|Vardo|Norway|70 22 N|031 05 E
+518 20 K|Murmansk|Russia|68 46 N|032 58 E
+518 20 L|Arkhangelsk|Russia|64 51 N|040 17 E
+518 20 M|Sabetta|Russia|71 17 N|072 01 E
+518 21 Q|Tiksi|Russia|71 38 N|128 50 E|n=July to October

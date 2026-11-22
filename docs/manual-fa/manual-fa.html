@@ -42,6 +42,11 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
 .pair { display: flex; gap: 6mm; justify-content: center; break-inside: avoid; }
 .pair figure { flex: 1; margin: 2mm 0 3mm; }
 .pair img.screen { width: 100%; }
+  .side { display: flex; gap: 6mm; align-items: flex-start; break-inside: avoid; }
+  .side > div { flex: 1; min-width: 0; }
+  .side > div > :first-child { margin-top: 0; }
+  .side figure { flex: 0 0 58mm; margin: 1mm 0 0; }
+  .side img.phone { width: 54mm; }
 .note { background: #fff7e0; border-right: 4px solid var(--yellow); padding: 2.5mm 4mm; border-radius: 2mm; margin: 3mm 0 4mm; break-inside: avoid; }
 .tip { background: #e6faf4; border-right: 4px solid var(--green); padding: 2.5mm 4mm; border-radius: 2mm; margin: 3mm 0 4mm; break-inside: avoid; }
 .steps { counter-reset: s; list-style: none; padding: 0; }
@@ -494,15 +499,27 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
     <tr><th style="width:20%">مد</th><th>چه چیزی را دیکود می‌کند</th></tr>
     <tr><td><b><bdi>RTTY</bdi></b></td><td>تله‌تایپ رادیوآماتوری: <bdi>45.45&nbsp;baud</bdi> با شیفت <bdi>170&nbsp;Hz</bdi>. ایستگاه‌های عادی و وارونه یکسان خوانده می‌شوند.</td></tr>
     <tr><td><b><bdi>RTTY DWD</bdi></b></td><td>سازمان هواشناسی آلمان: <bdi>50&nbsp;baud</bdi> با شیفت <bdi>450&nbsp;Hz</bdi>. هوا برای کشتی‌ها، بیشتر به انگلیسی.</td></tr>
-    <tr><td><b><bdi>NAVTEX</bdi></b></td><td>پیام‌های ایمنی برای کشتی‌ها روی <bdi>518&nbsp;kHz</bdi>. صفحه خودش روی آن تنظیم می‌شود.</td></tr>
+    <tr><td><b><bdi>NAVTEX</bdi></b></td><td>پیام‌های ایمنی برای کشتی‌ها: هشدارهای دریانوردی و هواشناسی. این‌جا با <b>چرخاندن</b> ولوم کانال عوض می‌شود و صفحه خودش روی هر کانال تنظیم می‌شود: <bdi>518&nbsp;kHz</bdi> (انگلیسی)، <bdi>490&nbsp;kHz</bdi> (زبان همان کشور)، <bdi>4209.5&nbsp;kHz</bdi>، و هشت کانال موج کوتاه برای دریای آزاد، از <bdi>4210&nbsp;kHz</bdi> تا <bdi>26100.5&nbsp;kHz</bdi>. <bdi>sync</bdi> کنار فرکانس تن یعنی دیکودر روی ایستگاه قفل شده است.</td></tr>
     <tr><td><b><bdi>PSK31</bdi></b></td><td>مد آماتوری که با دست تایپ می‌شود، <bdi>31&nbsp;baud</bdi>، با پهنای چند هرتز.</td></tr>
     <tr><td><b><bdi>WEFAX</bdi></b></td><td>نقشه‌های هوا (رادیوفکس)، ۱۲۰ خط در دقیقه. <bdi>1.9&nbsp;kHz</bdi> پایین‌تر از فرکانس اعلام‌شده تنظیم کنید. نقشه روی صفحه‌ی رادیو و، بزرگ‌تر، در مرورگر رسم می‌شود (بخش ۲۵) و <bdi>Save picture</bdi> آن را ذخیره می‌کند.</td></tr>
   </table>
   <ul>
-    <li><b>کلیک:</b> مد بعدی. <b>چرخاندن:</b> تنظیم فرکانس. <b>فشار کوتاه:</b> خروج؛ رادیو دقیقاً به حالت قبل برمی‌گردد.</li>
+    <li><b>کلیک:</b> مد بعدی. <b>چرخاندن:</b> تنظیم فرکانس (در <bdi>NAVTEX</bdi>: کانال بعدی). <b>فشار کوتاه:</b> خروج؛ رادیو دقیقاً به حالت قبل برمی‌گردد.</li>
     <li>بالا، راست: فرکانس تنی که دیکودر پیدا کرده به رنگ سبز، یا <bdi>No signal</bdi>. بدون سیگنال چیزی نوشته نمی‌شود، تا نویز صفحه را از حرف پر نکند.</li>
-    <li>صفحه‌ی رادیو پنج خط آخر را نگه می‌دارد؛ مرورگر همه‌ی متن را.</li>
+    <li>صفحه‌ی رادیو پنج خط آخر را هم‌زمان با دریافت نشان می‌دهد. رادیو همه‌ی متن را نگه می‌دارد.</li>
   </ul>
+  <h3>خواندن دوباره‌ی متن</h3>
+  <p>یک پیام <bdi>NAVTEX</bdi> یا یک بولتن هواشناسی از پنج خط بلندتر است. رادیو هر چه را از زمان روشن شدن دیکود کرده نگه می‌دارد، حدود ۱۶ هزار حرف، با همان سطربندی ایستگاه.</p>
+  <ul>
+    <li><b>ولوم را فشار دهید و بچرخانید:</b> طیف کنار می‌رود و هفت خط از کل متن دیده می‌شود. بالا سمت راست شماره‌ی خط و تعداد خط‌هاست؛ نوار کنار صفحه جای شما را در متن نشان می‌دهد.</li>
+    <li><b>چرخاندن:</b> بالا و پایین رفتن در متن. <b>کلیک:</b> برگشت به متن زنده. <b>فشار کوتاه:</b> خروج از صفحه.</li>
+    <li>هر بار که دیکودری شروع می‌شود و چیزی دریافت می‌کند، یک خط عنوان زردرنگ نوشته می‌شود: مد، فرکانس و ساعت <bdi>UTC</bdi>.</li>
+    <li>مرورگر همین متن را در یک کادر نشان می‌دهد و در فایل ذخیره می‌کند (بخش ۲۵).</li>
+  </ul>
+  <div class="pair">
+    <figure><img class="screen" src="img/screen-navtex.png" alt=""><figcaption><bdi>NAVTEX</bdi> روی <bdi>518&nbsp;kHz</bdi>، قفل‌شده روی یک ایستگاه</figcaption></figure>
+    <figure><img class="screen" src="img/screen-readback.png" alt=""><figcaption>خواندن دوباره: خط اول از ۱۷ خط</figcaption></figure>
+  </div>
   <div class="note">مانند صفحه‌ی <bdi>FT8</bdi>، این صفحه به برد <bdi>V4B</bdi> نیاز دارد و هدفون باید جدا باشد. هنگام باز بودن صفحه <bdi>Wi-Fi</bdi> موقتاً خاموش می‌شود، مگر این‌که کنترل از مرورگر در یک مرورگر باز باشد.</div>
   <p><bdi>No signal</bdi> یعنی روی آن فرکانس چیزی دریافت نمی‌شود، نه این‌که چیزی خراب است. ایستگاه‌هایی برای امتحان هر مد در بخش ۲۶ آمده است.</p>
 </section>
@@ -515,7 +532,8 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
     <li>باند را به شکل آبشار طیف؛</li>
     <li>هر پیام <bdi>FT8</bdi> و <bdi>FT4</bdi> را با کشور و پرچم ایستگاه؛</li>
     <li>نقشه‌ی ایستگاه‌هایی که لوکیتور فرستاده‌اند؛ لوکیتور خود را در <bdi>My locator</bdi> بنویسید تا خط‌ها از محل شما رسم شوند؛</li>
-    <li>متن <bdi>CW</bdi>، <bdi>RTTY</bdi>، <bdi>NAVTEX</bdi> و <bdi>PSK31</bdi>، و نقشه‌ی <bdi>WEFAX</bdi> با <bdi>Save picture</bdi>؛</li>
+    <li>همه‌ی متن <bdi>RTTY</bdi>، <bdi>NAVTEX</bdi> و <bdi>PSK31</bdi> در یک کادر، با <bdi>Save text</bdi>؛ متن <bdi>CW</bdi>؛ نقشه‌ی <bdi>WEFAX</bdi> با <bdi>Save picture</bdi>؛</li>
+    <li>جدول زمانی <bdi>NAVTEX</bdi>: کدام ایستگاه الان روی آنتن است و نوبت بعدی با کیست؛</li>
     <li><b><bdi>DX alarm</bdi></b>: نشانه‌ها یا کشورها را بنویسید تا با دیکود شدن هر کدام یک بوق بشنوید؛ <bdi>Save log</bdi> فهرست را ذخیره می‌کند.</li>
   </ul>
   <div class="pair">
@@ -523,7 +541,28 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
     <figure><img class="phone" src="img/web-decodes-list.jpg" alt=""><figcaption>پایین‌تر: لوکیتور، <bdi>DX alarm</bdi> و پیام‌ها</figcaption></figure>
   </div>
   <h3 style="break-before:page;margin-top:0">شروع دیکودر از مرورگر</h3>
-  <p>ردیف <b><bdi>Decoder on the radio</bdi></b> دیکودرها را بدون دست زدن به رادیو شروع و متوقف می‌کند. <bdi>FT8</bdi> یا <bdi>FT4</bdi> و یک باند، یا <bdi>CW</bdi>، <bdi>RTTY</bdi>، <bdi>RTTY DWD</bdi>، <bdi>NAVTEX</bdi>، <bdi>PSK31</bdi> یا <bdi>WEFAX</bdi> را انتخاب کنید و <bdi>Start</bdi> را بزنید. <bdi>FT8</bdi> و <bdi>FT4</bdi> به باندی که انتخاب کرده‌اید می‌روند و <bdi>NAVTEX</bdi> به <bdi>518&nbsp;kHz</bdi>؛ بقیه همان‌جا که رادیو هست دیکود می‌کنند، پس اول فرکانس را تنظیم کنید. <bdi>Stop</bdi> دیکودر را می‌بندد و رادیو به جای قبلی برمی‌گردد. خط کنار دکمه‌ها می‌گوید چه چیزی در حال کار است.</p>
+  <p>ردیف <b><bdi>Decoder on the radio</bdi></b> دیکودرها را بدون دست زدن به رادیو شروع و متوقف می‌کند. <bdi>FT8</bdi> یا <bdi>FT4</bdi> و یک باند، یا <bdi>CW</bdi>، <bdi>RTTY</bdi>، <bdi>RTTY DWD</bdi>، <bdi>NAVTEX</bdi>، <bdi>PSK31</bdi> یا <bdi>WEFAX</bdi> را انتخاب کنید و <bdi>Start</bdi> را بزنید. <bdi>FT8</bdi> و <bdi>FT4</bdi> به باندی که انتخاب کرده‌اید می‌روند و <bdi>NAVTEX</bdi> به کانالی که در فهرست دوم انتخاب کرده‌اید؛ بقیه همان‌جا که رادیو هست دیکود می‌کنند، پس اول فرکانس را تنظیم کنید. <bdi>Stop</bdi> دیکودر را می‌بندد و رادیو به جای قبلی برمی‌گردد. خط کنار دکمه‌ها می‌گوید چه چیزی در حال کار است.</p>
+  <h3>همه‌ی متن، و ذخیره‌ی آن</h3>
+  <div class="side">
+    <div>
+      <p>برای <bdi>RTTY</bdi>، <bdi>NAVTEX</bdi> و <bdi>PSK31</bdi> کادر زیر آبشار طیف همه‌ی متنی را که رادیو دیکود کرده، با همان سطربندی، نشان می‌دهد و با رسیدن متن تازه پایین می‌رود. برای خواندن بالا بروید؛ کادر همان‌جا می‌ماند. مرورگر هر چه را هنوز ندارد از رادیو می‌گیرد، پس متنی که پیش از باز کردن صفحه دیکود شده هم هست.</p>
+      <ul>
+        <li><bdi>Save text</bdi> متن را در یک فایل متنی ذخیره می‌کند. <bdi>Clear text</bdi> فقط کادر همین صفحه را خالی می‌کند.</li>
+        <li>دو خط قرمز روی آبشار طیف تن‌هایی است که دیکودر به آن‌ها گوش می‌دهد، مثل صفحه‌ی رادیو. <bdi>sync</bdi> کنار نام مد یعنی <bdi>NAVTEX</bdi> روی ایستگاه قفل شده است.</li>
+      </ul>
+    </div>
+    <figure><img class="phone" src="img/web-navtext.jpg" alt=""><figcaption>آبشار طیف با دو تن، همه‌ی متن، و <bdi>Save text</bdi></figcaption></figure>
+  </div>
+  <h3>جدول زمانی <bdi>NAVTEX</bdi></h3>
+  <p><bdi>NAVTEX</bdi> را انتخاب کنید تا جدول زمانی زیر دکمه‌ها باز شود، برای کانالی که در فهرست دوم است. هر ایستگاه <bdi>NAVTEX</bdi> هر چهار ساعت ده دقیقه می‌فرستد، در نوبتی که حرف آن تعیین می‌کند: <bdi>A</bdi> در <bdi>00:00 UTC</bdi>، <bdi>B</bdi> در <bdi>00:10</bdi>، تا <bdi>X</bdi> در <bdi>03:50</bdi>. همان حرف در آغاز هر پیام می‌آید: <bdi>ZCZC FA12</bdi> از ایستگاه <bdi>F</bdi> است.</p>
+  <ul>
+    <li><bdi>now</bdi>، به رنگ سبز، ایستگاهی است که الان روی آنتن است، با دقیقه‌های باقی‌مانده. بقیه به ترتیب نوبت می‌آیند.</li>
+    <li>لوکیتور خود را در <bdi>My locator</bdi> (پایین‌تر در همین زبانه) بنویسید تا فاصله‌ی هر ایستگاه دیده شود. آن‌وقت <bdi>Order</bdi> جدول را به ترتیب زمان یا <bdi>Nearest first</bdi> (نزدیک‌ترین اول) می‌چیند و <bdi>Range</bdi> ایستگاه‌های تا <bdi>1500&nbsp;km</bdi>، <bdi>3000&nbsp;km</bdi> یا <bdi>6000&nbsp;km</bdi> را نگه می‌دارد.</li>
+    <li>کلیک روی هر خط، <bdi>NAVTEX</bdi> را روی همان کانال شروع می‌کند. <bdi>Show all</bdi> همه‌ی فهرست را باز می‌کند.</li>
+    <li><bdi>518&nbsp;kHz</bdi> به انگلیسی است، <bdi>490&nbsp;kHz</bdi> به زبان همان کشور، و <bdi>4209.5&nbsp;kHz</bdi> روی موج کوتاه تا دوردست می‌رسد. برای <bdi>518&nbsp;kHz</bdi> و <bdi>490&nbsp;kHz</bdi> شب بهترین زمان است. هشت کانال موج کوتاه پایین‌تر در فهرست، اطلاعات ایمنی دریای آزاد را می‌فرستند؛ ایستگاه‌های کمی آن‌جا کار می‌کنند و جدول زمانی ندارند.</li>
+  </ul>
+  <div class="note">جدول ۲۳۸ ایستگاه دارد و در ۱ آذر ۱۴۰۵ با فهرست‌های عمومی ایستگاه‌ها مقایسه شده است (بخش ۲۹). ایستگاه‌ها تغییر می‌کنند، و دیکودر یک رادیوی جیبی برای ناوبری نیست.</div>
+  <figure style="break-before:page;width:62mm;margin:0 auto 4mm"><img class="phone" style="width:62mm" src="img/web-navtex.jpg" alt=""><figcaption><bdi>NAVTEX</bdi> انتخاب شده: جدول زمانی، نزدیک‌ترین ایستگاه‌ها برای شنونده‌ای در دبی</figcaption></figure>
   <h3>صدای دیکودر: <bdi>3&nbsp;kHz</bdi> یا <bdi>6&nbsp;kHz</bdi></h3>
   <p>صفحه‌های <bdi>FT8/FT4</bdi> و <bdi>Digital</bdi> به صدای خود رادیو گوش می‌دهند و این تنظیم می‌گوید چه مقدار از آن را بگیرند.</p>
   <table>
@@ -546,7 +585,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
     <tr><td><b><bdi>CW</bdi></b></td><td>بیکن‌ها روی <bdi>14.100&nbsp;MHz</bdi> (بخش ۱۰)، یا پایین باندهای <bdi>40M</bdi> و <bdi>20M</bdi>: <bdi>7.000</bdi> تا <bdi>7.040</bdi> و <bdi>14.000</bdi> تا <bdi>14.070&nbsp;MHz</bdi>.</td><td>نشانه‌ها و فراخوان‌های <bdi>CQ</bdi>. بیکن اول نشانه‌ی خود را می‌فرستد و بعد چهار خط بلند.</td></tr>
     <tr><td><b><bdi>RTTY DWD</bdi></b></td><td>سازمان هواشناسی آلمان، شبانه‌روز روی <bdi>4583</bdi>، <bdi>7646</bdi> و <bdi>10100.8&nbsp;kHz</bdi>. در <bdi>USB</bdi>، <bdi>1.5&nbsp;kHz</bdi> پایین‌تر تنظیم کنید: <b><bdi>10099.3&nbsp;kHz</bdi></b>، یا شب <b><bdi>7644.5</bdi></b> و <b><bdi>4581.5&nbsp;kHz</bdi></b>.</td><td>بین بولتن‌ها خط‌های <bdi>RYRYRY</bdi>، سپس گزارش‌ها و پیش‌بینی‌های هوا، بیشتر به انگلیسی. فرکانس تن به‌جای <bdi>No signal</bdi> به رنگ سبز دیده می‌شود. فرستنده در آلمان است: از راه دور ضعیف است و عصر و شب بهتر شنیده می‌شود.</td></tr>
     <tr><td><b><bdi>RTTY</bdi></b></td><td><bdi>RTTY</bdi> آماتوری، <bdi>14.080</bdi> تا <bdi>14.099&nbsp;MHz</bdi>، بیشتر آخر هفته‌ها و در مسابقه‌ها.</td><td>فراخوان‌های <bdi>CQ</bdi> و ردوبدل‌های مسابقه با حروف بزرگ.</td></tr>
-    <tr><td><b><bdi>NAVTEX</bdi></b></td><td><bdi>518&nbsp;kHz</bdi> (صفحه خودش تنظیم می‌کند). هر ایستگاه ساحلی هر چهار ساعت حدود ده دقیقه می‌فرستد، هر کدام در ساعت خودش؛ شب بهترین زمان است. ساعت ایستگاه‌های منطقه‌ی دریایی خود را پیدا کنید.</td><td>هشدارهای دریانوردی و هوا برای کشتی‌ها؛ با <bdi>ZCZC</bdi> شروع و با <bdi>NNNN</bdi> تمام می‌شود.</td></tr>
+    <tr><td><b><bdi>NAVTEX</bdi></b></td><td><bdi>518&nbsp;kHz</bdi> (صفحه خودش تنظیم می‌کند؛ با ولوم به <bdi>490&nbsp;kHz</bdi> و <bdi>4209.5&nbsp;kHz</bdi> بروید). هر ایستگاه ساحلی هر چهار ساعت ده دقیقه می‌فرستد، هر کدام در نوبت خودش: <b>جدول زمانی <bdi>NAVTEX</bdi></b> در زبانه‌ی <bdi>Decodes</bdi> (بخش ۲۵) نشان می‌دهد چه ایستگاهی روی آنتن است و نوبت بعدی با کیست. شب بهترین زمان است.</td><td>هشدارهای دریانوردی و هوا برای کشتی‌ها؛ با <bdi>ZCZC</bdi> شروع و با <bdi>NNNN</bdi> تمام می‌شود.</td></tr>
     <tr><td><b><bdi>PSK31</bdi></b></td><td><bdi>14.070&nbsp;MHz</bdi> در <bdi>USB</bdi>، و <bdi>7.040&nbsp;MHz</bdi>. این روزها ایستگاه کم است.</td><td>خط‌های باریک و ثابت در طیف؛ حروف کوچک و بزرگ که با دست تایپ شده‌اند.</td></tr>
     <tr><td><b><bdi>WEFAX</bdi></b></td><td><bdi>Northwood</bdi> (بریتانیا): <bdi>4610</bdi>، <bdi>8040</bdi> و <bdi>11086.5&nbsp;kHz</bdi>. در <bdi>USB</bdi>، <bdi>1.9&nbsp;kHz</bdi> پایین‌تر تنظیم کنید: در روز <b><bdi>8038.1</bdi></b> یا <b><bdi>11084.6&nbsp;kHz</bdi></b>، و شب <b><bdi>4608.1&nbsp;kHz</bdi></b>.</td><td>نقشه‌ی هوا که خط به خط رسم می‌شود؛ یک نقشه‌ی کامل ۱۰ تا ۲۰ دقیقه طول می‌کشد. تصویر کج هم نشان می‌دهد که سیگنال خوانده می‌شود.</td></tr>
   </table>
@@ -597,6 +636,7 @@ figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
 
   <h2 style="break-before:page"><span class="num">۲۹</span>سازندگان و مجوز</h2>
   <p>نسخه‌ی RESONIK: <bdi>EP2MHB</bdi> (محمد بحرالعلوم). بر پایه‌ی <bdi>ats-mini</bdi> اثر <bdi>PU2CLR (Ricardo Caratti)</bdi>، <bdi>Volos Projects</bdi>، <bdi>Ralph Xavier</bdi>، <bdi>Sunnygold</bdi>، <bdi>Goshante</bdi>، <bdi>G8PTN (Dave)</bdi>، <bdi>R9UCL (Max Arnold)</bdi>، <bdi>Marat Fayzullin</bdi> و همه‌ی مشارکت‌کنندگان. دیکودر <bdi>FT8</bdi> از <bdi>ft8_lib</bdi> اثر <bdi>Karlis Goba</bdi> استفاده می‌کند، به پیروی از فورک <bdi>epiHATR</bdi>؛ چند اصلاح از فورک‌های <bdi>jokubasver</bdi> و <bdi>mattafaak</bdi> آمده است. کد منبع با مجوز <bdi>MIT</bdi> در <bdi>GitHub</bdi> است.</p>
+  <p>جدول ایستگاه‌های <bdi>NAVTEX</bdi> با <bdi>World NAVTEX Database for DXers</bdi> از <bdi>Alan Gale G4TMV</bdi> (<bdi>ndblist.info</bdi>)، فهرست <bdi>List of Navtex stations</bdi> در ویکی‌پدیا و فایل ایستگاه‌های <bdi>fldigi</bdi> مقایسه شده است.</p>
   <p class="small">RESONIK وابسته به سازندگان رادیوهای <bdi>ATS Mini</bdi> نیست. نصب فریم‌ور غیررسمی با مسئولیت خود شماست؛ نسخه‌ی پشتیبان امکان بازگشت را می‌دهد.</p>
   <p class="small" style="text-align:center"><bdi>73 de resonik.mikroutik.com</bdi></p>
 </section>

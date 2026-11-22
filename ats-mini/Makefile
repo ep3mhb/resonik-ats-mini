@@ -108,6 +108,10 @@ build/TestKenwoodExtra: tests/TestKenwoodExtra.cpp KenwoodExtra.h
 	@mkdir -p build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++11 -Wall -Wextra -UNDEBUG tests/TestKenwoodExtra.cpp $(LDFLAGS) -o $@
 
+build/TestDigiLog: tests/TestDigiLog.cpp DigiDecoders.h
+	@mkdir -p build
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++11 -Wall -Wextra -UNDEBUG tests/TestDigiLog.cpp $(LDFLAGS) -o $@
+
 build/TestPropagation: tests/TestPropagation.cpp Propagation.h
 	@mkdir -p build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++11 -Wall -Wextra -UNDEBUG tests/TestPropagation.cpp $(LDFLAGS) -o $@
@@ -127,7 +131,7 @@ build/TestFt8: tests/TestFt8.cpp Ft8Rx.h $(FT8_C) $(wildcard src/ft8/*.h)
 	for f in $(FT8_C); do $(CC) -O2 -c $$f -o build/ft8/$$(basename $$f .c).o || exit 1; done
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -O2 -std=c++11 -Wall -Wextra -UNDEBUG tests/TestFt8.cpp build/ft8/*.o $(LDFLAGS) -lm -o $@
 
-test: build/TestParser build/TestParserAdhoc build/TestParserKenwood build/TestOtaVersion build/TestHttpDate build/TestTimeZone build/TestBandPlan build/TestBatteryTime build/TestBeacons build/TestKenwoodExtra build/TestPropagation build/TestEibiParse build/TestCwDecoder build/TestFt8
+test: build/TestParser build/TestParserAdhoc build/TestParserKenwood build/TestOtaVersion build/TestHttpDate build/TestTimeZone build/TestBandPlan build/TestBatteryTime build/TestBeacons build/TestKenwoodExtra build/TestDigiLog build/TestPropagation build/TestEibiParse build/TestCwDecoder build/TestFt8
 	./build/TestParser
 	./build/TestParserAdhoc
 	./build/TestParserKenwood
@@ -138,6 +142,7 @@ test: build/TestParser build/TestParserAdhoc build/TestParserKenwood build/TestO
 	./build/TestBatteryTime
 	./build/TestBeacons
 	./build/TestKenwoodExtra
+	./build/TestDigiLog
 	./build/TestPropagation
 	./build/TestEibiParse
 	./build/TestCwDecoder

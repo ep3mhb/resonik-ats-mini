@@ -10,6 +10,13 @@
 // (PSK31). The knob tunes the radio, a click changes the mode, a short
 // press leaves. The radio goes to USB 3.0k on opening and back on leaving.
 //
+// The whole text is kept (Digi::Log, 16 kB in PSRAM, line breaks as sent):
+// push and turn reads it back on the screen, and the browser asks for what
+// it has not got yet ("!dtext"). NAVTEX is channelled, as FT8 is: there the
+// knob steps through its channels (518, 490 and 4209.5 kHz and the eight
+// short-wave channels for safety information on the high seas) and the
+// decoder finds the tones by itself, so there is nothing to tune.
+//
 #include "Common.h"
 #include "Themes.h"
 #include "Utils.h"
@@ -22,6 +29,7 @@
 #include "DigiDecoders.h"
 #include "src/ft8/kiss_fftr.h"
 
+#include <time.h>
 #include <esp_heap_caps.h>
 #include <freertos/semphr.h>
 #include <new>
@@ -36,10 +44,34 @@ static volatile int inRate = FS;
 #define SPEC_LO      300              // Spectrum shown and searched, Hz
 #define SPEC_HI      2700
 #define SPEC_W       296
+#define LOG_SIZE     16384            // The whole text: characters kept
+#define LINES_MAX    2048             // Lines of it the read-back view indexes
+#define READ_ROWS    7                // Lines on the screen while reading back
+
+// NAVTEX channels and where the radio listens for them (USB, tones at
+// 1500 Hz): the three NAVTEX channels, which the browser's timetable knows
+// (tools/navtex_table.py goes by this order), then the short-wave channels
+// for maritime safety information on the high seas, same kind of signal
+static const struct { const char *name; uint32_t dial; } navCh[] =
+{
+  { "518 kHz",     516500 },
+  { "490 kHz",     488500 },
+  { "4209.5 kHz",  4208000 },
+  { "4210 kHz",    4208500 },
+  { "6314 kHz",    6312500 },
+  { "8416.5 kHz",  8415000 },
+  { "12579 kHz",   12577500 },
+  { "16806.5 kHz", 16805000 },
+  { "19680.5 kHz", 19679000 },
+  { "22376 kHz",   22374500 },
+  { "26100.5 kHz", 26099000 },
+};
+#define NAV_COUNT    ((int)(sizeof(navCh) / sizeof(navCh[0])))
+static int nav = 0;
 
 enum DigiMode { DM_RTTY, DM_DWD, DM_NAVTEX, DM_PSK31, DM_WEFAX, DM_COUNT };
 static const char *const modeName[DM_COUNT] = { "RTTY", "RTTY DWD", "NAVTEX", "PSK31", "WEFAX" };
-static const char *const modeInfo[DM_COUNT] = { "45.45 Bd 170 Hz", "50 Bd 450 Hz", "100 Bd 518 kHz", "31.25 Bd BPSK", "120 lpm, dial -1.9 kHz" };
+static const char *const modeInfo[DM_COUNT] = { "45.45 Bd 170 Hz", "50 Bd 450 Hz", "100 Bd 170 Hz", "31.25 Bd BPSK", "120 lpm, dial -1.9 kHz" };
 
 static int16_t *ring = nullptr;
 static SemaphoreHandle_t lock = nullptr;
@@ -64,6 +96,34 @@ static uint8_t spec[SPEC_W];          // Spectrum, 0..255
 static volatile float centre = 1500;  // Signal found, Hz
 static volatile bool found = false;
 static volatile uint32_t changes = 0;
+
+// The whole text (under lock) and the read-back view of it: a copy taken
+// when reading begins, with the offsets where its screen lines start
+static Digi::Log textLog;
+static char *snap = nullptr;
+static uint32_t *lineAt = nullptr;
+static uint32_t snapLen = 0;
+static int lineCount = 0, topLine = 0, turned = 0;
+static bool reading = false, reindex = false;
+
+// Head line of the text that follows: mode, frequency, UTC time if known
+static void logHead()
+{
+  static const char *const mon[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+  char when[28] = "";
+  if(clockAvailable())
+  {
+    time_t now = time(NULL);
+    struct tm t;
+    gmtime_r(&now, &t);
+    snprintf(when, sizeof(when), ", %d %s %02d:%02d UTC", t.tm_mday, mon[t.tm_mon % 12], t.tm_hour, t.tm_min);
+  }
+  if(workMode == DM_NAVTEX)
+    snprintf(textLog.head, sizeof(textLog.head), "== NAVTEX %s%s ==", navCh[nav].name, when);
+  else
+    snprintf(textLog.head, sizeof(textLog.head), "== %s %lu.%lu kHz USB%s ==", modeName[workMode],
+             (unsigned long)(currentFrequency / 1000), (unsigned long)(currentFrequency % 1000 / 100), when);
+}
 
 static Digi::Text *activeText()
 {
@@ -138,6 +198,7 @@ static void work(void *)
       xSemaphoreTake(lock, portMAX_DELAY);
       beginDecoder(workMode, centre);
       shownText[0] = '\0';
+      logHead();
       xSemaphoreGive(lock);
       memset(avgPower, 0, sizeof(avgPower));
       found = false;
@@ -272,8 +333,8 @@ static void audioOff()
 
 static void tuneForMode()
 {
-  // NAVTEX: 518 kHz, heard at 1500 Hz on USB; the others stay where they are
-  digiSetUsb(mode == DM_NAVTEX ? 516500 : 0);
+  // NAVTEX: its channel, heard at 1500 Hz on USB; the others stay where they are
+  digiSetUsb(mode == DM_NAVTEX ? navCh[nav].dial : 0);
 }
 
 static bool start()
@@ -284,11 +345,20 @@ static bool start()
   if(!rtty) rtty = new (heap_caps_malloc(sizeof(Digi::Rtty), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT)) Digi::Rtty();
   if(!navtex) navtex = new (heap_caps_malloc(sizeof(Digi::Navtex), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT)) Digi::Navtex();
   if(!psk) psk = new (heap_caps_malloc(sizeof(Digi::Psk31), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT)) Digi::Psk31();
-  if(!ring || !rtty || !navtex || !psk || !fax)
+  if(!textLog.buf)
+  {
+    textLog.buf = (char *)heap_caps_malloc(LOG_SIZE, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    textLog.size = LOG_SIZE;
+  }
+  if(!snap) snap = (char *)heap_caps_malloc(LOG_SIZE + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+  if(!lineAt) lineAt = (uint32_t *)heap_caps_malloc((LINES_MAX + 1) * sizeof(uint32_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+  if(!ring || !rtty || !navtex || !psk || !fax || !textLog.buf || !snap || !lineAt)
   {
     statusShow("Digital", "Not enough memory");
     return(false);
   }
+  rtty->text.log = navtex->text.log = psk->text.log = &textLog;
+  reading = false;
   if(!worker) xTaskCreatePinnedToCore(work, "digi", 16384, nullptr, 1, &worker, 1);
   ft8SaveRadio();
   tuneForMode();
@@ -309,6 +379,7 @@ static bool start()
 static void stop()
 {
   running = false;
+  reading = false;
   audioFt8Ring(nullptr, 0);
   if(cpuSaved && cpuSaved < 240) setCpuFrequencyMhz(cpuSaved);
   cpuSaved = 0;
@@ -325,7 +396,10 @@ bool digiWebState(uint32_t *seen, String &j)
   *seen = changes;
   j = "{\"dg\":{\"m\":\"";
   j += modeName[mode];
-  j += "\",\"c\":"; j += found ? (int)centre : 0;
+  if(mode == DM_NAVTEX) { j += ' '; j += navCh[nav].name; }
+  j += "\",\"n\":"; j += textLog.total;
+  if(mode == DM_NAVTEX && navtex && navtex->synced) j += ",\"s\":1";
+  j += ",\"c\":"; j += found ? (int)centre : 0;
   j += ",\"k\":"; j += inRate / 2000;
   j += ",\"t\":\"";
   xSemaphoreTake(lock, portMAX_DELAY);
@@ -362,6 +436,62 @@ bool digiWebState(uint32_t *seen, String &j)
   return(true);
 }
 
+// RESONIK R5: the whole text from character `from` on, at most 1024 of them,
+// for the browser: {"dgt":{"o":first sent,"e":one past the last,"n":total,"t":".."}}
+void digiWebText(uint32_t from, String &j)
+{
+  static char part[1025];
+  uint32_t total = 0, o = 0;
+  int n = 0;
+  if(lock && textLog.buf)
+  {
+    xSemaphoreTake(lock, portMAX_DELAY);
+    total = textLog.total;
+    o = from > total || from < textLog.first() ? textLog.first() : from;
+    while(n < 1024 && o + n < total) { part[n] = textLog.at(o + n); n++; }
+    xSemaphoreGive(lock);
+  }
+  j = "{\"dgt\":{\"o\":"; j += o;
+  j += ",\"e\":"; j += o + n;
+  j += ",\"n\":"; j += total;
+  j += ",\"t\":\"";
+  for(int i = 0; i < n; i++)
+  {
+    char c = part[i];
+    if(c == '\n') j += "\\n";
+    else if(c == '"' || c == '\\') { j += '\\'; j += c; }
+    else j += c;
+  }
+  j += "\"}}";
+}
+
+// The open page goes to another mode (or NAVTEX to another channel)
+static void goMode(int m);
+
+// Push and turn begins reading the text back; the knob then scrolls it.
+// In NAVTEX the knob steps through the channels. False: the knob tunes.
+bool digiTurn(int16_t enc, bool pressed)
+{
+  if(!pageActive) return(false);
+  if(!reading)
+  {
+    if(!pressed)
+    {
+      if(mode != DM_NAVTEX) return(false);
+      nav = (nav + (enc > 0 ? 1 : NAV_COUNT - 1)) % NAV_COUNT;
+      goMode(mode);
+      return(true);
+    }
+    if(mode == DM_WEFAX) return(false);
+    reading = true;
+    reindex = true;                  // The view is built when it is next drawn
+    turned = enc;
+    return(true);
+  }
+  turned += enc;
+  return(true);
+}
+
 // The open page goes to another mode
 static void goMode(int m)
 {
@@ -376,20 +506,29 @@ static void goMode(int m)
 
 void digiClick(bool shortPress)
 {
-  if(shortPress) { currentCmd = CMD_NONE; return; }
+  if(shortPress) { reading = false; currentCmd = CMD_NONE; return; }
+  if(reading) { reading = false; return; }           // Back to the live text
   goMode((mode + 1) % DM_COUNT);
 }
 
-// RESONIK R5: Web Control starts the page in a mode, or changes mode
+// RESONIK R5: Web Control starts the page in a mode, or changes mode.
+// m: the mode, plus 256 times the NAVTEX channel
 void digiWebOpen(int m)
 {
-  if(m < 0 || m >= DM_COUNT) return;
-  if(pageActive) { if(m != mode) goMode(m); return; }
+  int ch = m >> 8;
+  m &= 0xFF;
+  if(m < 0 || m >= DM_COUNT || ch < 0 || ch >= NAV_COUNT) return;
+  bool same = m == mode && (m != DM_NAVTEX || ch == nav);
+  if(m == DM_NAVTEX) nav = ch;
+  if(pageActive) { if(!same) goMode(m); return; }
   mode = m;
   currentCmd = CMD_DIGI;
 }
 
-int digiWebMode() { return(pageActive ? mode : -1); }   // -1 while the page is closed
+// -1 while the page is closed; else the mode, plus 256 times the NAVTEX channel
+int digiWebMode() { return(!pageActive ? -1 : mode == DM_NAVTEX ? mode | (nav << 8) : mode); }
+int digiNavCount() { return(NAV_COUNT); }
+const char *digiNavName(int i) { return(i >= 0 && i < NAV_COUNT ? navCh[i].name : ""); }
 int digiModeCount() { return(DM_COUNT); }
 const char *digiModeName(int m) { return(m >= 0 && m < DM_COUNT ? modeName[m] : ""); }
 
@@ -434,22 +573,111 @@ bool digiTick()
 
 #define DG_RGB(c)  ((uint16_t)((((c) >> 8) & 0xF800) | (((c) >> 5) & 0x07E0) | (((c) >> 3) & 0x001F)))
 
+// Read-back: copy the text and find where its screen lines begin. A line
+// ends at its line break, or after the last space that fits in maxW pixels.
+static void readIndex(int maxW)
+{
+  static uint8_t cw[95];
+  static bool measured = false;
+  if(!measured)
+  {
+    char one[2] = " ";
+    for(int c = 32; c < 127; c++) { one[0] = (char)c; cw[c - 32] = (uint8_t)spr.textWidth(one, FONT_SMALL); }
+    measured = true;
+  }
+  xSemaphoreTake(lock, portMAX_DELAY);
+  uint32_t first = textLog.first();
+  snapLen = textLog.total - first;
+  for(uint32_t i = 0; i < snapLen; i++) snap[i] = textLog.at(first + i);
+  xSemaphoreGive(lock);
+  snap[snapLen] = '\0';
+  lineCount = 0;
+  for(uint32_t i = 0; i < snapLen; )
+  {
+    if(lineCount >= LINES_MAX)     // More lines than the index holds: keep the newer half
+    {
+      memmove(lineAt, lineAt + LINES_MAX / 2, (LINES_MAX / 2) * sizeof(uint32_t));
+      lineCount -= LINES_MAX / 2;
+    }
+    lineAt[lineCount++] = i;
+    uint32_t j = i, space = 0;
+    int w = 0;
+    while(j < snapLen && snap[j] != '\n')
+    {
+      int c = cw[(uint8_t)snap[j] - 32];
+      if(w + c > maxW) break;
+      if(snap[j] == ' ') space = j;
+      w += c;
+      j++;
+    }
+    if(j < snapLen && snap[j] == '\n') j++;            // The break belongs to this line
+    else if(j < snapLen && space > i) j = space + 1;   // Too long: wrap after the last space
+    if(j == i) j++;
+    i = j;
+  }
+  lineAt[lineCount] = snapLen;
+  topLine = lineCount > READ_ROWS ? lineCount - READ_ROWS : 0;
+}
+
 void drawDigiPage()
 {
-  char line[48];
+  char line[Digi::TEXT_MAX + 1];
   spr.fillSprite(DG_RGB(0x041F29));
+  if(reading && reindex) { reindex = false; readIndex(300); }
+  int maxTop = lineCount > READ_ROWS ? lineCount - READ_ROWS : 0;
+  if(reading) { topLine = constrain(topLine + turned, 0, maxTop); turned = 0; }
+
   // Header: mode, its settings, the signal's audio frequency
   spr.fillRoundRect(4, 3, 312, 22, 6, DG_RGB(0x073A4B));
   spr.setTextDatum(ML_DATUM);
   spr.setTextColor(DG_RGB(0xFFD167));
   spr.drawString(modeName[mode], 10, 14, uiFont(false));
   spr.setTextColor(DG_RGB(0x8FB3C0));
-  spr.drawString(modeInfo[mode], 10 + spr.textWidth(modeName[mode], uiFont(false)) + 8, 14, uiFont(true));
+  // NAVTEX: its channel in place of the speed and shift, which never change
+  snprintf(line, sizeof(line), "%s", mode == DM_NAVTEX ? navCh[nav].name : modeInfo[mode]);
+  spr.drawString(line, 10 + spr.textWidth(modeName[mode], uiFont(false)) + 8, 14, uiFont(true));
   spr.setTextDatum(MR_DATUM);
-  if(found) snprintf(line, sizeof(line), "%d Hz", (int)centre);
+  bool sync = mode == DM_NAVTEX && navtex && navtex->synced;
+  if(reading) snprintf(line, sizeof(line), "line %d/%d", lineCount ? topLine + 1 : 0, lineCount);
+  else if(found && sync) snprintf(line, sizeof(line), "%d Hz, sync", (int)centre);
+  else if(found) snprintf(line, sizeof(line), "%d Hz", (int)centre);
   else snprintf(line, sizeof(line), "No signal");
-  spr.setTextColor(found ? DG_RGB(0x06D7A0) : DG_RGB(0x8FB3C0));
+  spr.setTextColor(reading ? DG_RGB(0xFFD167) : found ? DG_RGB(0x06D7A0) : DG_RGB(0x8FB3C0));
   spr.drawString(line, 310, 14, uiFont(true));
+
+  // Reading back: seven lines of the whole text, a bar for the place in it
+  if(reading)
+  {
+    spr.setTextDatum(TL_DATUM);
+    for(int r = 0; r < READ_ROWS && topLine + r < lineCount; r++)
+    {
+      uint32_t a = lineAt[topLine + r], b = lineAt[topLine + r + 1];
+      while(b > a && (snap[b - 1] == '\n' || snap[b - 1] == ' ')) b--;
+      int n = (int)(b - a) < Digi::TEXT_MAX ? (int)(b - a) : Digi::TEXT_MAX;
+      memcpy(line, snap + a, n);
+      line[n] = '\0';
+      spr.setTextColor(n > 2 && line[0] == '=' && line[1] == '=' ? DG_RGB(0xFFD167) : DG_RGB(0xEEF5F7));
+      spr.drawString(line, 8, 30 + r * 17, FONT_SMALL);
+    }
+    if(!lineCount)
+    {
+      spr.setTextDatum(MC_DATUM);
+      spr.setTextColor(DG_RGB(0x8FB3C0));
+      spr.drawString("Nothing decoded yet", 160, 88, uiFont(true));
+    }
+    if(lineCount > READ_ROWS)
+    {
+      const int by = 30, bh = READ_ROWS * 17;
+      int h = bh * READ_ROWS / lineCount;
+      if(h < 8) h = 8;
+      spr.fillRect(315, by, 2, bh, DG_RGB(0x0E4A5E));
+      spr.fillRect(315, by + (bh - h) * topLine / maxTop, 2, h, DG_RGB(0xFFD167));
+    }
+    spr.setTextDatum(BC_DATUM);
+    spr.setTextColor(DG_RGB(0x8FB3C0));
+    spr.drawString("Turn: scroll  Click: live text  Press: leave", 160, 169, uiFont(true));
+    return;
+  }
 
   // Spectrum 300..2700 Hz, with the tones the decoder listens to
   const int sx = 12, sy = 30, sh = 30;
@@ -522,5 +750,6 @@ void drawDigiPage()
     spr.drawString(lines[(count - shown + r) % rows], 8, 64 + r * 17, FONT_SMALL);   // The fifth ends at 148, over the foot line
   spr.setTextDatum(BC_DATUM);
   spr.setTextColor(DG_RGB(0x8FB3C0));
-  spr.drawString("Turn: tune  Click: mode  Press: leave", 160, 169, uiFont(true));
+  spr.drawString(mode == DM_NAVTEX ? "Turn: channel  Click: mode  Push+turn: text" :
+                 "Turn: tune  Click: mode  Push+turn: text", 160, 169, uiFont(true));
 }

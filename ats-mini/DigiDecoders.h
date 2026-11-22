@@ -23,15 +23,50 @@ namespace Digi {
 
 static const int TEXT_MAX = 120;
 
+// The whole text, line breaks kept: the last `size` characters in a ring the
+// page provides, for reading back on the radio and for the browser. A head
+// line (mode, frequency, time) is written before the first character that
+// follows each start of a decoder, so a start that hears nothing leaves no
+// trace. Holds printable ASCII and '\n' only, at most one empty line in a row.
+struct Log
+{
+  char *buf = nullptr;
+  uint32_t size = 0;
+  uint32_t total = 0;              // Characters ever written
+  uint8_t breaks = 1;              // Line breaks at the end (1: at a line start)
+  char head[72] = "";              // Written before the next character
+  void raw(char c) { buf[total % size] = c; total++; }
+  void put(char c)
+  {
+    if(!buf || !size) return;
+    if(c == '\n') { if(breaks < 2 && !head[0]) { raw(c); breaks++; } return; }
+    if(c < 32 || c > 126) return;
+    if(head[0])
+    {
+      if(c == ' ') return;
+      while(total && breaks < 2) { raw('\n'); breaks++; }
+      for(const char *h = head; *h; h++) raw(*h);
+      raw('\n');
+      head[0] = '\0';
+    }
+    raw(c);
+    breaks = 0;
+  }
+  uint32_t first() const { return(total > size ? total - size : 0); }
+  char at(uint32_t i) const { return(buf[i % size]); }
+};
+
 // Text kept for the screen: the last TEXT_MAX characters, one line
 struct Text
 {
   char buf[TEXT_MAX + 1];
   int len = 0;
   uint32_t count = 0;              // Characters ever added (to spot news)
+  Log *log = nullptr;              // The whole text goes there too
   void clear() { len = 0; buf[0] = '\0'; }
   void put(char c)
   {
+    if(log) log->put(c);
     if(c == '\r') return;
     if(c == '\n') c = ' ';
     if(c == ' ' && len && buf[len - 1] == ' ') return;
