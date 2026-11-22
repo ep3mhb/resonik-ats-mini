@@ -374,6 +374,24 @@ table.three td, table.three th { font-size: 8.5pt; vertical-align: top; }
   <h2><span class="num">15</span>CAT control from a computer<span class="tag">R2</span></h2>
   <p><span class="ui">Menu → System → USB Port → CAT TS-480</span> makes the radio answer Kenwood TS-480 commands on the USB port, so programs can read and set the frequency and mode and read the signal strength. In the program (flrig, Hamlib, WSJT-X receive only, fldigi or a logging program) choose the Kenwood TS-480 (Hamlib rig 2028) on the radio's serial port, with split and CAT PTT off; the speed does not matter. Transmit commands are refused, since the radio only receives. For remote-control tools and screenshots, switch back to Ad hoc.</p>
   <p>From R5 the choice is called CAT TS-480 (it was CAT) and is on two more ports: <span class="ui">TCP Port → CAT TS-480</span> for a program on the same Wi-Fi network (the radio's address, port 60000), and <span class="ui">Bluetooth → CAT TS-480</span>. New with it are VFO A and B, squelch, steps up and down and automatic status reports; the CW mode is mode 3, as on the TS-480.</p>
+  <h3>An example: flrig<span class="tag r5" style="font-size:8pt">R5</span></h3>
+  <figure style="float:right;width:66mm;margin:0 0 2mm 6mm"><img class="web" style="width:66mm" src="../manual-fa/img/flrig-window.png" alt=""><figcaption>flrig showing the radio on 93.4 MHz FM</figcaption></figure>
+  <p>flrig is a free rig-control program for macOS, Windows and Linux, from w1hkj.org; this chapter was tested with version 2.0.12 on a Mac.</p>
+  <ol class="steps">
+    <li>On the radio choose <span class="ui">USB Port → CAT TS-480</span> and plug in the cable.</li>
+    <li>In flrig open <b>Config → Setup → Xcvr</b>. Rig: <b>TS-480SAT</b>. Port: the radio's serial port; on a Mac its name begins with <b>/dev/cu.usbmodem</b>. Baud: any, for example 115200. Leave <b>RTS/CTS</b>, <b>RTS +12 v</b> and <b>DTR +12 v</b> unticked, and press <b>Init</b>.</li>
+    <li>Under <b>Poll</b> tick <b>S-mtr</b>, or flrig's S-meter stays empty.</li>
+    <li>Under <b>Restore</b> untick the boxes if the radio should keep what you set from the program. With them ticked, flrig puts the radio back as it found it when it quits.</li>
+  </ol>
+  <p style="clear:both"><b>Over Wi-Fi</b> instead of the cable: on the radio <span class="ui">TCP Port → CAT TS-480</span>; in flrig <b>Config → Setup → TCPIP &amp; TCI</b>, enter the radio's address and port 60000 and tick <b>Use tcpip</b>. One program at a time can be connected; Web Control can be open in a browser as well.</p>
+  <p><b>What you will see</b></p>
+  <ul>
+    <li>The program follows the knob, and sets frequency, mode and volume; Tune and transmit do nothing. flrig's volume is in percent: 50 there is 31 on the radio's scale of 63.</li>
+    <li>flrig shows nothing above 99.999 MHz, because a TS-480 ends at 60 MHz: the upper FM band and memories there are not shown. The radio itself works as usual. Other programs may stop at 60 MHz.</li>
+    <li>During Seek and Scan the program stands still: the radio answers when the search is over. Auto Scan and Mem Scan are followed as they go.</li>
+    <li>A program connected over Wi-Fi keeps Wi-Fi on while the FT8, CW or Digital page is open, and follows the frequency the page tunes to.</li>
+    <li>Quitting the program leaves the radio as it is. If the cable is pulled while flrig runs, flrig stops answering: quit and reopen it.</li>
+  </ul>
 </section>
 
 <!-- 16 -->

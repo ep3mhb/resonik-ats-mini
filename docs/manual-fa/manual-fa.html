@@ -371,6 +371,23 @@ table.three td, table.three th { font-size: 9pt; vertical-align: top; }
   <h2><span class="num">۱۵</span>کنترل <bdi>CAT</bdi> از کامپیوتر<span class="tag">R2</span></h2>
   <p><span class="ui"><bdi>Menu</bdi> ← <bdi>System</bdi> ← <bdi>USB Port</bdi> ← <bdi>CAT TS-480</bdi></span> رادیو را وادار می‌کند به فرمان‌های <bdi>Kenwood TS-480</bdi> روی درگاه <bdi>USB</bdi> پاسخ دهد، تا نرم‌افزارها بتوانند فرکانس و مودولاسیون را بخوانند و تنظیم کنند و قدرت سیگنال را بخوانند. در نرم‌افزار (<bdi>flrig</bdi>، <bdi>Hamlib</bdi>، <bdi>WSJT-X</bdi> فقط دریافت، <bdi>fldigi</bdi> یا نرم‌افزار لاگ) رادیوی <bdi>Kenwood TS-480</bdi> (<bdi>Hamlib rig 2028</bdi>) را روی درگاه سریال رادیو انتخاب کنید، با <bdi>split</bdi> و <bdi>CAT PTT</bdi> خاموش؛ سرعت اهمیتی ندارد. فرمان‌های ارسال پذیرفته نمی‌شوند، چون این دستگاه فقط گیرنده است. برای ابزارهای کنترل از راه دور و عکس از صفحه، به <bdi>Ad hoc</bdi> برگردید.</p>
   <p><span class="tag r5" style="font-size:8pt;margin-left:2mm">R5</span>از <bdi>R5</bdi> نام این گزینه <bdi>CAT TS-480</bdi> است (پیش‌تر <bdi>CAT</bdi> بود) و روی دو درگاه دیگر هم هست: <span class="ui"><bdi>TCP Port</bdi> ← <bdi>CAT TS-480</bdi></span> برای نرم‌افزاری که در همان شبکه‌ی <bdi>Wi-Fi</bdi> است (نشانی رادیو، درگاه <bdi>60000</bdi>)، و <span class="ui"><bdi>Bluetooth</bdi> ← <bdi>CAT TS-480</bdi></span>. همراه آن <bdi>VFO A</bdi> و <bdi>B</bdi>، اسکلچ، گام بالا و پایین و گزارش خودکار وضعیت هم آمده است؛ مد <bdi>CW</bdi> همان مد شماره‌ی ۳ در <bdi>TS-480</bdi> است.</p>
+  <h3>نمونه: <bdi>flrig</bdi><span class="tag r5" style="font-size:8pt">R5</span></h3>
+  <figure style="float:left;width:60mm;margin:0 6mm 1mm 0"><img class="web" style="width:60mm" src="img/flrig-window.png" alt=""><figcaption><bdi>flrig</bdi> در حال نمایش رادیو روی <bdi>93.4&nbsp;MHz</bdi> <bdi>FM</bdi></figcaption></figure>
+  <p><bdi>flrig</bdi> نرم‌افزار رایگان کنترل رادیو برای <bdi>macOS</bdi>، <bdi>Windows</bdi> و <bdi>Linux</bdi> است (<bdi>w1hkj.org</bdi>). این بخش با نسخه‌ی <bdi>2.0.12</bdi> آن آزمایش شده است.</p>
+  <ol class="steps">
+    <li>روی رادیو <span class="ui"><bdi>USB Port</bdi> ← <bdi>CAT TS-480</bdi></span> را انتخاب و کابل را وصل کنید.</li>
+    <li>در <bdi>flrig</bdi> مسیر <b><bdi>Config</bdi> ← <bdi>Setup</bdi> ← <bdi>Xcvr</bdi></b> را باز کنید. <bdi>Rig</bdi>: <b><bdi style="white-space:nowrap">TS-480SAT</bdi></b>. <bdi>Port</bdi>: درگاه سریال رادیو؛ در مک نامش با <b><bdi>/dev/cu.usbmodem</bdi></b> شروع می‌شود. <bdi>Baud</bdi>: هر مقداری، مثلاً <bdi>115200</bdi>. تیک <b><bdi>RTS/CTS</bdi></b>، <b><bdi style="white-space:nowrap">RTS +12 v</bdi></b> و <b><bdi style="white-space:nowrap">DTR +12 v</bdi></b> را نزنید و <b><bdi>Init</bdi></b> را بزنید.</li>
+    <li>در <b><bdi>Poll</bdi></b> تیک <b><bdi>S-mtr</bdi></b> را بزنید، وگرنه <bdi>S-meter</bdi> نرم‌افزار خالی می‌ماند.</li>
+    <li>در <b><bdi>Restore</bdi></b> اگر می‌خواهید رادیو آنچه را از نرم‌افزار تنظیم کرده‌اید نگه دارد، تیک‌ها را بردارید. با تیک‌ها، <bdi>flrig</bdi> هنگام بسته‌شدن رادیو را به حالتی که پیدا کرده بود برمی‌گرداند.</li>
+  </ol>
+  <p style="clear:both"><b>از راه <bdi>Wi-Fi</bdi></b> به جای کابل: روی رادیو <span class="ui"><bdi>TCP Port</bdi> ← <bdi>CAT TS-480</bdi></span>؛ در <bdi>flrig</bdi> مسیر <b><bdi>Config</bdi> ← <bdi>Setup</bdi> ← <bdi>TCPIP &amp; TCI</bdi></b>: نشانی رادیو و درگاه <bdi>60000</bdi> را وارد کنید و تیک <b><bdi>Use tcpip</bdi></b> را بزنید. هر بار یک نرم‌افزار وصل می‌شود؛ کنترل از مرورگر هم می‌تواند هم‌زمان باز باشد، و صفحه‌های <bdi>FT8</bdi>، <bdi>CW</bdi> و <bdi>Digital</bdi> با <bdi>Wi-Fi</bdi> روشن کار می‌کنند.</p>
+  <p style="margin-bottom:1mm"><b>آنچه می‌بینید</b></p>
+  <ul style="font-size:0.9em;margin-top:0">
+    <li>نرم‌افزار تغییر فرکانس روی رادیو را دنبال می‌کند و فرکانس، مد و بلندی صدا را تنظیم می‌کند؛ <bdi>Tune</bdi> و ارسال کاری نمی‌کنند. بلندی صدا در <bdi>flrig</bdi> درصد است: ۵۰ آن‌جا برابر <bdi>31</bdi> از <bdi>63</bdi> رادیو است.</li>
+    <li><bdi>flrig</bdi> بالاتر از <bdi>99.999&nbsp;MHz</bdi> چیزی نشان نمی‌دهد، چون <bdi>TS-480</bdi> تا <bdi>60&nbsp;MHz</bdi> است: بخش بالای باند <bdi>FM</bdi> و حافظه‌های آن دیده نمی‌شوند. خود رادیو مثل همیشه کار می‌کند.</li>
+    <li>هنگام <bdi>Seek</bdi> و <bdi>Scan</bdi> نرم‌افزار ثابت می‌ماند: رادیو پس از پایان جست‌وجو پاسخ می‌دهد. <bdi>Auto Scan</bdi> و <bdi>Mem Scan</bdi> دنبال می‌شوند.</li>
+    <li>بستن نرم‌افزار رادیو را تغییر نمی‌دهد. اگر هنگام کار کابل کشیده شود، <bdi>flrig</bdi> را ببندید و دوباره باز کنید.</li>
+  </ul>
 
 </section>
 
