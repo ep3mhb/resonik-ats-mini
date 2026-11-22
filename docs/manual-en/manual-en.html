@@ -523,21 +523,36 @@ table.three td, table.three th { font-size: 8.5pt; vertical-align: top; }
 <!-- 24 -->
 <section class="chapter">
   <h2><span class="num">24</span>RTTY, NAVTEX, PSK31 and WEFAX<span class="tag r5">R5</span></h2>
-  <p><span class="ui">Menu → Ham &amp; SWL → Digital</span> opens a full-screen page that decodes five kinds of signal from the radio's own sound. It switches the radio to USB with the 3.0k filter, draws the spectrum of what it hears with marks on the tones it listens to, and writes the text under it. The decoder finds the signal by itself: tune until the signal is in the picture.</p>
-  <figure><img class="screen" src="../manual-fa/img/screen-digital.png" alt=""><figcaption>RTTY DWD: the two tones in the spectrum, the tone frequency in green, the text</figcaption></figure>
+  <div class="side">
+    <div>
+      <p><span class="ui">Menu → Ham &amp; SWL → Digital</span> opens a full-screen page that decodes five kinds of signal from the radio's own sound. It switches the radio to USB with the 3.0k filter, draws the spectrum of what it hears with marks on the tones it listens to, and writes the text under it. The decoder finds the signal by itself: tune until the signal is in the picture.</p>
+    </div>
+    <figure><img class="screen" src="../manual-fa/img/screen-digital.png" alt=""><figcaption>RTTY DWD: the frequency the radio is on, the two tones, the tone frequency in green, the text</figcaption></figure>
+  </div>
   <table>
     <tr><th style="width:20%">Mode</th><th>What it decodes</th></tr>
     <tr><td><b>RTTY</b></td><td>Amateur radioteletype: 45.45 baud, 170 Hz shift. Normal and reversed stations are read alike.</td></tr>
     <tr><td><b>RTTY DWD</b></td><td>The German weather service: 50 baud, 450 Hz shift. Weather for shipping, mainly in English.</td></tr>
-    <tr><td><b>NAVTEX</b></td><td>Safety messages for ships: navigational warnings and weather. Here <b>turn</b> the knob to step through its channels, and the page tunes each one by itself: 518 kHz (in English), 490 kHz (in the country's language), 4209.5 kHz, and eight short-wave channels for the high seas, from 4210 to 26100.5 kHz. <b>sync</b> beside the tone frequency means the decoder is locked to the station.</td></tr>
+    <tr><td><b>NAVTEX</b></td><td>Safety messages for ships: navigational warnings and weather. Eleven channels: 518 kHz (in English), 490 kHz (in the country's language), 4209.5 kHz, and eight short-wave channels for the high seas, from 4210 to 26100.5 kHz.</td></tr>
     <tr><td><b>PSK31</b></td><td>An amateur mode typed by hand, 31 baud, a few hertz wide.</td></tr>
-    <tr><td><b>WEFAX</b></td><td>Weather charts (radiofax), 120 lines a minute. Tune 1.9 kHz below the published frequency. The chart is drawn on the screen and, larger, in the browser (section 25), where <b>Save picture</b> downloads it.</td></tr>
+    <tr><td><b>WEFAX</b></td><td>Weather charts (radiofax), 120 lines a minute. The chart is drawn on the screen and, larger, in the browser (section 25), where <b>Save picture</b> downloads it.</td></tr>
   </table>
   <ul>
     <li><b>Click:</b> the next mode. <b>Turn:</b> tune (in NAVTEX: the next channel). <b>Short press:</b> leave; the radio goes back exactly as it was.</li>
-    <li>Top right is the tone frequency the decoder has found, in green, or <b>No signal</b>. With no signal nothing is written, so noise does not fill the screen with letters.</li>
+    <li>The header shows the mode and the frequency the radio is tuned to (in NAVTEX the channel). Top right is the tone frequency the decoder has found, in green, or <b>No signal</b>; the mode's speed and shift stand in the corner of the spectrum. With no signal nothing is written, so noise does not fill the screen with letters: <b>No signal</b> means that nothing is being received there, not that something is broken. Stations to check each mode with are in section 26.</li>
     <li>The screen shows the last five lines as they arrive. The radio keeps the whole text.</li>
   </ul>
+  <h3>Tuning to a station</h3>
+  <p>The page works in USB, and its header shows the frequency the radio is tuned to. A station list gives the frequency of the signal itself; the radio has to be tuned a little <b>below</b> it, so that the tones come out as sound around 1500 Hz, in the middle of the spectrum. Type the frequency with <span class="ui">Menu → Tuning → Freq Entry</span> (section 23) and then open the page, or turn the knob on the page.</p>
+  <table class="three">
+    <tr><th style="width:13%">Mode</th><th style="width:27%">Tune the radio to</th><th style="width:27%">Example</th><th>It is right when</th></tr>
+    <tr><td><b>RTTY</b></td><td>No fixed frequencies: turn slowly through the RTTY part of a band.</td><td>20M: 14080 to 14099 kHz, mostly at weekends.</td><td>The red lines sit on two peaks 170 Hz apart, the number top right is green, and text appears.</td></tr>
+    <tr><td><b>RTTY DWD</b></td><td><b>1.5 kHz below</b> the listed frequency.</td><td>Listed 10100.8 kHz: tune <b>10099.30 kHz</b>. Listed 7646: tune 7644.50. Listed 4583: tune 4581.50.</td><td>The red lines sit on two peaks 450 Hz apart, about 1500 Hz in green; RYRYRY, then the weather text.</td></tr>
+    <tr><td><b>NAVTEX</b></td><td>Nothing to tune: turn the knob to the channel and the page tunes it, 1.5 kHz below.</td><td>Channel 518 kHz: the radio is on 516.50 kHz.</td><td><b>sync</b> stands beside the green number.</td></tr>
+    <tr><td><b>PSK31</b></td><td>The listed frequency itself.</td><td>14070.00 kHz, also 7040.00 kHz.</td><td>Thin steady lines in the spectrum; the red line sits on the strongest.</td></tr>
+    <tr><td><b>WEFAX</b></td><td><b>1.9 kHz below</b> the listed frequency.</td><td>Listed 8040 kHz: tune 8038.10 kHz.</td><td>The chart builds up line by line.</td></tr>
+  </table>
+  <p class="small">You need not be exact with RTTY and RTTY DWD: the decoder looks for the two tones across the whole spectrum and moves the red lines onto them, so anywhere from 1 to 2 kHz below the listed frequency works.</p>
   <h3>Reading the text back</h3>
   <p>A NAVTEX message or a weather bulletin is longer than five lines. The radio keeps everything it has decoded since it was switched on, about 16 000 characters, with the line breaks as the station sent them.</p>
   <ul>
@@ -546,12 +561,11 @@ table.three td, table.three th { font-size: 8.5pt; vertical-align: top; }
     <li>Every start of a decoder that receives something writes a head line in yellow: the mode, the frequency and the UTC time.</li>
     <li>The browser shows the same text in a box and saves it to a file (section 25).</li>
   </ul>
-  <div class="pair">
+  <div class="pair" style="width:136mm;margin:0 auto">
     <figure><img class="screen" src="../manual-fa/img/screen-navtex.png" alt=""><figcaption>NAVTEX on 518 kHz, locked to a station</figcaption></figure>
     <figure><img class="screen" src="../manual-fa/img/screen-readback.png" alt=""><figcaption>Reading back: the first of 17 lines</figcaption></figure>
   </div>
-  <div class="note">Like the FT8 page, this page needs the V4B board and the headphones unplugged. Wi-Fi is paused while it is open, unless a browser has Web Control open or a program is connected over Wi-Fi.</div>
-  <p><b>No signal</b> means that nothing is being received on that frequency, not that something is broken. Stations to check each mode with are in section 26.</p>
+  <div class="note">Like the FT8 page, this page needs the V4B board and the headphones unplugged, and it pauses Wi-Fi unless a browser has Web Control open or a program is connected over Wi-Fi.</div>
 </section>
 
 <!-- 25 -->
