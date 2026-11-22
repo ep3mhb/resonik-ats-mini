@@ -18,7 +18,7 @@ enum TileIcon : uint8_t
   TI_RDS, TI_STEREO, TI_DIAL, TI_CHIP, TI_DOWNLOAD, TI_FIRMWARE, TI_USB, TI_NETWORK, TI_BT,
   TI_WIFI, TI_BANDPLAN, TI_ATT, TI_TILES, TI_LOG, TI_PROP, TI_INFO, TI_REGION,
   TI_BACK, TI_CLOSE, TI_SLEEPTIMER, TI_FORK, TI_KNOB, TI_CWDEC, TI_CWSTRIP, TI_SCANNER, TI_FT8,
-  TI_LOCK, TI_WIFIPOWER, TI_PERF, TI_BATTERY,
+  TI_LOCK, TI_WIFIPOWER, TI_PERF, TI_BATTERY, TI_CAP,
 };
 
 typedef struct
@@ -349,6 +349,15 @@ static void tileDrawIcon(S &s, TileIcon icon, int x, int y, uint16_t c, uint16_t
       s.drawWideLine(x + 3, y - 11, x + 11, y - 11, 1.0f, c);
       s.drawWideLine(x + 11, y - 11, x + 3, y - 3, 1.0f, c);
       s.drawWideLine(x + 3, y - 3, x + 11, y - 3, 1.0f, c);
+      break;
+    case TI_CAP:         // Capacitor: two plates on their wires, the arrow of one that is adjusted
+      s.drawWideLine(x - 13, y + 2, x - 5, y + 2, 1.2f, c);
+      s.drawWideLine(x + 5, y + 2, x + 13, y + 2, 1.2f, c);
+      s.fillRect(x - 5, y - 8, 3, 21, c);
+      s.fillRect(x + 3, y - 8, 3, 21, c);
+      s.drawWideLine(x - 11, y + 12, x + 10, y - 11, 0.9f, c);
+      s.drawWideLine(x + 10, y - 11, x + 4, y - 10, 0.9f, c);
+      s.drawWideLine(x + 10, y - 11, x + 9, y - 5, 0.9f, c);
       break;
     case TI_FORK:        // Tuning fork
       s.drawWideLine(x - 5, y - 12, x - 5, y + 1, 1.5f, c);
@@ -747,6 +756,15 @@ static void tileDrawIconColor(S &s, TileIcon icon, int x, int y, uint16_t bg)
       s.drawWideLine(x - 10, y + 10, x + 8, y - 6, 1.6f, TC_W);
       s.fillCircle(x - 10, y + 10, 3, TC_W);
       s.fillCircle(x + 6, y + 2, 3, TC_R);
+      break;
+    case TI_CAP:         // Capacitor: white plates and wires, yellow arrow of adjustment
+      s.drawWideLine(x - 13, y + 2, x - 5, y + 2, 1.2f, TC_W);
+      s.drawWideLine(x + 5, y + 2, x + 13, y + 2, 1.2f, TC_W);
+      s.fillRect(x - 5, y - 8, 3, 21, TC_W);
+      s.fillRect(x + 3, y - 8, 3, 21, TC_W);
+      s.drawWideLine(x - 11, y + 12, x + 10, y - 11, 0.9f, TC_Y);
+      s.drawWideLine(x + 10, y - 11, x + 4, y - 10, 0.9f, TC_Y);
+      s.drawWideLine(x + 10, y - 11, x + 9, y - 5, 0.9f, TC_Y);
       break;
     case TI_FORK:        // Tuning fork with sound
       s.drawWideLine(x - 4, y - 12, x - 4, y + 1, 1.5f, TC_W);

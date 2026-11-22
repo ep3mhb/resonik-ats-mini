@@ -287,7 +287,7 @@ static const TileEntry tileTuning[] =
   { TI_REGION, TILE_SET | MENU_FM_REGION }, { TI_RDS, TILE_SET | MENU_RDS },
   { TI_SCAN, MENU_SCAN }, { TI_SCANNER, MENU_SCANNER }, { TI_SEEK, MENU_SEEK }, { TI_STEP, MENU_STEP }, { TI_VFO, MENU_VFO },
   { TI_DIAL, MENU_FREQPAD }, { TI_FT8, MENU_BANDVIEW },
-  { TI_FORK, TILE_SET | MENU_ANTCAP },
+  { TI_CAP, TILE_SET | MENU_ANTCAP },
 };
 static const TileEntry tileAudio[] =
 {
