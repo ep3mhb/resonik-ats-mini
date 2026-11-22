@@ -77,6 +77,7 @@
           <li><a href="#wifi">Wi-Fi on the radio <small>r4</small></a></li>
           <li><a href="#control">Web Control <small>r4</small></a></li>
           <li><a href="#update">Updates</a></li>
+          <li><a href="#learn">Learning the digital modes <small>r5</small></a></li>
         </ul>
 
         <h2 id="cw">CW mode</h2>
@@ -356,6 +357,205 @@
         <p>With Wi-Fi connected, <span class="ui">Menu → System → Update FW → Check</span> looks for a newer RESONIK release on GitHub, and <b>Update</b> installs it. Settings are kept. The radio's <b>Config</b> web page has <b>Backup and restore</b> (v2.46-r5): one file with all settings, bands, memories and Wi-Fi networks, to keep or to put on another radio. From v2.46-r5 the radio also looks by itself, a few minutes after joining Wi-Fi and then once a day, and shows a page when there is a new release: <b>Update now</b>, <b>Later</b> or <b>Skip this version</b>. A small arrow beside the Wi-Fi icon, and a banner on the radio's web pages, show that an update is waiting. <span class="ui">Menu → System → Upd. Notice → Off</span> stops it. New versions are also announced on this site and on <a href="https://github.com/ep3mhb/resonik-ats-mini/releases" rel="noopener">GitHub</a>.</p>
         <p>The radio's first web page, <b>Status</b>, shows from v2.46-r5 how long the radio has been running, why it last restarted (switched on, update, crash, watchdog, low voltage), the processor's temperature and the speed you set, free memory and the Wi-Fi signal, each with a word that says whether it is good, fair or bad, in green, yellow or red. If the radio ever restarts by itself, read <b>Last restart</b> there before switching it off, and send it with your report. The backup file holds your Wi-Fi passwords: keep it private.</p>
         <p>To return to the official firmware, install it by USB as described on the <a href="../#install">install</a> section, using the official files.</p>
+
+        <h2 id="learn">Learning the digital modes <small style="font-size:.7em;color:var(--muted)">v2.46-r5</small></h2>
+        <p>A short course in listening. For each kind of signal the radio decodes, this appendix says what it is and who sends it, what it looks like, how to tune it and how to read what the decoder writes, and gives an exercise to try. Each exercise ends with how you know you have it.</p>
+        <p>The example messages are invented, with example callsigns. The printed manual (PDF) also shows each mode in a waterfall.</p>
+        <h3>A good order to learn them</h3>
+        <table>
+        <tr><th style="width:7%">Step</th><th style="width:22%">Mode</th><th>Why in this order</th></tr>
+        <tr><td>1</td><td>FT8</td><td>On the air on every open band, day and night. If it decodes, the radio, the antenna and the decoder are all working.</td></tr>
+        <tr><td>2</td><td>CW beacons</td><td>The beacons on 14100 kHz send their callsigns on a fixed timetable, so you know what the decoder should write.</td></tr>
+        <tr><td>3</td><td>RTTY DWD</td><td>On the air day and night, with the same kind of bulletin every time.</td></tr>
+        <tr><td>4</td><td>NAVTEX</td><td>Ten minutes every four hours: the timetable says when.</td></tr>
+        <tr><td>5</td><td>WEFAX</td><td>A picture builds up line by line: it needs a steady signal and patience.</td></tr>
+        <tr><td>6</td><td>PSK31 and amateur RTTY</td><td>People typing by hand: fewer stations, mostly in the evening, at weekends and in contests.</td></tr>
+        </table>
+        <p><b>Note.</b> Every mode is easier with a few metres of wire on the antenna, by a window, on battery, away from chargers and LED lamps. A signal that does not decode is usually too weak, not wrongly tuned.</p>
+        <h3>A1 The basics</h3>
+        <p><b>What a digital mode is.</b> The sending station turns text, or a picture, into tones in the range of the voice and sends them on a radio frequency. The radio receives them in USB as sound, and the decoder turns the sound back into text. A decoder reads signals far too weak or too fast for the ear.</p>
+        <p><b>The radio's frequency and the tone.</b> In USB the radio turns what is just above its frequency into sound: a signal 1500 Hz above it is heard as a tone of 1500 Hz. Tune the radio 100 Hz higher and the tone drops by 100 Hz. So two numbers belong together: the frequency the radio is on (kHz, in the page's header) and the tone the decoder has found (Hz, in green).</p>
+        <p><b>Why tune below the listed frequency.</b> Station lists give the frequency of the signal itself. To hear its tones in the middle of the sound, around 1500 Hz, the radio is tuned that much below: 1.5 kHz below for RTTY DWD, 1.9 kHz for WEFAX, whose tones are centred on 1900 Hz. The pages tune NAVTEX, FT8 and FT4 themselves; for FT8 and FT4 the listed frequency is the one the radio is set to, and the stations spread over the 3 kHz above it.</p>
+        <p><b>Speed and shift.</b> Baud is how many symbols a station sends in a second; in RTTY and NAVTEX a symbol is one bit. Shift is how far apart the two tones of RTTY and NAVTEX are. The slower a mode, the weaker the signal it gets through: FT8 takes 13 seconds for one short message and reads signals you cannot hear.</p>
+        <p><b>Spectrum and waterfall.</b> The spectrum on the radio's Digital page shows how strong each tone is now. The waterfall on the FT8 page and on the Decodes tab adds time: each line is a moment, the newest at the top, so every signal draws a trace. The width of the trace is how much of the band the signal uses; its pattern shows how it is keyed.</p>
+        <p><b>Signal to noise, in dB.</b> FT8 and FT4 give each message a number such as −12: how far the signal stands above the noise, in decibels, with the noise measured over 2500 Hz. 0 dB means as strong as all that noise; −20 dB is a hundredth of it and still decodes. Every 3 dB doubles the power, and 10 dB is ten times.</p>
+        <p><b>UTC.</b> Stations, timetables and decoders use Coordinated Universal Time. The radio shows it beside the local time (see <a href="#clock">Time zone and dual clock</a>). UTC is four hours behind the time in the UAE, and three and a half hours behind the time in Iran.</p>
+        <p><b>Locators.</b> A locator such as LL75 names a square on the map, 2° of longitude by 1° of latitude; LL75 covers Dubai. FT8 messages carry four-character locators, and the Decodes tab puts them on its map. Type your own in <b>My locator</b> to see the distances.</p>
+        <h3>A2 FT8 and FT4</h3>
+        <p><b>What it is.</b> The most used digital modes on the amateur bands, from the WSJT-X program of Joe Taylor, K1JT, and colleagues (FT8 in 2017, FT4 in 2019). Stations take turns by the clock: FT8 sends for 12.6 seconds in each 15-second period, FT4 for 5 seconds in each 7.5. A contact is a short, fixed exchange of callsigns, locator and signal reports, so it gets through with very weak signals: FT8 down to about −21 dB, FT4 about 3 dB less.</p>
+        <p><b>What it looks like.</b> Blocks about 50 Hz wide (FT4: about 80 Hz), as long as the turn, in rows at every period. Stations that call in the other period fill the gaps between the rows.</p>
+        <p><b>How to tune.</b> Nothing to tune: the FT8/FT4 page (see <a href="#ft8">FT8 and FT4 decoder</a>) goes to the band's FT8 or FT4 frequency, and every signal in the 3 kHz above it is decoded at once. Choose 20 m or 15 m by day, 40 m or 80 m at night.</p>
+        <p><b>How to read it.</b> The radio lists each message with its dB, its tone (Hz) and the text; the Decodes tab adds the country and the map. A whole contact, in the order it happens:</p>
+        <table>
+        <tr><th>What the decoder writes</th><th>What it means</th></tr>
+        <tr><td><code>CQ K1ABC FN42</code></td><td>K1ABC calls anyone (CQ), from the locator FN42, in the north-east of the USA.</td></tr>
+        <tr><td><code>K1ABC G4XYZ IO91</code></td><td>G4XYZ answers K1ABC, from IO91, around London.</td></tr>
+        <tr><td><code>G4XYZ K1ABC -12</code></td><td>K1ABC gives G4XYZ his report: −12 dB.</td></tr>
+        <tr><td><code>K1ABC G4XYZ R-08</code></td><td>G4XYZ confirms (R, roger) and gives his report: −8 dB.</td></tr>
+        <tr><td><code>G4XYZ K1ABC RR73</code></td><td>K1ABC: all received, best regards (73). The contact is complete.</td></tr>
+        <tr><td><code>K1ABC G4XYZ 73</code></td><td>G4XYZ says goodbye.</td></tr>
+        </table>
+        <p>The first callsign is the station called, the second the one calling. CQ DX asks only for distant stations; CQ followed by another word, such as TEST or POTA, says who is wanted.</p>
+        <p><b>Exercise</b></p>
+        <ol>
+        <li>Open FT8 on 20 m by day, or on 40 m in the evening, and let it run for five minutes with the Decodes tab open.</li>
+        <li>Find three CQ calls and the countries they come from.</li>
+        <li>Follow one contact from CQ to 73 and write down who sent each line.</li>
+        <li>Find the weakest message (the lowest dB) and listen: can you hear it at all?</li>
+        </ol>
+        <p><i>You have it when you can say, for any line, who is calling whom and what was sent.</i></p>
+        <h3>A3 CW</h3>
+        <p><b>What it is.</b> Morse code: the oldest way of sending text by radio, still used every day by amateurs, in contests and by beacons. A tone is keyed on and off in dots and dashes. Speed is in words per minute (WPM); at 20 WPM a dot lasts 60 ms (1200 divided by the WPM).</p>
+        <p><b>What it looks like.</b> A thin line broken into dots and dashes. Several stations at different speeds sit side by side.</p>
+        <p><b>How to tune.</b> In CW mode, with the signal in the middle of the CW filter. The CW decoder page (see <a href="#cwdec">CW decoder</a>) follows from 5 to 40 WPM and shows the speed.</p>
+        <p><b>How to read it.</b> CW is full of short forms:</p>
+        <table>
+        <tr><th>What the decoder writes</th><th>What it means</th></tr>
+        <tr><td><code>CQ CQ DE K1ABC K1ABC K</code></td><td>Calling anyone (CQ) from (DE) K1ABC; over (K).</td></tr>
+        <tr><td><code>K1ABC DE G4XYZ G4XYZ K</code></td><td>G4XYZ answers.</td></tr>
+        <tr><td><code>GE UR RST 579 NAME JOE</code></td><td>Good evening; your report is 579: readability 5 of 5, strength 7 of 9, tone 9 of 9; my name is Joe.</td></tr>
+        <tr><td><code>QTH LONDON</code></td><td>My location is London.</td></tr>
+        <tr><td><code>TU 5NN 14</code></td><td>A contest exchange: thank you, 599 (N stands for 9), zone 14.</td></tr>
+        <tr><td><code>73 SK</code></td><td>Best regards; end of the contact.</td></tr>
+        </table>
+        <p>Other short forms: TNX thanks, FER for, PSE please, R received, AGN again, KN over to the station called only, AR end of the message. The decoder writes * for a character it cannot read.</p>
+        <p><b>Exercise</b></p>
+        <ol>
+        <li>Tune 14100 kHz in CW and open the CW decoder. The beacons there (see <a href="#beacons">Beacons</a>) take turns every ten seconds; each sends its callsign, then four long dashes, each ten times weaker than the one before.</li>
+        <li>Write down three callsigns the decoder shows and compare them with the beacon names on the radio's station line.</li>
+        <li>Count the dashes you hear: all four means the path is open even at a tenth of a watt.</li>
+        <li>In the evening, tune the bottom of 40 m (7000 to 7040 kHz), find a CQ and read the callsign and the speed.</li>
+        </ol>
+        <p><i>You have it when the callsigns from the decoder match the beacons the radio names.</i></p>
+        <p>To read Morse by ear yourself, practise with RESONIK CW Trainer at cw.mikroutik.com.</p>
+        <h3>A4 RTTY</h3>
+        <p><b>What it is.</b> Radioteletype: the teleprinter code of the last century, ITA2 (often called Baudot), sent as two tones. Each character is five bits between a start bit and stop bits; amateurs send 45.45 bits a second with the tones 170 Hz apart, about six characters a second. Today it is heard mostly in contests, when many stations are on at once.</p>
+        <p><b>What it looks like.</b> Two parallel lines 170 Hz apart, both bright while the station sends, because it switches between them faster than the waterfall can show.</p>
+        <p><b>How to tune.</b> Turn slowly through the RTTY part of a band, 14080 to 14099 kHz on 20 m, until two peaks sit on the page's red lines (see <a href="#digital">RTTY, NAVTEX, PSK31 and WEFAX</a>). Normal and reversed stations read alike.</p>
+        <p><b>How to read it.</b> ITA2 has capital letters only, and the figures share their codes with letters: a letters or figures character switches between them. When that switch is lost, figures come out as the letters of the top row of a keyboard: 599 reads TOO, because 5 and T, 9 and O share a code (1 is Q, 2 is W, 3 is E, and so on to 0, which is P). After a space the decoder goes back to letters, as most stations expect. A contest contact:</p>
+        <table>
+        <tr><th>What the decoder writes</th><th>What it means</th></tr>
+        <tr><td><code>CQ TEST K1ABC K1ABC</code></td><td>K1ABC calls in a contest.</td></tr>
+        <tr><td><code>K1ABC G4XYZ</code></td><td>G4XYZ answers.</td></tr>
+        <tr><td><code>G4XYZ 599 05 05</code></td><td>K1ABC: report 599, and his zone, 5, sent twice.</td></tr>
+        <tr><td><code>K1ABC TU 599 14 14</code></td><td>G4XYZ: thank you, 599, zone 14.</td></tr>
+        <tr><td><code>TU K1ABC TEST</code></td><td>K1ABC: thanks, and he calls again.</td></tr>
+        </table>
+        <p><b>Exercise</b></p>
+        <ol>
+        <li>Choose a RTTY contest weekend (for example CQ WPX RTTY in February, or CQ WW RTTY in September).</li>
+        <li>On 20 m, turn slowly upwards from 14080 kHz and stop on each pair of lines.</li>
+        <li>Write down the callsigns and the exchange of three contacts.</li>
+        </ol>
+        <p><i>You have it when you can tell what the next line will be before it comes.</i></p>
+        <h3>A5 RTTY DWD: weather for shipping</h3>
+        <p><b>What it is.</b> The German weather service (Deutscher Wetterdienst, DWD) sends weather for shipping by RTTY from Pinneberg near Hamburg, day and night: 50 baud with the tones 450 Hz apart, on 4583, 7646 and 10100.8 kHz, mainly in English. It is a broadcast: nobody answers, and the same kinds of bulletin come at fixed times.</p>
+        <p><b>What it looks like.</b> Two steady lines 450 Hz apart. Between bulletins the station sends RYRYRY: R and Y are opposite patterns of bits, a test of the link.</p>
+        <p><b>How to tune.</b> 1.5 kHz below the listed frequency: 10099.30 kHz by day, 7644.50 or 4581.50 kHz at night. The second list on the Decodes tab has all three.</p>
+        <p><b>How to read it.</b> Each bulletin begins with a heading that names it, then gives the forecast for each sea area. An invented example:</p>
+        <table>
+        <tr><th>What the decoder writes</th><th>What it means</th></tr>
+        <tr><td><code>RYRYRYRYRYRY</code></td><td>Between bulletins: the decoder is in step.</td></tr>
+        <tr><td><code>FQEN70 EDZW 221100</code></td><td>The heading. FQEN70 is the bulletin (in DWD's timetable, the weather report for the North Sea and the Baltic Sea); EDZW is the German weather service; 221100 is the 22nd of the month at 11:00 UTC.</td></tr>
+        <tr><td><code>GERMAN BIGHT</code></td><td>A sea area.</td></tr>
+        <tr><td><code>SW 5, LATER W 6</code></td><td>Wind from the south-west, force 5 on the Beaufort scale, later west 6. Force 5 is 17 to 21 knots, 6 is 22 to 27.</td></tr>
+        <tr><td><code>SEA 2 M, VIS GOOD</code></td><td>Waves of about 2 metres; good visibility.</td></tr>
+        </table>
+        <p>DWD publishes the timetable of its bulletins on its website (dwd.de, under shipping); among them is a report for the eastern Mediterranean, in English.</p>
+        <p><b>Exercise</b></p>
+        <ol>
+        <li>Tune 10099.30 kHz by day (7644.50 or 4581.50 kHz at night) and open RTTY DWD.</li>
+        <li>Wait for RYRY, then for a heading; write it down and read its day and time.</li>
+        <li>Find one sea area and its wind force.</li>
+        </ol>
+        <p><i>You have it when the text reads as whole words for a minute at a time. If letters often go wrong, try another of the three frequencies.</i></p>
+        <h3>A6 NAVTEX</h3>
+        <p><b>What it is.</b> Coast stations send safety messages for ships: navigational warnings, weather, search and rescue. Each station sends for ten minutes every four hours, at the turn its letter gives it: on 518 kHz in English, on 490 kHz in the country's own language, and on 4209.5 kHz on short wave. The signal is SITOR-B: 100 baud, 170 Hz shift, every character sent twice, so the decoder uses the second copy when the first is spoiled.</p>
+        <p><b>What it looks like.</b> Two lines 170 Hz apart, like RTTY but faster. Each message begins with at least ten seconds of phasing, a steady pattern that lets the receiver lock: <b>sync</b> on the page.</p>
+        <p><b>How to tune.</b> Nothing to tune: turn the knob, or choose on the Decodes tab, to the channel. The timetable says which station is next (see <a href="#decodes">Decodes in the browser</a>).</p>
+        <p><b>How to read it.</b> Every message has the same frame. An invented example:</p>
+        <table>
+        <tr><th>What the decoder writes</th><th>What it means</th></tr>
+        <tr><td><code>ZCZC FA12</code></td><td>Start of a message. F: the station's letter. A: the subject (below). 12: the message's number; 00 is kept for the most urgent messages, which every receiver prints.</td></tr>
+        <tr><td><code>221250 UTC NOV 26</code></td><td>When it was issued: the 22nd at 12:50 UTC, November 2026.</td></tr>
+        <tr><td><code>NAV WARNING NR 112 …</code></td><td>The message itself.</td></tr>
+        <tr><td><code>NNNN</code></td><td>End of the message.</td></tr>
+        </table>
+        <table>
+        <tr><td><b>A</b> Navigational warning</td><td><b>B</b> Weather warning</td><td><b>C</b> Ice report</td><td><b>D</b> Search and rescue, piracy</td></tr>
+        <tr><td><b>E</b> Weather forecast</td><td><b>F</b> Pilot service</td><td><b>G</b> AIS</td><td><b>H</b> LORAN</td></tr>
+        <tr><td><b>J</b> Satellite navigation</td><td><b>K</b> Other navigation aids</td><td><b>L</b> More navigational warnings</td><td><b>Z</b> No messages to send</td></tr>
+        </table>
+        <p>A ship's receiver cannot switch off A, B and D. V to Y are kept for special services.</p>
+        <p><b>Exercise</b></p>
+        <ol>
+        <li>On the Decodes tab choose NAVTEX and type your locator: the timetable lists the nearest stations and who is next.</li>
+        <li>Start NAVTEX on that channel two minutes before its turn and watch for <b>sync</b>.</li>
+        <li>For each message, write down the station letter, the subject and the number from its ZCZC line.</li>
+        <li>Read it back on the radio (push and turn) and save the text from the browser.</li>
+        </ol>
+        <p><i>You have it when you can name the subject of every message in one turn. Night is best on 518 and 490 kHz; 4209.5 kHz reaches farther.</i></p>
+        <h3>A7 PSK31</h3>
+        <p><b>What it is.</b> Typed conversations between amateurs, by Peter Martinez, G3PLX (1998). The phase of a single tone is turned over to send bits, 31.25 a second. It is so narrow that dozens of stations fit in the 3 kHz the radio hears. Letters have codes of different lengths, the common ones short; small letters are shorter than capitals, so most people type in small letters.</p>
+        <p><b>What it looks like.</b> A thin line. While a station waits it sends steady phase reversals, which show as two lines 31 Hz apart; as it types they merge into one.</p>
+        <p><b>How to tune.</b> To the listed frequency itself: 14070.00 kHz on 20 m, 7040.00 kHz on 40 m. The stations sit in the 3 kHz above it. The page reads the strongest; the red line shows which one.</p>
+        <p><b>How to read it.</b> Much like CW, in small letters:</p>
+        <table>
+        <tr><th>What the decoder writes</th><th>What it means</th></tr>
+        <tr><td><code>cq cq cq de k1abc k1abc pse k</code></td><td>Calling anyone; please answer.</td></tr>
+        <tr><td><code>k1abc de g4xyz g4xyz kn</code></td><td>G4XYZ answers, for K1ABC only (kn).</td></tr>
+        <tr><td><code>ge joe tnx fer call ur rst 599</code></td><td>Good evening Joe, thanks for the call, your report is 599.</td></tr>
+        <tr><td><code>73 tu sk</code></td><td>Best regards, thanks, end of the contact.</td></tr>
+        </table>
+        <p><b>Exercise</b></p>
+        <ol>
+        <li>Tune 14070.00 kHz on a weekend evening and open PSK31.</li>
+        <li>Wait until a trace becomes one line, then read the callsign and the name.</li>
+        <li>Notice that the text comes in small letters, at the speed the station types, and stops when it stops typing.</li>
+        </ol>
+        <p><i>You have it when you can follow one whole turn of a conversation without gaps.</i></p>
+        <h3>A8 WEFAX: weather charts</h3>
+        <p><b>What it is.</b> Weather charts sent as pictures (radiofax). The shade of each point is a tone between 1500 Hz (black) and 2300 Hz (white), 120 lines a minute, so a chart takes 10 to 20 minutes. Weather services send them for ships on a fixed timetable; the station at Northwood, near London, sends on 4610, 8040 and 11086.5 kHz.</p>
+        <p><b>What it looks like.</b> A chart begins with a start tone for a few seconds (bright lines at even steps), then phasing lines that let the decoder find where each line begins, then the picture: a broad band from 1500 to 2300 Hz, brightest at 2300 Hz where the paper is white.</p>
+        <p><b>How to tune.</b> 1.9 kHz below the listed frequency: 8038.10 kHz, 4608.10 kHz at night, 11084.60 kHz by day.</p>
+        <p><b>How to read it.</b> The picture is drawn on the radio and, larger, on the Decodes tab, where <b>Save picture</b> downloads it. A surface chart shows the pressure as lines (isobars), highs (H) and lows (L) and fronts, with the title and the time it is valid for (UTC) in a corner. Other charts show forecasts for a day or more ahead, wave heights or sea temperature. A picture that slants a little is still being read.</p>
+        <p><b>Exercise</b></p>
+        <ol>
+        <li>Tune 8038.10 kHz by day (4608.10 kHz at night), open WEFAX on the radio and the Decodes tab in the browser.</li>
+        <li>Wait for a start tone and the phasing lines, then let the chart build for 15 minutes.</li>
+        <li>Save the picture; find its title, its time, one H and one L.</li>
+        </ol>
+        <p><i>You have it when you can read the chart's title and the time it is valid for.</i></p>
+        <h3>A9 Words used in this appendix</h3>
+        <table>
+        <tr><td style="width:28%"><b>73</b></td><td>Best regards.</td></tr>
+        <tr><td style="width:28%"><b>Baud</b></td><td>Symbols sent in a second; in RTTY and NAVTEX, bits a second.</td></tr>
+        <tr><td style="width:28%"><b>Beaufort</b></td><td>The scale of wind force at sea, from 0 to 12.</td></tr>
+        <tr><td style="width:28%"><b>CQ</b></td><td>A call to any station.</td></tr>
+        <tr><td style="width:28%"><b>dB</b></td><td>A ratio of power: 3 dB is twice, 10 dB ten times, −20 dB a hundredth.</td></tr>
+        <tr><td style="width:28%"><b>DE</b></td><td>From.</td></tr>
+        <tr><td style="width:28%"><b>Dial frequency</b></td><td>The frequency the radio is tuned to, as on its screen.</td></tr>
+        <tr><td style="width:28%"><b>FSK</b></td><td>Frequency shift keying: two tones, one for each kind of bit.</td></tr>
+        <tr><td style="width:28%"><b>ITA2 (Baudot)</b></td><td>RTTY's five-bit code.</td></tr>
+        <tr><td style="width:28%"><b>K, KN</b></td><td>Over; KN: over to the station called only.</td></tr>
+        <tr><td style="width:28%"><b>Locator</b></td><td>A square of the map such as LL75, 2° by 1°.</td></tr>
+        <tr><td style="width:28%"><b>Mark, space</b></td><td>The two tones of RTTY and NAVTEX.</td></tr>
+        <tr><td style="width:28%"><b>Phasing</b></td><td>A steady pattern before a NAVTEX message or a fax chart, so the receiver can lock.</td></tr>
+        <tr><td style="width:28%"><b>QTH</b></td><td>Location.</td></tr>
+        <tr><td style="width:28%"><b>RST</b></td><td>Signal report: readability, strength, tone, as in 599.</td></tr>
+        <tr><td style="width:28%"><b>RY</b></td><td>RTTY's test pattern.</td></tr>
+        <tr><td style="width:28%"><b>Shift</b></td><td>The distance between the two tones, in Hz.</td></tr>
+        <tr><td style="width:28%"><b>SNR</b></td><td>Signal-to-noise ratio, in dB.</td></tr>
+        <tr><td style="width:28%"><b>Slot, turn</b></td><td>One period of FT8 (15 s) or FT4 (7.5 s).</td></tr>
+        <tr><td style="width:28%"><b>Sync</b></td><td>The decoder is locked to the signal's timing.</td></tr>
+        <tr><td style="width:28%"><b>Tone frequency</b></td><td>Where a signal sits in the sound, in Hz.</td></tr>
+        <tr><td style="width:28%"><b>USB</b></td><td>Upper sideband: the radio turns what is just above its frequency into sound.</td></tr>
+        <tr><td style="width:28%"><b>UTC</b></td><td>Coordinated Universal Time.</td></tr>
+        <tr><td style="width:28%"><b>Varicode</b></td><td>PSK31's code: short codes for the common letters.</td></tr>
+        <tr><td style="width:28%"><b>Waterfall</b></td><td>The spectrum over time, the newest moment at the top.</td></tr>
+        <tr><td style="width:28%"><b>WPM</b></td><td>Words per minute; a dot lasts 1200 divided by the WPM, in milliseconds.</td></tr>
+        <tr><td style="width:28%"><b>ZCZC, NNNN</b></td><td>Start and end of a NAVTEX message.</td></tr>
+        </table>
       </div>
     </section>
   </main>
