@@ -239,7 +239,8 @@ void prefsSave(uint32_t items)
     prefs.putUChar("DecAudio",    decAudioIdx);    // Decoder Audio: 0 3 kHz, 1 6 kHz (RESONIK R5)
     prefs.putUChar("FreqLock",    freqLock);       // Frequency lock (RESONIK R3)
     prefs.putUChar("BcnNames",    beaconNames);    // Beacon names on beacon frequencies (RESONIK R4)
-    prefs.putUChar("WifiPower",   wifiPowerIdx);   // Wi-Fi transmit power (RESONIK R3)
+    prefs.putChar("WiFiPower", wifiPowerDbm.load());   // Wi-Fi transmit power, dBm (RESONIK R3 "WifiPower" before)
+    prefs.putChar("BLEPower", blePowerDbm.load());     // Bluetooth LE transmit power, dBm
     prefs.putUChar("Perf",        perfIdx);        // Processor speed (RESONIK R3)
     prefs.putUChar("MenuStyle2",  menuStyleIdx);   // Menu style (RESONIK); new key so the tile default reaches radios updated from r1
     prefs.putUChar("Logger",      loggerIdx < LOG_CLEAR ? loggerIdx : 0); // Signal logger (RESONIK)
@@ -354,7 +355,18 @@ bool prefsLoad(uint32_t items)
     wizardDone     = prefs.isKey("Wizard") ? prefs.getUChar("Wizard", 1) : 1;
     freqLock       = prefs.getUChar("FreqLock", freqLock) ? 1 : 0;
     beaconNames    = prefs.getUChar("BcnNames", beaconNames) ? 1 : 0;
-    wifiPowerIdx   = prefs.getUChar("WifiPower", wifiPowerIdx) % 3;
+    // Wi-Fi and Bluetooth power in dBm (the original's settings, v2.47). A
+    // radio from before R5 kept its Wi-Fi Power as Normal, Low or Lowest in
+    // "WifiPower": 17, 13 and 9 (8.5) dBm, the same powers.
+    {
+      static const int8_t oldPower[] = { 17, 13, 9 };
+      int8_t savedWiFiPowerDbm = prefs.isKey("WiFiPower") ? prefs.getChar("WiFiPower", WIFI_POWER_DEFAULT_DBM)
+                               : prefs.isKey("WifiPower") ? oldPower[prefs.getUChar("WifiPower", 0) % 3]
+                               : WIFI_POWER_DEFAULT_DBM;
+      int8_t savedBlePowerDbm = prefs.getChar("BLEPower", BLE_POWER_DEFAULT_DBM);
+      wifiPowerDbm = wifiPowerValid(savedWiFiPowerDbm) ? savedWiFiPowerDbm : WIFI_POWER_DEFAULT_DBM;
+      blePowerDbm = blePowerValid(savedBlePowerDbm) ? savedBlePowerDbm : BLE_POWER_DEFAULT_DBM;
+    }
     perfIdx        = prefs.getUChar("Perf", perfIdx) % 3;
     menuStyleIdx   = prefs.getUChar("MenuStyle2", menuStyleIdx) ? MENU_STYLE_TILES : MENU_STYLE_CLASSIC;
     loggerIdx      = prefs.getUChar("Logger", 0);

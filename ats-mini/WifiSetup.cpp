@@ -232,7 +232,7 @@ void wifiSetupTurn(int16_t enc)
   {
     if(!hubEdit) hubSel = (hubSel + enc + H_COUNT) % H_COUNT;
     else if(hubSel == H_MODE) hubValue = (hubValue + enc + getTotalWiFiModes()) % getTotalWiFiModes();
-    else hubValue = (hubValue + enc + 3) % 3;
+    else hubValue = (hubValue + enc + (int)wifiPowerCount) % (int)wifiPowerCount;
     return;
   }
   if(ws == Ws::List)
@@ -251,7 +251,7 @@ void wifiSetupClick(bool shortPress)
       {
         if(hubSel == H_JOIN) { startScan(); break; }
         hubEdit = true;
-        hubValue = hubSel == H_MODE ? wifiModeIdx : wifiPowerIdx;
+        hubValue = hubSel == H_MODE ? wifiModeIdx : wifiPowerIndex();
         break;
       }
       // Apply the new mode or power
@@ -262,10 +262,9 @@ void wifiSetupClick(bool shortPress)
         prefsRequestSave(SAVE_SETTINGS);
         netInit(wifiModeIdx);
       }
-      else if(hubSel == H_POWER && hubValue != wifiPowerIdx)
+      else if(hubSel == H_POWER && hubValue != wifiPowerIndex())
       {
-        wifiPowerIdx = hubValue;
-        wifiApplyTxPower();
+        wifiSetPowerIndex(hubValue);
         prefsRequestSave(SAVE_SETTINGS);
       }
       break;
@@ -507,7 +506,7 @@ static void drawHub()
     spr.drawString(labels[i], 12, y + rh / 2, uiFont(false));
     const char *v = nullptr;
     if(i == H_MODE)  v = wifiModeDesc[hl && hubEdit ? hubValue : wifiModeIdx];
-    if(i == H_POWER) v = wifiPowerDesc[hl && hubEdit ? hubValue : wifiPowerIdx];
+    if(i == H_POWER) v = wifiPowerDesc[hl && hubEdit ? hubValue : wifiPowerIndex()];
     if(i == H_JOIN)  v = ">";
     spr.setTextDatum(MR_DATUM);
     spr.setTextColor(hl ? WS_HLTEXT : WS_MUTED);

@@ -479,7 +479,8 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
     <tr><td>Connect</td><td>Connected to your home network only</td></tr>
     <tr><td>Sync Only</td><td>Connects at power-on, sets the clock and switches off</td></tr>
   </table>
-  <p><b>Power</b>: Normal (17 dBm), Low (13 dBm) or Lowest (8.5 dBm). Lower power helps boards that restart when Wi-Fi transmits and saves some battery, at the cost of range.</p>
+  <p><b>Power</b>: the Wi-Fi transmit power, from 2 to 20 dBm, 17 dBm as delivered. Lower power helps boards that restart when Wi-Fi transmits and saves some battery, at the cost of range.</p>
+  <p><span class="tag r5" style="font-size:8pt;margin:0 2mm 0 0">R5</span>The same setting, with the same steps, is in Web Control and on the Config web page, with <b>Bluetooth LE TX Power</b> beside it (0 dBm as delivered). A radio set to Low or Lowest before R5 keeps 13 or 9 dBm.</p>
   <h3>Joining your home network on the radio</h3>
   <div style="display:flex;gap:5mm;align-items:flex-start;break-inside:avoid">
     <div style="flex:1"><p style="margin-top:0"><b>Join a network</b> lists the networks around you, strongest first. Choose one and type the password on the on-screen keyboard: turn the knob to move over the keys and click to type each character. <b>aA</b> gives capitals (for one letter), <b>#+=</b> symbols, <b>Del</b> deletes, and <b>Show</b> shows the password. The password is shown as stars with only the last character visible, so you can spot typing mistakes. <b>OK</b> lights up after eight characters. The network is saved, the radio connects at once (AP+Connect mode) and shows its IP address in large type.</p></div>

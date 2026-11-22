@@ -457,8 +457,6 @@ const char *const menuStyleDesc[] = { "Classic", "Tiles" };
 static const char *const knobDesc[] = { "20 clicks", "30 clicks" };
 uint8_t freqLock = 0;
 static const char *const freqLockDesc[] = { "Off", "On" };
-uint8_t wifiPowerIdx = 0;
-const char *const wifiPowerDesc[] = { "Normal", "Low", "Lowest" };
 
 // Performance (RESONIK R3): processor speed. Upstream runs at 80 MHz to save
 // battery; faster makes the screen, menus and tuning feel quicker at the cost
@@ -2025,8 +2023,7 @@ bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
       prefsRequestSave(SAVE_SETTINGS);
       break;
     case CMD_WIFIPOWER:
-      wifiPowerIdx = wrap_range(wifiPowerIdx, scrollDirection * enc, 0, 2);
-      wifiApplyTxPower();
+      wifiSetPowerIndex(wrap_range(wifiPowerIndex(), scrollDirection * enc, 0, wifiPowerCount - 1));
       prefsRequestSave(SAVE_SETTINGS);
       break;
     case CMD_KNOB:
@@ -3159,7 +3156,7 @@ void drawSideBar(uint16_t cmd, int x, int y, int sx)
     case CMD_BPAREA:     drawOptionList(settings[MENU_BPAREA], bandPlanAreaDesc, BP_AREA_COUNT, bandPlanArea, x, y, sx); break;
     case CMD_KNOB:       drawOptionList(settings[MENU_KNOB], knobDesc, 2, encoderHalfStep ? 1 : 0, x, y, sx); break;
     case CMD_FREQLOCK:   drawOptionList(settings[MENU_FREQLOCK], freqLockDesc, 2, freqLock, x, y, sx); break;
-    case CMD_WIFIPOWER:  drawOptionList("Wi-Fi Power", wifiPowerDesc, 3, wifiPowerIdx, x, y, sx); break;
+    case CMD_WIFIPOWER:  drawOptionList("Wi-Fi Power", wifiPowerDesc, wifiPowerCount, wifiPowerIndex(), x, y, sx); break;
     case CMD_PERF:       drawOptionList(settings[MENU_PERF], perfDesc, 3, perfIdx, x, y, sx); break;
     case CMD_BEACON:     drawOptionList(menu[MENU_BEACONS], beaconMenuLabels, BEACON_MENU_COUNT, beaconMenuIdx(), x, y, sx); break;
     case CMD_VOLUME:     drawVolume(x, y, sx);     break;
@@ -3450,7 +3447,7 @@ static bool tileValueGet(uint16_t cmd, TileValue &v)
     case CMD_BPAREA:    v.count = BP_AREA_COUNT; v.idx = bandPlanArea; return(true);
     case CMD_KNOB:      v.count = 2; v.idx = encoderHalfStep ? 1 : 0; return(true);
     case CMD_FREQLOCK:  v.count = 2; v.idx = freqLock; return(true);
-    case CMD_WIFIPOWER: v.count = 3; v.idx = wifiPowerIdx; return(true);
+    case CMD_WIFIPOWER: v.count = wifiPowerCount; v.idx = wifiPowerIndex(); return(true);
     case CMD_PERF:      v.count = 3; v.idx = perfIdx; return(true);
   }
 
@@ -3724,7 +3721,7 @@ void webMenuDef(String &j)
   wjItem(j, CMD_OFFTIMER, "Power and time", "Off timer", "n"); wjNum(j, 0, 240, 5, "min");
   wjItem(j, CMD_PERF, "Power and time", "CPU speed (80 saves battery)", "l"); j += ",\"o\":"; wjList(j, perfDesc, ITEM_COUNT(perfDesc));
   j += ",\"h\":"; wjText(j, "Always 240 MHz while this page is open, so it answers quickly; your choice applies when you close it."); j += '}';
-  wjItem(j, CMD_WIFIPOWER, "Power and time", "Wi-Fi power", "l"); j += ",\"o\":"; wjList(j, wifiPowerDesc, ITEM_COUNT(wifiPowerDesc)); j += '}';
+  wjItem(j, CMD_WIFIPOWER, "Power and time", "Wi-Fi power", "l"); j += ",\"o\":"; wjList(j, wifiPowerDesc, wifiPowerCount); j += '}';
   wjItem(j, CMD_UTCOFFSET, "Power and time", "Time zone", "l");
   n = 0; for(int i = 0; i < (int)ITEM_COUNT(timeZones) && n < 128; i++) labels[n++] = timeZones[i].desc;
   j += ",\"o\":"; wjList(j, labels, n); j += '}';
@@ -3776,7 +3773,7 @@ void webMenuVals(String &j)
   kv(CMD_SLEEPMODE, sleepModeIdx);
   kv(CMD_OFFTIMER, offTimerMinutes);
   kv(CMD_PERF, perfIdx);
-  kv(CMD_WIFIPOWER, wifiPowerIdx);
+  kv(CMD_WIFIPOWER, wifiPowerIndex());
   kv(CMD_UTCOFFSET, utcOffsetIdx);
   kv(CMD_KNOB, encoderHalfStep ? 1 : 0);
   kv(CMD_ENC_ACCEL, encoderAcceleration ? 1 : 0);
@@ -3872,7 +3869,7 @@ bool webMenuSet(uint16_t cmd, int32_t v)
     case CMD_SLEEPMODE:  if(v < 0 || v >= (int)ITEM_COUNT(sleepModeDesc)) return(false); doSleepMode(v - sleepModeIdx); break;
     case CMD_OFFTIMER:   if((constrain(v, 0, 240) - (int)offTimerMinutes) / 5) doOffTimer((constrain(v, 0, 240) - (int)offTimerMinutes) / 5); break;
     case CMD_PERF:       if(v < 0 || v > 2) return(false); perfIdx = v; perfApply(); prefsRequestSave(SAVE_SETTINGS); break;
-    case CMD_WIFIPOWER:  if(v < 0 || v > 2) return(false); wifiPowerIdx = v; wifiApplyTxPower(); prefsRequestSave(SAVE_SETTINGS); break;
+    case CMD_WIFIPOWER:  if(v < 0 || v >= (int)wifiPowerCount) return(false); wifiSetPowerIndex(v); prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_UTCOFFSET:  if(v < 0 || v >= (int)ITEM_COUNT(timeZones)) return(false); doUTCOffset(v - utcOffsetIdx); break;
     case CMD_KNOB:       setEncoderHalfStep(v != 0); prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_ENC_ACCEL:  if((v != 0) != encoderAcceleration) doEncoderAcceleration(); break;

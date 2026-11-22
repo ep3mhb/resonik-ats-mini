@@ -25,9 +25,59 @@
 #define HTTP_TIME_AFTER 12000 // No NTP reply by then: read the time from a web server instead
 #define HTTP_TIME_TRIES 3     // Web attempts at 12, 22 and 32 s, all before NTP_TIMEOUT
 
-#ifndef WIFI_POWER_LEVEL
-#define WIFI_POWER_LEVEL WIFI_POWER_17dBm
-#endif
+const int8_t wifiPowerOptions[] = {
+  2, 5, 7, 9, 11, 13, 14, 15, 17, 18, 20
+};
+const size_t wifiPowerCount = sizeof(wifiPowerOptions) / sizeof(wifiPowerOptions[0]);
+
+std::atomic<int8_t> wifiPowerDbm{WIFI_POWER_DEFAULT_DBM};
+
+bool wifiPowerValid(int power)
+{
+  for(int8_t option : wifiPowerOptions)
+    if(power == option) return true;
+  return false;
+}
+
+// RESONIK R5: the radio's Wi-Fi Power (R3: Normal, Low, Lowest) and the
+// original's Config page setting (v2.47) are one setting in dBm, the same list
+// on the radio's Wi-Fi page and menu, in Web Control and on the Config page.
+// Lower power helps boards that reset when Wi-Fi transmits; 17 dBm as before.
+const char *const wifiPowerDesc[] = {
+  "2 dBm", "5 dBm", "7 dBm", "9 dBm", "11 dBm", "13 dBm", "14 dBm", "15 dBm", "17 dBm", "18 dBm", "20 dBm"
+};
+static_assert(sizeof(wifiPowerDesc) / sizeof(wifiPowerDesc[0]) == sizeof(wifiPowerOptions) / sizeof(wifiPowerOptions[0]),
+              "one label per Wi-Fi power");
+
+int wifiPowerIndex()
+{
+  int8_t power = wifiPowerDbm.load();
+  int fallback = 0;
+  for(size_t i = 0; i < wifiPowerCount; i++)
+  {
+    if(wifiPowerOptions[i] == power) return(i);
+    if(wifiPowerOptions[i] == WIFI_POWER_DEFAULT_DBM) fallback = i;
+  }
+  return(fallback);
+}
+
+void wifiSetPowerIndex(int index)
+{
+  if(index < 0 || index >= (int)wifiPowerCount) return;
+  wifiPowerDbm = wifiPowerOptions[index];
+  wifiApplyPower();
+}
+
+bool wifiApplyPower()
+{
+  // Keep the setting for the next startup when Wi-Fi is off.
+  if(WiFi.getMode() == WIFI_MODE_NULL) return true;
+  // Integer labels 9 and 17 represent SDK limits of 8.5 and 16.5 dBm.
+  int8_t powerDbm = wifiPowerDbm.load();
+  int8_t powerQuarterDbm = powerDbm * 4;
+  if(powerDbm == 9 || powerDbm == 17) powerQuarterDbm -= 2;
+  return esp_wifi_set_max_tx_power(powerQuarterDbm) == ESP_OK;
+}
 
 enum class NetState : uint8_t { Idle, Scanning, Probing, Connecting, Retry, Online };
 static NetState netState = NetState::Idle;
@@ -431,27 +481,10 @@ static void wifiRegisterPowerLevelCallback()
   registered = true;
 }
 
-// Transmit power from the Wi-Fi Power setting (RESONIK R3): Low and Lowest
-// help boards that reset when Wi-Fi transmits, and save some battery
-static wifi_power_t wifiTxPower()
-{
-  switch(wifiPowerIdx)
-  {
-    case 1:  return(WIFI_POWER_13dBm);
-    case 2:  return(WIFI_POWER_8_5dBm);
-    default: return(WIFI_POWER_LEVEL);
-  }
-}
-
-void wifiApplyTxPower()
-{
-  if(WiFi.getMode() != WIFI_MODE_NULL) WiFi.setTxPower(wifiTxPower());
-}
-
 static void wifiPowerLevelOnEvent(WiFiEvent_t event)
 {
   (void)event;
-  WiFi.setTxPower(wifiTxPower());
+  wifiApplyPower();
 }
 
 //

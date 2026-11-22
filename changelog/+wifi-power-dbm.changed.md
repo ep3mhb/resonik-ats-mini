@@ -1,0 +1,1 @@
+Wi-Fi **Power** on the radio is set in dBm, from 2 to 20 dBm (17 dBm as before), the same list as in Web Control and on the Config web page, where the Bluetooth LE power is set too. A radio set to Low or Lowest keeps 13 or 9 dBm.
