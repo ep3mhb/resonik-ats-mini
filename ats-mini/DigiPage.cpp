@@ -331,10 +331,27 @@ static void audioOff()
   if(PIN_AMP_EN >= 0 && !(muted && !audioClamp)) digitalWrite(PIN_AMP_EN, HIGH);
 }
 
-static void tuneForMode()
+// RESONIK R5: each mode keeps its own frequency while the radio is on, so a
+// click from NAVTEX (516.5 kHz) to RTTY goes straight to the RTTY band instead
+// of leaving the radio on medium wave, and the page never works on FM, where
+// these signals do not exist (Mohammad, 22 Nov). Start values: where each mode
+// is heard most often (chapter 26 of the manual).
+static uint32_t modeFreq[DM_COUNT] = { 14080000, 10099300, 0, 14070000, 8038100 };
+
+static bool usableFreq(uint32_t hz) { return(currentMode != FM && hz >= 100000 && hz <= 30000000); }
+
+// keep: on opening the page, stay where the radio is if it can work there
+static void tuneForMode(bool keep = false)
 {
-  // NAVTEX: its channel, heard at 1500 Hz on USB; the others stay where they are
-  digiSetUsb(mode == DM_NAVTEX ? navCh[nav].dial : 0);
+  if(mode == DM_NAVTEX) { digiSetUsb(navCh[nav].dial); return; }
+  if(keep && usableFreq(currentFrequency)) { digiSetUsb(0); modeFreq[mode] = currentFrequency; return; }
+  digiSetUsb(modeFreq[mode]);
+}
+
+// The frequency the mode was left on, for the next time
+static void keepModeFreq()
+{
+  if(mode != DM_NAVTEX && usableFreq(currentFrequency)) modeFreq[mode] = currentFrequency;
 }
 
 static bool start()
@@ -361,7 +378,7 @@ static bool start()
   reading = false;
   if(!worker) xTaskCreatePinnedToCore(work, "digi", 16384, nullptr, 1, &worker, 1);
   ft8SaveRadio();
-  tuneForMode();
+  tuneForMode(true);
   audioOn();
   cpuSaved = getCpuFrequencyMhz();
   if(cpuSaved < 240) setCpuFrequencyMhz(240);
@@ -378,6 +395,7 @@ static bool start()
 
 static void stop()
 {
+  keepModeFreq();
   running = false;
   reading = false;
   audioFt8Ring(nullptr, 0);
@@ -502,6 +520,7 @@ bool digiTurn(int16_t enc, bool pressed)
 // The open page goes to another mode
 static void goMode(int m)
 {
+  if(pageActive) keepModeFreq();
   mode = m;
   if(!pageActive) return;
   tuneForMode();
@@ -555,6 +574,13 @@ bool digiTick()
     return(true);
   }
   if(!pageActive) return(false);
+  // Never on FM (a frequency set from Web Control, say): back to the mode's own
+  if(currentMode == FM)
+  {
+    tuneForMode();
+    statusShow("Digital", "Not on FM: back to short wave");
+    return(true);
+  }
   // Decoder Audio changed (from Web Control) while the page is open
   if(inRate != decoderSampleRate())
   {
