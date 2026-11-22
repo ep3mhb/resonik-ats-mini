@@ -3,11 +3,9 @@
 
 #include <Arduino.h>
 
-static const char pageConfigTitle[] PROGMEM = "ATS-Mini Config";
+static const char pageConfigTitle[] PROGMEM = "Config";
 
-static const char pageConfig[] PROGMEM = R"HTML(<H1>{{title}}</H1>
-{{{navigation}}}
-<FORM ACTION="/setconfig" METHOD="POST" ENCTYPE="multipart/form-data" ONSUBMIT="browserDateTime(true)">
+static const char pageConfig[] PROGMEM = R"HTML(<FORM ACTION="/setconfig" METHOD="POST" ENCTYPE="multipart/form-data" ONSUBMIT="browserDateTime(true)">
   <TABLE COLUMNS="2">
     <TR><TH COLSPAN="2" CLASS="HEADING">Date/Time</TH></TR>
     <TR><TD CLASS="LABEL">Use Browser Date/Time</TD><TD><INPUT TYPE="CHECKBOX" ID="browserdatetime" ONCHANGE="browserDateTime()"></TD></TR>
@@ -83,5 +81,13 @@ static const char pageSplash[] PROGMEM = R"HTML(<IMG SRC="/splash.png?{{version}
 static const char pageConfigThemeOption[] PROGMEM = R"HTML(<OPTION VALUE="{{value}}" {{selected}}>{{label}}</OPTION>)HTML";
 
 static const char pageConfigUtcOption[] PROGMEM = R"HTML(<OPTION VALUE="{{value}}" DATA-MINUTES="{{minutes}}" DATA-TZ="{{tz}}" {{selected}}>{{label}}</OPTION>)HTML";
+
+// R5: the answer to Restore, in the frame of every page
+static const char pageRestoreResult[] PROGMEM = R"HTML(<TABLE COLUMNS="1">
+  <TR><TH CLASS="HEADING">Restore</TH></TR>
+  <TR><TD CLASS="CENTER">{{message}}</TD></TR>
+  <TR><TD CLASS="CENTER"><A HREF="/config">Back to Config</A></TD></TR>
+</TABLE>
+)HTML";
 
 #endif // PAGE_CONFIG_H

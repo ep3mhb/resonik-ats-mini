@@ -251,6 +251,22 @@ static void webOnEvent(AsyncWebSocket *, AsyncWebSocketClient *client, AwsEventT
   }
 }
 
+// R5: the page with the frame all pages share (PageCommon.h): the RESONIK
+// bar with the live/offline mark at its right, the page menu and the footer.
+// Built once, kept in PSRAM, sent as before.
+static const String &webControlHtml()
+{
+  static String page;
+  if(page.length()) return(page);
+  String top, foot = PAGE_FRAME_FOOT;
+  webFrameTop(top, "/control", "<span class=\"rk-right\"><span id=\"st\">offline</span></span>");
+  page.reserve(sizeof(webControlPage) + top.length() + foot.length());
+  page = webControlPage;
+  page.replace("{{{frame_top}}}", top);
+  page.replace("{{{frame_foot}}}", foot);
+  return(page);
+}
+
 void webControlInit(AsyncWebServer &server, bool (*authenticated)(AsyncWebServerRequest *))
 {
   ws.onEvent(webOnEvent);
@@ -258,7 +274,7 @@ void webControlInit(AsyncWebServer &server, bool (*authenticated)(AsyncWebServer
   server.addHandler(&ws);
   server.on("/control", HTTP_GET, [authenticated] (AsyncWebServerRequest *request) {
     if(!authenticated(request)) return request->requestAuthentication();
-    request->send(200, "text/html", webControlPage);
+    request->send(200, "text/html", webControlHtml());
   });
 }
 

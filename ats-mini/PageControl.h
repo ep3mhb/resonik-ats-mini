@@ -1,19 +1,23 @@
 #ifndef PAGE_CONTROL_H
 #define PAGE_CONTROL_H
 
-// RESONIK R4 (test): the Web Control page (/control), see WebControl.cpp
+#include "PageCommon.h"
+
+// RESONIK R4 (test): the Web Control page (/control), see WebControl.cpp.
+// R5: the RESONIK bar, the page menu and the footer are the frame every
+// page shares (PageCommon.h); WebControl.cpp puts them in at {{{frame_top}}}
+// and {{{frame_foot}}} when the page is first asked for.
 
 static const char webControlPage[] = R"HTML(<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RESONIK Web Control</title>
 <style>
+)HTML" PAGE_FRAME_CSS R"HTML(
 :root{--bg:#09202a;--card:#0f2f3c;--line:#1d4a5c;--text:#eef5f7;--muted:#8fb0bd;--accent:#06D7A0;--blue:#108AB1}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-main{max-width:720px;margin:0 auto;padding:14px 16px 28px}
-h1{font-size:18px;margin:4px 0 10px;display:flex;justify-content:space-between;align-items:center}
-h1 small{font-size:12px;font-weight:600;color:var(--muted)}
-#st{font-size:12px;padding:2px 8px;border-radius:9px;background:#5b2a2a}
+main{max-width:720px;margin:0 auto;padding:0 16px 4px}
+#st{display:inline-block;font:600 12px/1.4 system-ui,sans-serif;padding:2px 8px;border-radius:9px;background:#5b2a2a;color:#fff}
 #st.on{background:#0c5a45}
 .screen{background:#000;border-radius:10px;padding:6px;border:2px solid var(--line)}
 canvas{width:100%;aspect-ratio:320/170;display:block;image-rendering:pixelated;border-radius:4px}
@@ -54,9 +58,6 @@ button.acc{background:#0c5a45}
 #sc{width:100%;height:140px;aspect-ratio:auto;image-rendering:auto;background:#06171e;cursor:crosshair}
 #scl{font-size:12px;color:var(--muted);margin-top:6px}
 a{color:var(--accent)}
-.pnav{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
-.pnav a,.pnav span{padding:5px 11px;border-radius:9px;background:var(--card);color:var(--muted);text-decoration:none;font-size:13px;font-weight:600}
-.pnav span{background:var(--blue);color:#fff}
 .card{margin-top:12px;background:var(--card);border-radius:10px;padding:10px 12px}
 .card h2{font-size:14px;margin:0 0 8px;color:var(--text)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -145,9 +146,8 @@ section[data-tab]>:first-child{margin-top:0}
 .bnds b{display:block;font-size:13px;color:var(--text)}
 .lg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
 .lg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
-</style></head><body><main>
-<h1><span><svg style="vertical-align:-6px;margin-right:8px" viewbox="0 0 53 48" width="26" height="24" aria-hidden="true"><rect x="0" y="40" width="5" height="8" rx="2" fill="#dce6ea"/><rect x="8" y="36" width="5" height="12" rx="2" fill="#dce6ea"/><rect x="16" y="28" width="5" height="20" rx="2" fill="#dce6ea"/><rect x="24" y="0" width="5" height="48" rx="2" fill="#4dabf7"/><rect x="32" y="28" width="5" height="20" rx="2" fill="#dce6ea"/><rect x="40" y="36" width="5" height="12" rx="2" fill="#dce6ea"/><rect x="48" y="40" width="5" height="8" rx="2" fill="#dce6ea"/></svg>RESONIK Web Control</span> <span id="st">offline</span></h1>
-<nav class="pnav"><a href="/">Status</a><span>Control</span><a href="/memory">Memory</a><a href="/config">Config</a><a href="/wifi">Wi-Fi</a><a href="/update">Update</a></nav>
+</style></head><body>
+{{{frame_top}}}<main>
 <div class="panel">
  <div class="pf"><div id="pfq">&mdash;</div><div class="tags" id="tags"></div></div>
  <div class="sm"><span id="sv" style="min-width:64px">S&ndash;</span><div class="bar"><i id="sb"></i></div><span id="sn"></span></div>
@@ -240,7 +240,7 @@ section[data-tab]>:first-child{margin-top:0}
 <p class="hint">Keyboard: &larr; &rarr; tune, + &minus; volume. Settings change on the radio at once and are saved as from its own menu.
 Bluetooth, USB and Wi-Fi modes and firmware updates stay on the radio. <a href="/">Status</a></p>
 </main>
-<script>
+{{{frame_foot}}}<script>
 const cv=document.getElementById('c'),cx=cv.getContext('2d'),img=cx.createImageData(320,170),px=img.data;
 for(let i=3;i<px.length;i+=4)px[i]=255;
 const st=document.getElementById('st'),ai=document.getElementById('ai');

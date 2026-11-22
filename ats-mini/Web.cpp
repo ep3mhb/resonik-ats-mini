@@ -85,7 +85,7 @@ static String webFirmwareText()
   return(String(text));
 }
 
-static String webPage(const char *body, const char *title, std::initializer_list<PageValue> values,
+static String webPage(const char *active, const char *body, const char *title, std::initializer_list<PageValue> values,
                       std::initializer_list<PageFragment> fragments = {});
 static const String webRadioPage();
 static const String webMemoryPage();
@@ -389,10 +389,10 @@ void webInit()
   server.on("/restore", HTTP_POST, [] (AsyncWebServerRequest *request) {
     if(!webIsAuthenticated(request)) return request->requestAuthentication();
     const char *error = backupCheck();
-    request->send(error ? 400 : 200, "text/html",
-      String("<!DOCTYPE html><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"><body style=\"font-family:sans-serif;padding:2em\"><p>") +
-      (error ? error : "Backup accepted. The radio restarts with the restored settings.") +
-      "</p><p><a href=\"/config\">Back</a></p>");
+    // R5: in the same frame as every page
+    request->send(error ? 400 : 200, "text/html", webPage("/config", pageRestoreResult, pageConfigTitle, {
+      {"message", error ? error : "Backup accepted. The radio restarts with the restored settings."}
+    }));
   }, [] (AsyncWebServerRequest *request, const String &filename, size_t index, uint8_t *data, size_t len, bool final) {
     if(!webIsAuthenticated(request)) return;
     backupUpload(index, data, len, final);
@@ -708,34 +708,26 @@ static bool webParseUTCDateTime(const String &text, uint32_t *epoch)
          clockUTCDateTimeToEpoch(year, month, day, hour, minute, second, epoch));
 }
 
-static String webPage(const char *body, const char *title, std::initializer_list<PageValue> values,
+// Every page: the shared frame (PageCommon.h), the page itself, the footer.
+// active: the page's path, lit in the menu
+static String webPage(const char *active, const char *body, const char *title, std::initializer_list<PageValue> values,
                       std::initializer_list<PageFragment> fragments)
 {
   String page;
-  pageReserve(page, sizeof(pageStart) + strlen(title) + strlen(body) + sizeof(pageEnd) + 64);
-  static const String version = String("v") + (VER_APP / 100) + "." + (VER_APP % 100) + "-r" + VER_RESONIK;
-  pageAppend(page, pageStart, {{"title", title}, {"version", version}});
+  pageReserve(page, sizeof(pageStart) + sizeof(pageFrameBrand) + 1024 + strlen(body) + sizeof(pageEnd) + 64);
+  pageAppend(page, pageStart, {{"title", title}});
+  webFrameTop(page, active);
   // RESONIK R5: a newer release is out
   if(updNoticeWaiting())
   {
     char v[16];
     updNoticeVersionText(v, sizeof(v), updNoticeVersion());
-    page += "<p style=\"background:#06D7A0;color:#041F29;padding:.5em 1em;border-radius:8px;font-weight:600\">New firmware RESONIK ";
+    page += "<p style=\"max-width:768px;box-sizing:border-box;margin:0 auto 12px;background:#06D7A0;color:#041F29;padding:.5em 1em;border-radius:8px;font-weight:600\">New firmware RESONIK ";
     page += v;
     page += " is available. <a href=\"/update\" style=\"color:#041F29\">Update over Wi-Fi</a></p>";
   }
   pageAppend(page, body, values, fragments);
-  pageReserve(page, sizeof(pageEnd) + 64);
-  // Snapshot after allocating the page, before the HTTP response copies it.
-  multi_heap_info_t heap, psram;
-  heap_caps_get_info(&heap, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
-  heap_caps_get_info(&psram, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
-  pageAppend(page, pageEnd, {
-    {"heap_used", String(heap.total_allocated_bytes / 1024.0, 1)},
-    {"heap_free", String(heap.total_free_bytes / 1024.0, 1)},
-    {"psram_used", String(psram.total_allocated_bytes / 1024.0, 1)},
-    {"psram_free", String(psram.total_free_bytes / 1024.0, 1)}
-  });
+  page += pageEnd;
   return page;
 }
 
@@ -839,8 +831,12 @@ static const String webRadioPage()
   char cpuNote[80] = "";
   if((currentCmd == CMD_FT8 || currentCmd == CMD_DIGI) && perfSetMhz() < 240)
     strlcpy(cpuNote, "Running at 240 MHz while the FT8 or Digital page is open.", sizeof(cpuNote));
-  return webPage(pageStatus, pageStatusTitle, {
-    {"title", pageStatusTitle}, {"cpu_note", String(cpuNote)},
+  // The memory line under the table (it was at the foot of every page)
+  multi_heap_info_t heap, psram;
+  heap_caps_get_info(&heap, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+  heap_caps_get_info(&psram, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+  return webPage("/", pageStatus, pageStatusTitle, {
+    {"cpu_note", String(cpuNote)},
     {"uptime", String(uptime)}, {"reset", String(reset)},
     {"temp", String(temperatureRead(), 0)}, {"cpu", String(perfSetMhz())},
     {"heap", String(heap_caps_get_free_size(MALLOC_CAP_INTERNAL) / 1024)},
@@ -855,9 +851,9 @@ static const String webRadioPage()
     {"mac", String(getMACAddress())}, {"version", webFirmwareText()},
     {"time", receiverTime}, {"band", getCurrentBand()->bandName},
     {"frequency", freq}, {"mode", bandModeDesc[currentMode]},
-    {"rssi", String(rssi)}, {"snr", String(snr)}, {"battery", String(batteryMonitor())}
-  }, {
-    {"navigation", [](String &out) { webNavigation(out, "/"); }}
+    {"rssi", String(rssi)}, {"snr", String(snr)}, {"battery", String(batteryMonitor())},
+    {"heap_used", String(heap.total_allocated_bytes / 1024.0, 1)}, {"heap_free", String(heap.total_free_bytes / 1024.0, 1)},
+    {"psram_used", String(psram.total_allocated_bytes / 1024.0, 1)}, {"psram_free", String(psram.total_free_bytes / 1024.0, 1)}
   });
 }
 
@@ -940,8 +936,7 @@ static void webSetMemories(AsyncWebServerRequest *request)
   if(error)
   {
     free(pending);
-    return request->send(400, "text/html", webPage(pageMemoryError, pageMemoryTitle, {
-      {"title", pageMemoryTitle},
+    return request->send(400, "text/html", webPage("/memory", pageMemoryError, pageMemoryTitle, {
       {"slot", String(slot + 1)}, {"error", error}
     }));
   }
@@ -954,10 +949,9 @@ static void webSetMemories(AsyncWebServerRequest *request)
 
 static const String webMemoryPage()
 {
-  return webPage(pageMemory, pageMemoryTitle, {
-    {"title", pageMemoryTitle}, {"toolbar", pageMemoryToolbar}
+  return webPage("/memory", pageMemory, pageMemoryTitle, {
+    {"toolbar", pageMemoryToolbar}
   }, {
-    {"navigation", [](String &out) { webNavigation(out, "/memory"); }},
     {"rows", [](String &out) {
       for(int j=0 ; j<MEMORY_COUNT ; j++)
       {
@@ -1036,8 +1030,7 @@ const String webConfigPage()
   }
   String splashResolution = String(spr.width()) + "x" + String(spr.height());
 
-  return webPage(pageConfig, pageConfigTitle, {
-    {"title", pageConfigTitle},
+  return webPage("/config", pageConfig, pageConfigTitle, {
     {"brightness", String(brightness)}, {"sleep_timer", String(sleepTimer)},
     {"off_timer", String(offTimer)}, {"audio_clamp", clamp? "CHECKED" : ""},
     {"auto_ant_cap", autoCapacitor? "CHECKED" : ""},
@@ -1046,7 +1039,6 @@ const String webConfigPage()
     {"half_step", halfStep? "CHECKED" : ""}, {"zoom", zoom? "CHECKED" : ""},
     {"resolution", splashResolution}
   }, {
-    {"navigation", [](String &out) { webNavigation(out, "/config"); }},
     {"usb_options", [&](String &out) { webConfigOptions(out, usbModeDesc, getTotalUSBModes(), usbMode); }},
     {"tcp_options", [&](String &out) { webConfigOptions(out, tcpModeDesc, getTotalTCPModes(), tcpMode); }},
     {"ble_options", [&](String &out) { webConfigOptions(out, bleModeDesc, getTotalBluetoothModes(), bleMode); }},
@@ -1098,13 +1090,11 @@ static const String webWiFiPage()
   bool scanHidden = prefs.getBool("wifiscanhidden", false);
   prefs.end();
 
-  return webPage(pageWiFi, pageWiFiTitle, {
-    {"title", pageWiFiTitle},
+  return webPage("/wifi", pageWiFi, pageWiFiTitle, {
     {"username", loginUsername}, {"password", loginPassword},
     {"ssid1", ssid1}, {"pass1", pass1}, {"ssid2", ssid2}, {"pass2", pass2},
     {"ssid3", ssid3}, {"pass3", pass3}, {"scan_hidden", scanHidden? "CHECKED" : ""}
   }, {
-    {"navigation", [](String &out) { webNavigation(out, "/wifi"); }},
     {"wifi_options", [](String &out) {
       webConfigOptions(out, wifiModeDesc, getTotalWiFiModes(), wifiModeIdx);
     }}
@@ -1119,13 +1109,10 @@ static void webUpdatePage(AsyncWebServerRequest *request, const OtaStatus &statu
   const bool complete = status.phase == OTA_COMPLETE || status.phase == OTA_REBOOT_PENDING;
   const bool available = status.phase == OTA_AVAILABLE;
   const char *refresh = complete? pageUpdateComplete : busy? pageUpdateBusy : "";
-  const String page = webPage(pageUpdate, pageUpdateTitle, {
-    {"title", pageUpdateTitle},
+  const String page = webPage("/update", pageUpdate, pageUpdateTitle, {
     {"message", status.message},
     {"action", available? "install" : "check"}, {"disabled", busy || complete? "DISABLED" : ""},
     {"button", available? "Update" : "Check for updates"}, {"refresh", refresh}
-  }, {
-    {"navigation", [](String &out) { webNavigation(out, "/update"); }}
   });
   if(!code) code = status.phase == OTA_FAILED? 400 : 200;
   AsyncWebServerResponse *response = request->beginResponse(code, "text/html", page);
@@ -1234,11 +1221,10 @@ static void webPatchesPage(AsyncWebServerRequest *request)
   bool busy;
   uint8_t selected;
   patchesSnapshot(selected, busy);
-  const String page = webPage(pagePatches, pagePatchesTitle, {
-    {"title", pagePatchesTitle}, {"busy", busy? pagePatchesBusy : ""},
+  const String page = webPage("/patches", pagePatches, pagePatchesTitle, {
+    {"busy", busy? pagePatchesBusy : ""},
     {"disabled", busy? "DISABLED" : ""}
   }, {
-    {"navigation", [](String &out) { webNavigation(out, "/patches"); }},
     {"options", [&](String &out) {
       for(uint8_t slot = 0; slot <= PATCH_SET_COUNT; slot++)
       {

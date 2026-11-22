@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-static const char pageMemoryTitle[] PROGMEM = "ATS-Mini Memory";
+static const char pageMemoryTitle[] PROGMEM = "Memory";
 
 static const char pageMemory[] PROGMEM = R"HTML(<STYLE>
   TABLE.MEMORY { border-collapse: collapse; margin-bottom: 1em; }
@@ -25,8 +25,6 @@ static const char pageMemory[] PROGMEM = R"HTML(<STYLE>
     .MEMORY INPUT[data-field=name] { max-width: 10ch; }
   }
 </STYLE>
-<H1>{{title}}</H1>
-{{{navigation}}}
 <P CLASS="MEMORY-HELP">Edit frequencies in Hz (0 clears a slot). Names: up to 9 printable ASCII characters.
 Use the up/down buttons to reorder slots. Press Save to apply changes.</P>
 <FORM ID="memories" METHOD="post" ACTION="/memory" AUTOCOMPLETE="on" ONINPUT="changed()">
@@ -137,7 +135,6 @@ static const char pageMemoryRow[] PROGMEM = R"HTML(<TR>
 
 static const char pageMemoryOption[] PROGMEM = R"HTML(<OPTION VALUE="{{value}}" {{selected}}>{{value}}</OPTION>)HTML";
 
-static const char pageMemoryError[] PROGMEM = R"HTML(<H1>{{title}}</H1>
-<P>Slot {{slot}}: {{error}} No changes saved. Use your browser's Back button to correct the table.</P>)HTML";
+static const char pageMemoryError[] PROGMEM = R"HTML(<P CLASS="CENTER">Slot {{slot}}: {{error}} No changes saved. Use your browser's Back button to correct the table.</P>)HTML";
 
 #endif // PAGE_MEMORY_H

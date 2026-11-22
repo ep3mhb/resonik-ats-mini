@@ -3,11 +3,9 @@
 
 #include <Arduino.h>
 
-static const char pageStatusTitle[] PROGMEM = "ATS-Mini Status";
+static const char pageStatusTitle[] PROGMEM = "Status";
 
-static const char pageStatus[] PROGMEM = R"HTML(<H1>{{title}}</H1>
-{{{navigation}}}
-<STYLE>.v-good{color:#06D7A0}.v-fair{color:#FFD167}.v-bad{color:#FF6B6B}TD.LABEL{white-space:nowrap}</STYLE>
+static const char pageStatus[] PROGMEM = R"HTML(<STYLE>.v-good{color:#06D7A0}.v-fair{color:#FFD167}.v-bad{color:#FF6B6B}TD.LABEL{white-space:nowrap}</STYLE>
 <TABLE COLUMNS="2">
   <TR><TD CLASS="LABEL">IP Address</TD><TD><A HREF="http://{{ip}}">{{ip}}</A> ({{ssid}})</TD></TR>
   <TR><TD CLASS="LABEL">MAC Address</TD><TD>{{mac}}</TD></TR>
@@ -25,6 +23,8 @@ static const char pageStatus[] PROGMEM = R"HTML(<H1>{{title}}</H1>
   <TR><TD CLASS="LABEL">Wi-Fi signal</TD><TD>{{wrssi}} &mdash; <SPAN CLASS="v-{{wifi_c}}">{{wifi_v}}</SPAN></TD></TR>
 </TABLE>
 <P CLASS="CENTER"><A HREF="/screenshot.bmp">Download screenshot</A></P>
+<P CLASS="HEAP">Internal heap: {{heap_used}} KiB used / {{heap_free}} KiB free &middot;
+  PSRAM: {{psram_used}} KiB used / {{psram_free}} KiB free (at page render)</P>
 )HTML";
 
 #endif // PAGE_STATUS_H

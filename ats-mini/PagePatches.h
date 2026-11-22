@@ -3,15 +3,13 @@
 
 #include <Arduino.h>
 
-static const char pagePatchesTitle[] PROGMEM = "ATS-Mini SI4732 Patches (Experimental)";
+static const char pagePatchesTitle[] PROGMEM = "Patches";
 
-static const char pagePatches[] PROGMEM = R"HTML(<H1>{{title}}</H1>
-{{{navigation}}}
-{{{busy}}}
+static const char pagePatches[] PROGMEM = R"HTML({{{busy}}}
 <FORM METHOD="POST" ACTION="/patches">
   <INPUT TYPE="HIDDEN" NAME="action" VALUE="select">
   <TABLE COLUMNS="2">
-    <TR><TH COLSPAN="2" CLASS="HEADING">Active Patch Set</TH></TR>
+    <TR><TH COLSPAN="2" CLASS="HEADING">SI4732 patches (experimental): active set</TH></TR>
     <TR><TD CLASS="LABEL"><LABEL FOR="patchslot">Patch Set</LABEL></TD><TD><SELECT ID="patchslot" NAME="slot" {{disabled}}>{{{options}}}</SELECT></TD></TR>
     <TR><TH COLSPAN="2" CLASS="HEADING"><INPUT TYPE="SUBMIT" VALUE="Apply" {{disabled}}></TH></TR>
   </TABLE>

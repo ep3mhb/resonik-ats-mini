@@ -2,13 +2,43 @@
 #define PAGE_COMMON_H
 
 #include "PageTemplate.h"
+#include "Common.h"
+
+// R5: one frame for every page of the radio's web portal, Web Control
+// included (PageControl.h): the RESONIK bar, the page menu and a footer with
+// the site, the manual and GitHub (Mohammad, 22 Nov: the pages should look
+// the same, and the portal named neither GitHub nor the RESONIK site).
+#define PAGE_FRAME_CSS \
+  ".rk-brand{box-sizing:border-box;position:relative;display:flex;align-items:center;justify-content:center;gap:12px;" \
+  "padding:10px 16px;background:#0F2F3C;border-bottom:1px solid #1D4A5C;color:#fff;" \
+  "font:15px/1.4 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}" \
+  ".rk-brand a{display:flex;align-items:center;gap:12px;color:inherit;text-decoration:none}" \
+  ".rk-brand b{display:block;font-size:20px;letter-spacing:.18em;line-height:1.15}" \
+  ".rk-brand small{display:block;color:#9FC1CE;font-size:12px;letter-spacing:.02em}" \
+  ".rk-right{position:absolute;right:16px;top:50%;transform:translateY(-50%)}" \
+  ".rk-nav{box-sizing:border-box;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:12px 8px}" \
+  ".rk-nav a,.rk-nav span{padding:6px 12px;border-radius:9px;background:#0F2F3C;color:#8FB0BD;" \
+  "text-decoration:none;font:600 13.5px/1.4 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}" \
+  ".rk-nav span{background:#108AB1;color:#fff}" \
+  ".rk-foot{box-sizing:border-box;max-width:768px;margin:24px auto 0;padding:12px 8px 16px;border-top:1px solid #1D4A5C;" \
+  "text-align:center;color:#8FB0BD;font:13px/1.6 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}" \
+  ".rk-foot a{color:#06D7A0;text-decoration:none}" \
+  "@media(max-width:420px){.rk-brand{justify-content:flex-start}}"
+
+#define PAGE_FRAME_FOOT \
+  "<footer class=\"rk-foot\"><a href=\"https://" FIRMWARE_SITE "\" target=\"_blank\" rel=\"noopener\">" FIRMWARE_SITE "</a>" \
+  " &middot; <a href=\"" MANUAL_URL "\" target=\"_blank\" rel=\"noopener\">User manual</a>" \
+  " &middot; <a href=\"" FIRMWARE_URL "\" target=\"_blank\" rel=\"noopener\">GitHub</a></footer>\n"
+
+static const char pageFrameBrand[] PROGMEM = R"HTML(<header class="rk-brand"><a href="/" title="Status"><svg viewBox="0 0 53 48" width="34" height="31" aria-hidden="true"><rect x="0" y="40" width="5" height="8" rx="2" fill="#DCE6EA"/><rect x="8" y="36" width="5" height="12" rx="2" fill="#DCE6EA"/><rect x="16" y="28" width="5" height="20" rx="2" fill="#DCE6EA"/><rect x="24" y="0" width="5" height="48" rx="2" fill="#4DABF7"/><rect x="32" y="28" width="5" height="20" rx="2" fill="#DCE6EA"/><rect x="40" y="36" width="5" height="12" rx="2" fill="#DCE6EA"/><rect x="48" y="40" width="5" height="8" rx="2" fill="#DCE6EA"/></svg><span><b>RESONIK</b><small>ATS Mini firmware {{version}}</small></span></a>{{{right}}}</header>
+)HTML";
 
 static const char pageStart[] PROGMEM = R"HTML(<!DOCTYPE HTML>
 <HTML>
 <HEAD>
   <META CHARSET="UTF-8">
   <META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">
-  <TITLE>{{title}}</TITLE>
+  <TITLE>RESONIK {{title}}</TITLE>
   <STYLE>
     /* RESONIK R4: dark, as the Control page */
     :root { color-scheme: dark; --bg: #09202A; --card: #0F2F3C; --line: #1D4A5C; --text: #EEF5F7; --muted: #8FB0BD; --accent: #06D7A0; --blue: #108AB1; }
@@ -28,24 +58,13 @@ static const char pageStart[] PROGMEM = R"HTML(<!DOCTYPE HTML>
     INPUT[type=file] { color: var(--muted); }
     .CENTER { text-align: center; }
     .HEAP { color: var(--muted); font-size: 0.75em; text-align: center; margin: 1.5em 0.5em; }
-    .BRAND { background: var(--card); color: #FFF; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
-    .BRAND B { font-size: 1.35em; letter-spacing: 0.18em; }
-    .BRAND SMALL { display: block; color: #9FC1CE; font-size: 0.8em; letter-spacing: 0.02em; }
-    .BRAND A { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 12px; }
-    .NAV { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 12px 8px; }
-    .NAV A, .NAV SPAN { padding: 6px 12px; border-radius: 9px; background: var(--card); color: var(--muted); text-decoration: none; font-size: 0.9em; font-weight: 600; }
-    .NAV SPAN { background: var(--blue); color: #FFF; }
+  )HTML" PAGE_FRAME_CSS R"HTML(
   </STYLE>
 </HEAD>
 <BODY>
-<DIV CLASS="BRAND"><A HREF="/"><SVG CLASS="SYM" VIEWBOX="0 0 53 48" WIDTH="34" HEIGHT="31" ARIA-HIDDEN="true"><RECT X="0" Y="40" WIDTH="5" HEIGHT="8" RX="2" FILL="#DCE6EA"/><RECT X="8" Y="36" WIDTH="5" HEIGHT="12" RX="2" FILL="#DCE6EA"/><RECT X="16" Y="28" WIDTH="5" HEIGHT="20" RX="2" FILL="#DCE6EA"/><RECT X="24" Y="0" WIDTH="5" HEIGHT="48" RX="2" FILL="#4DABF7"/><RECT X="32" Y="28" WIDTH="5" HEIGHT="20" RX="2" FILL="#DCE6EA"/><RECT X="40" Y="36" WIDTH="5" HEIGHT="12" RX="2" FILL="#DCE6EA"/><RECT X="48" Y="40" WIDTH="5" HEIGHT="8" RX="2" FILL="#DCE6EA"/></SVG><SPAN><B>RESONIK</B><SMALL>ATS Mini firmware {{version}}</SMALL></SPAN></A></DIV>
 )HTML";
 
-static const char pageEnd[] PROGMEM = R"HTML(
-<FOOTER CLASS="HEAP">
-  Internal heap: {{heap_used}} KiB used / {{heap_free}} KiB free &middot;
-  PSRAM: {{psram_used}} KiB used / {{psram_free}} KiB free (at page render)
-</FOOTER>
+static const char pageEnd[] PROGMEM = PAGE_FRAME_FOOT R"HTML(
 </BODY>
 </HTML>
 )HTML";
@@ -63,13 +82,29 @@ static void webNavigation(String &out, const char *activePage)
     {"Patches", "/patches"},
     {"Log (CSV)", "/log.csv"},
   };
-  out += R"HTML(<NAV CLASS="NAV">)HTML";
+  out += R"HTML(<nav class="rk-nav">)HTML";
   for(size_t i = 0; i < sizeof(pages) / sizeof(pages[0]); i++)
   {
-    if(!strcmp(activePage, pages[i].path)) { out += "<SPAN>"; out += pages[i].name; out += "</SPAN>"; }
-    else pageAppend(out, R"HTML(<A HREF="{{path}}">{{label}}</A>)HTML", {{"path", pages[i].path}, {"label", pages[i].name}});
+    if(!strcmp(activePage, pages[i].path)) { out += "<span>"; out += pages[i].name; out += "</span>"; }
+    else pageAppend(out, R"HTML(<a href="{{path}}">{{label}}</a>)HTML", {{"path", pages[i].path}, {"label", pages[i].name}});
   }
-  out += "</NAV>";
+  out += "</nav>\n";
+}
+
+// "v2.46-r5", as in the RESONIK bar of every page
+static String pageVersion()
+{
+  char text[16];
+  snprintf(text, sizeof(text), "v%d.%02d-r%d", VER_APP / 100, VER_APP % 100, VER_RESONIK);
+  return(String(text));
+}
+
+// The top of every page: the RESONIK bar, then the page menu with this page
+// lit. right: HTML for the bar's right end (Web Control's live/offline).
+static void webFrameTop(String &out, const char *activePage, const char *right = "")
+{
+  pageAppend(out, pageFrameBrand, {{"version", pageVersion()}, {"right", String(right)}});
+  webNavigation(out, activePage);
 }
 
 #endif // PAGE_COMMON_H

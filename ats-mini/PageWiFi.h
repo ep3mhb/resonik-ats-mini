@@ -3,11 +3,9 @@
 
 #include <Arduino.h>
 
-static const char pageWiFiTitle[] PROGMEM = "ATS-Mini Wi-Fi";
+static const char pageWiFiTitle[] PROGMEM = "Wi-Fi";
 
-static const char pageWiFi[] PROGMEM = R"HTML(<H1>{{title}}</H1>
-{{{navigation}}}
-<FORM ACTION="/wifi" METHOD="POST">
+static const char pageWiFi[] PROGMEM = R"HTML(<FORM ACTION="/wifi" METHOD="POST">
   <TABLE COLUMNS="2">
     <TR><TH COLSPAN="2" CLASS="HEADING">Connection</TH></TR>
     <TR><TD CLASS="LABEL">Wi-Fi Mode</TD><TD><SELECT NAME="wifimode">{{{wifi_options}}}</SELECT><BR><SMALL>Changing mode may disconnect this page. Off and Sync Only disable the web interface.</SMALL></TD></TR>
