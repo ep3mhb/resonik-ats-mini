@@ -188,12 +188,21 @@ static void tileDrawIcon(S &s, TileIcon icon, int x, int y, uint16_t c, uint16_t
       s.drawWideLine(x - 13, y + 10, x + 13, y + 10, 1.0f, c);
       break;
     case TI_HAM:         // A station as a circuit diagram draws it: aerial, coil, earth. As tall as the tile: it stands at the tile's side
-      s.drawWideLine(x, y - 27, x, y - 11, 1.3f, c);
+      s.drawWideLine(x, y - 27, x, y - 13, 1.3f, c);
       s.drawWideLine(x, y - 18, x - 10, y - 27, 1.3f, c);
       s.drawWideLine(x, y - 18, x + 10, y - 27, 1.3f, c);
-      for(int k = 0 ; k < 3 ; k++)             // The turns of the coil, seen a little from above
-        s.drawEllipseArc(x, y - 8 + k * 7, 6, 5, 3, 2, 0, 360, c);
-      s.drawWideLine(x, y + 9, x, y + 17, 1.3f, c);
+      {
+        // The coil: one wire that goes round three times on its way down
+        float px = x, py = y - 13;
+        for(int i = 1 ; i <= 36 ; i++)
+        {
+          float t = i * (6.0f * 3.14159265f / 36.0f);
+          float nx = x + 6.0f * sinf(t), ny = y - 13 + 8.0f * t / 6.2831853f + 3.0f * (1.0f - cosf(t));
+          s.drawWideLine(px, py, nx, ny, 0.8f, c);
+          px = nx; py = ny;
+        }
+      }
+      s.drawWideLine(x, y + 11, x, y + 17, 1.3f, c);
       s.fillRect(x - 11, y + 17, 23, 3, c);
       s.fillRect(x - 7, y + 22, 15, 2, c);
       s.fillRect(x - 3, y + 26, 7, 2, c);
@@ -603,12 +612,21 @@ static void tileDrawIconColor(S &s, TileIcon icon, int x, int y, uint16_t bg)
       s.drawWideLine(x - 13, y + 10, x + 13, y + 10, 1.0f, TC_W);
       break;
     case TI_HAM:         // Aerial, coil and earth: white wire, orange coil
-      s.drawWideLine(x, y - 27, x, y - 11, 1.3f, TC_W);
+      s.drawWideLine(x, y - 27, x, y - 13, 1.3f, TC_W);
       s.drawWideLine(x, y - 18, x - 10, y - 27, 1.3f, TC_W);
       s.drawWideLine(x, y - 18, x + 10, y - 27, 1.3f, TC_W);
-      for(int k = 0 ; k < 3 ; k++)             // The turns of the coil, seen a little from above
-        s.drawEllipseArc(x, y - 8 + k * 7, 6, 5, 3, 2, 0, 360, TC_O);
-      s.drawWideLine(x, y + 9, x, y + 17, 1.3f, TC_W);
+      {
+        // The coil: one wire that goes round three times on its way down
+        float px = x, py = y - 13;
+        for(int i = 1 ; i <= 36 ; i++)
+        {
+          float t = i * (6.0f * 3.14159265f / 36.0f);
+          float nx = x + 6.0f * sinf(t), ny = y - 13 + 8.0f * t / 6.2831853f + 3.0f * (1.0f - cosf(t));
+          s.drawWideLine(px, py, nx, ny, 0.8f, TC_O);
+          px = nx; py = ny;
+        }
+      }
+      s.drawWideLine(x, y + 11, x, y + 17, 1.3f, TC_W);
       s.fillRect(x - 11, y + 17, 23, 3, TC_W);
       s.fillRect(x - 7, y + 22, 15, 2, TC_W);
       s.fillRect(x - 3, y + 26, 7, 2, TC_W);
