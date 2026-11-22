@@ -397,6 +397,13 @@ bool digiWebState(uint32_t *seen, String &j)
   j = "{\"dg\":{\"m\":\"";
   j += modeName[mode];
   if(mode == DM_NAVTEX) { j += ' '; j += navCh[nav].name; }
+  else
+  {
+    // The frequency the radio is tuned to, as in the page's header
+    char f[24];
+    snprintf(f, sizeof(f), " %lu.%02lu kHz", (unsigned long)(currentFrequency / 1000), (unsigned long)(currentFrequency % 1000 / 10));
+    j += f;
+  }
   j += "\",\"n\":"; j += textLog.total;
   if(mode == DM_NAVTEX && navtex && navtex->synced) j += ",\"s\":1";
   j += ",\"c\":"; j += found ? (int)centre : 0;
@@ -627,14 +634,18 @@ void drawDigiPage()
   int maxTop = lineCount > READ_ROWS ? lineCount - READ_ROWS : 0;
   if(reading) { topLine = constrain(topLine + turned, 0, maxTop); turned = 0; }
 
-  // Header: mode, its settings, the signal's audio frequency
+  // Header: mode, the frequency the radio is tuned to, the signal's audio
+  // frequency. The speed and shift stood here; the page did not say where the
+  // radio was tuned (Mohammad, 22 Nov), so they moved into the spectrum.
   spr.fillRoundRect(4, 3, 312, 22, 6, DG_RGB(0x073A4B));
   spr.setTextDatum(ML_DATUM);
   spr.setTextColor(DG_RGB(0xFFD167));
   spr.drawString(modeName[mode], 10, 14, uiFont(false));
   spr.setTextColor(DG_RGB(0x8FB3C0));
-  // NAVTEX: its channel in place of the speed and shift, which never change
-  snprintf(line, sizeof(line), "%s", mode == DM_NAVTEX ? navCh[nav].name : modeInfo[mode]);
+  // NAVTEX: its channel, which the page tunes 1.5 kHz lower by itself
+  if(mode == DM_NAVTEX) snprintf(line, sizeof(line), "%s", navCh[nav].name);
+  else snprintf(line, sizeof(line), reading ? "%lu.%02lu kHz" : "%lu.%02lu kHz USB",
+                (unsigned long)(currentFrequency / 1000), (unsigned long)(currentFrequency % 1000 / 10));
   spr.drawString(line, 10 + spr.textWidth(modeName[mode], uiFont(false)) + 8, 14, uiFont(true));
   spr.setTextDatum(MR_DATUM);
   bool sync = mode == DM_NAVTEX && navtex && navtex->synced;
@@ -691,6 +702,10 @@ void drawDigiPage()
   float half = mode == DM_DWD ? 225 : mode == DM_PSK31 ? 0 : 85;
   if(half) { spr.drawFastVLine(hzX(centre - half), sy, sh, DG_RGB(0xF04770)); spr.drawFastVLine(hzX(centre + half), sy, sh, DG_RGB(0xF04770)); }
   else spr.drawFastVLine(hzX(centre), sy, sh, DG_RGB(0xF04770));
+  // What the mode expects, small, in the corner of the spectrum
+  spr.setTextDatum(TR_DATUM);
+  spr.setTextColor(DG_RGB(0x6F97A5));
+  spr.drawString(modeInfo[mode], sx + SPEC_W - 3, sy + 2, uiFont(true));
 
   // WEFAX: the picture, newest line at the bottom
   if(mode == DM_WEFAX && fax && lock)
