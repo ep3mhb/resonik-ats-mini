@@ -8,8 +8,11 @@ Wikimedia Commons, by Denelson83, released into the public domain), without
 the diamond around it, and reduced to the height of a tile. Nothing is
 redrawn: the script reads the paths of the SVG, draws them at eight times the
 size and reduces them, which keeps the soft edges that make thin lines look
-right on a small screen. The firmware gets a table of how much ink each pixel
-has (0 to 255) and blends it into the tile in the colour of the tile's name.
+right on a small screen. One thing differs from the symbol: the two straight
+wires, from the aerial to the coil and from the coil to earth, are shortened
+(LEAD), so that the rest can be larger in the same height. The firmware gets
+a table of how much ink each pixel has (0 to 255) and blends it into the tile
+in yellow, the symbol's own colour, with a dark edge around it.
 
     tools/ham_icon.py              write the table
     tools/ham_icon.py show x.png   also save a picture, six times enlarged
@@ -29,6 +32,7 @@ BEGIN = "// tools/ham_icon.py writes the next table"
 END = "// End of the table of tools/ham_icon.py"
 HEIGHT = 63                 # Pixels: the tile is 69 high
 WEIGHT = 1.0                # 1: the lines as heavy as in the symbol
+LEAD = 16.0                 # Length kept of each straight wire, in the SVG's units (55 and 58 in the symbol)
 SCALE = 8
 
 
@@ -68,6 +72,30 @@ def picture():
     mirror = float(re.search(r"matrix\(-1,0,0,1,([\d.]+),0\)", group).group(1))
     width = float(re.search(r"stroke-width:([\d.]+)", group).group(1))
     lines = [[(mirror - x, y) for x, y in polyline(d)] for d in re.findall(r'\sd="([^"]+)"', group)]
+    # The wire's four stations, top to bottom: the aerial's point, the coil's
+    # two ends, the first earth bar. The stretches between them are the leads.
+    wire = max(lines, key=len)
+    turns = [y for x, y in wire if abs(x - wire[0][0]) > 1]
+    coil_top, coil_bottom = min(turns), max(turns)
+    coil_top = max(y for x, y in wire if y < coil_top + 12 and abs(x - wire[0][0]) < 0.1)
+    coil_bottom = min(y for x, y in wire if y > coil_bottom - 12 and abs(x - wire[0][0]) < 0.1)
+    aerial = min((line for line in lines if line is not wire), key=lambda line: min(y for _, y in line))   # The triangle: the highest shape
+    apex = max(y for _, y in aerial)
+    earth = max(y for _, y in wire)
+    up, down = (coil_top - apex) - LEAD, (earth - coil_bottom) - LEAD
+
+    def shorter(y):
+        if y <= apex:
+            return y + up
+        if y < coil_top:
+            return coil_top - (coil_top - y) * LEAD / (coil_top - apex)
+        if y <= coil_bottom:
+            return y
+        if y < earth:
+            return coil_bottom + (y - coil_bottom) * LEAD / (earth - coil_bottom)
+        return y - down
+
+    lines = [[(x, shorter(y)) for x, y in line] for line in lines]
     xs = [x for line in lines for x, _ in line]
     ys = [y for line in lines for _, y in line]
     x0, x1, y0, y1 = min(xs) - width / 2, max(xs) + width / 2, min(ys) - width / 2, max(ys) + width / 2
@@ -95,7 +123,7 @@ def main():
     HEADER.write_text(text[:a] + table + text[b:])
     if len(sys.argv) == 3 and sys.argv[1] == "show":
         out = Image.new("RGB", im.size, (0, 214, 165))
-        out.paste(Image.new("RGB", im.size, (7, 59, 76)), (0, 0), im)
+        out.paste(Image.new("RGB", im.size, (255, 255, 0)), (0, 0), im)
         out.resize((w * 6, h * 6), Image.NEAREST).save(sys.argv[2])
     print("TileDraw.h: Ham & SWL picture, %d x %d" % (w, h))
 
