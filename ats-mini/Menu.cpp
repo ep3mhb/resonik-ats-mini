@@ -204,7 +204,8 @@ static const char *menu[] =
 #define MENU_BATTDISP     36  // RESONIK R5
 #define MENU_DIGI         37  // RESONIK R5
 #define MENU_DECAUDIO     38  // RESONIK R5
-#define MENU_ABOUT        39
+#define MENU_BLEPOWER     39  // RESONIK R5
+#define MENU_ABOUT        40
 // RESONIK R4: Wi-Fi mode, Wi-Fi Power and joining a network are one item,
 // "Wi-Fi" (MENU_WIFIMODE), which opens the Wi-Fi page (WifiSetup.cpp)
 
@@ -255,6 +256,7 @@ static const char *settings[] =
   "Battery",
   "Digital",
   "Dec. Audio",
+  "BT Power",
   "About",
 };
 
@@ -326,7 +328,7 @@ static const TileEntry tileSystem[] =
   { TI_GLOBE, TILE_SET | MENU_UTCOFFSET }, { TI_FIRMWARE, TILE_SET | MENU_UPDATEFW },
   { TI_USB, TILE_SET | MENU_USBMODE }, { TI_WIFI, TILE_SET | MENU_WIFIMODE },
   { TI_PERF, TILE_SET | MENU_PERF }, { TI_FIRMWARE, TILE_SET | MENU_UPDNOTICE },
-  { TI_SEEK, TILE_SET | MENU_ENC_ACCEL },
+  { TI_SEEK, TILE_SET | MENU_ENC_ACCEL }, { TI_BTPOWER, TILE_SET | MENU_BLEPOWER },
 };
 
 static const TileCategory tileCategories[] =
@@ -1909,6 +1911,7 @@ static void clickSettings(int cmd, bool shortPress)
     case MENU_BATTDISP:   currentCmd = CMD_BATTDISP;  break;
     case MENU_DIGI:       digiPageOpen();             break;
     case MENU_DECAUDIO:   currentCmd = CMD_DECAUDIO;  break;
+    case MENU_BLEPOWER:   currentCmd = CMD_BLEPOWER;  break;
     case MENU_BANDPLAN:   currentCmd = CMD_BANDPLAN;  break;
     case MENU_BPAREA:     currentCmd = CMD_BPAREA;    break;
     case MENU_AUTOATT:    currentCmd = CMD_AUTOATT;   break;
@@ -2024,6 +2027,10 @@ bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
       break;
     case CMD_WIFIPOWER:
       wifiSetPowerIndex(wrap_range(wifiPowerIndex(), scrollDirection * enc, 0, wifiPowerCount - 1));
+      prefsRequestSave(SAVE_SETTINGS);
+      break;
+    case CMD_BLEPOWER:
+      bleSetPowerIndex(wrap_range(blePowerIndex(), scrollDirection * enc, 0, blePowerCount - 1));
       prefsRequestSave(SAVE_SETTINGS);
       break;
     case CMD_KNOB:
@@ -3157,6 +3164,7 @@ void drawSideBar(uint16_t cmd, int x, int y, int sx)
     case CMD_KNOB:       drawOptionList(settings[MENU_KNOB], knobDesc, 2, encoderHalfStep ? 1 : 0, x, y, sx); break;
     case CMD_FREQLOCK:   drawOptionList(settings[MENU_FREQLOCK], freqLockDesc, 2, freqLock, x, y, sx); break;
     case CMD_WIFIPOWER:  drawOptionList("Wi-Fi Power", wifiPowerDesc, wifiPowerCount, wifiPowerIndex(), x, y, sx); break;
+    case CMD_BLEPOWER:   drawOptionList(settings[MENU_BLEPOWER], blePowerDesc, blePowerCount, blePowerIndex(), x, y, sx); break;
     case CMD_PERF:       drawOptionList(settings[MENU_PERF], perfDesc, 3, perfIdx, x, y, sx); break;
     case CMD_BEACON:     drawOptionList(menu[MENU_BEACONS], beaconMenuLabels, BEACON_MENU_COUNT, beaconMenuIdx(), x, y, sx); break;
     case CMD_VOLUME:     drawVolume(x, y, sx);     break;
@@ -3398,6 +3406,7 @@ static const char *tileValueLabel(uint16_t cmd, int i)
     case CMD_KNOB:      return(knobDesc[i]);
     case CMD_FREQLOCK:  return(freqLockDesc[i]);
     case CMD_WIFIPOWER: return(wifiPowerDesc[i]);
+    case CMD_BLEPOWER:  return(blePowerDesc[i]);
     case CMD_PERF:      return(perfDesc[i]);
     case CMD_BPAREA:    return(bandPlanAreaDesc[i]);
     default:            return("");
@@ -3448,6 +3457,7 @@ static bool tileValueGet(uint16_t cmd, TileValue &v)
     case CMD_KNOB:      v.count = 2; v.idx = encoderHalfStep ? 1 : 0; return(true);
     case CMD_FREQLOCK:  v.count = 2; v.idx = freqLock; return(true);
     case CMD_WIFIPOWER: v.count = wifiPowerCount; v.idx = wifiPowerIndex(); return(true);
+    case CMD_BLEPOWER:  v.count = blePowerCount; v.idx = blePowerIndex(); return(true);
     case CMD_PERF:      v.count = 3; v.idx = perfIdx; return(true);
   }
 
@@ -3722,6 +3732,7 @@ void webMenuDef(String &j)
   wjItem(j, CMD_PERF, "Power and time", "CPU speed (80 saves battery)", "l"); j += ",\"o\":"; wjList(j, perfDesc, ITEM_COUNT(perfDesc));
   j += ",\"h\":"; wjText(j, "Always 240 MHz while this page is open, so it answers quickly; your choice applies when you close it."); j += '}';
   wjItem(j, CMD_WIFIPOWER, "Power and time", "Wi-Fi power", "l"); j += ",\"o\":"; wjList(j, wifiPowerDesc, wifiPowerCount); j += '}';
+  wjItem(j, CMD_BLEPOWER, "Power and time", "Bluetooth power", "l"); j += ",\"o\":"; wjList(j, blePowerDesc, blePowerCount); j += '}';
   wjItem(j, CMD_UTCOFFSET, "Power and time", "Time zone", "l");
   n = 0; for(int i = 0; i < (int)ITEM_COUNT(timeZones) && n < 128; i++) labels[n++] = timeZones[i].desc;
   j += ",\"o\":"; wjList(j, labels, n); j += '}';
@@ -3774,6 +3785,7 @@ void webMenuVals(String &j)
   kv(CMD_OFFTIMER, offTimerMinutes);
   kv(CMD_PERF, perfIdx);
   kv(CMD_WIFIPOWER, wifiPowerIndex());
+  kv(CMD_BLEPOWER, blePowerIndex());
   kv(CMD_UTCOFFSET, utcOffsetIdx);
   kv(CMD_KNOB, encoderHalfStep ? 1 : 0);
   kv(CMD_ENC_ACCEL, encoderAcceleration ? 1 : 0);
@@ -3870,6 +3882,7 @@ bool webMenuSet(uint16_t cmd, int32_t v)
     case CMD_OFFTIMER:   if((constrain(v, 0, 240) - (int)offTimerMinutes) / 5) doOffTimer((constrain(v, 0, 240) - (int)offTimerMinutes) / 5); break;
     case CMD_PERF:       if(v < 0 || v > 2) return(false); perfIdx = v; perfApply(); prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_WIFIPOWER:  if(v < 0 || v >= (int)wifiPowerCount) return(false); wifiSetPowerIndex(v); prefsRequestSave(SAVE_SETTINGS); break;
+    case CMD_BLEPOWER:   if(v < 0 || v >= (int)blePowerCount) return(false); bleSetPowerIndex(v); prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_UTCOFFSET:  if(v < 0 || v >= (int)ITEM_COUNT(timeZones)) return(false); doUTCOffset(v - utcOffsetIdx); break;
     case CMD_KNOB:       setEncoderHalfStep(v != 0); prefsRequestSave(SAVE_SETTINGS); break;
     case CMD_ENC_ACCEL:  if((v != 0) != encoderAcceleration) doEncoderAcceleration(); break;

@@ -73,6 +73,7 @@
           <li><a href="#scanner">Scan, Auto Scan and Seek <small>r3</small></a></li>
           <li><a href="#lock">Frequency lock and CPU speed <small>r3</small></a></li>
           <li><a href="#encaccel">Knob speed-up: Enc. Accel. <small>r5</small></a></li>
+          <li><a href="#btpower">Bluetooth power: BT Power <small>r5</small></a></li>
           <li><a href="#capacitor">Antenna capacitor: Capacitor <small>r5</small></a></li>
           <li><a href="#wifi">Wi-Fi on the radio <small>r4</small></a></li>
           <li><a href="#control">Web Control <small>r4</small></a></li>
@@ -152,7 +153,7 @@
           <tr><td>System</td><td>About, Bluetooth, Date/Time, DSP Patches, Knob, Off Timer, TCP Port, Time Zone, Update FW, USB Port, Wi-Fi, CPU, Upd. Notice, Enc. Accel.</td></tr>
         </table>
         <p><span class="ui">Menu → System → Knob</span>: <b>20 clicks</b> or <b>30 clicks</b> per turn, for the two kinds of encoder fitted to these radios. If the knob skips a step, or needs two clicks for one, choose the other value (the web page calls it Half-step Encoder).</p>
-        <p>From v2.46-r5 there are two more: <a href="#encaccel">Enc. Accel.</a> in System (the knob speeds up when turned quickly) and <a href="#capacitor">Capacitor</a> in Tuning (the antenna capacitor on medium wave). Each has its own section below.</p>
+        <p>From v2.46-r5 there are three more: <a href="#encaccel">Enc. Accel.</a> in System (the knob speeds up when turned quickly), <a href="#btpower">BT Power</a> in System (the Bluetooth transmit power) and <a href="#capacitor">Capacitor</a> in Tuning (the antenna capacitor on medium wave). Each has its own section below.</p>
         <p><span class="ui">Menu → Display → Menu Style → Classic</span> brings back the small list menu of the official firmware. From v2.45-r4 it has the same six groups as the tiles: choose a group and click; the first row of each group is <b>&lt; Back</b>, and the box title names the group. After a setting is changed the menu returns to its group. <b>Tiles</b> switches back.</p>
 
         <h2 id="beacons">Beacons <small style="font-size:.7em;color:var(--muted)">v2.45-r2</small></h2>
@@ -310,6 +311,22 @@
         </ul>
         <p>All three are the same setting, and it is kept when the radio is switched off. It is not the same as <span class="ui">Menu → System → Knob</span> (20 or 30 clicks: the kind of knob fitted) or <span class="ui">Menu → Display → Scroll Dir.</span> (which way the menu moves).</p>
 
+        <h2 id="btpower">Bluetooth power: BT Power <small style="font-size:.7em;color:var(--muted)">v2.46-r5</small></h2>
+        <p>The power the radio's Bluetooth transmits with, from -12 to 9 dBm (0 dBm as delivered). It only matters while Bluetooth is on (<span class="ui">Menu → System → Bluetooth</span>: Ad hoc, CAT TS-480 or HID). With Bluetooth off the radio keeps the value and uses it the next time Bluetooth is switched on.</p>
+        <table>
+          <tr><th>Setting</th><th>When to choose it</th></tr>
+          <tr><td><b>-12 to -3 dBm</b></td><td>The phone, computer or remote is close to the radio, on the same table. Less power is enough, and it uses a little less battery.</td></tr>
+          <tr><td><b>0 dBm</b> (the default)</td><td>Right in most rooms.</td></tr>
+          <tr><td><b>3 to 9 dBm</b></td><td>The connection drops when the phone or computer is further away or behind a wall. It uses a little more battery.</td></tr>
+        </table>
+        <p>To change it:</p>
+        <ul>
+          <li><b>On the radio:</b> <span class="ui">Menu → System → BT Power</span>, the last tile of System (the Bluetooth sign with level bars). Turn to choose, click to keep.</li>
+          <li><b>In Web Control:</b> <b>Settings → Power and time → Bluetooth power</b>.</li>
+          <li><b>On the Config web page:</b> <b>Bluetooth LE TX Power</b>.</li>
+        </ul>
+        <p>All three are the same setting, and it is kept when the radio is switched off. Wi-Fi has a power setting of its own, on the radio's Wi-Fi page.</p>
+
         <h2 id="capacitor">Antenna capacitor on medium wave: Capacitor <small style="font-size:.7em;color:var(--muted)">v2.46-r5</small></h2>
         <p>Inside the receiver chip, at the antenna input, there is a small tuning capacitor for medium wave. The radio can keep it at one fixed value, or let the chip adjust it by itself every time you tune, to draw the most signal from the antenna. <b>Capacitor</b> chooses between the two.</p>
         <table>
@@ -338,7 +355,7 @@
         <ul>
           <li><b>Mode</b>: Off, AP Only (the radio's own network), AP+Connect, Connect, or Sync Only (sets the clock at power-on, then switches Wi-Fi off). Click, turn, click to apply; a press cancels.</li>
           <li><b>Join a network</b>: the networks in range, strongest first, with signal, security and channel. Pick one and type the password with the knob on the on-screen keyboard (aA for a capital, #+= for symbols, Del, Show). OK lights up at 8 characters. The network is saved and the radio connects at once (AP+Connect) and shows its IP address.</li>
-          <li><b>Power</b>: the Wi-Fi transmit power, 2 to 20 dBm (17 dBm as delivered), lower for boards that restart when Wi-Fi transmits. From v2.46-r5 the same setting is in Web Control and on the Config web page, with the Bluetooth LE power beside it (0 dBm as delivered); a radio set to Low or Lowest before keeps 13 or 9 dBm.</li>
+          <li><b>Power</b>: the Wi-Fi transmit power, 2 to 20 dBm (17 dBm as delivered), lower for boards that restart when Wi-Fi transmits. From v2.46-r5 the same setting is in Web Control and on the Config web page, with the Bluetooth LE power beside it (0 dBm as delivered; on the radio: <a href="#btpower">BT Power</a>); a radio set to Low or Lowest before keeps 13 or 9 dBm.</li>
         </ul>
         <p>The radio has 2.4 GHz Wi-Fi only: 5 GHz networks are not listed. Networks can still be added from the radio's web page as well.</p>
         <p>From v2.46-r5 every one of the radio's web pages, Web Control included, has the same top: the RESONIK bar with the firmware version, and under it the row of pages, <b>Status</b>, <b>Control</b>, <b>Memory</b>, <b>Config</b>, <b>Wi-Fi</b>, <b>Update</b>, <b>Patches</b> and <b>Log</b>, with the page you are on in blue. At the bottom of every page are links to resonik.mikroutik.com, this manual and GitHub.</p>

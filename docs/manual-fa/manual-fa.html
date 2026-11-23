@@ -229,7 +229,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
     <tr><td><bdi>Memory</bdi><br><span class="small">حافظه</span></td><td><bdi>Memory, Logger, Mem Scan, Auto-Store</bdi></td></tr>
     <tr><td><bdi>Ham &amp; SWL</bdi><br><span class="small">آماتوری و موج کوتاه</span></td><td><bdi>Band Plan, Beacons, Calibration, CW Decoder, CW Strip, FT8/FT4, Digital, Dec. Audio, Load EiBi, Plan Area, Propagation</bdi></td></tr>
     <tr><td><bdi>Display</bdi><br><span class="small">نمایش</span></td><td><bdi>Brightness, Menu Style, Scroll Dir., Sleep Mode, Sleep Timer, Theme, UI Layout, Zoom Menu, Battery</bdi></td></tr>
-    <tr><td><bdi>System</bdi><br><span class="small">سیستم</span></td><td><bdi>About, Bluetooth, Date/Time, DSP Patches, Knob, Off Timer, TCP Port, Time Zone, Update FW, USB Port, Wi-Fi, CPU, Upd. Notice, Enc. Accel.</bdi></td></tr>
+    <tr><td><bdi>System</bdi><br><span class="small">سیستم</span></td><td><bdi>About, Bluetooth, Date/Time, DSP Patches, Knob, Off Timer, TCP Port, Time Zone, Update FW, USB Port, Wi-Fi, CPU, Upd. Notice, Enc. Accel., BT Power</bdi></td></tr>
   </table>
   <h3>کنترل‌های شنیداری و برگه‌های تنظیمات</h3>
   <p>کنترل‌هایی مانند <bdi>Band</bdi>، <bdi>Mode</bdi>، <bdi>Step</bdi> یا <bdi>Volume</bdi> فهرست خود را مثل قبل باز می‌کنند؛ پس از انتخاب، منو بسته می‌شود تا ولوم بلافاصله فرکانس را تنظیم کند. تنظیمات به صورت برگه‌ی تمام‌صفحه باز می‌شوند: یا فهرستی از مقدارها، یا یک عدد با نوار. با چرخاندن مقدار را عوض کنید؛ کلیک مقدار را نگه می‌دارد و به همان دسته برمی‌گردد.</p>
@@ -254,6 +254,20 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
     <figure><img class="screen" src="img/screen-system3.png" alt=""><figcaption><bdi>Enc. Accel.</bdi> در آخرین صفحه‌ی دسته‌ی <bdi>System</bdi></figcaption></figure>
     <figure><img class="screen" src="img/screen-encaccel.png" alt=""><figcaption>برگه‌ی آن: <bdi>Off</bdi> یا <bdi>On</bdi></figcaption></figure>
   </div>
+  <h3>توان بلوتوث: <bdi>System</bdi> ← <bdi>BT Power</bdi><span class="tag r5" style="font-size:8pt">R5</span></h3>
+  <div class="side">
+    <div>
+      <p>توانی که بلوتوث رادیو با آن ارسال می‌کند، از <bdi>-12</bdi> تا <bdi>9&nbsp;dBm</bdi> (مقدار اولیه <bdi>0&nbsp;dBm</bdi>). این تنظیم فقط وقتی اثر دارد که بلوتوث روشن باشد (<bdi>System</bdi> ← <bdi>Bluetooth</bdi>: <bdi>Ad hoc</bdi>، <bdi>CAT TS-480</bdi> یا <bdi>HID</bdi>). وقتی بلوتوث خاموش است، رادیو مقدار را نگه می‌دارد و دفعه‌ی بعد که بلوتوث روشن شود از آن استفاده می‌کند.</p>
+    </div>
+    <figure><img class="screen" src="img/screen-btpower.png" alt=""><figcaption><bdi>BT Power</bdi>، آخرین کاشی دسته‌ی <bdi>System</bdi>: از <bdi>-12</bdi> تا <bdi>9&nbsp;dBm</bdi></figcaption></figure>
+  </div>
+  <table>
+    <tr><th style="width:24%">مقدار</th><th>چه وقت</th></tr>
+    <tr><td><b><bdi>-12</bdi></b> تا <b><bdi>-3&nbsp;dBm</bdi></b></td><td>گوشی، کامپیوتر یا ریموت نزدیک رادیو و روی همان میز است. توان کمتر کافی است و کمی باتری کمتر مصرف می‌شود.</td></tr>
+    <tr><td><b><bdi>0&nbsp;dBm</bdi></b> (پیش‌فرض)</td><td>برای بیشتر اتاق‌ها مناسب است.</td></tr>
+    <tr><td><b><bdi>3</bdi></b> تا <b><bdi>9&nbsp;dBm</bdi></b></td><td>اتصال وقتی گوشی یا کامپیوتر دورتر یا پشت دیوار است قطع می‌شود. کمی باتری بیشتر مصرف می‌شود.</td></tr>
+  </table>
+  <p>همین تنظیم در کنترل از مرورگر (<bdi>Settings</bdi> ← <bdi>Power and time</bdi> ← <bdi>Bluetooth power</bdi>) و در صفحه‌ی <bdi>Config</bdi> وب رادیو (<bdi>Bluetooth LE TX Power</bdi>) هم هست و پس از خاموش و روشن کردن رادیو می‌ماند. توان <bdi>Wi-Fi</bdi> تنظیم جداگانه‌ای دارد، در صفحه‌ی <bdi>Wi-Fi</bdi> رادیو.</p>
   <h3>خازن آنتن در موج متوسط: <bdi>Tuning</bdi> ← <bdi>Capacitor</bdi><span class="tag r5" style="font-size:8pt">R5</span></h3>
   <p>درون تراشه‌ی گیرنده، در ورودی آنتن، یک خازن تنظیم کوچک برای موج متوسط هست. رادیو می‌تواند آن را روی یک مقدار ثابت نگه دارد، یا بگذارد تراشه با هر بار تنظیم فرکانس خودش آن را تنظیم کند تا بیشترین سیگنال از آنتن گرفته شود.</p>
   <table>
@@ -478,7 +492,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
     <tr><td><bdi>Sync Only</bdi></td><td>هنگام روشن شدن وصل می‌شود، ساعت را تنظیم می‌کند و خاموش می‌شود</td></tr>
   </table>
   <p><b><bdi>Power</bdi></b>: توان فرستنده‌ی <bdi>Wi-Fi</bdi>، از <bdi>2</bdi> تا <bdi>20&nbsp;dBm</bdi>؛ مقدار اولیه <bdi>17&nbsp;dBm</bdi> است. توان کمتر به بردهایی کمک می‌کند که هنگام ارسال <bdi>Wi-Fi</bdi> ری‌استارت می‌شوند و کمی در مصرف باتری صرفه‌جویی می‌کند، به بهای برد کوتاه‌تر.</p>
-  <p><span class="tag r5" style="font-size:8pt;margin-left:2mm">R5</span>همین تنظیم، با همین گام‌ها، در کنترل از مرورگر و در صفحه‌ی <bdi>Config</bdi> وب رادیو هم هست و توان <bdi>Bluetooth LE</bdi> کنار آن است (مقدار اولیه <bdi>0&nbsp;dBm</bdi>). رادیویی که پیش از <bdi>R5</bdi> روی <bdi>Low</bdi> یا <bdi>Lowest</bdi> بوده، <bdi>13</bdi> یا <bdi>9&nbsp;dBm</bdi> را نگه می‌دارد.</p>
+  <p><span class="tag r5" style="font-size:8pt;margin-left:2mm">R5</span>همین تنظیم، با همین گام‌ها، در کنترل از مرورگر و در صفحه‌ی <bdi>Config</bdi> وب رادیو هم هست و توان <bdi>Bluetooth LE</bdi> کنار آن است (مقدار اولیه <bdi>0&nbsp;dBm</bdi>؛ روی رادیو: <bdi>System</bdi> ← <bdi>BT Power</bdi>). رادیویی که پیش از <bdi>R5</bdi> روی <bdi>Low</bdi> یا <bdi>Lowest</bdi> بوده، <bdi>13</bdi> یا <bdi>9&nbsp;dBm</bdi> را نگه می‌دارد.</p>
   <h3>اتصال به شبکه‌ی خانه روی خود رادیو</h3>
   <div style="display:flex;gap:5mm;align-items:flex-start;break-inside:avoid">
     <div style="flex:1"><p style="margin-top:0"><bdi>Join a network</bdi> شبکه‌های اطراف را از قوی به ضعیف نشان می‌دهد. شبکه را انتخاب کنید و رمز را با صفحه‌کلید روی صفحه وارد کنید: با چرخاندن ولوم روی کلیدها حرکت کنید و با کلیک هر حرف را بنویسید. <bdi>aA</bdi> حروف بزرگ (برای یک حرف)، <bdi>#+=</bdi> نشانه‌ها، <bdi>Del</bdi> پاک کردن، و <bdi>Show</bdi> نمایش رمز است. رمز به صورت ستاره نشان داده می‌شود و فقط آخرین حرف دیده می‌شود تا اشتباه تایپی را ببینید. <bdi>OK</bdi> پس از هشت حرف فعال می‌شود. شبکه ذخیره می‌شود و رادیو بلافاصله وصل می‌شود (حالت <bdi>AP+Connect</bdi>) و نشانی <bdi>IP</bdi> را بزرگ نشان می‌دهد.</p></div>

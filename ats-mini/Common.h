@@ -311,6 +311,9 @@ bool wifiApplyPower();
 extern const char *const wifiPowerDesc[];
 int wifiPowerIndex();
 void wifiSetPowerIndex(int index);
+extern const char *const blePowerDesc[];
+int blePowerIndex();
+void bleSetPowerIndex(int index);
 void bleApplyPower();
 
 // Network.cpp

@@ -1,0 +1,1 @@
+**BT Power** (Menu → System, last page, and Web Control → Settings → Power and time): the Bluetooth transmit power, from -12 to 9 dBm (0 dBm as delivered), until now only on the Config web page. Lower it when the phone or computer is close, raise it when the connection drops at a distance. It is used while Bluetooth is on and kept while it is off.

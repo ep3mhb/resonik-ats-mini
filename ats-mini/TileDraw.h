@@ -18,7 +18,7 @@ enum TileIcon : uint8_t
   TI_RDS, TI_STEREO, TI_DIAL, TI_CHIP, TI_DOWNLOAD, TI_FIRMWARE, TI_USB, TI_NETWORK, TI_BT,
   TI_WIFI, TI_BANDPLAN, TI_ATT, TI_TILES, TI_LOG, TI_PROP, TI_INFO, TI_REGION,
   TI_BACK, TI_CLOSE, TI_SLEEPTIMER, TI_FORK, TI_KNOB, TI_CWDEC, TI_CWSTRIP, TI_SCANNER, TI_FT8,
-  TI_LOCK, TI_WIFIPOWER, TI_PERF, TI_BATTERY, TI_CAP, TI_HAM,
+  TI_LOCK, TI_WIFIPOWER, TI_PERF, TI_BATTERY, TI_CAP, TI_HAM, TI_BTPOWER,
 };
 
 typedef struct
@@ -494,6 +494,16 @@ static void tileDrawIcon(S &s, TileIcon icon, int x, int y, uint16_t c, uint16_t
       s.fillRect(x + 13, y + 1, 3, 10, c);
       s.drawRect(x + 17, y - 4, 3, 15, c);
       break;
+    case TI_BTPOWER:     // Bluetooth rune with a level bar (RESONIK R5)
+      s.drawWideLine(x - 5, y - 11, x - 5, y + 11, 1.2f, c);
+      s.drawWideLine(x - 5, y - 11, x + 2, y - 5, 1.2f, c);
+      s.drawWideLine(x + 2, y - 5, x - 11, y + 5, 1.2f, c);
+      s.drawWideLine(x - 5, y + 11, x + 2, y + 5, 1.2f, c);
+      s.drawWideLine(x + 2, y + 5, x - 11, y - 5, 1.2f, c);
+      s.fillRect(x + 9, y + 5, 3, 6, c);
+      s.fillRect(x + 13, y + 1, 3, 10, c);
+      s.drawRect(x + 17, y - 4, 3, 15, c);
+      break;
     case TI_FT8:         // Waterfall screen with three signal traces
       s.drawRoundRect(x - 13, y - 11, 26, 22, 3, c);
       s.drawRoundRect(x - 12, y - 10, 24, 20, 2, c);
@@ -826,6 +836,17 @@ static void tileDrawIconColor(S &s, TileIcon icon, int x, int y, uint16_t bg)
       s.fillRect(x + 9, y + 5, 3, 6, TC_G);
       s.fillRect(x + 13, y + 1, 3, 10, TC_Y);
       s.drawRect(x + 17, y - 4, 3, 15, TC_W);
+      break;
+    case TI_BTPOWER:     // Rune on a Bluetooth-blue disc, green, yellow and empty level bars
+      s.fillCircle(x - 3, y, 11, TC_B);
+      s.drawWideLine(x - 4, y - 8, x - 4, y + 8, 1.2f, TC_W);
+      s.drawWideLine(x - 4, y - 8, x + 1, y - 3, 1.2f, TC_W);
+      s.drawWideLine(x + 1, y - 3, x - 8, y + 4, 1.2f, TC_W);
+      s.drawWideLine(x - 4, y + 8, x + 1, y + 3, 1.2f, TC_W);
+      s.drawWideLine(x + 1, y + 3, x - 8, y - 4, 1.2f, TC_W);
+      s.fillRect(x + 10, y + 5, 3, 6, TC_G);
+      s.fillRect(x + 14, y + 1, 3, 10, TC_Y);
+      s.drawRect(x + 18, y - 4, 3, 15, TC_W);
       break;
     case TI_FT8:         // Dark waterfall, green, yellow and pink traces
       s.fillRoundRect(x - 13, y - 11, 26, 22, 3, TC_W);

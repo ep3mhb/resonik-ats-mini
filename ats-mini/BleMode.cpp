@@ -41,6 +41,34 @@ void bleApplyPower()
     }
 }
 
+// RESONIK R5: the same setting by list position, for the radio's menu (BT Power)
+// and Web Control, as Wi-Fi Power in Network.cpp (23 Nov: it was on the Config
+// page only, "there is no such setting in the radio")
+const char *const blePowerDesc[] = {
+  "-12 dBm", "-9 dBm", "-6 dBm", "-3 dBm", "0 dBm", "3 dBm", "6 dBm", "9 dBm"
+};
+static_assert(sizeof(blePowerDesc) / sizeof(blePowerDesc[0]) == sizeof(blePowerOptions) / sizeof(blePowerOptions[0]),
+              "one label per Bluetooth power");
+
+int blePowerIndex()
+{
+  int8_t power = blePowerDbm.load();
+  int fallback = 0;
+  for(size_t i = 0; i < blePowerCount; i++)
+  {
+    if(blePowerOptions[i].dbm == power) return(i);
+    if(blePowerOptions[i].dbm == BLE_POWER_DEFAULT_DBM) fallback = i;
+  }
+  return(fallback);
+}
+
+void bleSetPowerIndex(int index)
+{
+  if(index < 0 || index >= (int)blePowerCount) return;
+  blePowerDbm = blePowerOptions[index].dbm;
+  bleApplyPower();
+}
+
 static BleUartPeripheral BLESerial;
 static BleHidCentral BLEHid;
 static RemoteState remoteBLEState;

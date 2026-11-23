@@ -73,6 +73,7 @@
 #define CMD_DECAUDIO   0x4D00 // RESONIK R5: Decoder Audio setting (3 or 6 kHz)
 #define CMD_ANTCAP     0x4E00 // Upstream 0x3700: automatic antenna capacitor on MW/LW
 #define CMD_ENC_ACCEL  0x4F00 // Upstream 0x3800: encoder acceleration
+#define CMD_BLEPOWER   0x5000 // RESONIK R5: Bluetooth LE power (upstream: Config page only)
 
 // RESONIK R5: setup wizard (Menu.cpp)
 extern uint8_t wizardDone;
