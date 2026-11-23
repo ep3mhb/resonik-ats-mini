@@ -1,1 +1,0 @@
-**Freq Entry** (**Menu → Tuning → Freq Entry**): a number pad to type a frequency with the knob, then **kHz** or **MHz**. The radio changes band (and mode, from FM) when the frequency is outside the current band.

@@ -1,1 +1,0 @@
-**New version notice** (**Menu → System → Upd. Notice**, on by default): with Wi-Fi connected, the radio looks for a newer RESONIK release a few minutes after connecting and then once a day, and shows a page with **Update now**, **Later** or **Skip this version**. An arrow beside the Wi-Fi icon and a banner on the radio's web pages show that an update is waiting.

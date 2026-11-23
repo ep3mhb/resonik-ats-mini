@@ -1,1 +1,0 @@
-The radio's Status web page also shows how long the radio has been running, why it last restarted (switched on, update, crash, watchdog, low voltage), the processor's temperature and speed, free memory and the Wi-Fi signal. Each figure says whether it is good, fair or bad, in green, yellow or red.

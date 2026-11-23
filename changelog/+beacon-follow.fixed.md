@@ -1,1 +1,0 @@
-Beacons: following a beacon could not be left while the radio was waiting for the beacon's turn. Switching to FM or another band played for a moment, then the radio went back to the beacon. Tuning away, another band or FM now ends the follow at any time.

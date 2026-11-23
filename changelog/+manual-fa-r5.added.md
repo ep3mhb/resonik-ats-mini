@@ -1,1 +1,0 @@
-Persian manual (PDF): the R5 chapters, the same as in the English manual, with the two new settings (Capacitor, Enc. Accel.) and the signals to try the decoders with. Menu paths run right to left (Menu ← Ham & SWL ← Band Plan) and the sign-off reads "73 de resonik.mikroutik.com".

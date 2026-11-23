@@ -1,1 +1,0 @@
-A program connected over Wi-Fi (**TCP Port**: CAT TS-480 or Ad hoc) keeps Wi-Fi on while the FT8, CW Decoder and Digital pages are open, as an open Web Control page does. Before, those pages switched Wi-Fi off and the program lost the radio.

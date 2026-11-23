@@ -1,1 +1,0 @@
-**Backup and restore** on the radio's Config web page: download all settings, bands, memories and Wi-Fi networks as one file, and restore it later or on another radio running the same settings layout. The radio restarts after a restore.

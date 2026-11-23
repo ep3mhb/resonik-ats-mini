@@ -1,1 +1,0 @@
-**Log** page in the radio's web portal (the menu button was **Log (CSV)**, a download only): choose the signal logger's interval or switch it off, see how full the file is and its latest 50 lines, newest first under a line for each day, then **Download (CSV)** or **Delete log** (after a question). Menu → Memory → Logger on the radio and the setting in Web Control work as before.

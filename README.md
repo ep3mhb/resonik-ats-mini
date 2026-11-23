@@ -10,7 +10,7 @@ An improved firmware for the **ATS Mini** pocket receiver (ESP32-S3 + SI4732): L
 It is built on the open-source [ats-mini](https://github.com/esp32-si4732/ats-mini) firmware and keeps everything it does,
 adding features for shortwave listeners and radio amateurs.
 
-> **Latest release: [v2.46-r5](https://github.com/ep3mhb/resonik-ats-mini/releases/latest)** (R5, 23 November 2026).
+> **Latest release: [v2.46-r5](https://github.com/ep3mhb/resonik-ats-mini/releases/latest)** (R5, 24 November 2026).
 
 Website, browser installer and manual: **<https://resonik.mikroutik.com>**
 

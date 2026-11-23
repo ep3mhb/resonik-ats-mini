@@ -1,1 +1,0 @@
-Web Control, Beacons tab: **Follow a beacon** at the top, with the list of the 18 beacons and **Start** and **Stop** buttons. The line beside them says which beacon is being followed, the frequency it is on now or the seconds to its next turn, and why following did not start or ended. Before, following could only be started by tapping the map and stopped from the radio's menu.

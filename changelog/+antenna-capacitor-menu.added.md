@@ -1,1 +1,0 @@
-**Capacitor** (Menu → Tuning, and Web Control → Settings → Receiver): the automatic antenna capacitor for the MW1, MW2, MW3 and 160 m bands, until now only on the Config web page. Off by default; it only works on a radio without a Hi-Z input circuit. From ats-mini ([discussion #409](https://github.com/esp32-si4732/ats-mini/discussions/409)).

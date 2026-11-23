@@ -1,1 +1,0 @@
-The Status web page and the About screen name the commit a build was made from, after the date: "v2.46-r5, built 22 Nov 2026 (0d9c9f3)". The seven characters are the same as at the end of the build's file name, so a radio can be matched with its build.

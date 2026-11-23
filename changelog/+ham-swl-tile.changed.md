@@ -1,1 +1,0 @@
-The **Ham & SWL** tile of the menu shows the international amateur radio symbol in yellow: aerial, coil and earth, drawn from the symbol itself, with its two straight wires shortened so that the rest is larger. It stands at the side of the tile with the name beside it. The tile had shared the mast of the Beacons tile.

@@ -1,1 +1,0 @@
-Web Control, Decodes tab: **Decoder on the radio**, a row to start and stop the decoders from the browser: FT8 and FT4 with a list of their bands, CW, RTTY, RTTY DWD, NAVTEX, PSK31 and WEFAX. **Stop** closes the decoder and the radio goes back to where it was. The line beside the buttons says what is running. Before, a decoder had to be opened on the radio.
