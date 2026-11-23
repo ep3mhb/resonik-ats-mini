@@ -8,7 +8,10 @@
 // included (PageControl.h): the RESONIK bar, the page menu and a footer with
 // the site, the manual and GitHub (Mohammad, 22 Nov: the pages should look
 // the same, and the portal named neither GitHub nor the RESONIK site).
+// html: a scrollbar on every page, so the frame does not shift sideways between a
+// short page and a long one (23 Nov: "opening each tab shakes the screen")
 #define PAGE_FRAME_CSS \
+  "html{overflow-y:scroll;-webkit-text-size-adjust:100%;text-size-adjust:100%}" \
   ".rk-brand{box-sizing:border-box;position:relative;display:flex;align-items:center;justify-content:center;gap:12px;" \
   "padding:10px 16px;background:#0F2F3C;border-bottom:1px solid #1D4A5C;color:#fff;" \
   "font:15px/1.4 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}" \
@@ -55,7 +58,7 @@ static const char pageStart[] PROGMEM = R"HTML(<!DOCTYPE HTML>
     INPUT[type=submit] { width: 50%; }
     INPUT[type=submit]:hover, BUTTON:hover { background: var(--blue); }
     BUTTON:disabled, INPUT:disabled { opacity: 0.45; cursor: default; }
-    INPUT[type=file] { color: var(--muted); }
+    INPUT[type=file] { color: var(--muted); width: 100%; max-width: 100%; box-sizing: border-box; }
     .CENTER { text-align: center; }
     .HEAP { color: var(--muted); font-size: 0.75em; text-align: center; margin: 1.5em 0.5em; }
   )HTML" PAGE_FRAME_CSS R"HTML(
