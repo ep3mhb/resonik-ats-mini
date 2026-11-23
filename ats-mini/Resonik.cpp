@@ -3,6 +3,7 @@
 // propagation data.
 //
 #include "Common.h"
+#include "Diag.h"
 #include "Themes.h"
 #include "Utils.h"
 #include "Menu.h"
@@ -516,6 +517,7 @@ bool loggerTick()
     return(true);
   }
 
+  diagStep(50);
   fs::File f = LittleFS.open(LOG_PATH, "a");
   if(!f) return(false);
   if(isNew) f.print("utc,frequency_hz,mode,band,rssi_dbuv,snr_db,station\r\n");
@@ -542,6 +544,7 @@ bool loggerTick()
   f.printf("%s,%lu,%s,%s,%u,%u,%s\r\n", when, (unsigned long)currentFrequency,
            bandModeDesc[currentMode], getCurrentBand()->bandName, rssi, snr, station);
   f.close();
+  diagStep(51);
   return(false);
 }
 

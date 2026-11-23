@@ -26,6 +26,7 @@
 #include "Resonik.h"
 #include "PagePatches.h"
 #include "PageLog.h"
+#include "Diag.h"
 
 #include <new>
 #include <mutex>
@@ -890,7 +891,7 @@ static const String webRadioPage()
   heap_caps_get_info(&psram, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
   return webPage("/", pageStatus, pageStatusTitle, {
     {"cpu_note", String(cpuNote)},
-    {"uptime", String(uptime)}, {"reset", String(reset)},
+    {"uptime", String(uptime)}, {"reset", diagLastText()[0] ? String(reset) + ". For a report: " + diagLastText() : String(reset)},
     {"temp", String(temperatureRead(), 0)}, {"cpu", String(perfSetMhz())},
     {"heap", String(heap_caps_get_free_size(MALLOC_CAP_INTERNAL) / 1024)},
     {"psram", String(heap_caps_get_free_size(MALLOC_CAP_SPIRAM) / 1024)},

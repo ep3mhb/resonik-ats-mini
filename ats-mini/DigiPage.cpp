@@ -18,6 +18,7 @@
 // decoder finds the tones by itself, so there is nothing to tune.
 //
 #include "Common.h"
+#include "Diag.h"
 #include "Themes.h"
 #include "Utils.h"
 #include "Menu.h"
@@ -125,9 +126,9 @@ static void logHead()
              (unsigned long)(currentFrequency / 1000), (unsigned long)(currentFrequency % 1000 / 100), when);
 }
 
-static Digi::Text *activeText()
+static Digi::Text *activeText(int m)
 {
-  switch(workMode)
+  switch(m)
   {
     case DM_RTTY: case DM_DWD: return(&rtty->text);
     case DM_NAVTEX: return(&navtex->text);
@@ -175,6 +176,7 @@ static void work(void *)
   for(int i = 0; i < NFFT; i++) window[i] = 0.5f - 0.5f * cosf(2 * (float)M_PI * i / (NFFT - 1));
   float avgPower[NFFT / 2 + 1] = { 0 };
   float lastCentre = 0;
+  int wm = DM_RTTY;                  // The mode this task decodes (R5)
   // R5: RTTY and PSK31 read characters out of plain noise. The decoder gets
   // the sound only while the two tones (or the carrier) stand out of the
   // band, and for a second after, so that a fade does not cut a word
@@ -193,10 +195,14 @@ static void work(void *)
     if(gen != generation)
     {
       gen = generation;
+      // R5: the worker's own copy of the mode, taken with the generation: the
+      // page sets workMode a moment before it counts a new generation, and
+      // sound must never reach a decoder that has not been begun
+      wm = workMode;
       pos = written;
       step = inRate >= 2 * FS ? 2 : 1;
       xSemaphoreTake(lock, portMAX_DELAY);
-      beginDecoder(workMode, centre);
+      beginDecoder(wm, centre);
       shownText[0] = '\0';
       logHead();
       xSemaphoreGive(lock);
@@ -204,6 +210,7 @@ static void work(void *)
       found = false;
       lastCentre = 0;
       quiet = 1000;
+      diagStep(20 + wm);
     }
     if(written - pos > RING - 1024) pos = written - 1024;   // Fell behind: skip
 
@@ -222,14 +229,14 @@ static void work(void *)
       sinceFft += n;
       bool open = quiet < 6;         // Six spectra: about a second
       xSemaphoreTake(lock, portMAX_DELAY);
-      switch(workMode)
+      switch(wm)
       {
         case DM_RTTY: case DM_DWD: if(open) rtty->push(buf, n); break;
         case DM_NAVTEX: navtex->push(buf, n); break;
         case DM_WEFAX: { uint32_t was = fax->total(); fax->push(buf, n); if(fax->total() != was) changes++; break; }
         default: if(open) psk->push(buf, n); break;
       }
-      Digi::Text *t = activeText();
+      Digi::Text *t = activeText(wm);
       if(strcmp(shownText, t->buf)) { strcpy(shownText, t->buf); changes++; }
       xSemaphoreGive(lock);
 
@@ -263,7 +270,7 @@ static void work(void *)
           spec[x] = hi > lo ? (uint8_t)constrain((fftIn[x] - lo) * 255 / (hi - lo), 0, 255) : 0;
 
         // Find the signal
-        int m = workMode;
+        int m = wm;
         float bestScore = 0, bestHz = 0, floorP = 0;
         int k0 = (int)(SPEC_LO / hzPerBin), k1 = (int)(SPEC_HI / hzPerBin);
         for(int k = k0; k <= k1; k++) floorP += avgPower[k];
@@ -359,6 +366,7 @@ static void keepModeFreq()
 
 static bool start()
 {
+  diagStep(4);
   if(!lock) lock = xSemaphoreCreateMutex();
   if(!ring) ring = (int16_t *)heap_caps_malloc(RING * sizeof(int16_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
   if(!fax) fax = new (heap_caps_malloc(sizeof(Digi::Wefax), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT)) Digi::Wefax();
@@ -399,6 +407,7 @@ static bool start()
 
 static void stop()
 {
+  diagStep(5);
   keepModeFreq();
   running = false;
   reading = false;
@@ -524,15 +533,18 @@ bool digiTurn(int16_t enc, bool pressed)
 // The open page goes to another mode
 static void goMode(int m, uint32_t hz)
 {
+  diagStep(1);
   if(pageActive) keepModeFreq();
   mode = m;
   if(hz && m != DM_NAVTEX) modeFreq[m] = hz;
   if(!pageActive) return;
   tuneForMode();
+  diagStep(2);
   audioOn();
   workMode = mode;
   centre = mode == DM_PSK31 ? 1000 : mode == DM_WEFAX ? 1900 : 1500;
   generation++;
+  diagStep(3);
 }
 
 void digiClick(bool shortPress)

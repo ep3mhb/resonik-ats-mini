@@ -1,4 +1,5 @@
 #include "Common.h"
+#include "Diag.h"
 #include "Storage.h"
 #include "Utils.h"
 #include "Menu.h"
@@ -118,6 +119,7 @@ static void netJobWork(void *)
       netJobBusy = true;
       uint8_t jobs = netJobs.exchange(0);
       if(!jobs) { netJobBusy = false; break; }
+      diagStep(40);
       if(jobs & NET_JOB_TIME)
       {
         uint32_t epoch = 0;
@@ -132,6 +134,7 @@ static void netJobWork(void *)
         bool ok = getWiFiStatus() >= 2 && otaFetchLatestVersion(&version);
         updNoticeChecked(ok, version);
       }
+      diagStep(41);
       netJobBusy = false;
     }
   }

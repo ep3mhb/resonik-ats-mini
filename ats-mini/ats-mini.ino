@@ -3,6 +3,7 @@
 // =================================
 
 #include "Common.h"
+#include "Diag.h"
 #include <Wire.h>
 #include "Rotary.h"
 #include "Button.h"
@@ -127,6 +128,9 @@ void setup()
   // Keep the C library clock in UTC; display offsets are applied separately.
   setenv("TZ", "UTC0", 1);
   tzset();
+
+  // RESONIK R5: keep what the last run recorded, if a watchdog or crash ended it
+  diagBoot();
 
   // Enable serial port
   Serial.begin(115200);

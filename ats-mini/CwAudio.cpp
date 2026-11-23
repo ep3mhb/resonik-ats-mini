@@ -7,6 +7,7 @@
 // screen simply waits until Wi-Fi is off (for instance after the time sync).
 
 #include "Common.h"
+#include "Diag.h"
 #include "TcpMode.h"
 #include "Themes.h"
 #include "Utils.h"
@@ -147,6 +148,7 @@ static void sampler(void *)
     // decoder page open (Mohammad, 21 Nov, Digital page at 6 kHz audio).
     if(!want || !adc || netJobsBusy())
     {
+      if(sampling) diagStep(31);
       sampling = false;
       webTimerRun(false, 0);
       vTaskDelay(pdMS_TO_TICKS(50));
@@ -158,6 +160,7 @@ static void sampler(void *)
     int fs = ring ? (int)ft8Fs : web ? WEB_FS : CW_FS;
     if(!sampling || fs != lastFs)
     {
+      diagStep(30);
       sampling = true;
       n = 0;
       lastFs = fs;

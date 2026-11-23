@@ -1,5 +1,6 @@
 #include "math.h"
 #include "Common.h"
+#include "Diag.h"
 #include "Themes.h"
 #include "Utils.h"
 #include "Draw.h"
@@ -2151,6 +2152,7 @@ void selectBand(uint8_t idx, bool drawLoadingPatch)
 {
   // RESONIK R4: SSB to SSB (any band, LSB/USB/CW) without the full setup
   // and without the 2 x 50 ms of the hardware mute; the chip mute is enough
+  diagStep(10);
   uint8_t newIdx = min(idx, LAST_ITEM(bands));
   uint8_t newMode = bands[newIdx].bandMode;
   bool ssbNow = currentMode == LSB || currentMode == USB || currentMode == CW;
@@ -2170,6 +2172,7 @@ void selectBand(uint8_t idx, bool drawLoadingPatch)
       resetFreqInputPos();
       if(audible) rx.setAudioMute(false);
       bandPlanLastSeg = bandPlanFindArea(currentFrequency, bandPlanArea);
+      diagStep(11);
       return;
     }
     // Not possible: back to the full setup below
@@ -2178,6 +2181,7 @@ void selectBand(uint8_t idx, bool drawLoadingPatch)
     if(audible) rx.setAudioMute(false);
   }
 
+  diagStep(12);
   // Silence clicks during reconfiguration using the configured hardware mute method.
   // https://github.com/esp32-si4732/ats-mini/discussions/103
   muteOn(MUTE_TEMP, true, !audioClamp);
@@ -2208,6 +2212,7 @@ void selectBand(uint8_t idx, bool drawLoadingPatch)
 
   // Band plan: entering a phone segment is measured from here
   bandPlanLastSeg = bandPlanFindArea(currentFrequency, bandPlanArea);
+  diagStep(13);
 }
 
 //
