@@ -705,8 +705,9 @@ void drawDigiPage()
   spr.setTextColor(DG_RGB(0xFFD167));
   spr.drawString(modeName[mode], 10, 14, uiFont(false));
   spr.setTextColor(DG_RGB(0x8FB3C0));
-  // NAVTEX: its channel, which the page tunes 1.5 kHz lower by itself
-  if(mode == DM_NAVTEX) snprintf(line, sizeof(line), "%s", navCh[nav].name);
+  // NAVTEX: its channel, which the page tunes 1.5 kHz lower by itself, and USB
+  // as the other modes (23 Nov: "on NAVTEX showing freq only without mode")
+  if(mode == DM_NAVTEX) snprintf(line, sizeof(line), reading ? "%s" : "%s USB", navCh[nav].name);
   else snprintf(line, sizeof(line), reading ? "%lu.%02lu kHz" : "%lu.%02lu kHz USB",
                 (unsigned long)(currentFrequency / 1000), (unsigned long)(currentFrequency % 1000 / 10));
   spr.drawString(line, 10 + spr.textWidth(modeName[mode], uiFont(false)) + 8, 14, uiFont(true));
