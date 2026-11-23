@@ -39,6 +39,7 @@ bool bandScanTick();
 // Signal logger (CSV in the flash file system)
 #define LOG_PATH   "/log.csv"
 #define LOG_CLEAR  4
+#define LOG_MAX_BYTES (1024UL * 1024UL)   // the logger stops there
 extern uint8_t loggerIdx;
 extern const char *const loggerDesc[5];
 bool loggerTick();

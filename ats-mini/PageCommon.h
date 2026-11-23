@@ -83,7 +83,7 @@ static void webNavigation(String &out, const char *activePage)
     {"Wi-Fi", "/wifi"},
     {"Update", "/update"},
     {"Patches", "/patches"},
-    {"Log (CSV)", "/log.csv"},
+    {"Log", "/log"},
   };
   out += R"HTML(<nav class="rk-nav">)HTML";
   for(size_t i = 0; i < sizeof(pages) / sizeof(pages[0]); i++)

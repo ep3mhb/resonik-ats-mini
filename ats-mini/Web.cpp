@@ -25,6 +25,7 @@
 #include "PageUpdate.h"
 #include "Resonik.h"
 #include "PagePatches.h"
+#include "PageLog.h"
 
 #include <new>
 #include <mutex>
@@ -88,6 +89,7 @@ static String webFirmwareText()
 static String webPage(const char *active, const char *body, const char *title, std::initializer_list<PageValue> values,
                       std::initializer_list<PageFragment> fragments = {});
 static const String webRadioPage();
+static const String webLogPage();
 static const String webMemoryPage();
 static const String webConfigPage();
 static const String webWiFiPage();
@@ -316,15 +318,29 @@ void webInit()
     request->send(response);
   });
 
-  // RESONIK: signal log download and clearing
+  // RESONIK R5: the Log page (logger on or off, the latest lines, download,
+  // delete) and the log itself as a CSV file
+  server.on("/log", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    if(!webIsAuthenticated(request)) return request->requestAuthentication();
+    request->send(200, "text/html", webLogPage());
+  });
+  server.on("/log", HTTP_POST, [] (AsyncWebServerRequest *request) {
+    if(!webIsAuthenticated(request)) return request->requestAuthentication();
+    if(request->hasParam("clear", true)) loggerClear();
+    else if(request->hasParam("interval", true))
+    {
+      int v = request->getParam("interval", true)->value().toInt();
+      if(v >= 0 && v < LOG_CLEAR && v != loggerIdx)
+      {
+        loggerIdx = v;
+        prefsRequestSave(SAVE_SETTINGS, true);
+      }
+    }
+    request->redirect("/log");
+  });
   server.on("/log.csv", HTTP_GET, [] (AsyncWebServerRequest *request) {
     if(!webIsAuthenticated(request)) return request->requestAuthentication();
-    if(!LittleFS.exists(LOG_PATH))
-      return request->send(404, "text/html", webPage("/log.csv", pageLogEmpty, pageLogTitle, {
-        {"message", loggerIdx && loggerIdx < LOG_CLEAR ?
-          "The logger is on but has not written a line yet. Try again in a moment." :
-          "There is no signal log yet: the logger is off."}
-      }));
+    if(!LittleFS.exists(LOG_PATH)) return request->redirect("/log");
     AsyncWebServerResponse *response = request->beginResponse(LittleFS, LOG_PATH, "text/csv", true);
     response->addHeader("Cache-Control", "no-store");
     request->send(response);
@@ -982,6 +998,55 @@ static void webSetMemories(AsyncWebServerRequest *request)
   free(pending);
   prefsRequestSave(SAVE_MEMORIES, true);
   request->redirect("/memory");
+}
+
+// RESONIK R5: the Log page
+static const String webLogPage()
+{
+  // The end of the file, for the latest lines (in PSRAM; up to PAGE_LOG_TAIL bytes)
+  fs::File f = LittleFS.open(LOG_PATH, "r");
+  size_t size = f ? f.size() : 0;
+  size_t from = size > PAGE_LOG_TAIL ? size - PAGE_LOG_TAIL : 0;
+  char *buf = size ? (char *)ps_malloc(size - from + 1) : nullptr;
+  size_t n = 0;
+  if(buf)
+  {
+    if(f.seek(from)) n = f.read((uint8_t *)buf, size - from);
+    buf[n] = '\0';
+  }
+  if(f) f.close();
+
+  String state;
+  if(!size)
+    state = loggerIdx && loggerIdx < LOG_CLEAR ? "Empty: the first line is written in a moment." : "Empty: the logger is off.";
+  else
+  {
+    char text[48];
+    snprintf(text, sizeof(text), "%u KB of %u KB", (unsigned)((size + 1023) / 1024), (unsigned)(LOG_MAX_BYTES / 1024));
+    state = text;
+    if(size >= LOG_MAX_BYTES) state += ". Full: the logger has stopped. Download the log, then delete it to start again.";
+  }
+
+  String page = webPage("/log", pageLog, pageLogTitle, {
+    {"file_state", state},
+    {"disabled", size ? "" : "disabled"},
+  }, {
+    {"interval_options", [] (String &out) {
+      static const char *const names[LOG_CLEAR] = { "Off", "Every 10 seconds", "Every minute", "Every 5 minutes" };
+      for(int i = 0 ; i < LOG_CLEAR ; i++)
+      {
+        char option[80];
+        snprintf(option, sizeof(option), "<OPTION VALUE=\"%d\"%s>%s</OPTION>", i, i == loggerIdx ? " SELECTED" : "", names[i]);
+        out += option;
+      }
+    }},
+    {"lines", [&] (String &out) {
+      if(buf && n) pageLogRows(out, buf, n, from > 0);
+      else out += "<P CLASS=\"CENTER\"><SMALL>No lines yet.</SMALL></P>";
+    }},
+  });
+  free(buf);
+  return page;
 }
 
 static const String webMemoryPage()

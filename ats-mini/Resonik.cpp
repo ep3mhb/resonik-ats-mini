@@ -484,7 +484,6 @@ bool bandScanTick()
 uint8_t loggerIdx = 0;
 const char *const loggerDesc[5] = { "Off", "10 s", "1 min", "5 min", "Clear log" };
 static const uint32_t loggerIntervals[4] = { 0, 10000, 60000, 300000 };
-#define LOG_MAX_BYTES (1024UL * 1024UL)
 
 size_t loggerSize()
 {
