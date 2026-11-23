@@ -92,4 +92,14 @@ static const char pageRestoreResult[] PROGMEM = R"HTML(<TABLE COLUMNS="1">
 </TABLE>
 )HTML";
 
+// RESONIK R5: Log (CSV) with no log yet, in the same frame as every page (it was
+// a plain white page)
+static const char pageLogTitle[] PROGMEM = "Log";
+static const char pageLogEmpty[] PROGMEM = R"HTML(<TABLE COLUMNS="1">
+  <TR><TH CLASS="HEADING">Signal log</TH></TR>
+  <TR><TD CLASS="CENTER">{{message}}</TD></TR>
+  <TR><TD CLASS="CENTER">Turn it on with <B>Menu &rarr; Memory &rarr; Logger</B> on the radio, or in <A HREF="/control">Control</A>, Settings tab, Receiver: <B>Signal logger</B>. It writes a line every 10 seconds, every minute or every five minutes. Then click <B>Log (CSV)</B> again to download the file.</TD></TR>
+</TABLE>
+)HTML";
+
 #endif // PAGE_CONFIG_H

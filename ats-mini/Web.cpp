@@ -320,7 +320,11 @@ void webInit()
   server.on("/log.csv", HTTP_GET, [] (AsyncWebServerRequest *request) {
     if(!webIsAuthenticated(request)) return request->requestAuthentication();
     if(!LittleFS.exists(LOG_PATH))
-      return request->send(404, "text/plain", "The signal log is empty. Turn it on in Settings > Logger.");
+      return request->send(404, "text/html", webPage("/log.csv", pageLogEmpty, pageLogTitle, {
+        {"message", loggerIdx && loggerIdx < LOG_CLEAR ?
+          "The logger is on but has not written a line yet. Try again in a moment." :
+          "There is no signal log yet: the logger is off."}
+      }));
     AsyncWebServerResponse *response = request->beginResponse(LittleFS, LOG_PATH, "text/csv", true);
     response->addHeader("Cache-Control", "no-store");
     request->send(response);
