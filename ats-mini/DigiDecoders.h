@@ -3,15 +3,17 @@
 
 // RESONIK R5: RTTY, NAVTEX (SITOR-B) and PSK31 decoders for the radio's
 // audio, as plain C++ with no Arduino dependencies so they are tested on
-// the host (tests/TestDigi.cpp). Each takes samples at a fixed rate and the
-// audio frequency of the signal (the page finds it on its spectrum).
+// the host. Each takes samples at a fixed rate, with no DC (the page takes
+// the ADC's level off), and the audio frequency of the signal (the page
+// finds it on its spectrum).
 //
 // RTTY: two tone filters one bit long, start-bit framing, ITA2 with
 // unshift-on-space. Both polarities are decoded at once and the one with
 // fewer framing errors is shown, so LSB, USB and reversed stations all read.
 // NAVTEX: 100 baud, 170 Hz shift, a bit clock from the tone transitions,
 // CCIR 476 (4 of 7 bits set) with its time-diversity copy five characters
-// earlier used when the first one is spoiled.
+// earlier used when the first one is spoiled; the two copies also keep the
+// reading in step.
 // PSK31: carrier mixed to zero, filtered one symbol long, sampled where the
 // symbol is strongest, phase reversal = 0, varicode between "00" gaps.
 
@@ -220,7 +222,10 @@ public:
     int len = (int)(spb + 0.5f);
     mark.begin(fs, centre + 85, len);
     space.begin(fs, centre - 85, len);
-    phase = 0; prev = 0; nbits = 0; synced = false; figs = false; sinceSync = 0;
+    phase = 0; rate = 0; yPrev = 0; yMid = 0; midTaken = false;
+    mPk = sPk = 0;
+    nbits = 0; synced = false; figs = false; sinceSync = 0;
+    inverted = false; searches = 0; align = 0; weak = 0;
     text.clear();
     buildTables();
   }
@@ -234,15 +239,28 @@ public:
       sPk = s > sPk ? s : sPk * 0.999f;
       float d = m / (mPk + 1e-3f) - s / (sPk + 1e-3f);
       level = (m + s) * 0.001f + level * 0.999f;
-      // Bit clock: a transition should fall half a bit from the sample point
-      if((d > 0) != (prev > 0))
-      {
-        float err = phase - 0.5f;   // 0.5 is mid-way between samples
-        phase -= err * 0.15f;
-      }
-      prev = d;
+      // R5: bit clock by the Gardner rule. The tone filters are one bit long,
+      // so between two different bits the difference crosses zero half way:
+      // the value there says how early or late the bits are taken. The old
+      // clock moved on every zero crossing, and noise made extra crossings
+      // that slipped it by a whole bit (23 Nov tests, 16806.5 kHz).
       phase += 1.0f / spb;
-      if(phase >= 1.0f) { phase -= 1.0f; takeBit(d); }
+      if(!midTaken && phase >= 0.5f) { yMid = d; midTaken = true; }
+      if(phase >= 1.0f)
+      {
+        phase -= 1.0f;
+        midTaken = false;
+        float e = (yPrev - d) * yMid;
+        e = e > 1 ? 1 : e < -1 ? -1 : e;
+        // Once in step, a second term learns a steady difference of rate
+        // (sound taken a little fast or slow), up to 2 %. Not before: while
+        // the clock is still being pulled in, it would learn the pull.
+        if(synced) rate += e * 0.0003f;
+        rate = rate > 0.02f ? 0.02f : rate < -0.02f ? -0.02f : rate;
+        phase -= e * (synced ? 0.03f : 0.04f) + rate;
+        yPrev = d;
+        takeBit(d);
+      }
     }
   }
   Text text;
@@ -250,14 +268,17 @@ public:
   bool synced = false;
 
 private:
-  float fs = 6000, spb = 60, phase = 0, prev = 0;
+  float fs = 6000, spb = 60, phase = 0, rate = 0;
+  float yPrev = 0, yMid = 0;       // Last bit's value and the one half a bit before this
+  bool midTaken = false;
   ToneFilter mark, space;
   float mPk = 0, sPk = 0;
   static const int HIST = 256;
   int8_t hist[HIST];               // Bit history, +1 mark (B), -1 space (Y)
   int nbits = 0;                   // Bits stored
-  int align = 0;                   // Bit number of alpha characters, mod 14
+  int align = 0;                   // Bit number of alpha (RX) characters, mod 14
   int sinceSync = 0;
+  int weak = 0;                    // Checks in a row with the copies disagreeing
   bool figs = false;
   bool inverted = false;
   int searches = 0;
@@ -283,6 +304,23 @@ private:
     int c = 0;
     for(int i = 0; i < 7; i++) if(hist[(j + i) % HIST] > 0) c |= 1 << i;
     return(c);
+  }
+  // How well alignment a reads the last eight RX characters before bit `end`:
+  // a character counts when its DX copy, 35 bits earlier, is the same valid
+  // code, or when it is the alpha of the phasing (rep in DX before it)
+  int agree(int a, int end) const
+  {
+    int j = end - 7;
+    j -= ((j - a) % 14 + 14) % 14;
+    int n = 0;
+    for(int k = 0; k < 8; k++, j -= 14)
+    {
+      int c = codeAbs(j);
+      if(!valid(c)) continue;
+      if(c == ALPHA) { if(codeAbs(j - 7) == REP) n++; }
+      else if(c != REP && codeAbs(j - 35) == c) n++;
+    }
+    return(n);
   }
 
   void takeBit(float d)
@@ -311,7 +349,7 @@ private:
         }
         if(reps >= 3 && score + reps > bestScore) { bestScore = score + reps; best = a; }
       }
-      if(best >= 0 && bestScore >= 10) { synced = true; align = best; sinceSync = 0; }
+      if(best >= 0 && bestScore >= 10) { synced = true; align = best; sinceSync = 0; weak = 0; }
       // Nothing valid this way round for a while: try the other polarity
       else if(++searches >= 40) { searches = 0; inverted = !inverted; for(int i = 0; i < HIST; i++) hist[i] = -hist[i]; }
       return;
@@ -319,6 +357,24 @@ private:
     // One alpha character every 14 bits, once all 7 bits of it are in
     int j = nbits - 7;
     if(j % 14 != align) return;
+    // R5: the two copies of each character keep the reading in step. When
+    // they stop agreeing (a bit slipped: a fade, a gap in the sound) and
+    // another alignment reads well, move to it; when none does for about a
+    // second, the signal is gone: stop and search again, rather than print
+    // random letters for ever as before.
+    if(agree(align, nbits) <= 1)
+    {
+      int best = -1, bestN = 3;
+      for(int a = 0; a < 14; a++)
+      {
+        if(a == align) continue;
+        int n = agree(a, nbits);
+        if(n > bestN) { bestN = n; best = a; }
+      }
+      if(best >= 0) { align = best; weak = 0; return; }
+      if(++weak >= 8) { synced = false; searches = 0; return; }
+    }
+    else weak = 0;
     int c = codeAbs(j);
     if(!valid(c))
     {

@@ -375,9 +375,10 @@ void webInit()
           if(i < 44) buf[done++] = hdr[i];
           else
           {
-            // Raw ADC counts around 2048: centred and scaled for listening
+            // What the decoder hears (the ADC's level already off), louder
             uint32_t k = (i - 44) / 2;
-            int16_t v = (int16_t)((data[k] - 2048) * 8);
+            int32_t w = (int32_t)data[k] * 8;
+            int16_t v = (int16_t)(w > 32767 ? 32767 : w < -32767 ? -32767 : w);
             buf[done++] = ((i - 44) & 1) ? (uint8_t)(v >> 8) : (uint8_t)v;
           }
         }

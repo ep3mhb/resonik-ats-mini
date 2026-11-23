@@ -190,6 +190,16 @@ static void work(void *)
   // band, and for a second after, so that a fade does not cut a word
   // (Mohammad, 21 Nov: "RTTY, no signal" above lines of random letters).
   int quiet = 1000;                  // Spectra in a row without a signal
+  // R5: the ADC's own level (about 2048) is taken off before the decoders.
+  // In their tone filters it leaked through as a ripple: NAVTEX lost its bit
+  // clock when the signal was off 1500 Hz, WEFAX saw a black picture.
+  float dcRun = 0;
+  bool dcSet = false;
+  // R5: the two-tone modes follow a smoothed place of the signal. The best
+  // place jumps by a few bins from one spectrum to the next as the bits go
+  // by, and each jump re-tuned the decoder (NAVTEX lost its bit clock).
+  float est = 0;
+  int far = 0;
 
   for(;;)
   {
@@ -217,6 +227,9 @@ static void work(void *)
       memset(avgPower, 0, sizeof(avgPower));
       found = false;
       lastCentre = 0;
+      est = 0;
+      far = 0;
+      dcSet = false;
       quiet = 1000;
       diagStep(20 + wm);
       capTotal = 0;
@@ -234,6 +247,10 @@ static void work(void *)
         int16_t s = ring[pos % RING];
         if(step == 2) s = (int16_t)(((int32_t)s + ring[(pos + 1) % RING]) / 2);
         pos += step;
+        if(!dcSet) { dcRun = s; dcSet = true; }
+        dcRun += (s - dcRun) * (1.0f / 512);
+        float v = s - dcRun;
+        s = (int16_t)(v >= 0 ? v + 0.5f : v - 0.5f);
         buf[n++] = s;
         if(cap) { cap[capTotal % CAP_N] = s; capTotal = capTotal + 1; }
         hist[histPos] = s;
@@ -313,14 +330,26 @@ static void work(void *)
         found = sig;
         if(sig) quiet = 0;
         else if(quiet < 1000) quiet++;
-        // Follow the signal; PSK31 tracks its own carrier once it reads
-        if(sig && fabsf(bestHz - lastCentre) > (m == DM_PSK31 ? 4.0f : 12.0f) &&
+        // Follow the signal; PSK31 tracks its own carrier once it reads. The
+        // two-tone modes go by the smoothed place (a jump of more than 60 Hz
+        // counts once it is seen three times: retuned, or another station),
+        // and NAVTEX, once in step, moves only for 30 Hz or more.
+        bool tones = m == DM_RTTY || m == DM_DWD || m == DM_NAVTEX;
+        if(sig && tones)
+        {
+          if(est == 0) est = bestHz;
+          else if(fabsf(bestHz - est) > 60) { if(++far >= 3) { est = bestHz; far = 0; } }
+          else { far = 0; est += (bestHz - est) * 0.25f; }
+        }
+        float target = tones ? est : bestHz;
+        float tol = m == DM_PSK31 ? 4.0f : (m == DM_NAVTEX && navtex->synced) ? 30.0f : 12.0f;
+        if(sig && fabsf(target - lastCentre) > tol &&
            !(m == DM_PSK31 && psk->quality > 0.8f && fabsf(psk->carrier() - bestHz) < 15))
         {
-          lastCentre = bestHz;
-          centre = bestHz;
+          lastCentre = target;
+          centre = target;
           xSemaphoreTake(lock, portMAX_DELAY);
-          setCentre(m, bestHz);
+          setCentre(m, target);
           xSemaphoreGive(lock);
         }
         if(m == DM_PSK31) centre = psk->carrier();
