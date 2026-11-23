@@ -1,0 +1,1 @@
+Web Control, Decodes tab: **Save audio (WAV)** while a Digital mode runs: the sound the decoder heard, the last minute of it since the last change of mode or channel, to send with a report when a station is heard but not decoded.

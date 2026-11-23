@@ -209,6 +209,7 @@ section[data-tab]>:first-child{margin-top:0}
 <div id="dtxt" style="font-family:monospace;white-space:pre-wrap;word-break:break-all;min-height:1.2em;margin:8px 0"></div>
 <div id="dlog"></div>
 <p id="dlogb" class="dbtn" style="display:none;margin:8px 0 0"><button id="dtsave">Save text</button><button id="dtclr">Clear text</button></p>
+<p id="daud" class="dbtn" style="display:none;margin:8px 0 0"><button id="dasave">Save audio (WAV)</button></p>
 <svg id="dmap" viewBox="0 0 720 300" role="img" aria-label="Map of the stations heard" style="width:100%;margin-top:8px"></svg>
 <div class="dctl"><label>My locator<input id="dqth" maxlength="6" placeholder="LL58"></label>
 <label>DX alarm<input id="dalarm" placeholder="call or country"></label>
@@ -482,7 +483,7 @@ function dpDraw(){const e=$('dpst');if(!e)return;const p=P&&P.dp||0,c=P&&P.dp?P.
  else if(dpWait&&now-dpWait<3000)t='Starting\u2026';
  e.textContent=t;e.style.color=hot?'var(--accent)':'';$('dpstop').disabled=!p;
  // The radio's knob and frequency, as on its page: CW and Digital
- {const nav=p===3&&c>=0&&DL&&DL.nv&&DL.dg[c&255]==='NAVTEX',on=p===2||p===3;$('dtune').style.display=on?'':'none';
+ {const nav=p===3&&c>=0&&DL&&DL.nv&&DL.dg[c&255]==='NAVTEX',on=p===2||p===3;$('dtune').style.display=on?'':'none';$('daud').style.display=p===3?'':'none';
   if(on)$('dtf').textContent=nav?'NAVTEX '+DL.nv[c>>8]:(P.f/1000).toFixed(2)+' kHz '+(['FM','LSB','USB','AM','CW'][P.m]||'');
   const box=p===3&&!nav;$('dtin').style.display=$('dtgo').style.display=box?'':'none';}
  // The two lists follow the radio when what runs there changes, not while you choose
@@ -521,6 +522,7 @@ function dInit(){if(dmapReady)return;dmapReady=true;const src=$('map');if(src){c
  $('dalarm').onchange=()=>{try{localStorage.setItem('dalarm',$('dalarm').value);}catch(e){}};
  $('dsave').onclick=()=>{const t=DLOG.map(r=>r.join('\t')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));a.download='resonik-decodes-'+new Date().toISOString().slice(0,10)+'.txt';a.click();};
  $('dclr').onclick=()=>{DLOG.length=0;$('dtab').tBodies[0].innerHTML='';dDraw();};
+ $('dasave').onclick=()=>{const a=document.createElement('a');a.href='/digi.wav';a.download='resonik-digital.wav';a.click();};
  $('dtsave').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([DT.t.replace(/\n/g,'\r\n')],{type:'text/plain'}));a.download='resonik-text-'+new Date().toISOString().slice(0,10)+'.txt';a.click();};
  $('dtclr').onclick=()=>{DT.t='';dtShow();};
  try{$('nvord').value=localStorage.getItem('nvord')||'t';$('nvrng').value=localStorage.getItem('nvrng')||($('dqth').value?'3000':'0');}catch(e){}

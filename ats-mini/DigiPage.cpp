@@ -98,6 +98,14 @@ static volatile float centre = 1500;  // Signal found, Hz
 static volatile bool found = false;
 static volatile uint32_t changes = 0;
 
+// R5: the sound the decoder heard since the last change of mode or channel,
+// the last minute of it at 6 kHz, for the browser's Save audio (/digi.wav):
+// a station that is heard but not decoded can be sent in with a report
+#define CAP_N (FS * 60)
+static int16_t *cap = nullptr;                // Ring of CAP_N samples, in PSRAM
+static volatile uint32_t capTotal = 0;        // Samples written since the change
+static char capInfo[64] = "";                 // Mode and frequency or channel
+
 // The whole text (under lock) and the read-back view of it: a copy taken
 // when reading begins, with the offsets where its screen lines start
 static Digi::Log textLog;
@@ -211,6 +219,10 @@ static void work(void *)
       lastCentre = 0;
       quiet = 1000;
       diagStep(20 + wm);
+      capTotal = 0;
+      if(wm == DM_NAVTEX) snprintf(capInfo, sizeof(capInfo), "NAVTEX %s", navCh[nav].name);
+      else snprintf(capInfo, sizeof(capInfo), "%s %lu.%02lu kHz USB", modeName[wm],
+                    (unsigned long)(currentFrequency / 1000), (unsigned long)(currentFrequency % 1000 / 10));
     }
     if(written - pos > RING - 1024) pos = written - 1024;   // Fell behind: skip
 
@@ -223,6 +235,7 @@ static void work(void *)
         if(step == 2) s = (int16_t)(((int32_t)s + ring[(pos + 1) % RING]) / 2);
         pos += step;
         buf[n++] = s;
+        if(cap) { cap[capTotal % CAP_N] = s; capTotal = capTotal + 1; }
         hist[histPos] = s;
         histPos = (histPos + 1) % NFFT;
       }
@@ -380,6 +393,7 @@ static bool start()
   }
   if(!snap) snap = (char *)heap_caps_malloc(LOG_SIZE + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
   if(!lineAt) lineAt = (uint32_t *)heap_caps_malloc((LINES_MAX + 1) * sizeof(uint32_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+  if(!cap) cap = (int16_t *)heap_caps_malloc(CAP_N * sizeof(int16_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);   // None: no Save audio
   if(!ring || !rtty || !navtex || !psk || !fax || !textLog.buf || !snap || !lineAt)
   {
     statusShow("Digital", "Not enough memory");
@@ -597,6 +611,24 @@ bool digiWebTune(uint32_t hz)
   digiSetUsb(hz);
   keepModeFreq();
   generation++;
+  return(true);
+}
+
+// R5: the sound kept for Save audio, oldest first, as raw ADC counts at the
+// decoder's rate; it stays after the page is closed. False: nothing kept.
+bool digiCaptureGet(const int16_t **data, uint32_t *n, uint32_t *rate, char *info, size_t infoSize)
+{
+  static int16_t *out = nullptr;
+  uint32_t total = capTotal;
+  if(!cap || !total) return(false);
+  if(!out) out = (int16_t *)heap_caps_malloc(CAP_N * sizeof(int16_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+  if(!out) return(false);
+  uint32_t count = total < CAP_N ? total : CAP_N;
+  for(uint32_t i = 0; i < count; i++) out[i] = cap[(total - count + i) % CAP_N];
+  *data = out;
+  *n = count;
+  *rate = FS;
+  snprintf(info, infoSize, "%s, %lu s at %d Hz", capInfo, (unsigned long)(count / FS), FS);
   return(true);
 }
 

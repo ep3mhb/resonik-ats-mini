@@ -27,6 +27,7 @@
 #include "PagePatches.h"
 #include "PageLog.h"
 #include "Diag.h"
+#include "DigiPage.h"
 
 #include <new>
 #include <mutex>
@@ -347,6 +348,47 @@ void webInit()
     request->send(response);
   });
 
+  // RESONIK R5: the Digital page's sound since its last change of mode or
+  // channel, the last minute of it, as a WAV file (Web Control: Save audio)
+  server.on("/digi.wav", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    if(!webIsAuthenticated(request)) return request->requestAuthentication();
+    static const int16_t *data;
+    static uint32_t n, rate;
+    static char info[96];
+    static uint8_t hdr[44];
+    if(!digiCaptureGet(&data, &n, &rate, info, sizeof(info)))
+      return request->send(404, "text/plain", "No sound kept yet: open the Digital page, wait a few seconds, then try again.");
+    uint32_t bytes = n * 2;
+    auto le32 = [](uint8_t *p, uint32_t v) { p[0] = v; p[1] = v >> 8; p[2] = v >> 16; p[3] = v >> 24; };
+    memcpy(hdr, "RIFF", 4); le32(hdr + 4, 36 + bytes); memcpy(hdr + 8, "WAVEfmt ", 8);
+    le32(hdr + 16, 16); hdr[20] = 1; hdr[21] = 0; hdr[22] = 1; hdr[23] = 0;
+    le32(hdr + 24, rate); le32(hdr + 28, rate * 2);
+    hdr[32] = 2; hdr[33] = 0; hdr[34] = 16; hdr[35] = 0;
+    memcpy(hdr + 36, "data", 4); le32(hdr + 40, bytes);
+    AsyncWebServerResponse *response = request->beginResponse("audio/wav", 44 + bytes,
+      [](uint8_t *buf, size_t maxLen, size_t index) -> size_t {
+        size_t total = 44 + n * 2, done = 0;
+        if(index >= total) return 0;
+        while(done < maxLen && index + done < total)
+        {
+          size_t i = index + done;
+          if(i < 44) buf[done++] = hdr[i];
+          else
+          {
+            // Raw ADC counts around 2048: centred and scaled for listening
+            uint32_t k = (i - 44) / 2;
+            int16_t v = (int16_t)((data[k] - 2048) * 8);
+            buf[done++] = ((i - 44) & 1) ? (uint8_t)(v >> 8) : (uint8_t)v;
+          }
+        }
+        return done;
+      });
+    response->addHeader("Content-Disposition", "attachment; filename=\"resonik-digital.wav\"");
+    response->addHeader("X-Resonik-Info", info);
+    response->addHeader("Cache-Control", "no-store");
+    request->send(response);
+  });
+
   // RESONIK test builds: the audio of the last FT8/FT4 slot as a WAV file
   server.on("/ft8.wav", HTTP_GET, [] (AsyncWebServerRequest *request) {
     if(!webIsAuthenticated(request)) return request->requestAuthentication();
@@ -361,7 +403,8 @@ void webInit()
     auto le32 = [](uint8_t *p, uint32_t v) { p[0] = v; p[1] = v >> 8; p[2] = v >> 16; p[3] = v >> 24; };
     memcpy(hdr, "RIFF", 4); le32(hdr + 4, 36 + bytes); memcpy(hdr + 8, "WAVEfmt ", 8);
     le32(hdr + 16, 16); hdr[20] = 1; hdr[21] = 0; hdr[22] = 1; hdr[23] = 0;
-    le32(hdr + 24, ft8SampleRate()); le32(hdr + 28, ft8SampleRate() * 2);   // R5: 6 or 12 kHz hdr[32] = 2; hdr[33] = 0; hdr[34] = 16; hdr[35] = 0;
+    le32(hdr + 24, ft8SampleRate()); le32(hdr + 28, ft8SampleRate() * 2);   // R5: 6 or 12 kHz
+    hdr[32] = 2; hdr[33] = 0; hdr[34] = 16; hdr[35] = 0;
     memcpy(hdr + 36, "data", 4); le32(hdr + 40, bytes);
     AsyncWebServerResponse *response = request->beginResponse("audio/wav", 44 + bytes,
       [](uint8_t *buf, size_t maxLen, size_t index) -> size_t {

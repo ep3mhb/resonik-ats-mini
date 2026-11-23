@@ -16,6 +16,7 @@ void digiWebOpen(int a);            // R5: Web Control opens the page in a mode 
 bool digiWebTune(uint32_t hz);      // R5: a frequency typed in Web Control while the page is open
 int digiWebMode();                 // R5: mode being decoded (+ 256 x NAVTEX channel), -1 = page closed
 void digiWebText(uint32_t from, String &j);   // R5: the whole text from a character on
+bool digiCaptureGet(const int16_t **data, uint32_t *n, uint32_t *rate, char *info, size_t infoSize);   // R5: Save audio
 int digiNavCount();                // NAVTEX channels
 const char *digiNavName(int i);
 int digiModeCount();
