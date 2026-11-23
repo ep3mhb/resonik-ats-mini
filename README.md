@@ -10,18 +10,34 @@ An improved firmware for the **ATS Mini** pocket receiver (ESP32-S3 + SI4732): L
 It is built on the open-source [ats-mini](https://github.com/esp32-si4732/ats-mini) firmware and keeps everything it does,
 adding features for shortwave listeners and radio amateurs.
 
-> **Latest release: [v2.46-r4](https://github.com/ep3mhb/resonik-ats-mini/releases/latest)** (R4.1, 20 November 2026).
+> **Latest release: [v2.46-r5](https://github.com/ep3mhb/resonik-ats-mini/releases/latest)** (R5, 23 November 2026).
 
 Website, browser installer and manual: **<https://resonik.mikroutik.com>**
 
 What is coming in each release: [roadmap (PDF)](website/resonik-roadmap.pdf) · [نقشه‌ی راه فارسی (PDF)](website/resonik-roadmap-fa.pdf), source in `docs/roadmap/`.
 
-## What v2.46-r4 (R4.1) changes
+## What v2.46-r5 adds
+
+- **Digital page** (Menu → Ham & SWL → Digital): RTTY (amateur and DWD weather), NAVTEX on eleven channels, PSK31 and
+  WEFAX weather charts, decoded on the radio; the whole text is kept, to read back on the radio or save (needs the V4B board)
+- **Decodes tab in Web Control:** live waterfall, FT8/FT4 decodes with country and flag, a map of the stations heard,
+  DX alarm, Save log, the decoded text and weather charts, a NAVTEX timetable; start and tune the decoders from the browser
+- **Band View** (also in the browser) and **Auto-Store**; **Freq Entry**, a number pad for the frequency
+- **Setup wizard** at first start, **backup and restore** of all settings, a **Status page** that grades the radio's health,
+  a **new version notice**, and the battery as icon, volts or percent
+- **Decoder Audio:** 3 kHz fast or 6 kHz full
+- From ats-mini: **CAT TS-480 over USB, Wi-Fi and Bluetooth**, the antenna **Capacitor**, **Enc. Accel.** (knob speed-up),
+  Wi-Fi and Bluetooth power in dBm
+- The Scanner tile is now **Auto Scan**; every page of the radio's web portal has the same frame, with links to the site,
+  the manual and GitHub
+- Manuals: the R5 chapters and an appendix, **Learning the digital modes** (English and Persian PDF, web manual)
+
+## Also included (from v2.46-r4, R4.1)
 
 - Brought up to upstream ats-mini **v2.46**: mute and squelch now stay as they were across band and mode changes
 - **CW decoder page:** the sound no longer drops when the page opens; it plays at least at the FT8 page's level
 
-## What v2.45-r4 adds
+## And from v2.45-r4
 
 - **Web Control:** the whole radio in a browser on your phone or computer: frequency, S-meter, RDS, every setting,
   memories, bands and modes, a band scope (click a signal to tune), a live world map of the NCDXF/IARU beacons,
@@ -31,13 +47,13 @@ What is coming in each release: [roadmap (PDF)](website/resonik-roadmap.pdf) · 
 - The classic menu has the same six groups as the tile menu; faster band and mode changes; dark radio web pages
 - Beacons: Off or Names only; betas update to the release over Wi-Fi
 
-## Also included (from v2.45-r3)
+## And from v2.45-r3
 
 - FT8 and FT4 decoder on a full-screen page with waterfall; it decodes even without a clock, finding the slot timing from the stations heard (needs the V4B board, speaker line on GPIO11)
 - CW (Morse) decoder page, and a CW strip on the normal screen
-- Band scanner: the knob sets the direction; holds on signals, 5 s per station on AM and FM broadcasts
+- Band scanner (the Auto Scan tile): the knob sets the direction; holds on signals, 5 s per station on AM and FM broadcasts
 - Automatic band plan: mode, filter and step follow the segment you tune into; Plan Area All regions, Region 1, 2, 3, Iran or UAE
-- Frequency lock, Wi-Fi power (Normal, Low, Lowest) and processor speed (Battery, Balanced, Fast)
+- Frequency lock, Wi-Fi power (in dBm from v2.46-r5) and processor speed (Battery, Balanced, Fast)
 - Fixes: no freezes on slow networks after Wi-Fi connects, seek stays inside the band, smoother SSB tuning
 
 ## And from v2.45-r2
@@ -61,7 +77,7 @@ What is coming in each release: [roadmap (PDF)](website/resonik-roadmap.pdf) · 
 - Automatic attenuation when strong stations overload the receiver
 - The clock survives switching off: automatic time sync at power-on, with a web-time fallback for networks that block NTP
 
-Coming next: RTTY decoder, scan waterfall, status page, settings backup, setup wizard (see the roadmap).
+Coming next in R6: a propagation map, EiBi stations on the air now, SSTV pictures, the FT2 decoder and more (see the roadmap).
 
 ## Which file do I need?
 
@@ -79,7 +95,7 @@ The `lilygo-t-embed` variant is only for the LILYGO T-Embed SI4732.
 - **In the browser:** <https://resonik.mikroutik.com>, Install button (Chrome or Edge on a computer).
 - **From a RESONIK version:** Menu → System → Update FW (on r1: Settings → Update FW).
 - **From the official ats-mini firmware:** by USB, once; after that, Settings → Update FW works.
-- **By USB:** download `resonik-ats-mini-v2.45-r2-ospi.zip` (or `-qspi`) from the release, unzip, and flash with
+- **By USB:** download `resonik-ats-mini-v2.46-r5-ospi.zip` (or `-qspi`) from the release, unzip, and flash with
   esptool-js / esptool as described in the upstream [flashing guide](https://esp32-si4732.github.io/ats-mini/flash.html):
   `ats-mini.ino.bootloader.bin` at 0x0, `ats-mini.ino.partitions.bin` at 0x8000, `boot_app0.bin` at 0xe000 and
   `ats-mini.ino.bin` at 0x10000. Your settings are kept.
