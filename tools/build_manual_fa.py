@@ -5,9 +5,9 @@ Usage: build_manual_fa.py [out.pdf]   (default: website/manual/resonik-manual-fa
 
 The version comes from ats-mini/Common.h (VER_APP, VER_RESONIK) and the date
 from that version's section in CHANGELOG.md ("## 2.45-r2 (2026-11-08)"), so
-after a release only the text needs reviewing: update manual-fa.html for the
-new features (and the screenshots in docs/manual-fa/img if the screens
-changed), then run this script and rebuild the website.
+after a release only the text needs reviewing: translate the new sections of
+the English manual (docs/manual-en/manual-en.html, the source) into
+manual-fa.html, then run this script and rebuild the website.
 
 Needs Python Playwright with Chromium.
 """

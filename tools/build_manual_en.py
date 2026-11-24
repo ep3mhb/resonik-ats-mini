@@ -3,9 +3,9 @@
 
 Usage: build_manual_en.py [out.pdf]   (default: website/manual/resonik-manual-en.pdf)
 
-The English manual follows the Persian one chapter by chapter and uses its
-screenshots (docs/manual-fa/img). Update both at every release; the version
-and date come from Common.h and CHANGELOG.md as for the Persian manual.
+The English manual is the source: the Persian and Arabic manuals are
+translated from it, chapter by chapter. All three use the screenshots in
+docs/manual-fa/img; the version and date come from Common.h and CHANGELOG.md.
 """
 import sys
 import tempfile

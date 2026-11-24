@@ -30,7 +30,7 @@ What is coming in each release: [roadmap (PDF)](website/resonik-roadmap.pdf) · 
   Wi-Fi and Bluetooth power in dBm
 - The Scanner tile is now **Auto Scan**; every page of the radio's web portal has the same frame, with links to the site,
   the manual and GitHub
-- Manuals: the R5 chapters and an appendix, **Learning the digital modes** (English and Persian PDF, web manual)
+- Manuals: the R5 chapters and an appendix, **Learning the digital modes** (English, Persian and Arabic PDF, web manual)
 
 ## Also included (from v2.46-r4, R4.1)
 
