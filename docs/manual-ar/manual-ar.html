@@ -4,20 +4,27 @@
 <meta charset="utf-8">
 <title>دليل مستخدم RESONIK {{VERSION}}</title>
 <style>
-<style>
-@font-face { font-family: "Vazirmatn"; src: url("../../website/fonts/vazirmatn.woff2") format("woff2"); font-weight: 100 900; }
+/* Arabic text in Vazirmatn, Latin in Vazirmatn then Inter: the fonts of the CW Trainer Arabic manual */
+@font-face { font-family: "Vazirmatn"; src: url("fonts/vazirmatn-arabic-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; unicode-range: U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0897-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC,U+102E0-102FB,U+10E60-10E7E,U+10EC2-10EC4,U+10EFC-10EFF,U+1EE00-1EE03,U+1EE05-1EE1F,U+1EE21-1EE22,U+1EE24,U+1EE27,U+1EE29-1EE32,U+1EE34-1EE37,U+1EE39,U+1EE3B,U+1EE42,U+1EE47,U+1EE49,U+1EE4B,U+1EE4D-1EE4F,U+1EE51-1EE52,U+1EE54,U+1EE57,U+1EE59,U+1EE5B,U+1EE5D,U+1EE5F,U+1EE61-1EE62,U+1EE64,U+1EE67-1EE6A,U+1EE6C-1EE72,U+1EE74-1EE77,U+1EE79-1EE7C,U+1EE7E,U+1EE80-1EE89,U+1EE8B-1EE9B,U+1EEA1-1EEA3,U+1EEA5-1EEA9,U+1EEAB-1EEBB,U+1EEF0-1EEF1; }
+@font-face { font-family: "Vazirmatn"; src: url("fonts/vazirmatn-arabic-500-normal.woff2") format("woff2"); font-weight: 500; font-style: normal; unicode-range: U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0897-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC,U+102E0-102FB,U+10E60-10E7E,U+10EC2-10EC4,U+10EFC-10EFF,U+1EE00-1EE03,U+1EE05-1EE1F,U+1EE21-1EE22,U+1EE24,U+1EE27,U+1EE29-1EE32,U+1EE34-1EE37,U+1EE39,U+1EE3B,U+1EE42,U+1EE47,U+1EE49,U+1EE4B,U+1EE4D-1EE4F,U+1EE51-1EE52,U+1EE54,U+1EE57,U+1EE59,U+1EE5B,U+1EE5D,U+1EE5F,U+1EE61-1EE62,U+1EE64,U+1EE67-1EE6A,U+1EE6C-1EE72,U+1EE74-1EE77,U+1EE79-1EE7C,U+1EE7E,U+1EE80-1EE89,U+1EE8B-1EE9B,U+1EEA1-1EEA3,U+1EEA5-1EEA9,U+1EEAB-1EEBB,U+1EEF0-1EEF1; }
+@font-face { font-family: "Vazirmatn"; src: url("fonts/vazirmatn-arabic-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; unicode-range: U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0897-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC,U+102E0-102FB,U+10E60-10E7E,U+10EC2-10EC4,U+10EFC-10EFF,U+1EE00-1EE03,U+1EE05-1EE1F,U+1EE21-1EE22,U+1EE24,U+1EE27,U+1EE29-1EE32,U+1EE34-1EE37,U+1EE39,U+1EE3B,U+1EE42,U+1EE47,U+1EE49,U+1EE4B,U+1EE4D-1EE4F,U+1EE51-1EE52,U+1EE54,U+1EE57,U+1EE59,U+1EE5B,U+1EE5D,U+1EE5F,U+1EE61-1EE62,U+1EE64,U+1EE67-1EE6A,U+1EE6C-1EE72,U+1EE74-1EE77,U+1EE79-1EE7C,U+1EE7E,U+1EE80-1EE89,U+1EE8B-1EE9B,U+1EEA1-1EEA3,U+1EEA5-1EEA9,U+1EEAB-1EEBB,U+1EEF0-1EEF1; }
+@font-face { font-family: "Vazirmatn"; src: url("fonts/vazirmatn-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "Vazirmatn"; src: url("fonts/vazirmatn-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "Inter"; src: url("fonts/inter-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "Inter"; src: url("fonts/inter-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "Inter"; src: url("fonts/inter-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
 @font-face { font-family: "Sora"; src: url("../../website/fonts/sora.woff2") format("woff2"); font-weight: 100 800; }
 :root { --navy:#073A4B; --blue:#108AB1; --pink:#F04770; --coral:#F78C6A; --yellow:#FFD167; --green:#06D7A0; --ink:#1b1f23; --muted:#5b6670; --line:#d9dee2; --soft:#f3f6f7; }
 @page { size: A4; margin: 18mm 17mm 20mm 17mm; }
 @page :first { margin: 0; }
 * { box-sizing: border-box; }
-html { font-family: "Vazirmatn", sans-serif; color: var(--ink); font-size: 10.6pt; line-height: 1.8; }
+html { font-family: "Vazirmatn", "Inter", sans-serif; color: var(--ink); font-size: 10.6pt; line-height: 1.8; }
 bdi, .ltr { unicode-bidi: isolate; direction: ltr; }
 body { margin: 0; }
 
 .ui { font-weight: 700; color: var(--navy); white-space: nowrap; }
 h1, h2, h3 { color: var(--navy); line-height: 1.4; }
-h2 { font-size: 17pt; font-weight: 800; line-height: 1.6; margin: 0 0 3.4mm; padding-bottom: 1.4mm; border-bottom: 2.5px solid var(--navy); break-after: avoid; }
+h2 { font-size: 17pt; font-weight: 700; line-height: 1.6; margin: 0 0 3.4mm; padding-bottom: 1.4mm; border-bottom: 2.5px solid var(--navy); break-after: avoid; }
 h2 .num { color: var(--blue); margin-left: 3mm; }
 .tag { font-weight: 600; color: #fff; background: var(--pink); border-radius: 3px; padding: 0 1.5mm; vertical-align: middle; }
 .tag.r3 { background: #108AB1; }
@@ -32,7 +39,7 @@ p { margin: 0 0 2.6mm; }
 section.chapter { break-before: page; }
 section.chapter.cont { break-before: auto; margin-top: 9mm; }
 ul, ol { margin: 0 0 3mm; padding-right: 6mm; }
-ol { list-style-type: arabic-indic; }
+ol { list-style-type: decimal; }
 li { margin-bottom: 1mm; }
 table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 9.8pt; break-inside: avoid; }
 th { background: var(--navy); color: #fff; font-weight: 700; text-align: right; padding: 1.6mm 2.5mm; }
@@ -73,7 +80,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 .tip { background: #e6faf4; border-right: 4px solid var(--green); padding: 2.5mm 4mm; border-radius: 2mm; margin: 3mm 0 4mm; break-inside: avoid; }
 .steps { counter-reset: s; list-style: none; padding: 0; }
 .steps > li { counter-increment: s; position: relative; padding-right: 10mm; margin-bottom: 2.5mm; }
-.steps > li::before { content: counter(s, arabic-indic); position: absolute; right: 0; top: 0.3mm; width: 7mm; height: 7mm; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 700; text-align: center; line-height: 7mm; font-size: 9.5pt; }
+.steps > li::before { content: counter(s); position: absolute; right: 0; top: 0.3mm; width: 7mm; height: 7mm; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 700; text-align: center; line-height: 7mm; font-size: 9.5pt; }
 .keys { display: grid; grid-template-columns: 34mm 1fr; gap: 1.5mm 4mm; margin: 2mm 0 4mm; }
 .keys b { color: var(--navy); }
 /* Cover */
@@ -82,9 +89,9 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 .cover .brand { display: flex; align-items: center; gap: 5mm; direction: ltr; justify-content: flex-end; }
 .cover .brand img { width: 18mm; filter: brightness(0) invert(1); }
 .cover .brand span { font-family: "Sora", sans-serif; font-size: 26pt; font-weight: 800; letter-spacing: 2.5mm; }
-.cover h1 { color: #fff; font-size: 30pt; font-weight: 800; margin: 22mm 0 4mm; line-height: 1.35; }
+.cover h1 { color: #fff; font-size: 30pt; font-weight: 700; margin: 22mm 0 4mm; line-height: 1.35; }
 .cover .sub { font-size: 14pt; color: #cfe6ee; margin: 0 0 10mm; }
-.cover .ver { display: inline-block; background: var(--yellow); color: var(--navy); font-weight: 800; border-radius: 2mm; padding: 1mm 4mm; font-size: 12pt; }
+.cover .ver { display: inline-block; background: var(--yellow); color: var(--navy); font-weight: 700; border-radius: 2mm; padding: 1mm 4mm; font-size: 12pt; }
 .cover .date { color: #cfe6ee; margin-right: 4mm; font-size: 11pt; }
 .cover .photo { position: absolute; left: 0; right: 0; bottom: 52mm; padding: 0 20mm; }
 .cover .photo img { width: 100%; border-radius: 4mm; box-shadow: 0 4mm 10mm rgba(0,0,0,.35); }
@@ -104,7 +111,6 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 .toc small.r5 { color: #0A8F6B; }
 .small { font-size: 9pt; color: var(--muted); }
 .ui { white-space: normal; }
-</style>
 </style>
 </head>
 <body>
@@ -129,36 +135,36 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 <section class="chapter">
   <h2>المحتويات</h2>
   <ol class="toc">
-    <li><span class="n">١</span>حول <bdi>RESONIK</bdi></li>
-    <li><span class="n">٢</span>التثبيت والتحديث</li>
-    <li><span class="n">٣</span>أدوات التحكم والشاشة الرئيسية</li>
-    <li><span class="n">٤</span>القائمة<small>R2</small></li>
-    <li><span class="n">٥</span>نمط <bdi>CW</bdi></li>
-    <li><span class="n">٦</span>خطة النطاقات</li>
-    <li><span class="n">٧</span>الساعة والمنطقة الزمنية والساعة المزدوجة</li>
-    <li><span class="n">٨</span>الوقت المتبقي للبطارية</li>
-    <li><span class="n">٩</span>التوهين التلقائي</li>
-    <li><span class="n">١٠</span>المنارات اللاسلكية<small>R2</small></li>
-    <li><span class="n">١١</span>مسح الذاكرة<small>R2</small></li>
-    <li><span class="n">١٢</span>مسجّل الإشارات<small>R2</small></li>
-    <li><span class="n">١٣</span>انتشار الموجات<small>R2</small></li>
-    <li><span class="n">١٤</span>جداول البث <bdi>EiBi</bdi><small>R2</small></li>
-    <li><span class="n">١٥</span>التحكم <bdi>CAT</bdi> من الحاسوب<small>R2</small></li>
-    <li><span class="n">١٦</span>مفكّك ترميز <bdi>FT8</bdi> و<bdi>FT4</bdi><small class="r3">R3</small></li>
-    <li><span class="n">١٧</span>مفكّك ترميز <bdi>CW</bdi><small class="r3">R3</small></li>
-    <li><span class="n">١٨</span><bdi>Scan</bdi> و<bdi>Auto Scan</bdi> و<bdi>Seek</bdi><small class="r3">R3</small></li>
-    <li><span class="n">١٩</span>قفل التردد وسرعة المعالج<small class="r3">R3</small></li>
-    <li><span class="n">٢٠</span><bdi>Wi-Fi</bdi> وصفحات الويب في الراديو<small class="r4">R4</small></li>
-    <li><span class="n">٢١</span>التحكم عبر المتصفح<small class="r4">R4</small></li>
-    <li><span class="n">٢٢</span>الإعداد عند التشغيل الأول<small class="r5">R5</small></li>
-    <li><span class="n">٢٣</span><bdi>Freq Entry</bdi> و<bdi>Band View</bdi> و<bdi>Auto-Store</bdi><small class="r5">R5</small></li>
-    <li><span class="n">٢٤</span><bdi>RTTY</bdi> و<bdi>NAVTEX</bdi> و<bdi>PSK31</bdi> و<bdi>WEFAX</bdi><small class="r5">R5</small></li>
-    <li><span class="n">٢٥</span>الرسائل المفكوكة في المتصفح<small class="r5">R5</small></li>
-    <li><span class="n">٢٦</span>إشارات لتجربة مفكّكات الترميز<small class="r5">R5</small></li>
-    <li><span class="n">٢٧</span>إشعار الإصدار الجديد والنسخة الاحتياطية وصفحة <bdi>Status</bdi><small class="r5">R5</small></li>
-    <li><span class="n">٢٨</span>الملاحظات وحل المشكلات</li>
+    <li><span class="n">1</span>حول <bdi>RESONIK</bdi></li>
+    <li><span class="n">2</span>التثبيت والتحديث</li>
+    <li><span class="n">3</span>أدوات التحكم والشاشة الرئيسية</li>
+    <li><span class="n">4</span>القائمة<small>R2</small></li>
+    <li><span class="n">5</span>نمط <bdi>CW</bdi></li>
+    <li><span class="n">6</span>خطة النطاقات</li>
+    <li><span class="n">7</span>الساعة والمنطقة الزمنية والساعة المزدوجة</li>
+    <li><span class="n">8</span>الوقت المتبقي للبطارية</li>
+    <li><span class="n">9</span>التوهين التلقائي</li>
+    <li><span class="n">10</span>المنارات اللاسلكية<small>R2</small></li>
+    <li><span class="n">11</span>مسح الذاكرة<small>R2</small></li>
+    <li><span class="n">12</span>مسجّل الإشارات<small>R2</small></li>
+    <li><span class="n">13</span>انتشار الموجات<small>R2</small></li>
+    <li><span class="n">14</span>جداول البث <bdi>EiBi</bdi><small>R2</small></li>
+    <li><span class="n">15</span>التحكم <bdi>CAT</bdi> من الحاسوب<small>R2</small></li>
+    <li><span class="n">16</span>مفكّك ترميز <bdi>FT8</bdi> و<bdi>FT4</bdi><small class="r3">R3</small></li>
+    <li><span class="n">17</span>مفكّك ترميز <bdi>CW</bdi><small class="r3">R3</small></li>
+    <li><span class="n">18</span><bdi>Scan</bdi> و<bdi>Auto Scan</bdi> و<bdi>Seek</bdi><small class="r3">R3</small></li>
+    <li><span class="n">19</span>قفل التردد وسرعة المعالج<small class="r3">R3</small></li>
+    <li><span class="n">20</span><bdi>Wi-Fi</bdi> وصفحات الويب في الراديو<small class="r4">R4</small></li>
+    <li><span class="n">21</span>التحكم عبر المتصفح<small class="r4">R4</small></li>
+    <li><span class="n">22</span>الإعداد عند التشغيل الأول<small class="r5">R5</small></li>
+    <li><span class="n">23</span><bdi>Freq Entry</bdi> و<bdi>Band View</bdi> و<bdi>Auto-Store</bdi><small class="r5">R5</small></li>
+    <li><span class="n">24</span><bdi>RTTY</bdi> و<bdi>NAVTEX</bdi> و<bdi>PSK31</bdi> و<bdi>WEFAX</bdi><small class="r5">R5</small></li>
+    <li><span class="n">25</span>الرسائل المفكوكة في المتصفح<small class="r5">R5</small></li>
+    <li><span class="n">26</span>إشارات لتجربة مفكّكات الترميز<small class="r5">R5</small></li>
+    <li><span class="n">27</span>إشعار الإصدار الجديد والنسخة الاحتياطية وصفحة <bdi>Status</bdi><small class="r5">R5</small></li>
+    <li><span class="n">28</span>الملاحظات وحل المشكلات</li>
     <li><span class="n">أ</span>تعلّم الأنماط الرقمية<small class="r5">R5</small></li>
-    <li><span class="n">٢٩</span>المساهمون والترخيص</li>
+    <li><span class="n">29</span>المساهمون والترخيص</li>
   </ol>
   <div class="note">كُتب هذا الدليل للبرنامج الثابت <bdi>{{VERSION}}</bdi> ويُحدَّث مع كل إصدار. أحدث نسخة منه موجودة دائمًا في <bdi>resonik.mikroutik.com</bdi>. يظهر إصدار البرنامج الثابت في راديوك في <span class="ui"><bdi>Menu</bdi> ← <bdi>System</bdi> ← <bdi>About</bdi></span>.</div>
   <p class="small">الأقسام المعلّمة بـ <b style="color:var(--pink)">R2</b> متاحة منذ <bdi>v2.45-r2</bdi>، و<b style="color:#108AB1">R3</b> منذ <bdi>v2.45-r3</bdi>، و<b style="color:#C77700">R4</b> منذ <bdi>v2.45-r4</bdi>، و<b style="color:#0A8F6B">R5</b> منذ <bdi>v2.46-r5</bdi>. تُكتب بنود القائمة كما تظهر على شاشة الراديو.</p>
@@ -166,7 +172,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 
 <!-- 1 -->
 <section class="chapter">
-  <h2><span class="num">١</span>حول <bdi>RESONIK</bdi></h2>
+  <h2><span class="num">1</span>حول <bdi>RESONIK</bdi></h2>
   <p><bdi>RESONIK</bdi> برنامج ثابت مجاني ومفتوح المصدر لجهاز الاستقبال الجيبي <bdi>ATS Mini</bdi> (معالج <bdi>ESP32-S3</bdi> وشريحة الاستقبال <bdi>SI4732</bdi>). بُني على البرنامج الثابت الرسمي مفتوح المصدر <bdi>ats-mini</bdi>، الإصدار <bdi>2.45</bdi>، ويحتفظ بكل ما يقدّمه، ويضيف ميزات لمستمعي الموجات القصيرة وهواة الراديو.</p>
   <ul>
     <li>نمط <bdi>CW</bdi> يعرض التردد الحقيقي للإشارة، مع مرشّح ضيّق وخطوات <bdi>10&nbsp;Hz</bdi></li>
@@ -175,7 +181,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
     <li>الوقت المتبقي للبطارية، وتوهين تلقائي للإشارات القوية جدًا</li>
     <li>قائمة جديدة بست مجموعات وصفحات إعداد تملأ الشاشة <small>(R2)</small></li>
     <li>متتبّع المنارات، ومسح الذاكرة، ومسجّل الإشارات، وبيانات انتشار الموجات، وجداول <bdi>EiBi</bdi> مع الأيام، والتحكم <bdi>CAT</bdi> <small>(R2)</small></li>
-    <li>مفكّكا ترميز <bdi>FT8/FT4</bdi> و<bdi>CW</bdi>، وماسح النطاق (<bdi>Auto Scan</bdi>)، وخطة نطاقات تلقائية للأقاليم ١ و٢ و٣، وقفل التردد وسرعة المعالج <small>(R3)</small></li>
+    <li>مفكّكا ترميز <bdi>FT8/FT4</bdi> و<bdi>CW</bdi>، وماسح النطاق (<bdi>Auto Scan</bdi>)، وخطة نطاقات تلقائية للأقاليم 1 و2 و3، وقفل التردد وسرعة المعالج <small>(R3)</small></li>
     <li>التحكم عبر المتصفح: الراديو كله في متصفح على الهاتف أو الحاسوب، مع راسم للنطاق وخريطة حيّة للمنارات؛ وإعداد <bdi>Wi-Fi</bdi> على الراديو نفسه؛ والبحث (<bdi>Seek</bdi>) في <bdi>SSB</bdi> و<bdi>CW</bdi> <small>(R4)</small></li>
   </ul>
   <p>تعمل النطاقات والأنماط والذاكرات و<bdi>RDS</bdi> و<bdi>Wi-Fi</bdi> و<bdi>Bluetooth</bdi> كما في البرنامج الثابت الرسمي. الدليل الكامل للبرنامج الثابت الرسمي: <bdi>esp32-si4732.github.io/ats-mini/manual.html</bdi></p>
@@ -183,7 +189,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 
 <!-- 2 -->
 <section class="chapter">
-  <h2><span class="num">٢</span>التثبيت والتحديث</h2>
+  <h2><span class="num">2</span>التثبيت والتحديث</h2>
   <div class="note">احفظ نسخة احتياطية من راديوك قبل التثبيت (انظر <bdi>Backup</bdi> في موقع <bdi>ats-mini</bdi>). يمكنك دائمًا العودة إلى البرنامج الثابت الرسمي عبر <bdi>USB</bdi>.</div>
   <h3>التثبيت من المتصفح (المرة الأولى)</h3>
   <ol class="steps">
@@ -194,7 +200,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
     <li><b>لا</b> تضع علامة على <b><bdi>Erase device</bdi></b>، كي تبقى إعداداتك وذاكراتك، ثم اضغط <b><bdi>Install</bdi></b>. يستغرق ذلك نحو دقيقتين، ويعيد الراديو تشغيل نفسه.</li>
   </ol>
   <h3>التحديث عبر <bdi>Wi-Fi</bdi> (الإصدارات اللاحقة)</h3>
-  <p>بعد أن يصبح <bdi>RESONIK</bdi> على الراديو، ثبّت الإصدارات الجديدة دون كابل: صِل الراديو بشبكة <bdi>Wi-Fi</bdi> (القسم ٢٠)، ثم <span class="ui"><bdi>Menu</bdi> ← <bdi>System</bdi> ← <bdi>Update FW</bdi></span>. يبحث <b><bdi>Check</bdi></b> عن إصدار جديد، ويثبّته <b><bdi>Update</bdi></b>. وتبقى الإعدادات كما هي. وفي <bdi>R1</bdi> يكون البند نفسه <span class="ui"><bdi>Settings</bdi> ← <bdi>Update FW</bdi></span>.</p>
+  <p>بعد أن يصبح <bdi>RESONIK</bdi> على الراديو، ثبّت الإصدارات الجديدة دون كابل: صِل الراديو بشبكة <bdi>Wi-Fi</bdi> (القسم 20)، ثم <span class="ui"><bdi>Menu</bdi> ← <bdi>System</bdi> ← <bdi>Update FW</bdi></span>. يبحث <b><bdi>Check</bdi></b> عن إصدار جديد، ويثبّته <b><bdi>Update</bdi></b>. وتبقى الإعدادات كما هي. وفي <bdi>R1</bdi> يكون البند نفسه <span class="ui"><bdi>Settings</bdi> ← <bdi>Update FW</bdi></span>.</p>
   <h3>التثبيت يدويًا</h3>
   <p>نزّل <b><bdi>resonik-ats-mini-{{VERSION}}-ospi.zip</bdi></b> (أو <bdi>-qspi</bdi>) من <bdi>Releases</bdi> على <bdi>GitHub</bdi> واكتب هذه الملفات بأداة <bdi>esptool</bdi>: <b><bdi>ats-mini.ino.bootloader.bin</bdi></b> عند <bdi>0x0</bdi>، و<b><bdi>ats-mini.ino.partitions.bin</bdi></b> عند <bdi>0x8000</bdi>، و<b><bdi>boot_app0.bin</bdi></b> عند <bdi>0xe000</bdi>، و<b><bdi>ats-mini.ino.bin</bdi></b> عند <bdi>0x10000</bdi>.</p>
   <p class="small">صفحة المشروع: <bdi>github.com/ep3mhb/resonik-ats-mini</bdi></p>
@@ -202,7 +208,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 
 <!-- 3 -->
 <section class="chapter">
-  <h2><span class="num">٣</span>أدوات التحكم والشاشة الرئيسية</h2>
+  <h2><span class="num">3</span>أدوات التحكم والشاشة الرئيسية</h2>
   <p>كل شيء يتم بمقبض واحد (المُرمِّز الدوّار) تديره وتضغطه:</p>
   <div class="keys">
     <b>التدوير</b><span>توليف التردد؛ وفي القائمة، التنقّل بين البنود وتغيير القيم</span>
@@ -214,17 +220,17 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
   <table>
     <tr><th style="width:32%">جزء الشاشة</th><th>المعنى</th></tr>
     <tr><td>أعلى اليسار</td><td>شدة الإشارة</td></tr>
-    <tr><td>أعلى اليمين</td><td>البطارية: الجهد، بالتناوب مع الوقت المتبقي (القسم ٨)، أو رمز الشحن</td></tr>
+    <tr><td>أعلى اليمين</td><td>البطارية: الجهد، بالتناوب مع الوقت المتبقي (القسم 8)، أو رمز الشحن</td></tr>
     <tr><td>مربع المعلومات (يسارًا)</td><td><bdi>Step</bdi>، و<bdi>BW</bdi> (المرشّح)، و<bdi>AGC</bdi> (التحكم في الكسب أو التوهين)، و<bdi>Vol</bdi>، و<bdi>AVC</bdi>، والتاريخ والوقت في الأسفل</td></tr>
     <tr><td>الوسط</td><td>اسم النطاق، والنمط (مثل <bdi>AM</bdi>)، والتردد</td></tr>
-    <tr><td>الأسفل</td><td>مقياس التوليف مع المؤشر الأحمر؛ وعلى نطاقات الهواة، شريط خطة النطاقات الملوّن (القسم ٦)</td></tr>
+    <tr><td>الأسفل</td><td>مقياس التوليف مع المؤشر الأحمر؛ وعلى نطاقات الهواة، شريط خطة النطاقات الملوّن (القسم 6)</td></tr>
   </table>
   <p>لتغيير النطاق: نقرة ← <span class="ui"><bdi>Tuning</bdi> ← <bdi>Band</bdi></span>، أدِر حتى النطاق المطلوب وانقر. تُغلق القائمة ويعود المقبض إلى التوليف مباشرة.</p>
 </section>
 
 <!-- 4 -->
 <section class="chapter">
-  <h2><span class="num">٤</span>القائمة<span class="tag">R2</span></h2>
+  <h2><span class="num">4</span>القائمة<span class="tag">R2</span></h2>
   <p>تفتح النقرة القائمة بست مجموعات، كلّ منها زر كبير ملوّن بأيقونة. أدِر المقبض للتنقّل وانقر لفتح مجموعة. أول زر في كل مجموعة هو <b><bdi>Back</bdi></b>. والمجموعة التي فيها أكثر من خمسة بنود لها صفحة ثانية؛ وتُظهر النقاط في الأسفل الصفحة التي أنت فيها. وتُغلق الضغطة القصيرة القائمة من أي مكان.</p>
   <div class="pair">
     <figure><img class="screen" src="../manual-fa/img/screen-menu.png" alt=""><figcaption>مجموعات القائمة الست</figcaption></figure>
@@ -246,13 +252,13 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
     <figure><img class="screen" src="../manual-fa/img/screen-value-number.png" alt=""><figcaption>صفحة رقم: <bdi>Brightness</bdi></figcaption></figure>
   </div>
   <h3>نوع المقبض: <bdi>System</bdi> ← <bdi>Knob</bdi></h3>
-  <p>تُركّب في هذه الأجهزة مقابض من نوعين: <b>٢٠ نقرة</b> أو <b>٣٠ نقرة</b> في الدورة. إذا قفز المقبض خطوة، أو احتاج إلى نقرتين لخطوة واحدة، فاختر القيمة الأخرى. (في صفحة الويب للراديو يُسمّى الإعداد نفسه <bdi>Half-step Encoder</bdi>.)</p>
+  <p>تُركّب في هذه الأجهزة مقابض من نوعين: <b>20 نقرة</b> أو <b>30 نقرة</b> في الدورة. إذا قفز المقبض خطوة، أو احتاج إلى نقرتين لخطوة واحدة، فاختر القيمة الأخرى. (في صفحة الويب للراديو يُسمّى الإعداد نفسه <bdi>Half-step Encoder</bdi>.)</p>
   <figure><img class="screen" src="../manual-fa/img/screen-knob.png" alt=""><figcaption>صفحة <bdi>Knob</bdi></figcaption></figure>
   <h3>تسريع المقبض: <bdi>System</bdi> ← <bdi>Enc. Accel.</bdi><span class="tag r5" style="font-size:8pt">R5</span></h3>
   <p>يستطيع المقبض أن يحسب الدوران السريع أكثر من خطوة لكل نقرة، فتعبر النطاق بحركة سريعة من المعصم ثم تتوقف بدقة بالنقرات البطيئة. ويشغّل <b><bdi>Enc. Accel.</bdi></b> (تسريع المُرمِّز) هذه الميزة أو يوقفها.</p>
   <table>
     <tr><th style="width:24%">الإعداد</th><th>ما يفعله المقبض</th></tr>
-    <tr><td><b><bdi>On</bdi></b> (الافتراضي)</td><td>عند التدوير البطيء: خطوة لكل نقرة. وعند التدوير الأسرع: تُحسب كل نقرة ٢ ثم ٤ ثم ٨، وبأقصى سرعة ١٦ خطوة. أبطئ فتعود خطوة لكل نقرة.</td></tr>
+    <tr><td><b><bdi>On</bdi></b> (الافتراضي)</td><td>عند التدوير البطيء: خطوة لكل نقرة. وعند التدوير الأسرع: تُحسب كل نقرة 2 ثم 4 ثم 8، وبأقصى سرعة 16 خطوة. أبطئ فتعود خطوة لكل نقرة.</td></tr>
     <tr><td><b><bdi>Off</bdi></b></td><td>دائمًا خطوة لكل نقرة، مهما كانت سرعة التدوير.</td></tr>
   </table>
   <p>الخطوة هي ما تديره في تلك اللحظة: خطوة التوليف في الشاشة الرئيسية (<bdi>1&nbsp;kHz</bdi> مثلًا)، أو وحدة واحدة من <bdi>Volume</bdi> أو <bdi>Brightness</bdi> أو <bdi>Squelch</bdi> أو <bdi>Calibration</bdi> أو <bdi>Sleep Timer</bdi> أو <bdi>Off Timer</bdi>، أو سطر واحد في قائمة <bdi>Memory</bdi>. أما قوائم الخيارات والقائمة نفسها فتتحرك دائمًا بندًا واحدًا لكل نقرة.</p>
@@ -291,12 +297,12 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
   </div>
   <h3>القائمة الكلاسيكية<span class="tag r4" style="font-size:8pt">R4</span></h3>
   <p><span class="ui"><bdi>Menu</bdi> ← <bdi>Display</bdi> ← <bdi>Menu Style</bdi> ← <bdi>Classic</bdi></span> تعيد القائمة الصغيرة للبرنامج الثابت الرسمي، في زاوية الشاشة. ومنذ <bdi>R4</bdi> فيها المجموعات الست نفسها التي في الجدول أعلاه: اختر مجموعة وانقر؛ وأول سطر في كل مجموعة هو <b><bdi>&lt; Back</bdi></b>، ويحمل عنوان المربع اسم المجموعة. وبعد تغيير إعداد تعود القائمة إلى مجموعتها. ويعيد <b><bdi>Tiles</bdi></b> قائمة المربعات.</p>
-  <div class="tip">ثلاثة بنود في <bdi>Tuning</bdi> تبحث عن المحطات، كلّ بطريقته: <b><bdi>Scan</bdi></b> و<b><bdi>Auto Scan</bdi></b> و<b><bdi>Seek</bdi></b>. ويضعها القسم ١٨ جنبًا إلى جنب.</div>
+  <div class="tip">ثلاثة بنود في <bdi>Tuning</bdi> تبحث عن المحطات، كلّ بطريقته: <b><bdi>Scan</bdi></b> و<b><bdi>Auto Scan</bdi></b> و<b><bdi>Seek</bdi></b>. ويضعها القسم 18 جنبًا إلى جنب.</div>
 </section>
 
 <!-- 5 -->
 <section class="chapter">
-  <h2><span class="num">٥</span>نمط <bdi>CW</bdi></h2>
+  <h2><span class="num">5</span>نمط <bdi>CW</bdi></h2>
   <p><span class="ui"><bdi>Menu</bdi> ← <bdi>Tuning</bdi> ← <bdi>Mode</bdi> ← <bdi>CW</bdi></span> (بعد <bdi>AM</bdi>). تعرض الشاشة تردد إشارة <bdi>CW</bdi> نفسها، كما يفعل جهاز إرسال واستقبال <bdi>CW</bdi>: والِف حتى يطابق التردد التردد المعلَن وتستقرّ النغمة في منتصف المرشّح.</p>
   <table>
     <tr><th>المرشّح</th><th>النغمة</th><th>الاستعمال</th></tr>
@@ -309,7 +315,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 
 <!-- 6 -->
 <section class="chapter cont">
-  <h2><span class="num">٦</span>خطة النطاقات</h2>
+  <h2><span class="num">6</span>خطة النطاقات</h2>
   <p>على نطاقات الهواة من <bdi>160</bdi> إلى <bdi>10&nbsp;m</bdi>، يُظهر شريط ملوّن تحت المقياس خطة نطاقات الإقليم الأول لـ <bdi>IARU</bdi>، ويظهر اسم المقطع الذي أنت فيه بجانب المؤشر.</p>
   <div class="pair">
     <figure><img class="screen" src="../manual-fa/img/screen-40m.png" alt=""><figcaption><bdi>40&nbsp;m</bdi>، مقطع <bdi>SSB</bdi></figcaption></figure>
@@ -349,7 +355,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 
 <!-- 7 -->
 <section class="chapter">
-  <h2><span class="num">٧</span>الساعة والمنطقة الزمنية والساعة المزدوجة</h2>
+  <h2><span class="num">7</span>الساعة والمنطقة الزمنية والساعة المزدوجة</h2>
   <p>يعرض <span class="ui"><bdi>Menu</bdi> ← <bdi>System</bdi> ← <bdi>Time Zone</bdi></span> التوقيت <bdi>UTC</bdi> أولًا، ثم كل فارق توقيت، مع أسماء المدن بجانبه: مثل دبي ومسقط بجانب <bdi>UTC+4</bdi>. وتتغيّر المدن التي فيها توقيت صيفي تلقائيًا.</p>
   <figure><img class="screen" src="../manual-fa/img/screen-timezone.png" alt=""><figcaption>صفحة <bdi>Time Zone</bdi></figcaption></figure>
   <p>عندما لا تكون المنطقة الزمنية <bdi>UTC</bdi>، يتناوب سطر الساعة في مربع المعلومات كل بضع ثوانٍ بين التاريخ والوقت المحليين و<bdi>UTC</bdi>. و<bdi>UTC</bdi> هو الوقت الذي تستعمله جداول المحطات ومسجّل الإشارات وجدول المنارات. وتعني <b><bdi>Time: --:--</bdi></b> أن الساعة لم تُضبط بعد.</p>
@@ -357,7 +363,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
   <h3>ضبط الساعة تلقائيًا</h3>
   <p>ليس في الراديو بطارية للساعة، فيضيع الوقت عند إطفائه. لضبطه تلقائيًا عند كل تشغيل:</p>
   <ol class="steps">
-    <li>أضف شبكة <bdi>Wi-Fi</bdi> الخاصة بك إلى الراديو (القسم ٢٠).</li>
+    <li>أضف شبكة <bdi>Wi-Fi</bdi> الخاصة بك إلى الراديو (القسم 20).</li>
     <li>اختر <span class="ui"><bdi>Menu</bdi> ← <bdi>System</bdi> ← <bdi>Wi-Fi</bdi> ← <bdi>Mode</bdi> ← <bdi>Sync Only</bdi></span>. يتصل الراديو ويضبط الساعة ثم يطفئ <bdi>Wi-Fi</bdi> توفيرًا للبطارية. (ونمط <bdi>Connect</bdi> يضبط الساعة أيضًا ويبقى متصلًا.)</li>
   </ol>
   <p>الرسائل: <b><bdi>Time synchronized</bdi></b> (خادم الوقت على الإنترنت)، أو <b><bdi>Time set from web</bdi></b> (الشبكة تحجب خوادم الوقت، فقُرئ الوقت من خادم ويب)، أو <b><bdi>Time sync failed</bdi></b> مع سطر ثانٍ يذكر السبب. ودون <bdi>Wi-Fi</bdi> تضبط الساعةَ أيضًا محطةُ <bdi>FM</bdi> ترسل وقت <bdi>RDS</bdi>؛ أو في صفحة الويب للراديو، ينسخ <b><bdi>Use Browser Date/Time</bdi></b> الوقتَ والمنطقة الزمنية من هاتفك أو حاسوبك.</p>
@@ -365,50 +371,50 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 
 <!-- 8, 9 -->
 <section class="chapter">
-  <h2><span class="num">٨</span>الوقت المتبقي للبطارية</h2>
+  <h2><span class="num">8</span>الوقت المتبقي للبطارية</h2>
   <p>على البطارية، يتناوب الجهد في الأعلى مع تقدير لوقت الاستماع المتبقي، مثل <b><bdi>~8h20</bdi></b> (ثماني ساعات وعشرون دقيقة). وتعني <b><bdi>~</bdi></b> أنه يُفترض استهلاك نموذجي؛ وبعد نحو عشر دقائق يستعمل الراديو الاستهلاك الذي قاسه بنفسه وتختفي <bdi>~</bdi>. ويغيّر سطوعُ الشاشة ومستوى الصوت و<bdi>Wi-Fi</bdi> كلّها النتيجة. وعند الشحن عبر <bdi>USB</bdi> يظهر رمز الشحن.</p>
   <p><span class="tag r5" style="font-size:8pt;margin:0 0 0 2mm">R5</span>يختار <span class="ui"><bdi>Menu</bdi> ← <bdi>Display</bdi> ← <bdi>Battery</bdi></span> ما يظهر بجانب أيقونة البطارية: <b><bdi>Volts + time</bdi></b> (كما سبق)، أو <b><bdi>Volts</bdi></b>، أو <b><bdi>Percent</bdi></b>، أو <b><bdi>Icon only</bdi></b>.</p>
 </section>
 <section class="chapter cont">
-  <h2><span class="num">٩</span>التوهين التلقائي</h2>
+  <h2><span class="num">9</span>التوهين التلقائي</h2>
   <p>في <bdi>AM</bdi>، ومع ضبط <span class="ui"><bdi>Menu</bdi> ← <bdi>Audio</bdi> ← <bdi>AGC/ATTN</bdi></span> على <bdi>On</bdi>، قد تُثقل إشارةٌ قوية جدًا (محطة موجات متوسطة محلية، أو مرسل كبير ليلًا) جهازَ الاستقبال وتسبّب صوتًا مشوّهًا ومحطات غير مرغوبة. فيضيف الراديو عندئذٍ توهينًا خطوةً خطوة، ويزيله مجددًا على المحطات الأضعف. وأثناء عمله يُظهر مربع المعلومات <b><bdi>Att: A12</bdi></b> (<bdi>A</bdi> تعني تلقائي). لإيقافه: <span class="ui"><bdi>Menu</bdi> ← <bdi>Audio</bdi> ← <bdi>Auto Att.</bdi></span>؛ والضبط اليدوي لـ <bdi>AGC/ATTN</bdi> له الأولوية دائمًا.</p>
 </section>
 
 <!-- 10 -->
 <section class="chapter cont">
-  <h2><span class="num">١٠</span>المنارات اللاسلكية<span class="tag">R2</span></h2>
+  <h2><span class="num">10</span>المنارات اللاسلكية<span class="tag">R2</span></h2>
   <p>تتناوب المنارات الثماني عشرة لمشروع <bdi>NCDXF/IARU</bdi> الدولي على <bdi>14100</bdi> و<bdi>18110</bdi> و<bdi>21150</bdi> و<bdi>24930</bdi> و<bdi>28200&nbsp;kHz</bdi>، عشر ثوانٍ لكلٍّ منها، وتتكرّر كل ثلاث دقائق. ترسل كل منارة إشارة ندائها بـ <bdi>CW</bdi> ثم أربع شرطات بقدرة <bdi>100&nbsp;W</bdi> و<bdi>10&nbsp;W</bdi> و<bdi>1&nbsp;W</bdi> و<bdi>0.1&nbsp;W</bdi>؛ وعدد الشرطات التي تسمعها يدلّك على جودة المسار.</p>
   <figure><img class="screen" src="../manual-fa/img/screen-beacon.png" alt=""><figcaption>على <bdi>14100</bdi>: المنارة التي تبثّ والثواني المتبقية</figcaption></figure>
   <p>على أحد هذه الترددات الخمسة (<bdi>CW</bdi> أو <bdi>USB</bdi>)، يُظهر سطر المحطة المنارةَ التي تبثّ والثواني المتبقية، مثل <b><bdi>Beacon 4S7B Sri Lanka 6s</bdi></b>. ويجب أن تكون ساعة الراديو مضبوطة.</p>
   <p>يجعل <span class="ui"><bdi>Menu</bdi> ← <bdi>Ham &amp; SWL</bdi> ← <bdi>Beacons</bdi></span> مع إشارة نداء الراديوَ <b>يتبع</b> تلك المنارة: كل عشر ثوانٍ يغيّر النطاق مع المنارة، من <bdi>20&nbsp;m</bdi> إلى <bdi>10&nbsp;m</bdi>، وينتظر وهي صامتة. والتوليف يدويًا ينهي المتابعة.</p>
-  <p><span class="tag r5" style="font-size:8pt;margin:0 0 0 2mm">R5</span>تبثّ المنارة ٥٠ ثانية من كل ثلاث دقائق. وأثناء صمتها ينتظر الراديو على <bdi>14.100&nbsp;MHz</bdi> في <bdi>CW</bdi>، حيث تبدأ دورتها التالية، ويذهب إلى هناك فور بدء المتابعة، فترى على الفور أنها بدأت. والتوليف يدويًا، أو نطاق آخر، أو <bdi>FM</bdi> ينهي المتابعة حيث أنت. أما <b><bdi>Off</bdi></b> أو <b><bdi>Names only</bdi></b> في القائمة، أو <b><bdi>Stop</bdi></b> في التحكم عبر المتصفح، فينهيها ويعيد الراديو إلى النطاق والتردد والنمط التي كان عليها من قبل. وفي التحكم عبر المتصفح، في أعلى تبويب <bdi>Beacons</bdi> يوجد <b><bdi>Follow a beacon</bdi></b>: اختر المنارة، واضغط <b><bdi>Start</bdi></b>، و<b><bdi>Stop</bdi></b> لإنهائها؛ ويقول السطر بجانب الأزرار ما الذي يُتابَع، ولماذا لم تبدأ المتابعة أو انتهت (الساعة غير مضبوطة، أو ابتعدتَ بالتوليف).</p>
-  <p><span class="tag r4" style="font-size:8pt;margin:0 0 0 2mm">R4</span>أول خيارين في القائمة: <b><bdi>Off</bdi></b> يخفي أيضًا أسماء المنارات، و<b><bdi>Names only</bdi></b> يسمّي المنارة التي تبثّ على هذه الترددات الخمسة دون متابعة أيٍّ منها. ويبقى الاختيار محفوظًا بعد إعادة التشغيل. وخريطة عالمية حيّة للمنارات موجودة في صفحة التحكم عبر المتصفح (القسم ٢١).</p>
+  <p><span class="tag r5" style="font-size:8pt;margin:0 0 0 2mm">R5</span>تبثّ المنارة 50 ثانية من كل ثلاث دقائق. وأثناء صمتها ينتظر الراديو على <bdi>14.100&nbsp;MHz</bdi> في <bdi>CW</bdi>، حيث تبدأ دورتها التالية، ويذهب إلى هناك فور بدء المتابعة، فترى على الفور أنها بدأت. والتوليف يدويًا، أو نطاق آخر، أو <bdi>FM</bdi> ينهي المتابعة حيث أنت. أما <b><bdi>Off</bdi></b> أو <b><bdi>Names only</bdi></b> في القائمة، أو <b><bdi>Stop</bdi></b> في التحكم عبر المتصفح، فينهيها ويعيد الراديو إلى النطاق والتردد والنمط التي كان عليها من قبل. وفي التحكم عبر المتصفح، في أعلى تبويب <bdi>Beacons</bdi> يوجد <b><bdi>Follow a beacon</bdi></b>: اختر المنارة، واضغط <b><bdi>Start</bdi></b>، و<b><bdi>Stop</bdi></b> لإنهائها؛ ويقول السطر بجانب الأزرار ما الذي يُتابَع، ولماذا لم تبدأ المتابعة أو انتهت (الساعة غير مضبوطة، أو ابتعدتَ بالتوليف).</p>
+  <p><span class="tag r4" style="font-size:8pt;margin:0 0 0 2mm">R4</span>أول خيارين في القائمة: <b><bdi>Off</bdi></b> يخفي أيضًا أسماء المنارات، و<b><bdi>Names only</bdi></b> يسمّي المنارة التي تبثّ على هذه الترددات الخمسة دون متابعة أيٍّ منها. ويبقى الاختيار محفوظًا بعد إعادة التشغيل. وخريطة عالمية حيّة للمنارات موجودة في صفحة التحكم عبر المتصفح (القسم 21).</p>
 </section>
 
 <!-- 11, 12 -->
 <section class="chapter">
-  <h2><span class="num">١١</span>مسح الذاكرة<span class="tag">R2</span></h2>
+  <h2><span class="num">11</span>مسح الذاكرة<span class="tag">R2</span></h2>
   <p>يمرّ <span class="ui"><bdi>Menu</bdi> ← <bdi>Memory</bdi> ← <bdi>Mem Scan</bdi></span> على الذاكرات المحفوظة (اثنتان على الأقل) ويتوقّف عند أيٍّ منها فيها إشارة؛ ويتابع بعد أربع ثوانٍ من زوال الإشارة. والإشارة تعني مستوى <bdi>Squelch</bdi> للنمط إن كنت ضبطته، وإلا فـ <bdi>SNR</bdi> بقيمة <bdi>6&nbsp;dB</bdi> أو أكثر. وتدوير المقبض أو نقرة يوقف المسح، ويبقى الراديو على تلك الذاكرة.</p>
 </section>
 <section class="chapter cont">
-  <h2><span class="num">١٢</span>مسجّل الإشارات<span class="tag">R2</span></h2>
+  <h2><span class="num">12</span>مسجّل الإشارات<span class="tag">R2</span></h2>
   <p>يكتب <span class="ui"><bdi>Menu</bdi> ← <bdi>Memory</bdi> ← <bdi>Logger</bdi></span> سطرًا كل <bdi>10</bdi> ثوانٍ، أو كل دقيقة، أو كل خمس دقائق: وقت <bdi>UTC</bdi>، والتردد، والنمط، والنطاق، وشدة الإشارة (<bdi>dBµV</bdi>)، و<bdi>SNR</bdi> (<bdi>dB</bdi>)، واسم المحطة. اترك الراديو على تردد واحد طوال الليل لترى متى يُفتح مسار ومتى يُغلق.</p>
-  <p>في صفحات الويب للراديو، تجمع صفحة <b><bdi>Log</bdi></b> كل ذلك في مكان واحد (<bdi>R5</bdi>): فاصل التسجيل أو <bdi>Off</bdi>، ومدى امتلاء الملف، وآخر ٥٠ سطرًا فيه (الأحدث أولًا)، و<b><bdi>Download (CSV)</bdi></b> لفتحه في جدول بيانات مثل <bdi>Excel</bdi>، و<b><bdi>Delete log</bdi></b>. وعلى الراديو، يفرغه <b><bdi>Clear log</bdi></b> في القائمة نفسها (انقر للتأكيد). ويتوقّف التسجيل تلقائيًا عند ميغابايت واحد.</p>
+  <p>في صفحات الويب للراديو، تجمع صفحة <b><bdi>Log</bdi></b> كل ذلك في مكان واحد (<bdi>R5</bdi>): فاصل التسجيل أو <bdi>Off</bdi>، ومدى امتلاء الملف، وآخر 50 سطرًا فيه (الأحدث أولًا)، و<b><bdi>Download (CSV)</bdi></b> لفتحه في جدول بيانات مثل <bdi>Excel</bdi>، و<b><bdi>Delete log</bdi></b>. وعلى الراديو، يفرغه <b><bdi>Clear log</bdi></b> في القائمة نفسها (انقر للتأكيد). ويتوقّف التسجيل تلقائيًا عند ميغابايت واحد.</p>
 </section>
 <section class="chapter cont">
-  <h2><span class="num">١٣</span>انتشار الموجات<span class="tag">R2</span></h2>
-  <p>يعرض <span class="ui"><bdi>Menu</bdi> ← <bdi>Ham &amp; SWL</bdi> ← <bdi>Propagation</bdi></span> التدفّق الشمسي (<bdi>SFI</bdi>)، وعدد البقع الشمسية، ومؤشّرَي <bdi>A</bdi> و<bdi>K</bdi>، ومستوى الأشعة السينية، وظروف النهار والليل للنطاقات <bdi>80–40</bdi> و<bdi>30–20</bdi> و<bdi>17–15</bdi> و<bdi>12–10&nbsp;m</bdi>، من <bdi>hamqsl.com</bdi> (<bdi>N0NBH</bdi>). وتُجلب البيانات كلما اتصل <bdi>Wi-Fi</bdi> (بما في ذلك مزامنة الساعة عند التشغيل)، مرة كل ١٥ دقيقة على الأكثر. وكلما ارتفع <bdi>SFI</bdi> وانخفض <bdi>K</bdi> كانت الظروف أفضل على النطاقات الأعلى.</p>
+  <h2><span class="num">13</span>انتشار الموجات<span class="tag">R2</span></h2>
+  <p>يعرض <span class="ui"><bdi>Menu</bdi> ← <bdi>Ham &amp; SWL</bdi> ← <bdi>Propagation</bdi></span> التدفّق الشمسي (<bdi>SFI</bdi>)، وعدد البقع الشمسية، ومؤشّرَي <bdi>A</bdi> و<bdi>K</bdi>، ومستوى الأشعة السينية، وظروف النهار والليل للنطاقات <bdi>80–40</bdi> و<bdi>30–20</bdi> و<bdi>17–15</bdi> و<bdi>12–10&nbsp;m</bdi>، من <bdi>hamqsl.com</bdi> (<bdi>N0NBH</bdi>). وتُجلب البيانات كلما اتصل <bdi>Wi-Fi</bdi> (بما في ذلك مزامنة الساعة عند التشغيل)، مرة كل 15 دقيقة على الأكثر. وكلما ارتفع <bdi>SFI</bdi> وانخفض <bdi>K</bdi> كانت الظروف أفضل على النطاقات الأعلى.</p>
 </section>
 <section class="chapter cont">
-  <h2><span class="num">١٤</span>جداول البث <bdi>EiBi</bdi><span class="tag">R2</span></h2>
+  <h2><span class="num">14</span>جداول البث <bdi>EiBi</bdi><span class="tag">R2</span></h2>
   <p>يحمّل <span class="ui"><bdi>Menu</bdi> ← <bdi>Ham &amp; SWL</bdi> ← <bdi>Load EiBi</bdi></span> الجدول الموسمي لمحطات البث على الموجات القصيرة، مع أيام بثّها (يحتاج إلى <bdi>Wi-Fi</bdi>). والمحطة التي لا تبثّ إلا في نهاية الأسبوع لا تظهر إلا في تلك الأيام، وتأتي اللغة والمنطقة المستهدفة بعد الاسم، مثل <b><bdi>BBC World Service [E &gt; ME]</bdi></b> (بالإنجليزية، إلى الشرق الأوسط). وبعد التحديث من <bdi>R1</bdi>، حمّل الجدول مرة أخرى.</p>
 </section>
 
 <!-- 15 -->
 <section class="chapter">
-  <h2><span class="num">١٥</span>التحكم <bdi>CAT</bdi> من الحاسوب<span class="tag">R2</span></h2>
+  <h2><span class="num">15</span>التحكم <bdi>CAT</bdi> من الحاسوب<span class="tag">R2</span></h2>
   <p>يجعل <span class="ui"><bdi>Menu</bdi> ← <bdi>System</bdi> ← <bdi>USB Port</bdi> ← <bdi>CAT TS-480</bdi></span> الراديوَ يجيب عن أوامر <bdi>Kenwood TS-480</bdi> على منفذ <bdi>USB</bdi>، فتستطيع البرامج قراءة التردد والنمط وضبطهما وقراءة شدة الإشارة. في البرنامج (<bdi>flrig</bdi>، أو <bdi>Hamlib</bdi>، أو <bdi>WSJT-X</bdi> للاستقبال فقط، أو <bdi>fldigi</bdi>، أو برنامج سجلّ) اختر <bdi>Kenwood TS-480</bdi> (<bdi>Hamlib rig 2028</bdi>) على المنفذ التسلسلي للراديو، مع إيقاف <bdi>split</bdi> و<bdi>CAT PTT</bdi>؛ ولا تهمّ السرعة. وتُرفض أوامر الإرسال، لأن الراديو يستقبل فقط. ولأدوات التحكم عن بُعد ولقطات الشاشة، عُد إلى <bdi>Ad hoc</bdi>.</p>
-  <p>منذ <bdi>R5</bdi> يُسمّى الاختيار <bdi>CAT TS-480</bdi> (كان <bdi>CAT</bdi>) وهو موجود على منفذين آخرين: <span class="ui"><bdi>TCP Port</bdi> ← <bdi>CAT TS-480</bdi></span> لبرنامج على شبكة <bdi>Wi-Fi</bdi> نفسها (عنوان الراديو، المنفذ <bdi>60000</bdi>)، و<span class="ui"><bdi>Bluetooth</bdi> ← <bdi>CAT TS-480</bdi></span>. والجديد معه <bdi>VFO A</bdi> و<bdi>B</bdi>، وكاتم الضوضاء، والخطوات صعودًا ونزولًا، وتقارير الحالة التلقائية؛ ونمط <bdi>CW</bdi> هو النمط ٣، كما في <bdi>TS-480</bdi>.</p>
+  <p>منذ <bdi>R5</bdi> يُسمّى الاختيار <bdi>CAT TS-480</bdi> (كان <bdi>CAT</bdi>) وهو موجود على منفذين آخرين: <span class="ui"><bdi>TCP Port</bdi> ← <bdi>CAT TS-480</bdi></span> لبرنامج على شبكة <bdi>Wi-Fi</bdi> نفسها (عنوان الراديو، المنفذ <bdi>60000</bdi>)، و<span class="ui"><bdi>Bluetooth</bdi> ← <bdi>CAT TS-480</bdi></span>. والجديد معه <bdi>VFO A</bdi> و<bdi>B</bdi>، وكاتم الضوضاء، والخطوات صعودًا ونزولًا، وتقارير الحالة التلقائية؛ ونمط <bdi>CW</bdi> هو النمط 3، كما في <bdi>TS-480</bdi>.</p>
   <h3>مثال: <bdi>flrig</bdi><span class="tag r5" style="font-size:8pt">R5</span></h3>
   <figure style="float:left;width:60mm;margin:0 6mm 2mm 0"><img class="web" style="width:60mm" src="../manual-fa/img/flrig-window.png" alt=""><figcaption><bdi>flrig</bdi> يعرض الراديو على <bdi>93.4&nbsp;MHz FM</bdi></figcaption></figure>
   <p><bdi>flrig</bdi> برنامج مجاني للتحكم بأجهزة الراديو لأنظمة <bdi>macOS</bdi> و<bdi>Windows</bdi> و<bdi>Linux</bdi>، من <bdi>w1hkj.org</bdi>؛ وقد جُرّب هذا الفصل بالإصدار <bdi>2.0.12</bdi> على <bdi>Mac</bdi>.</p>
@@ -431,7 +437,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 
 <!-- 16 -->
 <section class="chapter">
-  <h2><span class="num">١٦</span>مفكّك ترميز <bdi>FT8</bdi> و<bdi>FT4</bdi><span class="tag r3">R3</span></h2>
+  <h2><span class="num">16</span>مفكّك ترميز <bdi>FT8</bdi> و<bdi>FT4</bdi><span class="tag r3">R3</span></h2>
   <p>يفتح <span class="ui"><bdi>Menu</bdi> ← <bdi>Ham &amp; SWL</bdi> ← <bdi>FT8/FT4</bdi></span> صفحة تملأ الشاشة تفكّ ترميز إشارات <bdi>FT8</bdi> من صوت الراديو نفسه. يوالف الراديو إلى تردد <bdi>FT8</bdi> في النطاق الذي أنت عليه (أو <bdi>40&nbsp;m</bdi>) بنمط <bdi>USB</bdi> مع المرشّح <bdi>3.0k</bdi>. وتحت العنوان يتحرّك شلال، وبعد كل فترة مدتها <bdi>15</bdi> ثانية تُسرد الرسائل مع تقرير الإشارة (<bdi>dB</bdi>) والتردد الصوتي (<bdi>Hz</bdi>) والنص؛ ونداءات <bdi>CQ</bdi> باللون الأخضر.</p>
   <figure><img class="screen" src="../manual-fa/img/screen-ft8.png" alt=""><figcaption>صفحة <bdi>FT8</bdi> على <bdi>40&nbsp;m</bdi></figcaption></figure>
   <ul>
@@ -439,19 +445,19 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
     <li><b>النقرة:</b> مسح القائمة. <b>الضغطة القصيرة:</b> الخروج؛ ويعود الراديو تمامًا كما كان.</li>
     <li>مع ضبط الساعة (مزامنة <bdi>Wi-Fi</bdi>) يفكّ الترميز من الفترة الأولى. <b>ودون ساعة يفكّ الترميز أيضًا:</b> يُظهر العنوان <b><bdi>No clock: syncing</bdi></b> بينما يستنتج توقيت الفترات من المحطات التي يسمعها (عادةً دقيقة أو اثنتان)، ثم <b><bdi>Synced to band</bdi></b>.</li>
     <li>أسفل اليسار: <b><bdi>In</bdi></b> هو مستوى الصوت الواصل إلى مفكّك الترميز (من <bdi>10</bdi> إلى <bdi>150</bdi> جيد)، و<b><bdi>Last</bdi></b> عدد الرسائل في الفترة الأخيرة.</li>
-    <li><span class="tag r5" style="font-size:8pt;margin:0 0 0 2mm">R5</span>يمكن أيضًا تشغيل الصفحة ومتابعتها من متصفح، مع بلدان المحطات وخريطة (القسم ٢٥). وهي تأخذ صوت الراديو حتى <bdi>3&nbsp;kHz</bdi>، وهو كل ما يستعمله <bdi>FT8</bdi> و<bdi>FT4</bdi>؛ وخيار <bdi>6&nbsp;kHz</bdi> في القسم ٢٥. وإشارات لتجربتها في القسم ٢٦.</li>
+    <li><span class="tag r5" style="font-size:8pt;margin:0 0 0 2mm">R5</span>يمكن أيضًا تشغيل الصفحة ومتابعتها من متصفح، مع بلدان المحطات وخريطة (القسم 25). وهي تأخذ صوت الراديو حتى <bdi>3&nbsp;kHz</bdi>، وهو كل ما يستعمله <bdi>FT8</bdi> و<bdi>FT4</bdi>؛ وخيار <bdi>6&nbsp;kHz</bdi> في القسم 25. وإشارات لتجربتها في القسم 26.</li>
   </ul>
-  <div class="note">تحتاج هذه الصفحة إلى اللوحة <bdi>V4B</bdi>، التي توصل خط مكبّر الصوت بالمعالج؛ وتُظهر اللوحات الأخرى <b><bdi>No audio on the decoder input</bdi></b>. ويتوقّف <bdi>Wi-Fi</bdi> مؤقتًا أثناء فتح الصفحة، إلا إذا كان التحكم عبر المتصفح مفتوحًا في متصفح، أو كان برنامج متصلًا عبر <bdi>Wi-Fi</bdi> (القسم ١٥)؛ عندئذٍ تعمل الصفحة و<bdi>Wi-Fi</bdi> يعمل. وفي اللوحات التي تأخذ الصوت بعد مضخّم مكبّر الصوت يبقى مكبّر الصوت يعمل (<b><bdi>Spk</bdi></b> بجانب المستوى). والسمّاعات الموصولة بالراديو تقطع هذا الخط: انزعها لفكّ الترميز.</div>
+  <div class="note">تحتاج هذه الصفحة إلى اللوحة <bdi>V4B</bdi>، التي توصل خط مكبّر الصوت بالمعالج؛ وتُظهر اللوحات الأخرى <b><bdi>No audio on the decoder input</bdi></b>. ويتوقّف <bdi>Wi-Fi</bdi> مؤقتًا أثناء فتح الصفحة، إلا إذا كان التحكم عبر المتصفح مفتوحًا في متصفح، أو كان برنامج متصلًا عبر <bdi>Wi-Fi</bdi> (القسم 15)؛ عندئذٍ تعمل الصفحة و<bdi>Wi-Fi</bdi> يعمل. وفي اللوحات التي تأخذ الصوت بعد مضخّم مكبّر الصوت يبقى مكبّر الصوت يعمل (<b><bdi>Spk</bdi></b> بجانب المستوى). والسمّاعات الموصولة بالراديو تقطع هذا الخط: انزعها لفكّ الترميز.</div>
   <div class="tip">كثيرًا ما تكون إشارات <bdi>FT8</bdi> أدنى من الضوضاء بـ <bdi>15</bdi> إلى <bdi>20&nbsp;dB</bdi>. والهوائي التلسكوبي داخل المنزل يسمع القليل منها: بجانب نافذة أو على شرفة، أو مع بضعة أمتار من السلك مشبوكة بالهوائي، يتغيّر الأمر كثيرًا. أبعِد الشواحن ومصابيح <bdi>LED</bdi> والحواسيب المحمولة عن الراديو وشغّله على البطارية.</div>
 </section>
 
 <!-- 17, 18 -->
 <section class="chapter">
-  <h2><span class="num">١٧</span>مفكّك ترميز <bdi>CW</bdi><span class="tag r3">R3</span></h2>
-  <p>يحوّل <span class="ui"><bdi>Menu</bdi> ← <bdi>Ham &amp; SWL</bdi> ← <bdi>CW Decoder</bdi></span> شفرة مورس إلى نص في صفحة تملأ الشاشة، مع السرعة (<bdi>WPM</bdi>)، وتردد النغمة، وشريط للمستوى، ومؤشّر للمفتاح. والِف بحيث تكون النغمة في منتصف مرشّح <bdi>CW</bdi>. <b>التدوير:</b> توليف، <b>النقرة:</b> مسح النص، <b>الضغطة القصيرة:</b> الخروج. وتُتابَع السرعة تلقائيًا من نحو ٥ إلى ٤٠ كلمة في الدقيقة. وتُتجاهَل فرقعات الكهرباء الجوية والطقطقات؛ والحروف التي لا تُقرأ تظهر بالرمز <b><bdi>*</bdi></b>. ومنذ <bdi>R4</bdi> تستعمل الصفحة مستوى ثابتًا من جهاز الاستقبال، فلا يعتمد فكّ الترميز على إعداد مستوى الصوت.</p>
+  <h2><span class="num">17</span>مفكّك ترميز <bdi>CW</bdi><span class="tag r3">R3</span></h2>
+  <p>يحوّل <span class="ui"><bdi>Menu</bdi> ← <bdi>Ham &amp; SWL</bdi> ← <bdi>CW Decoder</bdi></span> شفرة مورس إلى نص في صفحة تملأ الشاشة، مع السرعة (<bdi>WPM</bdi>)، وتردد النغمة، وشريط للمستوى، ومؤشّر للمفتاح. والِف بحيث تكون النغمة في منتصف مرشّح <bdi>CW</bdi>. <b>التدوير:</b> توليف، <b>النقرة:</b> مسح النص، <b>الضغطة القصيرة:</b> الخروج. وتُتابَع السرعة تلقائيًا من نحو 5 إلى 40 كلمة في الدقيقة. وتُتجاهَل فرقعات الكهرباء الجوية والطقطقات؛ والحروف التي لا تُقرأ تظهر بالرمز <b><bdi>*</bdi></b>. ومنذ <bdi>R4</bdi> تستعمل الصفحة مستوى ثابتًا من جهاز الاستقبال، فلا يعتمد فكّ الترميز على إعداد مستوى الصوت.</p>
   <p>يُظهر <span class="ui"><bdi>Menu</bdi> ← <bdi>Ham &amp; SWL</bdi> ← <bdi>CW Strip</bdi> ← <bdi>On</bdi></span> النص المفكوك أسفل الشاشة الرئيسية في نمط <bdi>CW</bdi>. ومثل صفحة <bdi>FT8</bdi> يحتاج إلى اللوحة <bdi>V4B</bdi>، ويعمل و<bdi>Wi-Fi</bdi> مطفأ.</p>
 
-  <h2 style="margin-top:9mm"><span class="num">١٨</span><bdi>Scan</bdi> و<bdi>Auto Scan</bdi> و<bdi>Seek</bdi><span class="tag r3">R3</span></h2>
+  <h2 style="margin-top:9mm"><span class="num">18</span><bdi>Scan</bdi> و<bdi>Auto Scan</bdi> و<bdi>Seek</bdi><span class="tag r3">R3</span></h2>
   <p>ثلاثة بنود في <span class="ui"><bdi>Menu</bdi> ← <bdi>Tuning</bdi></span> تبحث عن المحطات. أسماؤها متشابهة لكنها تفعل أشياء مختلفة: <b><bdi>Scan</bdi></b> يريك النطاق، و<b><bdi>Auto Scan</bdi></b> يمرّ على النطاق نيابةً عنك، و<b><bdi>Seek</bdi></b> ينقلك إلى المحطة التالية. <span class="small">(كان اسم <bdi>Auto Scan</bdi> هو <bdi>Scanner</bdi> حتى <bdi>R4</bdi>.)</span></p>
   <table class="three">
     <tr><th style="width:13%"></th><th style="width:31%"><bdi>Scan</bdi></th><th style="width:28%"><bdi>Auto Scan</bdi></th><th><bdi>Seek</bdi></th></tr>
@@ -466,13 +472,13 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
     <figure><img class="screen" src="../manual-fa/img/screen-scanner.png" alt=""><figcaption><bdi>Auto Scan</bdi> يتحرّك نزولًا على <bdi>40&nbsp;m</bdi></figcaption></figure>
   </div>
   <p>يتوقّف <b><bdi>Auto Scan</bdi></b> عند إشارة بمستوى <bdi>Squelch</bdi> إن كان مضبوطًا، وإلا عند <bdi>SNR</bdi> بقيمة <bdi>6&nbsp;dB</bdi> أو أكثر. وفي <bdi>SSB</bdi> و<bdi>CW</bdi> يبقى ما دامت المحطة مسموعة، ويتابع بعد أربع ثوانٍ من غيابها. وعلى بثّ <bdi>AM</bdi> و<bdi>FM</bdi>، الذي لا يصمت أبدًا، يبقى خمس ثوانٍ على كل محطة؛ وفي <bdi>FM</bdi> يتخطّى الـ <bdi>200&nbsp;kHz</bdi> التالية بعد كل محطة كي لا توقفه محطة قوية مرتين. ويتحرّك بخطوة التوليف، و<bdi>1&nbsp;kHz</bdi> على الأقل في <bdi>SSB</bdi>، و<bdi>500&nbsp;Hz</bdi> في <bdi>CW</bdi>، و<bdi>100&nbsp;kHz</bdi> في <bdi>FM</bdi>. وإن توقّف عند الضوضاء كثيرًا، فاضبط مستوى <bdi>Squelch</bdi> أولًا.</p>
-  <p>يستعمل <b><bdi>Seek</bdi></b> البحث الخاص بشريحة الاستقبال في <bdi>AM</bdi> و<bdi>FM</bdi>. وفي <bdi>SSB</bdi> و<bdi>CW</bdi> (منذ <bdi>R4</bdi>) يبحث في النطاق <bdi>1&nbsp;kHz</bdi> في كل مرة ويتوقّف عند أول إشارة، <bdi>200&nbsp;kHz</bdi> على الأكثر في كل تدوير؛ وإن لم يجد شيئًا يقول ذلك ويعود إلى حيث بدأ. والضغطة القصيرة في <bdi>Seek</bdi> تضع ساعةً في مربعه: فيذهب كل تدوير بعدها إلى التردد التالي الذي يذكر فيه جدول <bdi>EiBi</bdi> (القسم ١٤) محطةً تبثّ في هذه الساعة. ويحتاج ذلك إلى تحميل الجدول وضبط الساعة، ولا يتوفّر على <bdi>FM</bdi>.</p>
-  <p class="small">لعرض نطاق كامل على شاشة كاملة، مع قائمة بأقوى إشاراته، انظر <bdi>Band View</bdi> في القسم ٢٣.</p>
+  <p>يستعمل <b><bdi>Seek</bdi></b> البحث الخاص بشريحة الاستقبال في <bdi>AM</bdi> و<bdi>FM</bdi>. وفي <bdi>SSB</bdi> و<bdi>CW</bdi> (منذ <bdi>R4</bdi>) يبحث في النطاق <bdi>1&nbsp;kHz</bdi> في كل مرة ويتوقّف عند أول إشارة، <bdi>200&nbsp;kHz</bdi> على الأكثر في كل تدوير؛ وإن لم يجد شيئًا يقول ذلك ويعود إلى حيث بدأ. والضغطة القصيرة في <bdi>Seek</bdi> تضع ساعةً في مربعه: فيذهب كل تدوير بعدها إلى التردد التالي الذي يذكر فيه جدول <bdi>EiBi</bdi> (القسم 14) محطةً تبثّ في هذه الساعة. ويحتاج ذلك إلى تحميل الجدول وضبط الساعة، ولا يتوفّر على <bdi>FM</bdi>.</p>
+  <p class="small">لعرض نطاق كامل على شاشة كاملة، مع قائمة بأقوى إشاراته، انظر <bdi>Band View</bdi> في القسم 23.</p>
 </section>
 
 <!-- 19 -->
 <section class="chapter cont">
-  <h2><span class="num">١٩</span>قفل التردد وسرعة المعالج<span class="tag r3">R3</span></h2>
+  <h2><span class="num">19</span>قفل التردد وسرعة المعالج<span class="tag r3">R3</span></h2>
   <p><span class="ui"><bdi>Menu</bdi> ← <bdi>Tuning</bdi> ← <bdi>Freq Lock</bdi> ← <bdi>On</bdi></span>: يضبط المقبض مستوى الصوت بدل التوليف، ويتوقّف التوليف بالخانات (الضغط مع التدوير). ويدلّ قفل صغير بجانب النمط على أن القفل يعمل؛ ويبقى بعد إعادة التشغيل.</p>
   <div class="pair">
     <figure><img class="screen" src="../manual-fa/img/screen-lock.png" alt=""><figcaption>القفل بجانب النمط</figcaption></figure>
@@ -483,7 +489,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 
 <!-- 20 -->
 <section class="chapter">
-  <h2><span class="num">٢٠</span><bdi>Wi-Fi</bdi> وصفحات الويب في الراديو<span class="tag r4">R4</span></h2>
+  <h2><span class="num">20</span><bdi>Wi-Fi</bdi> وصفحات الويب في الراديو<span class="tag r4">R4</span></h2>
   <p>كل إعدادات <bdi>Wi-Fi</bdi> في صفحة واحدة: <span class="ui"><bdi>Menu</bdi> ← <bdi>System</bdi> ← <bdi>Wi-Fi</bdi></span>. يذكر أعلاها أين تفتح صفحات الويب للراديو: عنوان <bdi>IP</bdi> للراديو على شبكتك المنزلية (أو <bdi>atsmini.local</bdi>)، أو <bdi>10.1.1.1</bdi> بعد الانضمام إلى شبكة الراديو نفسه. وتحتها ثلاثة أسطر: <b><bdi>Mode</bdi></b> و<b><bdi>Join a network</bdi></b> و<b><bdi>Power</bdi></b>. انقر <bdi>Mode</bdi> أو <bdi>Power</bdi>، وأدِر لتغيير القيمة، وانقر للتطبيق؛ والضغطة القصيرة تلغي.</p>
   <div class="pair">
     <figure><img class="screen" src="../manual-fa/img/screen-wifi.png" alt=""><figcaption>صفحة <bdi>Wi-Fi</bdi>: العنوان، و<bdi>Mode</bdi>، و<bdi>Join a network</bdi>، و<bdi>Power</bdi></figcaption></figure>
@@ -511,7 +517,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 
 <!-- 21 -->
 <section class="chapter">
-  <h2><span class="num">٢١</span>التحكم عبر المتصفح<span class="tag r4">R4</span></h2>
+  <h2><span class="num">21</span>التحكم عبر المتصفح<span class="tag r4">R4</span></h2>
   <p>حين يكون الراديو وهاتف أو حاسوب على الشبكة نفسها، افتح <b><bdi>http://&lt;IP&gt;/control</bdi></b> (أو المس <bdi>Control</bdi> في صفحات الويب للراديو). الراديو كلّه في المتصفح، وكل تغيير يُطبَّق على الراديو فورًا ويُحفظ. ويُظهر الأعلى دائمًا التردد، والنطاق، والنمط، والخطوة، والمرشّح، ومقياس <bdi>S</bdi>، والبطارية (بالفولت والنسبة المئوية)، والذاكرة التي أنت عليها، واسم محطة <bdi>RDS</bdi> ونصّها.</p>
   <div class="pair">
     <figure><img class="phone" src="../manual-fa/img/web-receiver.jpg" alt=""><figcaption>تبويب <bdi>Receiver</bdi> على هاتف</figcaption></figure>
@@ -519,10 +525,10 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
   </div>
   <table>
     <tr><th style="width:18%">التبويب</th><th>ما يفعله</th></tr>
-    <tr><td><bdi>Receiver</bdi></td><td>التوليف بالخطوات، و<bdi>Seek</bdi>، ومربع للتردد (<bdi>kHz</bdi>؛ و<bdi>MHz</bdi> على <bdi>FM</bdi>)، وأزرار الأنماط (مع <bdi>Stereo</bdi> أو <bdi>Mono</bdi> على <bdi>FM</bdi>)، وقوائم <bdi>Band</bdi> و<bdi>Step</bdi> و<bdi>Filter</bdi> و<bdi>AGC</bdi>، ومستوى الصوت، وزر لكل نطاق، و<b>راسم النطاق</b>: يقيس <bdi>Sweep</bdi> الإشارة عند <bdi>41</bdi> نقطة حول التردد؛ المس عمودًا لتوالف إليه. ومنذ <bdi>R5</bdi> يبدأ <b><bdi>Band View</bdi></b> عرضَ <bdi>Band View</bdi> في الراديو ويُظهره في المتصفح (القسم ٢٣)</td></tr>
+    <tr><td><bdi>Receiver</bdi></td><td>التوليف بالخطوات، و<bdi>Seek</bdi>، ومربع للتردد (<bdi>kHz</bdi>؛ و<bdi>MHz</bdi> على <bdi>FM</bdi>)، وأزرار الأنماط (مع <bdi>Stereo</bdi> أو <bdi>Mono</bdi> على <bdi>FM</bdi>)، وقوائم <bdi>Band</bdi> و<bdi>Step</bdi> و<bdi>Filter</bdi> و<bdi>AGC</bdi>، ومستوى الصوت، وزر لكل نطاق، و<b>راسم النطاق</b>: يقيس <bdi>Sweep</bdi> الإشارة عند <bdi>41</bdi> نقطة حول التردد؛ المس عمودًا لتوالف إليه. ومنذ <bdi>R5</bdi> يبدأ <b><bdi>Band View</bdi></b> عرضَ <bdi>Band View</bdi> في الراديو ويُظهره في المتصفح (القسم 23)</td></tr>
     <tr><td><bdi>Memory</bdi></td><td>التوليف إلى ذاكرة، وحفظ المحطة الحالية، وحذف ذاكرة</td></tr>
-    <tr><td><bdi>Beacons</bdi></td><td>خريطة للمنارات الثماني عشرة لـ <bdi>NCDXF/IARU</bdi>. والمنارات الخمس التي تبثّ تنبض بلون نطاقها. المس ترددًا لتوالف إليه بنمط <bdi>CW</bdi>: في كل فترة مدتها عشر ثوانٍ يقيس الراديو الإشارة ويلوّن تلك المنارة بالأخضر (مسموعة جيدًا)، أو بالأصفر (ضعيفة)، أو بالرمادي (غير مسموعة). وبعد دورة واحدة من ثلاث دقائق ترى إلى أي أجزاء العالم النطاقُ مفتوح. المس منارة لتتبعها عبر النطاقات، أو استعمل <b><bdi>Follow a beacon</bdi></b> مع <bdi>Start</bdi> و<bdi>Stop</bdi> في الأعلى (<bdi>R5</bdi>، القسم ١٠)</td></tr>
-    <tr><td><bdi>Decodes</bdi> <span class="tag r5" style="font-size:8pt">R5</span></td><td>يبدأ مفكّكات الترميز في الراديو ويوقفها ويُظهر ما تفكّه: الشلال، ورسائل <bdi>FT8</bdi> و<bdi>FT4</bdi> مع البلد والعلم، وخريطة، ونصوص <bdi>CW</bdi> و<bdi>RTTY</bdi> و<bdi>NAVTEX</bdi> و<bdi>PSK31</bdi>، وخرائط <bdi>WEFAX</bdi> (القسم ٢٥)</td></tr>
+    <tr><td><bdi>Beacons</bdi></td><td>خريطة للمنارات الثماني عشرة لـ <bdi>NCDXF/IARU</bdi>. والمنارات الخمس التي تبثّ تنبض بلون نطاقها. المس ترددًا لتوالف إليه بنمط <bdi>CW</bdi>: في كل فترة مدتها عشر ثوانٍ يقيس الراديو الإشارة ويلوّن تلك المنارة بالأخضر (مسموعة جيدًا)، أو بالأصفر (ضعيفة)، أو بالرمادي (غير مسموعة). وبعد دورة واحدة من ثلاث دقائق ترى إلى أي أجزاء العالم النطاقُ مفتوح. المس منارة لتتبعها عبر النطاقات، أو استعمل <b><bdi>Follow a beacon</bdi></b> مع <bdi>Start</bdi> و<bdi>Stop</bdi> في الأعلى (<bdi>R5</bdi>، القسم 10)</td></tr>
+    <tr><td><bdi>Decodes</bdi> <span class="tag r5" style="font-size:8pt">R5</span></td><td>يبدأ مفكّكات الترميز في الراديو ويوقفها ويُظهر ما تفكّه: الشلال، ورسائل <bdi>FT8</bdi> و<bdi>FT4</bdi> مع البلد والعلم، وخريطة، ونصوص <bdi>CW</bdi> و<bdi>RTTY</bdi> و<bdi>NAVTEX</bdi> و<bdi>PSK31</bdi>، وخرائط <bdi>WEFAX</bdi> (القسم 25)</td></tr>
     <tr><td><bdi>Settings</bdi></td><td>كل إعداد في قوائم الراديو، في خمس مجموعات. أما أنماط <bdi>Bluetooth</bdi> و<bdi>USB</bdi> و<bdi>Wi-Fi</bdi> وتحديثات البرنامج الثابت فتبقى على الراديو نفسه، كي لا ينقطع الاتصال</td></tr>
     <tr><td><bdi>More</bdi></td><td>شاشة الراديو نفسها مع مقبضه وأزراره (لقوائمه ولصفحتي <bdi>FT8</bdi> و<bdi>CW</bdi>؛ تُرسل فقط أثناء ظهورها)، و<b><bdi>Listen</bdi></b></td></tr>
   </table>
@@ -534,16 +540,16 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 
 <!-- 22 -->
 <section class="chapter">
-  <h2><span class="num">٢٢</span>الإعداد عند التشغيل الأول<span class="tag r5">R5</span></h2>
+  <h2><span class="num">22</span>الإعداد عند التشغيل الأول<span class="tag r5">R5</span></h2>
   <p>الراديو المثبَّت حديثًا، أو الذي أُعيد إلى ضبط المصنع، يسأل عن أربعة أشياء بالتتابع: <b>المنطقة الزمنية</b>، و<b>المقبض</b> (<bdi>20</bdi> أو <bdi>30</bdi> نقرة في الدورة)، و<b>خطة النطاقات</b> لترخيصك، وهل تريد إعداد <b><bdi>Wi-Fi</bdi></b> الآن. <b>أدِر</b> للاختيار، و<b>انقر</b> للسؤال التالي، و<b>اضغط ضغطة قصيرة</b> للتخطّي. ويمكن تغيير كل شيء لاحقًا في القائمة. والراديو المحدَّث من إصدار سابق يحتفظ بإعداداته ولا تظهر له هذه الصفحات.</p>
   <figure><img class="screen" src="../manual-fa/img/screen-wizard.png" alt=""><figcaption>أول الأسئلة الأربعة</figcaption></figure>
   <p>لرؤيتها مرة أخرى، أعِد الراديو إلى ضبط المصنع: أطفئ الراديو، واضغط المقبض وأمسكه، ثم شغّله واستمرّ في الإمساك حتى تظهر <b><bdi>Resetting Preferences</bdi></b>.</p>
-  <div class="note">تمحو إعادة ضبط المصنع الإعدادات والذاكرات وشبكات <bdi>Wi-Fi</bdi> والملفات في الراديو (الجدول، وسجلّ الإشارات، وصورة البدء، وتصحيحات <bdi>DSP</bdi>). احفظ نسخة احتياطية أولًا من صفحة الويب <bdi>Config</bdi> (القسم ٢٧) واستعِدها بعد ذلك.</div>
+  <div class="note">تمحو إعادة ضبط المصنع الإعدادات والذاكرات وشبكات <bdi>Wi-Fi</bdi> والملفات في الراديو (الجدول، وسجلّ الإشارات، وصورة البدء، وتصحيحات <bdi>DSP</bdi>). احفظ نسخة احتياطية أولًا من صفحة الويب <bdi>Config</bdi> (القسم 27) واستعِدها بعد ذلك.</div>
 </section>
 
 <!-- 23 -->
 <section class="chapter cont">
-  <h2><span class="num">٢٣</span><bdi>Freq Entry</bdi> و<bdi>Band View</bdi> و<bdi>Auto-Store</bdi><span class="tag r5">R5</span></h2>
+  <h2><span class="num">23</span><bdi>Freq Entry</bdi> و<bdi>Band View</bdi> و<bdi>Auto-Store</bdi><span class="tag r5">R5</span></h2>
   <h3>كتابة تردد: <bdi>Tuning</bdi> ← <bdi>Freq Entry</bdi></h3>
   <p>لوحة أرقام للوصول مباشرة إلى تردد. أدِر المقبض للتنقّل فوق المفاتيح وانقر للضغط على أحدها: اكتب الرقم، ثم <b><bdi>kHz</bdi></b> أو <b><bdi>MHz</bdi></b>. فـ <bdi>14074</bdi> ثم <bdi>kHz</bdi>، أو <bdi>14.074</bdi> ثم <bdi>MHz</bdi>، كلاهما يوالف <bdi>14.074&nbsp;MHz</bdi>. وحين يكون التردد خارج النطاق الذي أنت عليه، يغيّر الراديو النطاق، وينتقل إلى <bdi>FM</bdi> أو منه عند الحاجة. يحذف <b><bdi>Del</bdi></b> الخانة الأخيرة، و<b><bdi>Clear</bdi></b> جميعها، ويخرج <b><bdi>Back</bdi></b> أو الضغطة القصيرة دون توليف. ويقبل من <bdi>150&nbsp;kHz</bdi> إلى <bdi>30&nbsp;MHz</bdi> ومن <bdi>64</bdi> إلى <bdi>108&nbsp;MHz</bdi>.</p>
   <h3>رؤية النطاق: <bdi>Tuning</bdi> ← <bdi>Band View</bdi></h3>
@@ -559,7 +565,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 
 <!-- 24 -->
 <section class="chapter">
-  <h2><span class="num">٢٤</span><bdi>RTTY</bdi> و<bdi>NAVTEX</bdi> و<bdi>PSK31</bdi> و<bdi>WEFAX</bdi><span class="tag r5">R5</span></h2>
+  <h2><span class="num">24</span><bdi>RTTY</bdi> و<bdi>NAVTEX</bdi> و<bdi>PSK31</bdi> و<bdi>WEFAX</bdi><span class="tag r5">R5</span></h2>
   <div class="side">
     <div>
       <p>يفتح <span class="ui"><bdi>Menu</bdi> ← <bdi>Ham &amp; SWL</bdi> ← <bdi>Digital</bdi></span> صفحة تملأ الشاشة تفكّ ترميز خمسة أنواع من الإشارات من صوت الراديو نفسه. تحوّل الراديو إلى <bdi>USB</bdi> مع المرشّح <bdi>3.0k</bdi>، وترسم طيف ما تسمعه مع علامات على النغمات التي تستمع إليها، وتكتب النص تحته. ويجد مفكّك الترميز الإشارة بنفسه: والِف حتى تظهر الإشارة في الصورة.</p>
@@ -572,15 +578,15 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
     <tr><td><b><bdi>RTTY DWD</bdi></b></td><td>هيئة الأرصاد الجوية الألمانية: <bdi>50&nbsp;baud</bdi>، وإزاحة <bdi>450&nbsp;Hz</bdi>. طقس للملاحة البحرية، بالإنجليزية غالبًا.</td></tr>
     <tr><td><b><bdi>NAVTEX</bdi></b></td><td>رسائل السلامة للسفن: التحذيرات الملاحية والطقس. إحدى عشرة قناة: <bdi>518&nbsp;kHz</bdi> (بالإنجليزية)، و<bdi>490&nbsp;kHz</bdi> (بلغة البلد)، و<bdi>4209.5&nbsp;kHz</bdi>، وثماني قنوات على الموجات القصيرة لأعالي البحار، من <bdi>4210</bdi> إلى <bdi>26100.5&nbsp;kHz</bdi>.</td></tr>
     <tr><td><b><bdi>PSK31</bdi></b></td><td>نمط للهواة يُكتب باليد، <bdi>31&nbsp;baud</bdi>، وعرضه بضعة هرتزات.</td></tr>
-    <tr><td><b><bdi>WEFAX</bdi></b></td><td>خرائط الطقس (الفاكس الراديوي)، <bdi>120</bdi> سطرًا في الدقيقة. تُرسم الخريطة على الشاشة، وبحجم أكبر في المتصفح (القسم ٢٥)، حيث ينزّلها <b><bdi>Save picture</bdi></b>.</td></tr>
+    <tr><td><b><bdi>WEFAX</bdi></b></td><td>خرائط الطقس (الفاكس الراديوي)، <bdi>120</bdi> سطرًا في الدقيقة. تُرسم الخريطة على الشاشة، وبحجم أكبر في المتصفح (القسم 25)، حيث ينزّلها <b><bdi>Save picture</bdi></b>.</td></tr>
   </table>
   <ul>
     <li><b>النقرة:</b> النمط التالي. <b>التدوير:</b> التوليف (في <bdi>NAVTEX</bdi>: القناة التالية). <b>الضغطة القصيرة:</b> الخروج؛ ويعود الراديو تمامًا كما كان.</li>
     <li>يحتفظ كل نمط بتردده حتى إطفاء الراديو. وفي المرة الأولى تبدأ الأنماط على <bdi>RTTY 14080</bdi>، و<bdi>RTTY DWD 10099.3</bdi>، و<bdi>PSK31 14070</bdi>، و<bdi>WEFAX 8038.1&nbsp;kHz</bdi>. وإذا فُتحت الصفحة على الموجات القصيرة أو المتوسطة تبقى حيث الراديو؛ ولا تعمل أبدًا على <bdi>FM</bdi>.</li>
-    <li>يُظهر العنوان النمط، والتردد الذي يوالف إليه الراديو، و<bdi>USB</bdi> (وفي <bdi>NAVTEX</bdi> القناة). وفي الأعلى يمينًا تردد النغمة الذي وجده مفكّك الترميز، بالأخضر، أو <b><bdi>No signal</bdi></b>؛ وسرعة النمط وإزاحته في زاوية الطيف. ومن دون إشارة لا يُكتب شيء، كي لا تملأ الضوضاء الشاشة بالحروف: تعني <b><bdi>No signal</bdi></b> أنه لا يُستقبل شيء هناك، لا أن شيئًا معطّل. ومحطات لتجربة كل نمط في القسم ٢٦.</li>
+    <li>يُظهر العنوان النمط، والتردد الذي يوالف إليه الراديو، و<bdi>USB</bdi> (وفي <bdi>NAVTEX</bdi> القناة). وفي الأعلى يمينًا تردد النغمة الذي وجده مفكّك الترميز، بالأخضر، أو <b><bdi>No signal</bdi></b>؛ وسرعة النمط وإزاحته في زاوية الطيف. ومن دون إشارة لا يُكتب شيء، كي لا تملأ الضوضاء الشاشة بالحروف: تعني <b><bdi>No signal</bdi></b> أنه لا يُستقبل شيء هناك، لا أن شيئًا معطّل. ومحطات لتجربة كل نمط في القسم 26.</li>
   </ul>
   <h3>التوليف إلى محطة</h3>
-  <p>تعمل الصفحة بنمط <bdi>USB</bdi>، ويُظهر عنوانها التردد الذي يوالف إليه الراديو. تذكر قوائم المحطات تردد الإشارة نفسها؛ ويجب أن يوالَف الراديو <b>أدنى</b> منه قليلًا، كي تخرج النغمات صوتًا حول <bdi>1500&nbsp;Hz</bdi>، في منتصف الطيف. اكتب التردد بـ <span class="ui"><bdi>Menu</bdi> ← <bdi>Tuning</bdi> ← <bdi>Freq Entry</bdi></span> (القسم ٢٣) ثم افتح الصفحة، أو أدِر المقبض في الصفحة.</p>
+  <p>تعمل الصفحة بنمط <bdi>USB</bdi>، ويُظهر عنوانها التردد الذي يوالف إليه الراديو. تذكر قوائم المحطات تردد الإشارة نفسها؛ ويجب أن يوالَف الراديو <b>أدنى</b> منه قليلًا، كي تخرج النغمات صوتًا حول <bdi>1500&nbsp;Hz</bdi>، في منتصف الطيف. اكتب التردد بـ <span class="ui"><bdi>Menu</bdi> ← <bdi>Tuning</bdi> ← <bdi>Freq Entry</bdi></span> (القسم 23) ثم افتح الصفحة، أو أدِر المقبض في الصفحة.</p>
   <table class="three">
     <tr><th style="width:13%">النمط</th><th style="width:27%">والِف الراديو إلى</th><th style="width:27%">مثال</th><th>يكون صحيحًا حين</th></tr>
     <tr><td><b><bdi>RTTY</bdi></b></td><td>لا ترددات ثابتة: أدِر ببطء عبر جزء <bdi>RTTY</bdi> من نطاق.</td><td><bdi>20M</bdi>: من <bdi>14080</bdi> إلى <bdi>14099&nbsp;kHz</bdi>، غالبًا في نهاية الأسبوع.</td><td>تستقرّ الخطوط الحمراء على قمّتين بينهما <bdi>170&nbsp;Hz</bdi>، ويكون الرقم في الأعلى يمينًا أخضر، ويظهر النص.</td></tr>
@@ -591,24 +597,24 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
   </table>
   <p class="small">لا داعي للدقة مع <bdi>RTTY</bdi> و<bdi>RTTY DWD</bdi>: يبحث مفكّك الترميز عن النغمتين في الطيف كلّه وينقل الخطوط الحمراء إليهما، فأيّ موضع بين <bdi>1</bdi> و<bdi>2&nbsp;kHz</bdi> أدنى من التردد المذكور يعمل.</p>
   <h3>قراءة النص من جديد</h3>
-  <p>رسالة <bdi>NAVTEX</bdi> أو نشرة طقس أطول من خمسة أسطر. يحتفظ الراديو بكل ما فكّه منذ تشغيله، نحو ١٦٠٠٠ حرف، مع فواصل الأسطر كما أرسلتها المحطة.</p>
+  <p>رسالة <bdi>NAVTEX</bdi> أو نشرة طقس أطول من خمسة أسطر. يحتفظ الراديو بكل ما فكّه منذ تشغيله، نحو 16000 حرف، مع فواصل الأسطر كما أرسلتها المحطة.</p>
   <ul>
     <li><b>اضغط المقبض وأدِره:</b> يُفسح الطيف مكانًا لسبعة أسطر من النص كلّه. في الأعلى يمينًا السطر الذي أنت عليه وعدد الأسطر؛ ويُظهر الشريط على اليمين الموضع.</li>
     <li><b>التدوير:</b> التمرير. <b>النقرة:</b> العودة إلى النص الحيّ. <b>الضغطة القصيرة:</b> مغادرة الصفحة.</li>
     <li>كل بدء لمفكّك ترميز يستقبل شيئًا يكتب سطر عنوان بالأصفر: النمط والتردد ووقت <bdi>UTC</bdi>.</li>
-    <li>يُظهر المتصفح النص نفسه في مربع ويحفظه في ملف (القسم ٢٥).</li>
+    <li>يُظهر المتصفح النص نفسه في مربع ويحفظه في ملف (القسم 25).</li>
   </ul>
   <div class="pair" style="width:136mm;margin:0 auto">
     <figure><img class="screen" src="../manual-fa/img/screen-navtex.png" alt=""><figcaption><bdi>NAVTEX</bdi> على <bdi>518&nbsp;kHz</bdi>، مقفل على محطة</figcaption></figure>
-    <figure><img class="screen" src="../manual-fa/img/screen-readback.png" alt=""><figcaption>القراءة من جديد: السطر الأول من ١٧</figcaption></figure>
+    <figure><img class="screen" src="../manual-fa/img/screen-readback.png" alt=""><figcaption>القراءة من جديد: السطر الأول من 17</figcaption></figure>
   </div>
   <div class="note">مثل صفحة <bdi>FT8</bdi>، تحتاج هذه الصفحة إلى اللوحة <bdi>V4B</bdi> ونزع السمّاعات، وتوقف <bdi>Wi-Fi</bdi> مؤقتًا إلا إذا كان التحكم عبر المتصفح مفتوحًا في متصفح أو كان برنامج متصلًا عبر <bdi>Wi-Fi</bdi>.</div>
 </section>
 
 <!-- 25 -->
 <section class="chapter">
-  <h2><span class="num">٢٥</span>الرسائل المفكوكة في المتصفح<span class="tag r5">R5</span></h2>
-  <p>افتح <b>التحكم عبر المتصفح</b> (القسم ٢١) وتبويب <b><bdi>Decodes</bdi></b> فيه. يبقى <bdi>Wi-Fi</bdi> يعمل ما دام التحكم عبر المتصفح مفتوحًا، ومع مفكّك ترميز يعمل على الراديو يُظهر التبويب:</p>
+  <h2><span class="num">25</span>الرسائل المفكوكة في المتصفح<span class="tag r5">R5</span></h2>
+  <p>افتح <b>التحكم عبر المتصفح</b> (القسم 21) وتبويب <b><bdi>Decodes</bdi></b> فيه. يبقى <bdi>Wi-Fi</bdi> يعمل ما دام التحكم عبر المتصفح مفتوحًا، ومع مفكّك ترميز يعمل على الراديو يُظهر التبويب:</p>
   <ul>
     <li>النطاق على شكل شلال؛</li>
     <li>كل رسالة <bdi>FT8</bdi> و<bdi>FT4</bdi> مع بلد المحطة وعلمها؛</li>
@@ -648,7 +654,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
     </div>
     <figure><img class="phone" src="../manual-fa/img/web-navtex.jpg" alt=""><figcaption><bdi>NAVTEX</bdi> مختار: جدول المواعيد، وأقرب المحطات إلى مستمع في دبي</figcaption></figure>
   </div>
-  <div class="note">يضمّ الجدول ٢٣٨ محطة، قورنت في ٢٢ نوفمبر ٢٠٢٦ بقوائم محطات عامة (القسم ٢٩). والمحطات تتغيّر، ومفكّك ترميز في راديو جيبي ليس للملاحة.</div>
+  <div class="note">يضمّ الجدول 238 محطة، قورنت في 22 نوفمبر 2026 بقوائم محطات عامة (القسم 29). والمحطات تتغيّر، ومفكّك ترميز في راديو جيبي ليس للملاحة.</div>
   <h3>صوت مفكّك الترميز: <bdi>3&nbsp;kHz</bdi> أو <bdi>6&nbsp;kHz</bdi></h3>
   <p>تستمع صفحتا <bdi>FT8/FT4</bdi> و<bdi>Digital</bdi> إلى صوت الراديو نفسه، ويحدّد هذا الإعداد مقدار ما تأخذانه منه.</p>
   <table>
@@ -661,25 +667,25 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 
 <!-- 26 -->
 <section class="chapter">
-  <h2><span class="num">٢٦</span>إشارات لتجربة مفكّكات الترميز<span class="tag r5">R5</span></h2>
+  <h2><span class="num">26</span>إشارات لتجربة مفكّكات الترميز<span class="tag r5">R5</span></h2>
   <p>مفكّك الترميز الذي لا يُظهر شيئًا يستمع في الغالب إلى تردد خالٍ. هذه الإشارات تبثّ بما يكفي لتجربة كل مفكّك ترميز، في صفحة الراديو نفسها أو من تبويب <bdi>Decodes</bdi> في التحكم عبر المتصفح. تعني <b><bdi>No signal</bdi></b> أو <b><bdi>Nothing decoded yet</bdi></b> أنه لم يُستقبل شيء، لا أن شيئًا معطّل. والترددات والأوقات تتغيّر: ابحث عنها من جديد إن لم تجد محطة.</p>
   <p><b>ابدأ بـ <bdi>FT8</bdi> على <bdi>20&nbsp;m</bdi> نهارًا.</b> إن امتلأت القائمة، فالراديو والهوائي ومدخل مفكّك الترميز تعمل كلّها، والصفحة الفارغة في نمط آخر تعني فقط أن المحطة غير موجودة أو أضعف من اللازم. بجانب نافذة، أو مع بضعة أمتار من السلك على الهوائي، يُسمع أكثر بكثير.</p>
   <table style="font-size:9pt;line-height:1.6">
     <tr><th style="width:13%">مفكّك الترميز</th><th style="width:44%">أين توالف</th><th>ما تتوقّعه</th></tr>
     <tr><td><b><bdi>FT8</bdi></b></td><td><bdi>20M</bdi>، <bdi>14.074&nbsp;MHz</bdi> (توالفه الصفحة). ونهارًا أيضًا <bdi>15M</bdi> و<bdi>10M</bdi>، وليلًا <bdi>40M</bdi> و<bdi>80M</bdi>.</td><td>أكثر الإشارات ازدحامًا على الموجات القصيرة: قائمة بإشارات النداء خلال دقيقة على نطاق مفتوح. جرّب هذا أولًا: إن فكّ <bdi>FT8</bdi> الترميز، فالهوائي والنطاق والساعة على ما يرام.</td></tr>
     <tr><td><b><bdi>FT4</bdi></b></td><td><bdi>20M</bdi>، <bdi>14.080&nbsp;MHz</bdi>. محطات أقلّ بكثير من <bdi>FT8</bdi>، معظمها في نهاية الأسبوع وفي المسابقات.</td><td>كتل قصيرة مدتها نحو <bdi>4.5</bdi> ثانية في الشلال. قارن بـ <bdi>FT8</bdi> على النطاق نفسه: إن كان <bdi>FT8</bdi> ممتلئًا وشلال <bdi>FT4</bdi> فارغًا، فلا أحد على <bdi>FT4</bdi>.</td></tr>
-    <tr><td><b><bdi>CW</bdi></b></td><td>المنارات على <bdi>14.100&nbsp;MHz</bdi> (القسم ١٠)، أو الطرف الأدنى من <bdi>40M</bdi> و<bdi>20M</bdi>: من <bdi>7.000</bdi> إلى <bdi>7.040</bdi> ومن <bdi>14.000</bdi> إلى <bdi>14.070&nbsp;MHz</bdi>.</td><td>إشارات نداء ونداءات <bdi>CQ</bdi>. ترسل المنارة إشارة ندائها، ثم أربع شرطات طويلة.</td></tr>
+    <tr><td><b><bdi>CW</bdi></b></td><td>المنارات على <bdi>14.100&nbsp;MHz</bdi> (القسم 10)، أو الطرف الأدنى من <bdi>40M</bdi> و<bdi>20M</bdi>: من <bdi>7.000</bdi> إلى <bdi>7.040</bdi> ومن <bdi>14.000</bdi> إلى <bdi>14.070&nbsp;MHz</bdi>.</td><td>إشارات نداء ونداءات <bdi>CQ</bdi>. ترسل المنارة إشارة ندائها، ثم أربع شرطات طويلة.</td></tr>
     <tr><td><b><bdi>RTTY DWD</bdi></b></td><td>هيئة الأرصاد الجوية الألمانية، ليلًا ونهارًا على <bdi>4583</bdi> و<bdi>7646</bdi> و<bdi>10100.8&nbsp;kHz</bdi>. والِف أدنى بـ <bdi>1.5&nbsp;kHz</bdi> بنمط <bdi>USB</bdi>: <b><bdi>10099.3&nbsp;kHz</bdi></b>، أو <b><bdi>7644.5</bdi></b> و<b><bdi>4581.5&nbsp;kHz</bdi></b> ليلًا.</td><td>أسطر من <bdi>RYRYRY</bdi> بين النشرات، ثم تقارير الطقس وتوقّعاته، بالإنجليزية غالبًا. ويظهر تردد النغمة بالأخضر مكان <bdi>No signal</bdi>. وهي تأتي من ألمانيا: بعيدًا عنها تكون ضعيفة، وأفضل وقت لها المساء.</td></tr>
     <tr><td><b><bdi>RTTY</bdi></b></td><td><bdi>RTTY</bdi> الهواة، من <bdi>14.080</bdi> إلى <bdi>14.099&nbsp;MHz</bdi>، غالبًا في نهاية الأسبوع وفي المسابقات.</td><td>نداءات <bdi>CQ</bdi> وتبادلات المسابقات بحروف كبيرة.</td></tr>
-    <tr><td><b><bdi>NAVTEX</bdi></b></td><td><bdi>518&nbsp;kHz</bdi> (توالفه الصفحة؛ وينتقل المقبض إلى <bdi>490</bdi> و<bdi>4209.5&nbsp;kHz</bdi>). ترسل كل محطة ساحلية عشر دقائق كل أربع ساعات، كلّ في وقتها: يُظهر <b>جدول مواعيد <bdi>NAVTEX</bdi></b> في تبويب <bdi>Decodes</bdi> (القسم ٢٥) من يبثّ ومن التالي. والليل أفضل.</td><td>تحذيرات ملاحية وطقس للسفن، تبدأ بـ <bdi>ZCZC</bdi> وتنتهي بـ <bdi>NNNN</bdi>.</td></tr>
+    <tr><td><b><bdi>NAVTEX</bdi></b></td><td><bdi>518&nbsp;kHz</bdi> (توالفه الصفحة؛ وينتقل المقبض إلى <bdi>490</bdi> و<bdi>4209.5&nbsp;kHz</bdi>). ترسل كل محطة ساحلية عشر دقائق كل أربع ساعات، كلّ في وقتها: يُظهر <b>جدول مواعيد <bdi>NAVTEX</bdi></b> في تبويب <bdi>Decodes</bdi> (القسم 25) من يبثّ ومن التالي. والليل أفضل.</td><td>تحذيرات ملاحية وطقس للسفن، تبدأ بـ <bdi>ZCZC</bdi> وتنتهي بـ <bdi>NNNN</bdi>.</td></tr>
     <tr><td><b><bdi>PSK31</bdi></b></td><td><bdi>14.070&nbsp;MHz USB</bdi>، وكذلك <bdi>7.040&nbsp;MHz</bdi>. المحطات قليلة هذه الأيام.</td><td>خطوط ضيّقة ثابتة في الطيف؛ حروف صغيرة وكبيرة، تُكتب باليد.</td></tr>
-    <tr><td><b><bdi>WEFAX</bdi></b></td><td><bdi>Northwood</bdi> (المملكة المتحدة): <bdi>4610</bdi> و<bdi>8040</bdi> و<bdi>11086.5&nbsp;kHz</bdi>. والِف أدنى بـ <bdi>1.9&nbsp;kHz</bdi> بنمط <bdi>USB</bdi>: <b><bdi>8038.1</bdi></b> أو <b><bdi>11084.6&nbsp;kHz</bdi></b> نهارًا، و<b><bdi>4608.1&nbsp;kHz</bdi></b> ليلًا.</td><td>خريطة طقس تُرسم سطرًا بعد سطر: تستغرق الخريطة الكاملة من ١٠ إلى ٢٠ دقيقة. والصورة المائلة تدلّ مع ذلك على أن الإشارة تُقرأ.</td></tr>
+    <tr><td><b><bdi>WEFAX</bdi></b></td><td><bdi>Northwood</bdi> (المملكة المتحدة): <bdi>4610</bdi> و<bdi>8040</bdi> و<bdi>11086.5&nbsp;kHz</bdi>. والِف أدنى بـ <bdi>1.9&nbsp;kHz</bdi> بنمط <bdi>USB</bdi>: <b><bdi>8038.1</bdi></b> أو <b><bdi>11084.6&nbsp;kHz</bdi></b> نهارًا، و<b><bdi>4608.1&nbsp;kHz</bdi></b> ليلًا.</td><td>خريطة طقس تُرسم سطرًا بعد سطر: تستغرق الخريطة الكاملة من 10 إلى 20 دقيقة. والصورة المائلة تدلّ مع ذلك على أن الإشارة تُقرأ.</td></tr>
   </table>
 </section>
 
 <!-- 27 -->
 <section class="chapter">
-  <h2><span class="num">٢٧</span>إشعار الإصدار الجديد والنسخة الاحتياطية وصفحة <bdi>Status</bdi><span class="tag r5">R5</span></h2>
+  <h2><span class="num">27</span>إشعار الإصدار الجديد والنسخة الاحتياطية وصفحة <bdi>Status</bdi><span class="tag r5">R5</span></h2>
   <h3>إشعار الإصدار الجديد</h3>
   <div class="side">
     <div>
@@ -697,7 +703,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 
 <!-- 28, 29 -->
 <section class="chapter">
-  <h2><span class="num">٢٨</span>الملاحظات وحل المشكلات</h2>
+  <h2><span class="num">28</span>الملاحظات وحل المشكلات</h2>
   <p>كل بلاغ، خطأ صغير أو اقتراح، يساعد الإصدار التالي. اكتب في مجموعة <bdi>Telegram</bdi> أو افتح <bdi>Issue</bdi> على <bdi>GitHub</bdi>: <bdi>github.com/ep3mhb/resonik-ats-mini/issues</bdi>. ويُرجى ذكر:</p>
   <ol class="steps">
     <li>طراز الراديو (<bdi>V3</bdi> أو <bdi>V4</bdi> أو <bdi>V4B</bdi>)</li>
@@ -709,14 +715,14 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
   <table>
     <tr><th style="width:36%">المشكلة</th><th>الحل</th></tr>
     <tr><td>يقفز المقبض خطوات، أو يحتاج إلى نقرتين لخطوة واحدة</td><td><span class="ui"><bdi>Menu</bdi> ← <bdi>System</bdi> ← <bdi>Knob</bdi></span>: القيمة الأخرى (<bdi>20</bdi> أو <bdi>30</bdi> نقرة)</td></tr>
-    <tr><td>تُظهر الساعة <bdi>--:--</bdi></td><td>القسم ٧: نمط <bdi>Wi-Fi</bdi> ‏<bdi>Sync Only</bdi>، أو اضبطها يدويًا</td></tr>
+    <tr><td>تُظهر الساعة <bdi>--:--</bdi></td><td>القسم 7: نمط <bdi>Wi-Fi</bdi> ‏<bdi>Sync Only</bdi>، أو اضبطها يدويًا</td></tr>
     <tr><td>لا يظهر اسم المنارة</td><td>يجب أن تكون الساعة مضبوطة وصحيحة، وألّا يكون <bdi>Beacons</bdi> على <bdi>Off</bdi></td></tr>
     <tr><td>زر <bdi>Install</bdi> لا يُظهر منفذًا</td><td>جرّب كابل <bdi>USB</bdi> آخر (كابل بيانات)؛ و<bdi>Chrome</bdi> أو <bdi>Edge</bdi> على حاسوب</td></tr>
     <tr><td>تريد القائمة القديمة</td><td><span class="ui"><bdi>Menu</bdi> ← <bdi>Display</bdi> ← <bdi>Menu Style</bdi> ← <bdi>Classic</bdi></span></td></tr>
     <tr><td>جدول <bdi>EiBi</bdi> لا يُظهر الأيام</td><td>حمّل <bdi>EiBi</bdi> مرة أخرى</td></tr>
     <tr><td>صفحة <bdi>FT8</bdi> أو <bdi>CW</bdi> أو <bdi>Digital</bdi>: <bdi>No audio</bdi>، أو <bdi>In 0</bdi></td><td>هذه الصفحات تحتاج إلى اللوحة <bdi>V4B</bdi> (صفحة <bdi>Hardware</bdi> في الموقع)، ونزع السمّاعات</td></tr>
-    <tr><td>مفكّك ترميز يُظهر <bdi>No signal</bdi></td><td>لا يُستقبل شيء هناك: جرّب إشارات القسم ٢٦، و<bdi>FT8</bdi> أولًا</td></tr>
-    <tr><td>أعاد الراديو تشغيل نفسه</td><td>دوّن <b><bdi>Last restart</bdi></b> في صفحة الويب <bdi>Status</bdi> (القسم ٢٧)</td></tr>
+    <tr><td>مفكّك ترميز يُظهر <bdi>No signal</bdi></td><td>لا يُستقبل شيء هناك: جرّب إشارات القسم 26، و<bdi>FT8</bdi> أولًا</td></tr>
+    <tr><td>أعاد الراديو تشغيل نفسه</td><td>دوّن <b><bdi>Last restart</bdi></b> في صفحة الويب <bdi>Status</bdi> (القسم 27)</td></tr>
     <tr><td><bdi>FT8</bdi> لا يفكّ شيئًا</td><td>جرّب نطاقًا آخر (<bdi>20</bdi> أو <bdi>10&nbsp;m</bdi> نهارًا، و<bdi>40&nbsp;m</bdi> ليلًا)؛ وخذ الراديو إلى نافذة وانزع الشاحن</td></tr>
     <tr><td>صفحة الويب للراديو لا تُفتح</td><td>العنوان في أعلى <span class="ui"><bdi>Menu</bdi> ← <bdi>System</bdi> ← <bdi>Wi-Fi</bdi></span>؛ ويجب أن يكون الهاتف أو الحاسوب على الشبكة نفسها</td></tr>
   </table>
@@ -731,37 +737,37 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
   <h3>ترتيب جيد لتعلّمها</h3>
   <table>
     <tr><th style="width:7%">الخطوة</th><th style="width:22%">النمط</th><th>لماذا بهذا الترتيب</th></tr>
-    <tr><td>١</td><td><bdi>FT8</bdi></td><td>يبثّ على كل نطاق مفتوح، ليلًا ونهارًا. إن فكّ الترميز، فالراديو والهوائي ومفكّك الترميز تعمل كلّها.</td></tr>
-    <tr><td>٢</td><td>منارات <bdi>CW</bdi></td><td>ترسل المنارات على <bdi>14100&nbsp;kHz</bdi> إشارات ندائها وفق جدول ثابت، فتعرف ما يجب أن يكتبه مفكّك الترميز.</td></tr>
-    <tr><td>٣</td><td><bdi>RTTY DWD</bdi></td><td>يبثّ ليلًا ونهارًا، بالنوع نفسه من النشرات في كل مرة.</td></tr>
-    <tr><td>٤</td><td><bdi>NAVTEX</bdi></td><td>عشر دقائق كل أربع ساعات: الجدول يقول متى.</td></tr>
-    <tr><td>٥</td><td><bdi>WEFAX</bdi></td><td>صورة تتكوّن سطرًا بعد سطر: تحتاج إلى إشارة ثابتة وصبر.</td></tr>
-    <tr><td>٦</td><td><bdi>PSK31</bdi> و<bdi>RTTY</bdi> الهواة</td><td>أناس يكتبون باليد: محطات أقلّ، غالبًا مساءً وفي نهاية الأسبوع وفي المسابقات.</td></tr>
+    <tr><td>1</td><td><bdi>FT8</bdi></td><td>يبثّ على كل نطاق مفتوح، ليلًا ونهارًا. إن فكّ الترميز، فالراديو والهوائي ومفكّك الترميز تعمل كلّها.</td></tr>
+    <tr><td>2</td><td>منارات <bdi>CW</bdi></td><td>ترسل المنارات على <bdi>14100&nbsp;kHz</bdi> إشارات ندائها وفق جدول ثابت، فتعرف ما يجب أن يكتبه مفكّك الترميز.</td></tr>
+    <tr><td>3</td><td><bdi>RTTY DWD</bdi></td><td>يبثّ ليلًا ونهارًا، بالنوع نفسه من النشرات في كل مرة.</td></tr>
+    <tr><td>4</td><td><bdi>NAVTEX</bdi></td><td>عشر دقائق كل أربع ساعات: الجدول يقول متى.</td></tr>
+    <tr><td>5</td><td><bdi>WEFAX</bdi></td><td>صورة تتكوّن سطرًا بعد سطر: تحتاج إلى إشارة ثابتة وصبر.</td></tr>
+    <tr><td>6</td><td><bdi>PSK31</bdi> و<bdi>RTTY</bdi> الهواة</td><td>أناس يكتبون باليد: محطات أقلّ، غالبًا مساءً وفي نهاية الأسبوع وفي المسابقات.</td></tr>
   </table>
   <div class="note">كل نمط أسهل مع بضعة أمتار من السلك على الهوائي، بجانب نافذة، وعلى البطارية، بعيدًا عن الشواحن ومصابيح <bdi>LED</bdi>. والإشارة التي لا تُفكّ تكون في الغالب أضعف من اللازم، لا موالَفة خطأً.</div>
 </section>
 
 <section class="chapter cont">
-  <h2><span class="num">أ-١</span>الأساسيات</h2>
+  <h2><span class="num">أ-1</span>الأساسيات</h2>
   <p><b>ما النمط الرقمي.</b> تحوّل المحطة المرسِلة النص، أو الصورة، إلى نغمات ضمن مدى الصوت البشري وترسلها على تردد لاسلكي. ويستقبلها الراديو بنمط <bdi>USB</bdi> صوتًا، ويعيد مفكّك الترميز الصوت نصًّا. ويقرأ مفكّك الترميز إشارات أضعف بكثير، أو أسرع بكثير، من أن تقرأها الأذن.</p>
   <p><b>تردد الراديو والنغمة.</b> في نمط <bdi>USB</bdi> يحوّل الراديو ما يقع فوق تردده مباشرة إلى صوت: الإشارة التي تعلو تردده بـ <bdi>1500&nbsp;Hz</bdi> تُسمع نغمةً ترددها <bdi>1500&nbsp;Hz</bdi>. والِف الراديو أعلى بـ <bdi>100&nbsp;Hz</bdi> فتنخفض النغمة <bdi>100&nbsp;Hz</bdi>. لذلك يتلازم رقمان: التردد الذي عليه الراديو (<bdi>kHz</bdi>، في رأس الصفحة) والنغمة التي وجدها مفكّك الترميز (<bdi>Hz</bdi>، بالأخضر).</p>
   <p><b>لماذا توالف أدنى من التردد المنشور.</b> تعطي قوائم المحطات تردد الإشارة نفسها. ولتُسمع نغماتها في وسط الصوت، حول <bdi>1500&nbsp;Hz</bdi>، يُوالَف الراديو أدنى منها بهذا المقدار: أدنى بـ <bdi>1.5&nbsp;kHz</bdi> لـ <bdi>RTTY DWD</bdi>، وبـ <bdi>1.9&nbsp;kHz</bdi> لـ <bdi>WEFAX</bdi> التي تتمركز نغماتها حول <bdi>1900&nbsp;Hz</bdi>. وتوالف الصفحاتُ <bdi>NAVTEX</bdi> و<bdi>FT8</bdi> و<bdi>FT4</bdi> بنفسها؛ ولـ <bdi>FT8</bdi> و<bdi>FT4</bdi> يكون التردد المنشور هو الذي يُضبط عليه الراديو، وتنتشر المحطات على الـ <bdi>3&nbsp;kHz</bdi> فوقه.</p>
-  <p><b>السرعة والإزاحة.</b> البود (<bdi>baud</bdi>) هو عدد الرموز التي ترسلها المحطة في الثانية؛ وفي <bdi>RTTY</bdi> و<bdi>NAVTEX</bdi> يكون الرمز بتًّا واحدًا. والإزاحة (<bdi>shift</bdi>) هي المسافة بين نغمتَي <bdi>RTTY</bdi> و<bdi>NAVTEX</bdi>. وكلما كان النمط أبطأ، أوصل إشارات أضعف: يحتاج <bdi>FT8</bdi> إلى ١٣ ثانية لرسالة قصيرة واحدة، ويقرأ إشارات لا تستطيع أن تسمعها.</p>
+  <p><b>السرعة والإزاحة.</b> البود (<bdi>baud</bdi>) هو عدد الرموز التي ترسلها المحطة في الثانية؛ وفي <bdi>RTTY</bdi> و<bdi>NAVTEX</bdi> يكون الرمز بتًّا واحدًا. والإزاحة (<bdi>shift</bdi>) هي المسافة بين نغمتَي <bdi>RTTY</bdi> و<bdi>NAVTEX</bdi>. وكلما كان النمط أبطأ، أوصل إشارات أضعف: يحتاج <bdi>FT8</bdi> إلى 13 ثانية لرسالة قصيرة واحدة، ويقرأ إشارات لا تستطيع أن تسمعها.</p>
   <p><b>الطيف والشلال.</b> يُظهر الطيف في صفحة <bdi>Digital</bdi> على الراديو قوة كل نغمة في هذه اللحظة. ويضيف الشلال، في صفحة <bdi>FT8</bdi> وفي تبويب <bdi>Decodes</bdi>، الزمنَ: كل سطر لحظة، والأحدث في الأعلى، فترسم كل إشارة أثرًا. وعرض الأثر هو مقدار ما تشغله الإشارة من النطاق؛ ويدلّ شكله على طريقة إرسالها.</p>
   <p><b>نسبة الإشارة إلى الضوضاء بالديسيبل.</b> يعطي <bdi>FT8</bdi> و<bdi>FT4</bdi> كل رسالة رقمًا مثل <bdi>−12</bdi>: مقدار ما تعلو الإشارة فوق الضوضاء، بالديسيبل (<bdi>dB</bdi>)، والضوضاء مقيسة على عرض <bdi>2500&nbsp;Hz</bdi>. و<bdi>0&nbsp;dB</bdi> تعني أنها بقوة كل تلك الضوضاء؛ و<bdi>−20&nbsp;dB</bdi> جزء من مئة منها، وما زالت تُفكّ. وكل <bdi>3&nbsp;dB</bdi> تضاعف القدرة، و<bdi>10&nbsp;dB</bdi> عشرة أضعاف.</p>
-  <p><b><bdi>UTC</bdi>.</b> تستعمل المحطات وجداول المواعيد ومفكّكات الترميز التوقيت العالمي المنسّق. ويُظهره الراديو بجانب الوقت المحلي (القسم ٧). و<bdi>UTC</bdi> متأخّر أربع ساعات عن توقيت الإمارات، وثلاث ساعات ونصفًا عن توقيت إيران.</p>
+  <p><b><bdi>UTC</bdi>.</b> تستعمل المحطات وجداول المواعيد ومفكّكات الترميز التوقيت العالمي المنسّق. ويُظهره الراديو بجانب الوقت المحلي (القسم 7). و<bdi>UTC</bdi> متأخّر أربع ساعات عن توقيت الإمارات، وثلاث ساعات ونصفًا عن توقيت إيران.</p>
   <p><b>مربّعات الموقع.</b> مربّع الموقع (<bdi>locator</bdi>) مثل <bdi>LL75</bdi> يسمّي مربّعًا على الخريطة، درجتان طولًا في درجة واحدة عرضًا؛ و<bdi>LL75</bdi> يغطّي دبي. وتحمل رسائل <bdi>FT8</bdi> مربّعات من أربعة محارف، ويضعها تبويب <bdi>Decodes</bdi> على خريطته. اكتب مربّعك في <b><bdi>My locator</bdi></b> لترى المسافات.</p>
 </section>
 
 <section class="chapter cont">
-  <h2><span class="num">أ-٢</span><bdi>FT8</bdi> و<bdi>FT4</bdi></h2>
+  <h2><span class="num">أ-2</span><bdi>FT8</bdi> و<bdi>FT4</bdi></h2>
   <div class="pair">
-    <figure><img class="wf" src="../manual-fa/img/wf-ft8.jpg" alt=""><figcaption><bdi>FT8</bdi>، دقيقة واحدة (محاكاة): تتناوب محطات الفترتين كل ١٥ ثانية</figcaption></figure>
+    <figure><img class="wf" src="../manual-fa/img/wf-ft8.jpg" alt=""><figcaption><bdi>FT8</bdi>، دقيقة واحدة (محاكاة): تتناوب محطات الفترتين كل 15 ثانية</figcaption></figure>
     <figure><img class="wf" src="../manual-fa/img/wf-ft4.jpg" alt=""><figcaption><bdi>FT4</bdi>، نصف دقيقة (محاكاة): كتل أعرض، كل <bdi>7.5</bdi> ثانية</figcaption></figure>
   </div>
-  <p><b>ما هو.</b> أكثر الأنماط الرقمية استعمالًا على نطاقات الهواة، من برنامج <bdi>WSJT-X</bdi> لجو تايلور (<bdi>K1JT</bdi>) وزملائه (<bdi>FT8</bdi> في ٢٠١٧، و<bdi>FT4</bdi> في ٢٠١٩). تتناوب المحطات حسب الساعة: يرسل <bdi>FT8</bdi> مدة <bdi>12.6</bdi> ثانية في كل فترة من ١٥ ثانية، و<bdi>FT4</bdi> مدة ٥ ثوانٍ في كل <bdi>7.5</bdi>. والاتصال تبادل قصير ثابت لإشارات النداء ومربّع الموقع وتقارير الإشارة، فيمرّ بإشارات ضعيفة جدًا: <bdi>FT8</bdi> حتى نحو <bdi>−21&nbsp;dB</bdi>، و<bdi>FT4</bdi> يحتاج إلى إشارة أقوى بنحو <bdi>3&nbsp;dB</bdi>.</p>
+  <p><b>ما هو.</b> أكثر الأنماط الرقمية استعمالًا على نطاقات الهواة، من برنامج <bdi>WSJT-X</bdi> لجو تايلور (<bdi>K1JT</bdi>) وزملائه (<bdi>FT8</bdi> في 2017، و<bdi>FT4</bdi> في 2019). تتناوب المحطات حسب الساعة: يرسل <bdi>FT8</bdi> مدة <bdi>12.6</bdi> ثانية في كل فترة من 15 ثانية، و<bdi>FT4</bdi> مدة 5 ثوانٍ في كل <bdi>7.5</bdi>. والاتصال تبادل قصير ثابت لإشارات النداء ومربّع الموقع وتقارير الإشارة، فيمرّ بإشارات ضعيفة جدًا: <bdi>FT8</bdi> حتى نحو <bdi>−21&nbsp;dB</bdi>، و<bdi>FT4</bdi> يحتاج إلى إشارة أقوى بنحو <bdi>3&nbsp;dB</bdi>.</p>
   <p><b>كيف يبدو.</b> كتل عرضها نحو <bdi>50&nbsp;Hz</bdi> (و<bdi>FT4</bdi>: نحو <bdi>80&nbsp;Hz</bdi>)، وطولها طول الإرسال، في صفّ عند كل فترة. والمحطات التي تنادي في الفترة الأخرى تملأ الفراغات بين الصفوف.</p>
-  <p><b>كيف توالفه.</b> لا شيء لتوالفه: تنتقل صفحة <bdi>FT8/FT4</bdi> (القسم ١٦) إلى تردد <bdi>FT8</bdi> أو <bdi>FT4</bdi> في النطاق، وتُفكّ كل إشارة في الـ <bdi>3&nbsp;kHz</bdi> فوقه دفعة واحدة. اختر <bdi>20&nbsp;m</bdi> أو <bdi>15&nbsp;m</bdi> نهارًا، و<bdi>40&nbsp;m</bdi> أو <bdi>80&nbsp;m</bdi> ليلًا.</p>
+  <p><b>كيف توالفه.</b> لا شيء لتوالفه: تنتقل صفحة <bdi>FT8/FT4</bdi> (القسم 16) إلى تردد <bdi>FT8</bdi> أو <bdi>FT4</bdi> في النطاق، وتُفكّ كل إشارة في الـ <bdi>3&nbsp;kHz</bdi> فوقه دفعة واحدة. اختر <bdi>20&nbsp;m</bdi> أو <bdi>15&nbsp;m</bdi> نهارًا، و<bdi>40&nbsp;m</bdi> أو <bdi>80&nbsp;m</bdi> ليلًا.</p>
   <p><b>كيف تقرؤه.</b> يُدرج الراديو كل رسالة مع قيمتها بالـ <bdi>dB</bdi> ونغمتها (<bdi>Hz</bdi>) ونصّها؛ ويضيف تبويب <bdi>Decodes</bdi> البلد والخريطة. وهذا اتصال كامل، بالترتيب الذي يجري به:</p>
   <table class="msg">
     <tr><th>ما يكتبه مفكّك الترميز</th><th>معناه</th></tr>
@@ -785,7 +791,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 </section>
 
 <section class="chapter cont">
-  <h2><span class="num">أ-٣</span><bdi>CW</bdi></h2>
+  <h2><span class="num">أ-3</span><bdi>CW</bdi></h2>
   <div class="side">
     <div>
       <p><b>ما هو.</b> شفرة مورس: أقدم طريقة لإرسال النص لاسلكيًا، وما زال الهواة يستعملونها كل يوم، وفي المسابقات، وفي المنارات. تُقطع نغمة وتوصل نقاطًا وشرطات. وتُقاس السرعة بالكلمات في الدقيقة (<bdi>WPM</bdi>)؛ وعند <bdi>20&nbsp;WPM</bdi> تدوم النقطة <bdi>60&nbsp;ms</bdi> (<bdi>1200</bdi> مقسومة على <bdi>WPM</bdi>).</p>
@@ -793,21 +799,21 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
     </div>
     <figure class="wf"><img class="wf" src="../manual-fa/img/wf-cw.jpg" alt=""><figcaption><bdi>CW</bdi>، ثماني ثوانٍ (محاكاة): ثلاث محطات بسرعات <bdi>18</bdi> و<bdi>28</bdi> و<bdi>12&nbsp;WPM</bdi></figcaption></figure>
   </div>
-  <p><b>كيف توالفه.</b> بنمط <bdi>CW</bdi>، والإشارة في وسط مرشّح <bdi>CW</bdi>. وتتبع صفحة مفكّك ترميز <bdi>CW</bdi> (القسم ١٧) السرعات من <bdi>5</bdi> إلى <bdi>40&nbsp;WPM</bdi> وتُظهر السرعة.</p>
+  <p><b>كيف توالفه.</b> بنمط <bdi>CW</bdi>، والإشارة في وسط مرشّح <bdi>CW</bdi>. وتتبع صفحة مفكّك ترميز <bdi>CW</bdi> (القسم 17) السرعات من <bdi>5</bdi> إلى <bdi>40&nbsp;WPM</bdi> وتُظهر السرعة.</p>
   <p><b>كيف تقرؤه.</b> <bdi>CW</bdi> مليء بالاختصارات:</p>
   <table class="msg">
     <tr><th>ما يكتبه مفكّك الترميز</th><th>معناه</th></tr>
     <tr><td>CQ CQ DE K1ABC K1ABC K</td><td>نداء لأيّ محطة (<bdi>CQ</bdi>) من (<bdi>DE</bdi>) <bdi>K1ABC</bdi>؛ حوّل (<bdi>K</bdi>).</td></tr>
     <tr><td>K1ABC DE G4XYZ G4XYZ K</td><td>يجيب <bdi>G4XYZ</bdi>.</td></tr>
-    <tr><td>GE UR RST 579 NAME JOE</td><td>مساء الخير؛ تقريرك <bdi>579</bdi>: الوضوح ٥ من ٥، والقوة ٧ من ٩، والنغمة ٩ من ٩؛ اسمي جو.</td></tr>
+    <tr><td>GE UR RST 579 NAME JOE</td><td>مساء الخير؛ تقريرك <bdi>579</bdi>: الوضوح 5 من 5، والقوة 7 من 9، والنغمة 9 من 9؛ اسمي جو.</td></tr>
     <tr><td>QTH LONDON</td><td>موقعي لندن.</td></tr>
-    <tr><td>TU 5NN 14</td><td>تبادل في مسابقة: شكرًا، <bdi>599</bdi> (<bdi>N</bdi> تعني ٩)، المنطقة ١٤.</td></tr>
+    <tr><td>TU 5NN 14</td><td>تبادل في مسابقة: شكرًا، <bdi>599</bdi> (<bdi>N</bdi> تعني 9)، المنطقة 14.</td></tr>
     <tr><td>73 SK</td><td>أطيب التحيات؛ نهاية الاتصال.</td></tr>
   </table>
   <p>اختصارات أخرى: <bdi>TNX</bdi> شكرًا، <bdi>FER</bdi> لأجل، <bdi>PSE</bdi> من فضلك، <bdi>R</bdi> استُلم، <bdi>AGN</bdi> مرة أخرى، <bdi>KN</bdi> حوّل إلى المحطة المُنادى عليها فقط، <bdi>AR</bdi> نهاية الرسالة. ويكتب مفكّك الترميز <bdi>*</bdi> مكان الحرف الذي لا يستطيع قراءته.</p>
   <div class="ex"><b class="t">تمرين</b>
     <ol>
-      <li>والِف <bdi>14100&nbsp;kHz</bdi> بنمط <bdi>CW</bdi> وافتح مفكّك ترميز <bdi>CW</bdi>. تتناوب المنارات هناك (القسم ١٠) كل عشر ثوانٍ؛ وترسل كلّ منها إشارة ندائها، ثم أربع شرطات طويلة، كلّ منها أضعف بعشر مرات من التي قبلها.</li>
+      <li>والِف <bdi>14100&nbsp;kHz</bdi> بنمط <bdi>CW</bdi> وافتح مفكّك ترميز <bdi>CW</bdi>. تتناوب المنارات هناك (القسم 10) كل عشر ثوانٍ؛ وترسل كلّ منها إشارة ندائها، ثم أربع شرطات طويلة، كلّ منها أضعف بعشر مرات من التي قبلها.</li>
       <li>دوّن ثلاث إشارات نداء يُظهرها مفكّك الترميز وقارنها بأسماء المنارات في سطر المحطة على الراديو.</li>
       <li>عُدّ الشرطات التي تسمعها: سماع الأربع كلها يعني أن المسار مفتوح حتى بعُشر واط.</li>
       <li>مساءً، والِف أسفل نطاق <bdi>40&nbsp;m</bdi> (من <bdi>7000</bdi> إلى <bdi>7040&nbsp;kHz</bdi>)، وجد نداء <bdi>CQ</bdi> واقرأ إشارة النداء والسرعة.</li>
@@ -818,7 +824,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 </section>
 
 <section class="chapter cont">
-  <h2><span class="num">أ-٤</span><bdi>RTTY</bdi></h2>
+  <h2><span class="num">أ-4</span><bdi>RTTY</bdi></h2>
   <div class="side">
     <div>
       <p><b>ما هو.</b> الطباعة اللاسلكية عن بُعد (<bdi>Radioteletype</bdi>): شفرة المبرقات الكاتبة في القرن الماضي، <bdi>ITA2</bdi> (وتُسمّى غالبًا شفرة بودو <bdi>Baudot</bdi>)، مرسلة بنغمتين. كل حرف خمس بتّات بين بتّ بداية وبتّات توقّف؛ ويرسل الهواة <bdi>45.45</bdi> بتًّا في الثانية والنغمتان متباعدتان <bdi>170&nbsp;Hz</bdi>، أي نحو ستة أحرف في الثانية. واليوم يُسمع غالبًا في المسابقات، حين تعمل محطات كثيرة في وقت واحد.</p>
@@ -826,14 +832,14 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
     </div>
     <figure class="wf"><img class="wf" src="../manual-fa/img/wf-rtty.jpg" alt=""><figcaption><bdi>RTTY</bdi>، ثماني ثوانٍ (محاكاة): محطة تنادي، وأخرى أضعف</figcaption></figure>
   </div>
-  <p><b>كيف توالفه.</b> أدِر المقبض ببطء عبر جزء <bdi>RTTY</bdi> من النطاق، من <bdi>14080</bdi> إلى <bdi>14099&nbsp;kHz</bdi> على <bdi>20&nbsp;m</bdi>، حتى تستقرّ قمّتان على الخطّين الأحمرين في الصفحة (القسم ٢٤). ويقرأ مفكّك الترميز المحطات العادية والمعكوسة على السواء.</p>
+  <p><b>كيف توالفه.</b> أدِر المقبض ببطء عبر جزء <bdi>RTTY</bdi> من النطاق، من <bdi>14080</bdi> إلى <bdi>14099&nbsp;kHz</bdi> على <bdi>20&nbsp;m</bdi>، حتى تستقرّ قمّتان على الخطّين الأحمرين في الصفحة (القسم 24). ويقرأ مفكّك الترميز المحطات العادية والمعكوسة على السواء.</p>
   <p><b>كيف تقرؤه.</b> في <bdi>ITA2</bdi> حروف كبيرة فقط، والأرقام تتشارك رموزها مع الحروف: ويُنتقل بينهما بمحرف «حروف» أو محرف «أرقام». وحين يضيع هذا الانتقال، تخرج الأرقام بصورة حروف الصف العلوي من لوحة المفاتيح: يُقرأ <bdi>599</bdi> على أنه <bdi>TOO</bdi>، لأن <bdi>5</bdi> و<bdi>T</bdi>، و<bdi>9</bdi> و<bdi>O</bdi>، يتشاركان رمزًا (<bdi>1</bdi> هو <bdi>Q</bdi>، و<bdi>2</bdi> هو <bdi>W</bdi>، و<bdi>3</bdi> هو <bdi>E</bdi>، وهكذا حتى <bdi>0</bdi> وهو <bdi>P</bdi>). وبعد المسافة يعود مفكّك الترميز إلى الحروف، كما تتوقّع معظم المحطات. اتصال في مسابقة:</p>
   <table class="msg">
     <tr><th>ما يكتبه مفكّك الترميز</th><th>معناه</th></tr>
     <tr><td>CQ TEST K1ABC K1ABC</td><td>ينادي <bdi>K1ABC</bdi> في مسابقة.</td></tr>
     <tr><td>K1ABC G4XYZ</td><td>يجيب <bdi>G4XYZ</bdi>.</td></tr>
-    <tr><td>G4XYZ 599 05 05</td><td><bdi>K1ABC</bdi>: التقرير <bdi>599</bdi>، ومنطقته، ٥، مرسلة مرتين.</td></tr>
-    <tr><td>K1ABC TU 599 14 14</td><td><bdi>G4XYZ</bdi>: شكرًا، <bdi>599</bdi>، المنطقة ١٤.</td></tr>
+    <tr><td>G4XYZ 599 05 05</td><td><bdi>K1ABC</bdi>: التقرير <bdi>599</bdi>، ومنطقته، 5، مرسلة مرتين.</td></tr>
+    <tr><td>K1ABC TU 599 14 14</td><td><bdi>G4XYZ</bdi>: شكرًا، <bdi>599</bdi>، المنطقة 14.</td></tr>
     <tr><td>TU K1ABC TEST</td><td><bdi>K1ABC</bdi>: شكرًا، ثم ينادي من جديد.</td></tr>
   </table>
   <div class="ex"><b class="t">تمرين</b>
@@ -847,10 +853,10 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 </section>
 
 <section class="chapter cont">
-  <h2><span class="num">أ-٥</span><bdi>RTTY DWD</bdi>: الطقس للسفن</h2>
+  <h2><span class="num">أ-5</span><bdi>RTTY DWD</bdi>: الطقس للسفن</h2>
   <div class="side">
     <div>
-      <p><b>ما هو.</b> ترسل هيئة الأرصاد الجوية الألمانية (<bdi>Deutscher Wetterdienst</bdi>، <bdi>DWD</bdi>) نشرات الطقس للسفن بـ <bdi>RTTY</bdi> من بينيبرغ (<bdi>Pinneberg</bdi>) قرب هامبورغ، ليلًا ونهارًا: ٥٠ بود والنغمتان متباعدتان <bdi>450&nbsp;Hz</bdi>، على <bdi>4583</bdi> و<bdi>7646</bdi> و<bdi>10100.8&nbsp;kHz</bdi>، بالإنجليزية غالبًا. وهو بثّ: لا أحد يجيب، والأنواع نفسها من النشرات تأتي في أوقات ثابتة.</p>
+      <p><b>ما هو.</b> ترسل هيئة الأرصاد الجوية الألمانية (<bdi>Deutscher Wetterdienst</bdi>، <bdi>DWD</bdi>) نشرات الطقس للسفن بـ <bdi>RTTY</bdi> من بينيبرغ (<bdi>Pinneberg</bdi>) قرب هامبورغ، ليلًا ونهارًا: 50 بود والنغمتان متباعدتان <bdi>450&nbsp;Hz</bdi>، على <bdi>4583</bdi> و<bdi>7646</bdi> و<bdi>10100.8&nbsp;kHz</bdi>، بالإنجليزية غالبًا. وهو بثّ: لا أحد يجيب، والأنواع نفسها من النشرات تأتي في أوقات ثابتة.</p>
       <p><b>كيف يبدو.</b> خطّان ثابتان بينهما <bdi>450&nbsp;Hz</bdi>. وبين النشرات ترسل المحطة <bdi>RYRYRY</bdi>: الحرفان <bdi>R</bdi> و<bdi>Y</bdi> نمطان متعاكسان من البتّات، لاختبار الوصلة.</p>
     </div>
     <figure class="wf"><img class="wf" src="../manual-fa/img/wf-dwd.jpg" alt=""><figcaption><bdi>RTTY DWD</bdi>، ثماني ثوانٍ (محاكاة): <bdi>RYRYRY</bdi>، ثم ترويسة</figcaption></figure>
@@ -860,9 +866,9 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
   <table class="msg">
     <tr><th>ما يكتبه مفكّك الترميز</th><th>معناه</th></tr>
     <tr><td>RYRYRYRYRYRY</td><td>بين النشرات: مفكّك الترميز متزامن مع الإشارة.</td></tr>
-    <tr><td>FQEN70 EDZW 221100</td><td>الترويسة. <bdi>FQEN70</bdi> هي النشرة (في جدول مواعيد <bdi>DWD</bdi>، تقرير الطقس لبحر الشمال وبحر البلطيق)؛ و<bdi>EDZW</bdi> هي هيئة الأرصاد الألمانية؛ و<bdi>221100</bdi> تعني اليوم ٢٢ من الشهر عند الساعة <bdi>11:00 UTC</bdi>.</td></tr>
+    <tr><td>FQEN70 EDZW 221100</td><td>الترويسة. <bdi>FQEN70</bdi> هي النشرة (في جدول مواعيد <bdi>DWD</bdi>، تقرير الطقس لبحر الشمال وبحر البلطيق)؛ و<bdi>EDZW</bdi> هي هيئة الأرصاد الألمانية؛ و<bdi>221100</bdi> تعني اليوم 22 من الشهر عند الساعة <bdi>11:00 UTC</bdi>.</td></tr>
     <tr><td>GERMAN BIGHT</td><td>منطقة بحرية (الخليج الألماني).</td></tr>
-    <tr><td>SW 5, LATER W 6</td><td>رياح جنوبية غربية بقوة ٥ على مقياس بوفورت، ثم غربية بقوة ٦. القوة ٥ من ١٧ إلى ٢١ عقدة، والقوة ٦ من ٢٢ إلى ٢٧.</td></tr>
+    <tr><td>SW 5, LATER W 6</td><td>رياح جنوبية غربية بقوة 5 على مقياس بوفورت، ثم غربية بقوة 6. القوة 5 من 17 إلى 21 عقدة، والقوة 6 من 22 إلى 27.</td></tr>
     <tr><td>SEA 2 M, VIS GOOD</td><td>أمواج بارتفاع نحو مترين؛ ورؤية جيدة.</td></tr>
   </table>
   <p>تنشر <bdi>DWD</bdi> جدول مواعيد نشراتها على موقعها (<bdi>dwd.de</bdi>، في قسم الملاحة البحرية)؛ ومن بينها تقرير لشرق البحر المتوسط، بالإنجليزية.</p>
@@ -877,20 +883,20 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 </section>
 
 <section class="chapter cont">
-  <h2><span class="num">أ-٦</span><bdi>NAVTEX</bdi></h2>
+  <h2><span class="num">أ-6</span><bdi>NAVTEX</bdi></h2>
   <div class="side">
     <div>
-      <p><b>ما هو.</b> ترسل المحطات الساحلية رسائل السلامة للسفن: التحذيرات الملاحية، والطقس، والبحث والإنقاذ. وترسل كل محطة عشر دقائق كل أربع ساعات، في الدور الذي يعطيه لها حرفها: على <bdi>518&nbsp;kHz</bdi> بالإنجليزية، وعلى <bdi>490&nbsp;kHz</bdi> بلغة البلد نفسه، وعلى <bdi>4209.5&nbsp;kHz</bdi> على الموجات القصيرة. والإشارة <bdi>SITOR-B</bdi>: ١٠٠ بود، وإزاحة <bdi>170&nbsp;Hz</bdi>، وكل حرف يُرسل مرتين، فيستعمل مفكّك الترميز النسخة الثانية حين تفسد الأولى.</p>
+      <p><b>ما هو.</b> ترسل المحطات الساحلية رسائل السلامة للسفن: التحذيرات الملاحية، والطقس، والبحث والإنقاذ. وترسل كل محطة عشر دقائق كل أربع ساعات، في الدور الذي يعطيه لها حرفها: على <bdi>518&nbsp;kHz</bdi> بالإنجليزية، وعلى <bdi>490&nbsp;kHz</bdi> بلغة البلد نفسه، وعلى <bdi>4209.5&nbsp;kHz</bdi> على الموجات القصيرة. والإشارة <bdi>SITOR-B</bdi>: 100 بود، وإزاحة <bdi>170&nbsp;Hz</bdi>، وكل حرف يُرسل مرتين، فيستعمل مفكّك الترميز النسخة الثانية حين تفسد الأولى.</p>
       <p><b>كيف يبدو.</b> خطّان بينهما <bdi>170&nbsp;Hz</bdi>، مثل <bdi>RTTY</bdi> لكن أسرع. وتبدأ كل رسالة بعشر ثوانٍ على الأقل من المزامنة الطورية (<bdi>phasing</bdi>)، وهي نمط ثابت يتيح للمستقبل أن يقفل على الإشارة: <b><bdi>sync</bdi></b> في الصفحة.</p>
     </div>
     <figure class="wf"><img class="wf" src="../manual-fa/img/wf-navtex.jpg" alt=""><figcaption><bdi>NAVTEX</bdi>، ثماني ثوانٍ (محاكاة): المزامنة الطورية، ثم رسالة</figcaption></figure>
   </div>
-  <p><b>كيف توالفه.</b> لا شيء لتوالفه: انتقل إلى القناة بتدوير المقبض، أو باختيارها في تبويب <bdi>Decodes</bdi>. ويقول جدول المواعيد أيّ محطة هي التالية (القسم ٢٥).</p>
+  <p><b>كيف توالفه.</b> لا شيء لتوالفه: انتقل إلى القناة بتدوير المقبض، أو باختيارها في تبويب <bdi>Decodes</bdi>. ويقول جدول المواعيد أيّ محطة هي التالية (القسم 25).</p>
   <p><b>كيف تقرؤه.</b> لكل رسالة الإطار نفسه. مثال مختلَق:</p>
   <table class="msg">
     <tr><th>ما يكتبه مفكّك الترميز</th><th>معناه</th></tr>
     <tr><td>ZCZC FA12</td><td>بداية رسالة. <bdi>F</bdi>: حرف المحطة. <bdi>A</bdi>: الموضوع (أدناه). <bdi>12</bdi>: رقم الرسالة؛ والرقم <bdi>00</bdi> محجوز لأشدّ الرسائل إلحاحًا، التي يطبعها كل مستقبل.</td></tr>
-    <tr><td>221250 UTC NOV 26</td><td>وقت إصدارها: اليوم ٢٢ عند الساعة <bdi>12:50 UTC</bdi>، نوفمبر ٢٠٢٦.</td></tr>
+    <tr><td>221250 UTC NOV 26</td><td>وقت إصدارها: اليوم 22 عند الساعة <bdi>12:50 UTC</bdi>، نوفمبر 2026.</td></tr>
     <tr><td>NAV WARNING NR 112 …</td><td>نص الرسالة نفسه.</td></tr>
     <tr><td>NNNN</td><td>نهاية الرسالة.</td></tr>
   </table>
@@ -912,10 +918,10 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 </section>
 
 <section class="chapter cont">
-  <h2><span class="num">أ-٧</span><bdi>PSK31</bdi></h2>
+  <h2><span class="num">أ-7</span><bdi>PSK31</bdi></h2>
   <div class="side">
     <div>
-      <p><b>ما هو.</b> محادثات مكتوبة بين الهواة، من ابتكار بيتر مارتينيز (<bdi>G3PLX</bdi>) عام ١٩٩٨. يُقلب طور نغمة واحدة لإرسال البتّات، <bdi>31.25</bdi> بتًّا في الثانية. وهو ضيّق جدًا حتى إن عشرات المحطات تتّسع في الـ <bdi>3&nbsp;kHz</bdi> التي يسمعها الراديو. وللحروف رموز بأطوال مختلفة، أقصرها للحروف الشائعة؛ والحروف الصغيرة أقصر من الكبيرة، ولذلك يكتب معظم الناس بحروف صغيرة.</p>
+      <p><b>ما هو.</b> محادثات مكتوبة بين الهواة، من ابتكار بيتر مارتينيز (<bdi>G3PLX</bdi>) عام 1998. يُقلب طور نغمة واحدة لإرسال البتّات، <bdi>31.25</bdi> بتًّا في الثانية. وهو ضيّق جدًا حتى إن عشرات المحطات تتّسع في الـ <bdi>3&nbsp;kHz</bdi> التي يسمعها الراديو. وللحروف رموز بأطوال مختلفة، أقصرها للحروف الشائعة؛ والحروف الصغيرة أقصر من الكبيرة، ولذلك يكتب معظم الناس بحروف صغيرة.</p>
       <p><b>كيف يبدو.</b> خطّ رفيع. وحين تنتظر المحطة ترسل انقلابات طور ثابتة، تظهر خطّين بينهما <bdi>31&nbsp;Hz</bdi>؛ وحين تكتب يندمجان في خطّ واحد.</p>
     </div>
     <figure class="wf"><img class="wf" src="../manual-fa/img/wf-psk.jpg" alt=""><figcaption><bdi>PSK31</bdi>، ثماني ثوانٍ (محاكاة): محطة تكتب، وأخرى أضعف، وثالثة تنتظر (خطّان)</figcaption></figure>
@@ -940,20 +946,20 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 </section>
 
 <section class="chapter cont">
-  <h2><span class="num">أ-٨</span><bdi>WEFAX</bdi>: خرائط الطقس</h2>
+  <h2><span class="num">أ-8</span><bdi>WEFAX</bdi>: خرائط الطقس</h2>
   <div class="side">
     <div>
-      <p><b>ما هو.</b> خرائط طقس مرسلة صورًا (الفاكس اللاسلكي). ودرجة لون كل نقطة نغمةٌ بين <bdi>1500&nbsp;Hz</bdi> (أسود) و<bdi>2300&nbsp;Hz</bdi> (أبيض)، بمعدّل ١٢٠ سطرًا في الدقيقة، فتستغرق الخريطة من ١٠ إلى ٢٠ دقيقة. وترسلها هيئات الأرصاد للسفن وفق جدول مواعيد ثابت؛ وترسل محطة نورثوود (<bdi>Northwood</bdi>) قرب لندن على <bdi>4610</bdi> و<bdi>8040</bdi> و<bdi>11086.5&nbsp;kHz</bdi>.</p>
+      <p><b>ما هو.</b> خرائط طقس مرسلة صورًا (الفاكس اللاسلكي). ودرجة لون كل نقطة نغمةٌ بين <bdi>1500&nbsp;Hz</bdi> (أسود) و<bdi>2300&nbsp;Hz</bdi> (أبيض)، بمعدّل 120 سطرًا في الدقيقة، فتستغرق الخريطة من 10 إلى 20 دقيقة. وترسلها هيئات الأرصاد للسفن وفق جدول مواعيد ثابت؛ وترسل محطة نورثوود (<bdi>Northwood</bdi>) قرب لندن على <bdi>4610</bdi> و<bdi>8040</bdi> و<bdi>11086.5&nbsp;kHz</bdi>.</p>
       <p><b>كيف يبدو.</b> تبدأ الخريطة بنغمة بدء لبضع ثوانٍ (خطوط ساطعة على خطوات متساوية)، ثم خطوط المزامنة الطورية التي يجد بها مفكّك الترميز بداية كل سطر، ثم الصورة: شريط عريض من <bdi>1500</bdi> إلى <bdi>2300&nbsp;Hz</bdi>، أسطع ما يكون عند <bdi>2300&nbsp;Hz</bdi> حيث الورق أبيض.</p>
     </div>
-    <figure class="wf"><img class="wf" src="../manual-fa/img/wf-fax.jpg" alt=""><figcaption><bdi>WEFAX</bdi>، ٢٤ ثانية (محاكاة): نغمة البدء، والمزامنة الطورية، والخريطة</figcaption></figure>
+    <figure class="wf"><img class="wf" src="../manual-fa/img/wf-fax.jpg" alt=""><figcaption><bdi>WEFAX</bdi>، 24 ثانية (محاكاة): نغمة البدء، والمزامنة الطورية، والخريطة</figcaption></figure>
   </div>
   <p><b>كيف توالفه.</b> أدنى بـ <bdi>1.9&nbsp;kHz</bdi> من التردد المنشور: <bdi>8038.10&nbsp;kHz</bdi>، و<bdi>4608.10&nbsp;kHz</bdi> ليلًا، و<bdi>11084.60&nbsp;kHz</bdi> نهارًا.</p>
   <p><b>كيف تقرؤه.</b> تُرسم الصورة على الراديو، وبحجم أكبر في تبويب <bdi>Decodes</bdi>، حيث ينزّلها <b><bdi>Save picture</bdi></b>. وتُظهر خريطة السطح الضغطَ بخطوط (خطوط تساوي الضغط)، والمرتفعات (<bdi>H</bdi>) والمنخفضات (<bdi>L</bdi>) والجبهات، مع العنوان والوقت الذي تصحّ له (<bdi>UTC</bdi>) في إحدى الزوايا. وتُظهر خرائط أخرى توقّعات ليوم أو أكثر، أو ارتفاعات الأمواج، أو حرارة البحر. والصورة المائلة قليلًا تدلّ على أن الإشارة ما زالت تُقرأ.</p>
   <div class="ex"><b class="t">تمرين</b>
     <ol>
       <li>والِف <bdi>8038.10&nbsp;kHz</bdi> نهارًا (<bdi>4608.10&nbsp;kHz</bdi> ليلًا)، وافتح <bdi>WEFAX</bdi> على الراديو وتبويب <bdi>Decodes</bdi> في المتصفح.</li>
-      <li>انتظر نغمة البدء وخطوط المزامنة الطورية، ثم اترك الخريطة تتكوّن ١٥ دقيقة.</li>
+      <li>انتظر نغمة البدء وخطوط المزامنة الطورية، ثم اترك الخريطة تتكوّن 15 دقيقة.</li>
       <li>احفظ الصورة؛ وجد عنوانها ووقتها، ومرتفعًا واحدًا (<bdi>H</bdi>) ومنخفضًا واحدًا (<bdi>L</bdi>).</li>
     </ol>
     <p class="got">أتقنته حين تستطيع أن تقرأ عنوان الخريطة والوقت الذي تصحّ له.</p>
@@ -961,11 +967,11 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 </section>
 
 <section class="chapter cont" style="break-before:page;margin-top:0">
-  <h2><span class="num">أ-٩</span>المصطلحات المستعملة في هذا الملحق</h2>
+  <h2><span class="num">أ-9</span>المصطلحات المستعملة في هذا الملحق</h2>
   <div class="gl">
     <p><b><bdi>73</bdi></b> أطيب التحيات.</p>
     <p><b><bdi>Baud</bdi> (البود)</b> عدد الرموز المرسلة في الثانية؛ وفي <bdi>RTTY</bdi> و<bdi>NAVTEX</bdi> عدد البتّات في الثانية.</p>
-    <p><b><bdi>Beaufort</bdi> (بوفورت)</b> مقياس قوة الرياح في البحر، من ٠ إلى ١٢.</p>
+    <p><b><bdi>Beaufort</bdi> (بوفورت)</b> مقياس قوة الرياح في البحر، من 0 إلى 12.</p>
     <p><b><bdi>CQ</bdi></b> نداء لأيّ محطة.</p>
     <p><b><bdi>dB</bdi> (الديسيبل)</b> نسبة قدرة: <bdi>3&nbsp;dB</bdi> ضعفان، و<bdi>10&nbsp;dB</bdi> عشرة أضعاف، و<bdi>−20&nbsp;dB</bdi> جزء من مئة.</p>
     <p><b><bdi>DE</bdi></b> من.</p>
@@ -981,7 +987,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
     <p><b><bdi>RY</bdi></b> نمط اختبار <bdi>RTTY</bdi>.</p>
     <p><b><bdi>Shift</bdi> (الإزاحة)</b> المسافة بين النغمتين، بالـ <bdi>Hz</bdi>.</p>
     <p><b><bdi>SNR</bdi></b> نسبة الإشارة إلى الضوضاء، بالـ <bdi>dB</bdi>.</p>
-    <p><b><bdi>Slot, turn</bdi> (الفترة)</b> فترة واحدة من <bdi>FT8</bdi> (١٥ ثانية) أو <bdi>FT4</bdi> (<bdi>7.5</bdi> ثانية).</p>
+    <p><b><bdi>Slot, turn</bdi> (الفترة)</b> فترة واحدة من <bdi>FT8</bdi> (15 ثانية) أو <bdi>FT4</bdi> (<bdi>7.5</bdi> ثانية).</p>
     <p><b><bdi>Sync</bdi> (التزامن)</b> مفكّك الترميز مقفل على توقيت الإشارة.</p>
     <p><b><bdi>Tone frequency</bdi> (تردد النغمة)</b> موضع الإشارة في الصوت، بالـ <bdi>Hz</bdi>.</p>
     <p><b><bdi>USB</bdi></b> النطاق الجانبي العلوي: يحوّل الراديو ما يقع فوق تردده مباشرة إلى صوت.</p>
@@ -995,7 +1001,7 @@ table.subj td { font-size: 8.6pt; padding: 1.2mm 2mm; width: 25%; }
 
 <!-- 29 -->
 <section class="chapter">
-  <h2><span class="num">٢٩</span>المساهمون والترخيص</h2>
+  <h2><span class="num">29</span>المساهمون والترخيص</h2>
   <p>إصدار <bdi>RESONIK</bdi>: <bdi>EP2MHB</bdi> (محمد بحرالعلوم). مبنيّ على <bdi>ats-mini</bdi> من <bdi>PU2CLR (Ricardo Caratti)</bdi>، و<bdi>Volos Projects</bdi>، و<bdi>Ralph Xavier</bdi>، و<bdi>Sunnygold</bdi>، و<bdi>Goshante</bdi>، و<bdi>G8PTN (Dave)</bdi>، و<bdi>R9UCL (Max Arnold)</bdi>، و<bdi>Marat Fayzullin</bdi>، وجميع المساهمين. ويستعمل مفكّك ترميز <bdi>FT8</bdi> مكتبة <bdi>ft8_lib</bdi> من <bdi>Karlis Goba</bdi>، متّبعًا النسخة المتفرّعة <bdi>epiHATR</bdi>؛ وبعض الإصلاحات من النسختين المتفرّعتين <bdi>jokubasver</bdi> و<bdi>mattafaak</bdi>. والشفرة المصدرية على <bdi>GitHub</bdi> بترخيص <bdi>MIT</bdi>.</p>
   <p>قورن جدول محطات <bdi>NAVTEX</bdi> بقاعدة بيانات <bdi>World NAVTEX Database for DXers</bdi> من <bdi>Alan Gale, G4TMV</bdi> (<bdi>ndblist.info</bdi>)، وبصفحة <bdi>List of Navtex stations</bdi> في ويكيبيديا، وبملف المحطات في <bdi>fldigi</bdi>.</p>
   <p class="small"><bdi>RESONIK</bdi> غير مرتبط بصانعي أجهزة راديو <bdi>ATS Mini</bdi>. وتثبيت برنامج ثابت غير رسمي على مسؤوليتك؛ والنسخة الاحتياطية تتيح لك العودة. <b><bdi>73 de resonik.mikroutik.com</bdi></b></p>
