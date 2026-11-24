@@ -18,3 +18,4 @@ Arduino firmware for the ATS Mini ESP32-S3/SI4732 receiver.
 - Update documentation when user-facing behavior changes. Stay brief, use the existing writing style, avoid describing the implementation details.
 - Report validation performed and any behavior needing hardware testing.
 - RESONIK: commits are authored by ep3mhb alone; do not add Co-Authored-By or Claude-Session lines to commit messages or pull requests.
+- RESONIK: everything a reader sees comes in English, Persian and Arabic: the PDF manuals, the roadmap, the website sections. English is the source; Persian and Arabic are translated from it.

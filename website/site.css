@@ -84,6 +84,13 @@ nav a[lang="fa"] { font-family: "Vazirmatn", var(--sans); }
 .fa .steps { padding-left: 0; padding-right: 1.6rem; list-style: persian; }
 .fa bdi { font-family: var(--sans); }
 
+/* Arabic */
+nav a[lang="ar"] { font-family: "Vazirmatn", var(--sans); }
+.ar { font-family: "Vazirmatn", var(--sans); }
+.ar h2 { font-family: "Vazirmatn", var(--sans); }
+.ar .steps { padding-left: 0; padding-right: 1.6rem; }
+.ar bdi { font-family: var(--sans); white-space: nowrap; }
+
 footer { background: var(--black); color: #bdbcb7; padding: 2.2rem 0; font-size: .92rem; }
 footer a { color: #8cc4f5; }
 footer .hint { color: #8d8c88; }
